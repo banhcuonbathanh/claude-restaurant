@@ -1,0 +1,26 @@
+FROM golang:1.22-alpine AS builder
+WORKDIR /app
+
+# Install build dependencies
+RUN apk add --no-cache git
+
+# Copy module files from repo root (go.mod lives at root)
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy source
+COPY be/ ./be/
+
+# Build binary
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o server ./be/cmd/server/
+
+# --- runtime ---
+FROM alpine:3.20
+RUN apk add --no-cache ca-certificates tzdata
+WORKDIR /app
+
+COPY --from=builder /app/server .
+COPY be/migrations/ /migrations/
+
+EXPOSE 8080
+ENTRYPOINT ["./server"]

@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens — from MASTER_v1.2.docx §2
+   Use these CSS variables via Tailwind classes (bg-primary, text-success, etc.)
+   NEVER hardcode hex values in component files. */
+:root {
+  --color-primary:    #FF7A1A;
+  --color-background: #0A0F1E;
+  --color-card:       #1F2937;
+  --color-success:    #3DB870;
+  --color-warning:    #FCD34D;
+  --color-urgent:     #FC8181;
+}
+
+body {
+  background-color: var(--color-background);
+  color: #F9FAFB;
+  font-family: 'Be Vietnam Pro', sans-serif;
+}

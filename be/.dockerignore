@@ -1,0 +1,8 @@
+*.md
+*.sql
+*.yaml
+docs/
+fe/
+prompts/
+.git/
+.env*
