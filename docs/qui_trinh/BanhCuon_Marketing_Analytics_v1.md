@@ -9,11 +9,11 @@
 
 | Công Cụ | Mục Đích | Sprint Tích Hợp | Bắt Buộc? |
 |---|---|---|---|
-| Google Analytics 4 (GA4) | Theo dõi lưu lượng, hành vi, tỷ lệ đặt món | Sprint 5–6 (trước UAT) | BẮT BUỘC |
-| Google Tag Manager (GTM) | Quản lý tập trung tracking — không cần sửa code | Sprint 5 (cài sớm nhất) | BẮT BUỘC |
-| Google Search Console | Theo dõi SEO, indexing | Ngay sau Go-Live | KHUYẾN NGHỊ |
-| Facebook Pixel + CAPI | Tracking từ quảng cáo Facebook/Instagram | Sprint 7–8 (nếu chạy ads FB) | TÙY CHỌN |
-| Server-side Conversion Tracking | Chống mất data do ad blocker | Sprint 8 | TÙY CHỌN |
+| Google Analytics 4 (GA4) | Theo dõi lưu lượng, hành vi, tỷ lệ đặt món | Phase 5 (FE — trước UAT) | BẮT BUỘC |
+| Google Tag Manager (GTM) | Quản lý tập trung tracking — không cần sửa code | Phase 5 (cài sớm nhất) | BẮT BUỘC |
+| Google Search Console | Theo dõi SEO, indexing | Phase 7+ (sau Go-Live) | KHUYẾN NGHỊ |
+| Facebook Pixel + CAPI | Tracking từ quảng cáo Facebook/Instagram | Phase 5–6 (nếu chạy ads FB) | TÙY CHỌN |
+| Server-side Conversion Tracking | Chống mất data do ad blocker | Phase 6 | TÙY CHỌN |
 
 ---
 
@@ -27,7 +27,7 @@
 
 ### 2.2 Cài Đặt GTM
 
-**Sprint 5 — cài đặt vào `fe/app/layout.tsx`:**
+**Phase 5 (FE scaffold) — cài đặt vào `fe/app/layout.tsx`:**
 
 ```tsx
 // app/layout.tsx — GTM snippet
@@ -107,12 +107,12 @@ const trackPurchase = (order: Order) => {
     event: 'purchase',
     ecommerce: {
       transaction_id: order.id,
-      value: order.total_amount / 1000, // GA4 dùng đơn vị nghìn đồng
+      value: order.total_amount,
       currency: 'VND',
       items: order.items.map(item => ({
         item_id: item.product_id,
         item_name: item.name,
-        price: item.unit_price / 1000,
+        price: item.unit_price,
         quantity: item.quantity,
       })),
     },
@@ -156,7 +156,7 @@ const restaurantSchema = {
   '@type': 'Restaurant',
   name: 'Bánh Cuốn Bà Hà',
   servesCuisine: 'Vietnamese',
-  hasMenu: 'https://example.com/table/...',
+  hasMenu: process.env.NEXT_PUBLIC_SITE_URL + '/table',
   acceptsReservations: false,
   priceRange: '$$',
 }
@@ -214,7 +214,7 @@ func SendPurchaseEvent(orderID string, value int64, userPhone string) error {
         EventTime: time.Now().Unix(),
         EventID:   orderID,                      // FE dùng cùng ID để dedup
         UserData:  UserData{Phone: hashPhone(userPhone)},
-        CustomData: CustomData{Value: float64(value) / 1000, Currency: "VND"},
+        CustomData: CustomData{Value: float64(value), Currency: "VND"},
     }
     // POST https://graph.facebook.com/v18.0/<pixel_id>/events?access_token=<token>
     return sendToFBAPI(payload)
@@ -272,8 +272,9 @@ LIMIT 10;
 # .env.example — thêm vào section Marketing
 NEXT_PUBLIC_GTM_ID=GTM-XXXXXXX
 NEXT_PUBLIC_GA4_ID=G-XXXXXXXXXX
+NEXT_PUBLIC_SITE_URL=https://yourdomain.com
 NEXT_PUBLIC_FB_PIXEL_ID=XXXXXXXXXXXXXXX
-FB_CAPI_ACCESS_TOKEN=your_access_token_here
+FB_CAPI_ACCESS_TOKEN=your_access_token_here   # ⚠️ SECRET — không commit giá trị thật vào git
 FB_PIXEL_ID=XXXXXXXXXXXXXXX
 ```
 

@@ -78,6 +78,8 @@ Khách hàng cung cấp file theo template sau (tải về từ Admin panel):
 
 ### 4.1 Bước Import Sản Phẩm
 
+> ⚠️ **Lưu ý:** Các endpoint `/api/v1/admin/import/products` và `/api/v1/admin/files/bulk` chưa có trong API_CONTRACT_v1.2.md. Cần tạo CR hoặc thêm vào spec trước khi implement. Cho đến khi có, dùng cách thủ công qua Admin panel hoặc seed SQL (§6).
+
 ```
 Bước 1: Tạo danh mục trước
     → Admin panel: Menu → Danh mục → Thêm danh mục
@@ -88,16 +90,16 @@ Bước 2: Validate file Excel
       giá có phải số nguyên không, danh mục có tồn tại không
 
 Bước 3: Import sản phẩm (dry run)
-    → POST /api/v1/admin/import/products?dry_run=true
+    → POST /api/v1/admin/import/products?dry_run=true  [cần spec trước khi implement]
     → Xem báo cáo: X sản phẩm hợp lệ, Y lỗi (kèm dòng lỗi)
     → Sửa file nếu có lỗi → lặp lại
 
 Bước 4: Import thật
-    → POST /api/v1/admin/import/products
+    → POST /api/v1/admin/import/products               [cần spec trước khi implement]
     → Lưu transaction ID để rollback nếu cần
 
 Bước 5: Upload ảnh
-    → Bulk upload qua Admin panel hoặc POST /api/v1/admin/files/bulk
+    → Bulk upload qua Admin panel hoặc POST /api/v1/admin/files/bulk  [cần spec]
     → Map ảnh với sản phẩm theo tên file
 
 Bước 6: Verify sau import (xem §4.2)
@@ -183,12 +185,16 @@ FROM categories c WHERE c.name = 'Bánh Cuốn';
 -- ... thêm các sản phẩm khác
 
 -- seed_staff.sql
+-- Tạo bcrypt hash trước khi chạy:
+--   go run be/cmd/genhash/main.go <password>
+-- hoặc: htpasswd -bnBC 12 "" <password> | tr -d ':\n'
+-- VD hash cho "Dev@1234": $2a$12$YourHashHere...
 INSERT INTO staff (id, username, password_hash, full_name, role, is_active, created_at, updated_at)
 VALUES
-  (UUID(), 'admin', '$2a$12$...', 'Admin', 'admin', 1, NOW(), NOW()),
-  (UUID(), 'manager1', '$2a$12$...', 'Nguyễn Quản Lý', 'manager', 1, NOW(), NOW()),
-  (UUID(), 'cashier1', '$2a$12$...', 'Trần Thu Ngân', 'cashier', 1, NOW(), NOW()),
-  (UUID(), 'chef1', '$2a$12$...', 'Lê Đầu Bếp', 'chef', 1, NOW(), NOW());
+  (UUID(), 'admin',    '$2a$12$REPLACE_WITH_REAL_HASH', 'Admin',            'admin',   1, NOW(), NOW()),
+  (UUID(), 'manager1', '$2a$12$REPLACE_WITH_REAL_HASH', 'Nguyễn Quản Lý',  'manager', 1, NOW(), NOW()),
+  (UUID(), 'cashier1', '$2a$12$REPLACE_WITH_REAL_HASH', 'Trần Thu Ngân',   'cashier', 1, NOW(), NOW()),
+  (UUID(), 'chef1',    '$2a$12$REPLACE_WITH_REAL_HASH', 'Lê Đầu Bếp',     'chef',    1, NOW(), NOW());
 
 -- seed_tables.sql
 INSERT INTO tables (id, name, capacity, qr_token, is_active, created_at, updated_at)

@@ -50,7 +50,7 @@ Bước 6: Theo Dõi & Đóng CR (PM + QA)
 | Người Thực Hiện | Khách hàng hoặc BA |
 |---|---|
 | **Output** | Phiếu CR hoàn chỉnh theo §4 (Template) |
-| **Lưu tại** | `docs/cr/CR-YYYY-NNN.md` (ví dụ: `docs/cr/CR-2026-001.md`) |
+| **Lưu tại** | `docs/cr/CR-YYYY-NNN.md` (ví dụ: `docs/cr/CR-2026-001.md`) — tạo thư mục `docs/cr/` nếu chưa có |
 | **Kênh gửi** | Email → BA → tạo ticket trong hệ thống theo dõi |
 
 ---
@@ -90,7 +90,7 @@ Tech Lead phân loại CR theo bảng §2 và gán mức độ ưu tiên:
 | Loại CR | Người Phê Duyệt |
 |---|---|
 | **Minor** | Tech Lead tự quyết — không cần họp |
-| **Medium** | PM duyệt sau khi xem báo cáo impact |
+| **Medium** | Manager/PM duyệt sau khi xem báo cáo impact |
 | **Major** | Khách hàng ký duyệt sau khi nhận báo cáo impact đầy đủ |
 
 **Kết quả phê duyệt:**
@@ -122,7 +122,7 @@ Sau khi CR được **Approved**, BA và Tech Lead bắt buộc cập nhật:
 
 ### Bước 6 — Theo Dõi & Đóng CR
 
-| Người Thực Hiện | PM + QA |
+| Người Thực Hiện | Manager/PM + QA |
 |---|---|
 | **Theo dõi** | CR ticket trong hệ thống tracking, cập nhật % hoàn thành |
 | **Verify** | QA kiểm tra Acceptance Criteria của CR được pass |
@@ -213,7 +213,7 @@ Sau khi CR được **Approved**, BA và Tech Lead bắt buộc cập nhật:
 | Công Cụ | Cách Dùng |
 |---|---|
 | File Markdown | `docs/cr/CR-YYYY-NNN.md` — nguồn gốc, chi tiết đầy đủ |
-| TASKS.md | Thêm task CR vào đúng phase — theo dõi tiến độ |
+| TASKS.md | Thêm task CR vào đúng phase — theo dõi tiến độ (không dùng Jira/Trello nếu chưa có) |
 | Git commit | Mỗi commit liên quan CR phải có reference `[CR-2026-001]` trong commit message |
 
 ---

@@ -7,13 +7,13 @@
 
 ## 1. Tổng Quan — Bắt Buộc Trước Go-Live
 
-| Hạng Mục | Mức Độ | Sprint Mục Tiêu |
+| Hạng Mục | Mức Độ | Phase Mục Tiêu |
 |---|---|---|
-| Chính sách bảo mật (Privacy Policy) | **BẮT BUỘC** | Sprint 12 (trước UAT) |
-| Điều khoản dịch vụ (Terms of Service) | **BẮT BUỘC** | Sprint 12 (trước UAT) |
-| Cookie Consent Banner | **KHUYẾN NGHỊ** | Sprint 12 |
-| PCI-DSS cơ bản | **BẮT BUỘC** nếu có thẻ tín dụng | Sprint 5–8 (song song payment) |
-| Hóa đơn điện tử | Tùy loại hình kinh doanh | Sprint 14–15 (trước Go-Live) |
+| Chính sách bảo mật (Privacy Policy) | **BẮT BUỘC** | Phase 7 (trước UAT) |
+| Điều khoản dịch vụ (Terms of Service) | **BẮT BUỘC** | Phase 7 (trước UAT) |
+| Cookie Consent Banner | **KHUYẾN NGHỊ** | Phase 5 (song song FE) |
+| PCI-DSS cơ bản | **BẮT BUỘC** nếu có thẻ tín dụng | Phase 4 (song song payment BE) |
+| Hóa đơn điện tử | Tùy loại hình kinh doanh | Phase 7 (trước Go-Live) |
 
 ---
 
@@ -203,9 +203,13 @@ func SecurityHeaders() gin.HandlerFunc {
     c.Header("X-Frame-Options", "DENY")
     c.Header("X-XSS-Protection", "1; mode=block")
     c.Header("Referrer-Policy", "strict-origin-when-cross-origin")
+    // 'unsafe-inline' required for GTM inline bootstrap snippet.
+    // Upgrade to nonce-based CSP (next.config.js) before production hardening.
     c.Header("Content-Security-Policy",
-      "default-src 'self'; script-src 'self' https://www.googletagmanager.com; "+
-      "img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com")
+      "default-src 'self'; "+
+      "script-src 'self' https://www.googletagmanager.com 'unsafe-inline'; "+
+      "img-src 'self' data: https:; "+
+      "connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com")
     c.Next()
   }
 }

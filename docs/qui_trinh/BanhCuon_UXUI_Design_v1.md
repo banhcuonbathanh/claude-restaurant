@@ -14,10 +14,10 @@
 | Token | Dùng Cho |
 |---|---|
 | `primary` | CTA button, active nav, link |
-| `success` (`#3DB870`) | Order ready, done item, payment confirmed |
-| `warning` (`#FCD34D`) | Item đang làm (preparing), cảnh báo stock |
+| `success` | Order ready, done item, payment confirmed |
+| `warning` | Item đang làm (preparing), cảnh báo stock |
 | `error` | Form error, reject action |
-| `surface-dark` (`#1F2937`) | KDS card background — pending item |
+| `surface-dark` | KDS card background — pending item |
 | `neutral` | Text body, border, divider |
 
 ### 1.2 Typography
