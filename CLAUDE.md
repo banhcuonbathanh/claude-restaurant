@@ -39,14 +39,15 @@ READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 
 ## Phase Status (April 2026)
 
-> Full task breakdown: [docs/TASKS.md](docs/TASKS.md)
+> Quick-glance only. **Single source of truth: [`docs/TASKS.md`](docs/TASKS.md)** — always update there first.
+> Rule: when CLAUDE.md and TASKS.md disagree, TASKS.md wins.
 
 | Phase | Status | Blocking |
 |---|---|---|
 | Phase 0 — Architecture & Docs | ✅ COMPLETE | — |
-| Phase 1 — DB Migrations (001–007) | ✅ COMPLETE | — |
-| Phase 2 — Feature Specs | 🔄 71% — Spec 6 (QR/POS) + Spec 7 (Staff) missing | Blocks 4.6, 5.2-10 |
-| Phase 3 — sqlc + Project Setup | 🔄 80% — scaffold + queries done, `sqlc generate` pending | 🔴 Blocks ALL of Phase 4 |
+| Phase 1 — DB Migrations | 🔄 87% — migration 008 pending | — |
+| Phase 2 — Feature Specs | ✅ COMPLETE (7/7) | — |
+| Phase 3 — sqlc + Project Setup | 🔄 80% — `sqlc generate` pending | 🔴 Blocks ALL of Phase 4 |
 | Phase 4 — Backend | ⬜ NOT STARTED | Needs P3 done first |
 | Phase 5 — Frontend | ⬜ NOT STARTED | Needs P4.1 auth done first |
 | Phase 6 — DevOps | 🔄 40% — Dockerfiles + compose done; Caddy + CI + .env.example pending | Can run parallel with P4 |
@@ -72,7 +73,11 @@ docs/spec/Spec_2_Products_API_v2_CORRECTED.md
 docs/spec/Spec_3_Menu_Checkout_UI_v2.md
 docs/spec/Spec_4_Orders_API.md
 docs/spec/Spec_5_Payment_Webhooks.md
+docs/spec/Spec_6_QR_POS.md
+docs/spec/Spec_7_Staff_Management.md
 docs/claude/CLAUDE_BE.md · CLAUDE_FE.md · CLAUDE_DEVOPS.md
+docs/be/BE_DOC_INDEX.md                      ← BE scaffold status + DI wiring + per-domain reading guide
+docs/fe/FE_DOC_INDEX.md                      ← FE scaffold status + Tailwind tokens + patterns + per-domain reading guide
 ```
 
 ## Single Sources (đọc trước khi code)
@@ -118,8 +123,8 @@ FE state (strict): server → TanStack Query · client → Zustand · forms → 
 - **Branch:** main
 - **Done:** go.mod fixed · Dockerfiles fixed · BE scaffold (main.go, middleware stubs, pkg/jwt, pkg/bcrypt, pkg/redis/client) · FE scaffold (all page routes, 5 UI components, utils.ts) · All query/*.sql written · sqlc.yaml configured · Issues #5 + #7 resolved in MASTER v1.2
 - **Next (in order):**
-  1. **P3-1** — Run `sqlc generate` (install sqlc CLI first) → verify generated `be/internal/db/`
-  2. **P3-2** — Verify generated field names match schema
-  3. **4.1-1 through 4.1-6** — Auth backend (unblocks everything)
-  4. **P2-1 + P2-2** — Write Spec 6 + Spec 7 (can do in parallel with 4.1)
+  1. **P1-8** — Run migration `008_order_groups.sql`
+  2. **P3-1** — Run `sqlc generate` (install sqlc CLI first) → verify generated `be/internal/db/`
+  3. **P3-2** — Verify generated field names match schema
+  4. **4.1-1 through 4.1-6** — Auth backend (unblocks everything)
 - **How to pick the next task:** Open `docs/TASKS.md`, find first ⬜ with all dependencies ✅, follow `docs/IMPLEMENTATION_WORKFLOW.md`

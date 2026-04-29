@@ -21,14 +21,15 @@ API shape → API_CONTRACT.docx. Business logic → MASTER.docx §4. DB schema �
 **§  ****Section 2 — Tài Liệu Đọc Trước Khi Code**
 | Cần Gì | Đọc File | Xem Section |
 | --- | --- | --- |
-| Request/response shape | API_CONTRACT.docx | §2 Auth, §3 Products, §4 Orders, §5 Payments |
-| Business logic unique của domain | docs/specs/001_auth.docx | B1 Business Logic, B2 sqlc Queries |
-| Go conventions (package, error wrap, ctx) | MASTER.docx | §7.1 — Go Backend Rules |
-| HTTP error codes cần trả về | MASTER.docx | §6 — Error Codes |
-| DB columns và types | DB_SCHEMA.docx | §3 — Table Schemas Chi Tiết |
-| RBAC check logic | MASTER.docx | §2 — RBAC & Role Hierarchy |
-| JWT payload structure | MASTER.docx | §3.2 — JWT Payload Structure |
-| Business rules (order cancel, payment) | MASTER.docx | §4 — Business Rules |
+| Request/response shape | `docs/contract/API_CONTRACT_v1.2.md` | §2 Auth, §3 Products, §4 Orders, §5 Payments |
+| Business logic unique của domain | `docs/spec/Spec1_Auth_Updated_v2.md` | B1 Business Logic, B2 sqlc Queries |
+| Go conventions (package, error wrap, ctx) | `docs/MASTER_v1.2.md` | §7.1 — Go Backend Rules |
+| HTTP error codes cần trả về | `docs/contract/ERROR_CONTRACT_v1.1.md` | §2, §3 |
+| DB columns và types | `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` | — |
+| RBAC check logic | `docs/MASTER_v1.2.md` | §3 — RBAC & Role Hierarchy |
+| JWT payload structure | `docs/MASTER_v1.2.md` | §6 — JWT Config |
+| Business rules (order cancel, payment) | `docs/MASTER_v1.2.md` | §4 — Business Rules |
+| BE scaffold status + DI wiring | `docs/be/BE_DOC_INDEX.md` | §1 Scaffold · §3 DI Wiring |
 
 **§  ****Section 3 — Package Structure (Rule: MASTER.docx §7.1)**
 | be/
@@ -47,15 +48,20 @@ API shape → API_CONTRACT.docx. Business logic → MASTER.docx §4. DB schema �
     └── bcrypt/bcrypt.go |
 | --- |
 
-**§  ****Section 4 — Current Work: Spec 001 — Auth**
-**Backend Tasks (B4 trong 001_auth.docx)**
-**☐  **pkg/jwt/jwt.go — GenerateAccessToken(), ParseToken()  →  dùng github.com/golang-jwt/jwt/v5
-**☐  **pkg/bcrypt/bcrypt.go — HashPassword(cost=12), ComparePassword()
-**☐  **internal/repository/auth_repo.go — wrap sqlc queries: GetStaffByUsername, CreateRefreshToken, ...
-**☐  **internal/service/auth_service.go — Login(): rate limit → verify → generate tokens → set cookie
-**☐  **internal/middleware/auth.go — parse Bearer token → set staff_id + role vào gin.Context
-**☐  **internal/middleware/rbac.go — RequireRole(minValue int) gin.HandlerFunc
-**☐  **internal/handler/auth_handler.go — LoginHandler, RefreshHandler, LogoutHandler, MeHandler
+**§  ****Section 4 — Phase 4 Status**
+**Full scaffold status + per-domain reading guide → `docs/be/BE_DOC_INDEX.md`**
+
+**✅  **pkg/jwt/jwt.go — implemented
+**✅  **pkg/bcrypt/bcrypt.go — implemented
+**✅  **internal/service/errors.go — all sentinel errors
+**✅  **internal/service/deps.go — cross-service interfaces
+**✅  **internal/handler/respond.go — respondError() helper
+**⚠️  **internal/repository/auth_repo.go — stub (body missing)
+**⚠️  **internal/service/auth_service.go — stub (body missing)
+**⚠️  **internal/middleware/auth.go — stub (body missing)
+**⚠️  **internal/middleware/rbac.go — stub (body missing)
+**⬜  **internal/handler/auth_handler.go — not created yet
+**⬜  **internal/model/ — not created yet (DTOs go here)
 
 **Critical Implementation Notes**
 | Login error: KHÔNG tiết lộ 'username không tồn tại' vs 'sai password' → luôn trả ErrInvalidCredentials.

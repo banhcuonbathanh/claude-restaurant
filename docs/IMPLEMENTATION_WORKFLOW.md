@@ -75,14 +75,18 @@ Dependencies checked:
 **Goal:** Confirm the plan with the user before writing code.
 
 **When to always ask:**
-- The task is implementing a security-sensitive feature (auth, payments, webhook verification)
+- The task is security-sensitive (auth, payments, webhook verification, RBAC)
 - The plan deviates from the spec in any way
 - There is an open risk or question from Step 2
-- The scope is larger than expected (more than 3 files or 150 lines)
+- The spec is ambiguous on an edge case that affects the implementation
 
 **When you can proceed without asking:**
 - The plan is a straightforward implementation of a clearly-defined spec with no ambiguity
-- It is a small utility (< 50 lines, one file, no security concern)
+- No security concern, no spec deviation, no open risks
+
+**What NOT to use as the trigger:** line count or file count alone. A 200-line function
+that is fully specified needs no confirmation. A 30-line auth middleware with a subtle
+edge case does. The signal is ambiguity + security risk, not size.
 
 **Output:** User approval or correction of the plan. Adjust plan before coding if feedback given.
 

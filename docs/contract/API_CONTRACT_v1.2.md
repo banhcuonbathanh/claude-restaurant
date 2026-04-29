@@ -71,6 +71,31 @@ Guest     = QR customer với guest JWT (customer role, sub='guest') |
 | ℹ️ Staff: Access Token 24h, Refresh Token 30d httpOnly cookie. Khi nhận 401, FE tự gọi /auth/refresh một lần, nếu thất bại → redirect /login. Guest (QR): 2h stateless JWT — không có refresh, quét lại QR khi hết hạn. |
 | --- |
 
+## 1.8 Pagination Format
+| Tất cả list endpoints hỗ trợ pagination dùng query params và response shape chuẩn sau. |
+| --- |
+
+| // Query params chuẩn cho mọi list endpoint
+GET /api/v1/orders/live?page=1&limit=20
+GET /api/v1/inventory?page=1&limit=50
+GET /api/v1/inventory/:id/logs?page=1&limit=20
+
+// Params:
+// page  : integer >= 1 (default: 1)
+// limit : integer 1–100 (default: 20)
+
+// Paginated response shape:
+{
+  "data": [...],
+  "pagination": {
+    "page":        1,
+    "limit":       20,
+    "total":       150,
+    "total_pages": 8
+  }
+} |
+| --- |
+
 # Section 2 — Auth Endpoints
 | Method | Endpoint | Mô Tả | Role |
 | --- | --- | --- | --- |
@@ -136,6 +161,30 @@ Guest     = QR customer với guest JWT (customer role, sub='guest') |
 | ⚠️  QUAN TRỌNG: Không có refresh cho guest token. FE phải detect 401 + sub='guest' → redirect về /table/:tableId để quét QR lại, KHÔNG gọi /auth/refresh như staff flow. |
 | --- |
 
+## POST /auth/refresh — Response 200
+| {
+  "data": {
+    "access_token": "eyJhbGci..."
+  }
+}
+// Lấy refresh token từ httpOnly cookie tự động — không cần body |
+| --- |
+
+## GET /auth/me — Response 200
+| {
+  "data": {
+    "id":        "550e8400-e29b-41d4-a716-446655440000",
+    "username":  "nguyen_van_a",
+    "full_name": "Nguyen Van A",
+    "role":      "manager",
+    "email":     "nva@banhcuon.vn",
+    "phone":     "0901234567",
+    "is_active": true
+  }
+}
+// Guest JWT: trả role="customer", username=null, id=null (sub='guest') |
+| --- |
+
 # Section 3 — Products & Catalog
 | Method | Endpoint | Mô Tả | Role |
 | --- | --- | --- | --- |
@@ -147,6 +196,41 @@ Guest     = QR customer với guest JWT (customer role, sub='guest') |
 | GET | /api/v1/categories | List tất cả categories active (đã sort) | Public |
 | GET | /api/v1/toppings | List tất cả toppings active | Public |
 | GET | /api/v1/combos | List combos kèm combo_items expanded | Public |
+
+## POST /products — Request Body
+| Field | Type | Required | Mô Tả |
+| --- | --- | --- | --- |
+| name | string | Required | Tên sản phẩm |
+| price | number | Required | Giá (VND) — lưu DECIMAL(10,0) |
+| category_id | string (UUID) | Required | UUID của danh mục |
+| description | string | Optional | Mô tả sản phẩm |
+| image_path | string | Optional | object_path từ POST /files/upload — ⚠️ KHÔNG phải full URL |
+| topping_ids | string[] | Optional | Mảng topping UUIDs được phép |
+| is_available | boolean | Optional | Mặc định true |
+
+## GET /products — Response 200
+| {
+  "data": [
+    {
+      "id":          "550e8400-e29b-41d4-a716-446655440000",
+      "name":        "Bánh Cuốn Thịt",
+      "price":       45000,
+      "description": "Bánh cuốn nhân thịt heo",
+      "image_url":   "https://cdn.example.com/products/...",
+      "is_available": true,
+      "sort_order":  0,
+      "category": {
+        "id":   "7f3d2b1a-...",
+        "name": "Bánh Cuốn"
+      },
+      "toppings": [
+        { "id": "a1b2c3d4-...", "name": "Chả lụa", "price": 10000 }
+      ]
+    }
+  ]
+}
+// Full URL = STORAGE_BASE_URL + "/" + image_path (DB lưu image_path, response trả image_url) |
+| --- |
 
 # Section 4 — Orders
 | ℹ️ Order State Machine: pending → confirmed → preparing → ready → delivered │ cancelled. Huỷ đơn chỉ được phép khi tổng qty_served / tổng quantity < 30%. 1 bàn chỉ được phép 1 ACTIVE order cùng lúc. order_items status được DERIVE từ qty_served — xem MASTER.docx §4.1.1. |
@@ -180,6 +264,67 @@ Guest     = QR customer với guest JWT (customer role, sub='guest') |
 | quantity | integer | Required | Số lượng (> 0) |
 | toppings | array | Optional | [{ topping_id: UUID, quantity: int }] — snapshot giá tại thời điểm đặt |
 | note | string | Optional | Ghi chú riêng cho món |
+
+## POST /orders — Response 201
+| {
+  "data": {
+    "id":           "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "order_number": "ORD-20260410-001",
+    "status":       "pending",
+    "source":       "qr",
+    "table_id":     "7f3d2b1a-...",
+    "total_amount": 145000,
+    "note":         null,
+    "created_at":   "2026-04-10T08:00:00Z",
+    "items": [
+      {
+        "id":                "b2c3d4e5-...",
+        "product_id":        "c3d4e5f6-...",
+        "name":              "Bánh Cuốn Thịt",
+        "unit_price":        45000,
+        "quantity":          2,
+        "qty_served":        0,
+        "toppings_snapshot": [],
+        "combo_ref_id":      null,
+        "note":              null
+      }
+    ]
+  }
+} |
+| --- |
+
+## PATCH /orders/:id/status — Request Body
+| Field | Type | Required | Mô Tả |
+| --- | --- | --- | --- |
+| status | string | Required | Giá trị mới — xem bảng transition hợp lệ bên dưới |
+
+| // Bảng transition hợp lệ (state machine):
+// pending    → confirmed  (Chef+ hoặc Staff+)
+// confirmed  → preparing  (Chef+)
+// preparing  → ready      (Chef+)
+// ready      → delivered  (Cashier+)
+// pending/confirmed/preparing → cancelled  (Owner nếu < 30% served, Manager+ bất kỳ lúc nào)
+//
+// Transition không hợp lệ → 409 CANCEL_THRESHOLD hoặc 400 INVALID_INPUT |
+| --- |
+
+## PATCH /orders/items/:id — Request Body
+| Field | Type | Required | Mô Tả |
+| --- | --- | --- | --- |
+| qty_served | integer | Required | Số phần đã phục vụ — phải >= 0 và <= item.quantity |
+
+| // Response 200 — item được update, kèm item_status derived:
+{
+  "data": {
+    "id":          "b2c3d4e5-...",
+    "qty_served":  1,
+    "quantity":    2,
+    "item_status": "preparing",    // derived: pending|preparing|done
+    "progress_pct": 50
+  }
+}
+// item_status derived: qty_served=0 → "pending", 0 < x < qty → "preparing", x=qty → "done" |
+| --- |
 
 ## GET /orders/:id/events — SSE Stream (NEW v1.2)
 | 🆕  v1.2: Endpoint SSE cho order tracking. Customer và Staff+ subscribe để nhận realtime updates về tiến độ đơn. Ref: MASTER.docx §5.2 cho full SSE config. |
@@ -229,6 +374,14 @@ data: { "type": "order_completed", "data": { "order_id": "..." } }
 | POST | /api/v1/payments/webhook/momo | MoMo webhook (signature verified) | Public (signed) |
 | POST | /api/v1/payments/webhook/zalopay | ZaloPay webhook (signature verified) | Public (signed) |
 
+## POST /payments — Request Body
+| Field | Type | Required | Mô Tả |
+| --- | --- | --- | --- |
+| order_id | string (UUID) | Required | UUID order — phải có status = "ready" |
+| method | string | Required | "vnpay" \| "momo" \| "zalopay" \| "cash" |
+| amount | number | Required | Số tiền (VND) — phải khớp order.total_amount |
+| proof_image_path | string | Optional | object_path ảnh xác nhận chuyển khoản |
+
 # Section 6 — Tables
 | Method | Endpoint | Mô Tả | Role |
 | --- | --- | --- | --- |
@@ -258,6 +411,21 @@ data: { "type": "order_completed", "data": { "order_id": "..." } }
 | --- | --- | --- | --- |
 | POST | /api/v1/files/upload | Upload ảnh/file — trả object_path để lưu vào record | Staff+ |
 | DELETE | /api/v1/files/:id | Đánh dấu is_orphan=true — cleanup job xóa sau 24h | Staff+ |
+
+## POST /files/upload — Response 201
+| // Request: multipart/form-data, field "file"
+// Max size: 10MB. Allowed MIME: image/jpeg, image/png, image/webp
+
+{
+  "data": {
+    "id":          "88f3a2b1-...",
+    "object_path": "products/2026/04/image_abc123.jpg",
+    "url":         "https://cdn.example.com/products/2026/04/image_abc123.jpg"
+  }
+}
+// Lưu object_path vào DB (ví dụ products.image_path)
+// Full URL = STORAGE_BASE_URL + "/" + object_path |
+| --- |
 
 # Section 8 — Inventory (Phase 2)
 | Method | Endpoint | Mô Tả | Role |
@@ -311,12 +479,12 @@ const WS_RECONNECT = {
 ### WS Event Types — Server → Client
 | Event Type | Payload | Gửi Tới | Mô Tả |
 | --- | --- | --- | --- |
-| new_order | order object | Staff+ (/kds + /orders-live) | Đơn mới vừa được tạo |
+| new_order | order object | Chef+ (/ws/kds) · Staff+ (/ws/orders-live) | Đơn mới vừa được tạo |
 | order_updated | { order_id, status } | Staff+ | Order status thay đổi |
 | item_progress | { order_id, item_id, qty_served, quantity, item_status, progress_pct } | Staff+ | qty_served của 1 item thay đổi |
 | order_completed | { order_id } | Any auth | Tất cả items done → order ready |
 | payment_success | { payment_id, order_id } | Cashier+ | Payment webhook confirmed |
-| low_stock | { item_id, current_qty, threshold } | Manager+ | Nguyên liệu xuống dưới threshold |
+| low_stock | { item_id, item_name, current_qty, reorder_point } | Manager+ | Nguyên liệu xuống dưới reorder_point (nguồn: MASTER §4) |
 
 | ℹ️  item_status trong WS: Cũng derived từ qty_served (MASTER §4.1.1) — BE tính và include trong payload. Giống SSE item_progress payload. |
 | --- |
@@ -334,8 +502,19 @@ const WS_RECONNECT = {
 | GET | /api/v1/cv/health | CV service health check status | Manager+ |
 | GET | /api/v1/cv/cameras | Danh sách cameras đã đăng ký | Manager+ |
 
-# Section 12 — Error Codes
-| → SINGLE SOURCE: ERROR_CONTRACT.docx Không định nghĩa error codes trong file này. Mọi error code, HTTP mapping, Go handler pattern, FE interceptor pattern → xem ERROR_CONTRACT.docx. v1.1 CHANGE: Section 11 (v1.0) đã xoá để tránh duplicate. |
+# Section 12 — Staff Management (TBD — Spec 7 Pending)
+| ⚠️  Spec 7 (Staff Management) chưa được viết. Các endpoints /staff và /users chưa được define. Section này là placeholder — không implement cho đến khi Spec 7 hoàn thành. |
+| --- |
+
+| Method | Endpoint | Mô Tả | Role |
+| --- | --- | --- | --- |
+| GET | /api/v1/staff | List tất cả staff accounts | Manager+ |
+| POST | /api/v1/staff | Tạo staff account mới | Admin |
+| PATCH | /api/v1/staff/:id | Cập nhật info / deactivate | Manager+ |
+| DELETE | /api/v1/staff/:id | Soft-delete staff account | Admin |
+
+# Section 13 — Error Codes
+| → SINGLE SOURCE: ERROR_CONTRACT_v1.1.md — Không định nghĩa error codes trong file này. Mọi error code, HTTP mapping, Go handler pattern, FE interceptor pattern → xem ERROR_CONTRACT_v1.1.md. |
 | --- |
 
 # Changelog

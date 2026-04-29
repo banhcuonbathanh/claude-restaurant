@@ -245,7 +245,8 @@ Xây dựng Orders API đầy đủ: tạo đơn, cập nhật trạng thái, th
 |  |
 | // Low-stock broadcast (Manager/Admin only): |
 | // Chỉ gửi tới client có role manager hoặc admin |
-| // Event: low_stock_alert { item_id, item_name, current_qty, min_alert_level } |
+| // Event: low_stock { item_id, item_name, current_qty, reorder_point }
+// ⚠️  Field là reorder_point (nguồn: MASTER §4) — không dùng min_alert_level |
 
 **9. Business Rules Quan Trọng**
 | Rule | Xử lý |

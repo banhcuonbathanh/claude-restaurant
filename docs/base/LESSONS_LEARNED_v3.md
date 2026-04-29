@@ -54,6 +54,34 @@ Clarify DoD trước khi code — không 'xong nhưng sai hướng' |
 | Review code của bạn | Honest feedback — không chỉ khen, chỉ rõ risk + suggest fix | Rubber stamp mọi thứ |
 | Deadline gấp | Prioritize, flag ⚠️ những gì bỏ qua để fix sau | Cut corners im lặng |
 
+## ⚠️  0.6 — Known Weaknesses in This System (Added 2026-04-30)
+
+These are structural gaps identified after a full audit of the workflow. Each has a mitigation.
+
+### Weakness 1 — Duplicate Phase State
+**Problem:** Phase status lives in both `CLAUDE.md` and `docs/TASKS.md`. They will drift.
+**Mitigation:** `TASKS.md` is the single source of truth. `CLAUDE.md` Phase Status table is a quick-glance summary only — always update `TASKS.md` first. When the two disagree, `TASKS.md` wins.
+
+### Weakness 2 — No Automated Enforcement
+**Problem:** Every rule (no business logic in handlers, no localStorage, HMAC first, soft-delete filters) is a text instruction to Claude. If Claude misses something in the Step 5 self-review, nothing catches it automatically.
+**Mitigation (short term):** The self-review checklist in Step 5 is the only backstop — treat it as mandatory, not optional. Flag any checklist miss as 🚨 RISK.
+**Mitigation (long term):** Add linters/CI checks for the highest-risk rules when Phase 4 starts:
+  - `grep -r "localStorage" fe/src/` → fail if found
+  - `go vet ./...` + a custom linter rule for gin imports in service layer
+  - pre-commit hook: `wc -l CLAUDE.md` → fail if > 150 lines
+
+### Weakness 3 — Document Staleness with No Signal
+**Problem:** Layer 2 and Layer 3 docs have no "last verified" date. Claude reads them as authoritative even if they predate significant code changes.
+**Mitigation:** Add a `> Last verified: YYYY-MM-DD` line at the top of each Layer 2 and Layer 3 document. At the end of each phase, run a reconciliation pass:
+  - Open each spec → confirm it still matches the API contract and schema
+  - If it does not → update the spec OR raise ⚠️ FLAG before starting work in that domain
+
+### Weakness 4 — Uneven Task Granularity
+**Problem:** TASKS.md mixes 20-minute tasks (pubsub.go wrappers) with 3-hour tasks (full auth service). This makes session planning unreliable and increases the chance of leaving a task half-done.
+**Mitigation:** When a task in TASKS.md looks like it will take more than 90 minutes in a single session, break it into sub-tasks before starting. The signal: any task with 3+ distinct files to create, or any task that crosses two service layers. Flag with ❓ CLARIFY to confirm the breakdown before coding.
+
+---
+
 ## 💡  0.5 — Tips Để Làm Việc Hiệu Quả Nhất Với Claude
 |  | ✅  LÀM THẾ NÀY (Hiệu Quả) | ❌  TRÁNH (Kém Hiệu Quả) |
 | --- | --- | --- |

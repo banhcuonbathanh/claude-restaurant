@@ -111,40 +111,66 @@ c.JSON(500, gin.H{"error": err.Error()})         // expose internal error |
 | ErrPaymentExists | 409 | PAYMENT_ALREADY_EXISTS | Payment đã tồn tại |
 | ErrFileTypeNotAllowed | 422 | UNSUPPORTED_FILE_TYPE | MIME không được phép |
 | ErrFileTooLarge | 422 | FILE_TOO_LARGE | File > 10MB |
+| ErrMissingToken | 401 | MISSING_TOKEN | Không có Authorization header |
+| ErrRefreshTokenInvalid | 401 | REFRESH_TOKEN_INVALID | Refresh token hết hạn hoặc bị revoke → redirect /login |
 
 # Section 4 — Frontend Integration
 **Frontend (Next.js) phải parse đúng format và handle từng error code một cách nhất quán.**
 
 | // lib/api.ts — axios interceptor xử lý error
+// refreshAndRetry: gọi POST /auth/refresh, cập nhật header, retry request gốc
+// ⚠️  GUEST EXCEPTION: nếu decoded token có sub='guest' → KHÔNG gọi refresh
+//    → redirect /table/:tableId để quét lại QR
 api.interceptors.response.use(
   res => res,
   async (err) => {
-    const { error, message } = err.response?.data ?? {}
+    const { error, message, details } = err.response?.data ?? {}
 
     switch (error) {
       case "TOKEN_EXPIRED":
-        // Tự động refresh token — không show toast
+        // Staff: tự động refresh — không show toast
+        // Guest: redirect về QR scan page (xem GUEST EXCEPTION ở trên)
         return refreshAndRetry(err.config)
 
+      case "MISSING_TOKEN":
+        clearSession()
+        router.push("/login")
+        break
+
       case "ACCOUNT_DISABLED":
-        // Clear session và redirect login
         clearSession()
         router.push("/login?reason=disabled")
+        break
+
+      case "REFRESH_TOKEN_INVALID":
+        clearSession()
+        router.push("/login?reason=session_expired")
         break
 
       case "FORBIDDEN":
         toast.error("Không có quyền thực hiện hành động này")
         break
 
+      case "INVALID_INPUT":
+        // details.fields chứa mảng lỗi cho từng field — dùng trong form
+        // Ví dụ: [{ field: "quantity", message: "Phải lớn hơn 0" }]
+        // Nếu không có form context, show toast
+        toast.error(message ?? "Dữ liệu không hợp lệ")
+        break
+
       case "TABLE_HAS_ACTIVE_ORDER":
         // Redirect tới đơn đang active (details chứa UUID)
-        const orderId = err.response.data.details?.active_order_id
+        const orderId = details?.active_order_id
         router.push(`/order/${orderId}`)
         break
 
       case "INVENTORY_INSUFFICIENT":
-        // KDS hiển thị toast đỏ đặc biệt
-        toast.error(message, { style: { background: "#FC8181" } })
+        // KDS: toast với variant đặc biệt (xem design tokens MASTER §2)
+        toast.error(message, { variant: "inventory-alert" })
+        break
+
+      case "RATE_LIMIT_EXCEEDED":
+        toast.error("Quá nhiều yêu cầu. Vui lòng thử lại sau.")
         break
 
       default:
@@ -154,6 +180,28 @@ api.interceptors.response.use(
     return Promise.reject(err)
   }
 ) |
+| --- |
+
+## 4.1 INVALID_INPUT — Field-Level Error Format
+
+| // BE luôn trả details.fields khi lỗi validation có thể map tới field cụ thể
+// FE dùng để hiện lỗi inline trong form (React Hook Form + setError)
+
+// Ví dụ response 400 INVALID_INPUT:
+{
+  "error": "INVALID_INPUT",
+  "message": "Dữ liệu không hợp lệ",
+  "details": {
+    "fields": [
+      { "field": "quantity",  "message": "Phải lớn hơn 0" },
+      { "field": "table_id",  "message": "UUID không hợp lệ" }
+    ]
+  }
+}
+
+// FE (React Hook Form):
+const { fields } = err.response.data.details ?? {}
+fields?.forEach(({ field, message }) => setError(field, { message })) |
 | --- |
 
 # Section 5 — Quy Tắc Bổ Sung

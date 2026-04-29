@@ -20,15 +20,17 @@ KHÔNG hardcode màu HEX — dùng Tailwind class từ MASTER.docx §1.1. |
 **§  ****Section 2 — Tài Liệu Đọc Trước Khi Code**
 | Cần Gì | Đọc File | Section |
 | --- | --- | --- |
-| Màu sắc, typography, spacing | MASTER.docx | §1.1 Color Palette + §1.3 Typography |
-| KDS color-code logic | MASTER.docx | §1.2 KDS Color-Code (3 mức urgency) |
-| Auth flow, token storage | MASTER.docx | §3 Authentication & JWT Config |
-| Zustand store + interceptor pattern | docs/specs/001_auth.docx | F2 — State & Token Management |
-| API endpoint URLs + request body | API_CONTRACT.docx | §2 Auth, §3 Products, §4 Orders |
-| Error codes → toast messages | MASTER.docx | §6 — Error Codes (FE Action column) |
-| WebSocket reconnect | MASTER.docx | §5.1 — WebSocket (KDS) |
-| SSE events + format | MASTER.docx | §5.2 + §5.3 — SSE Format |
-| Next.js conventions | MASTER.docx | §7.2 — Next.js Frontend Rules |
+| Tailwind token map (bg-primary, text-primary, etc.) | `docs/fe/FE_DOC_INDEX.md` | §3 Token Map |
+| Code patterns (api-client, Zustand, SSE, TQ hooks) | `docs/fe/FE_DOC_INDEX.md` | §5 Patterns |
+| Per-domain reading guide (5.1–5.5) | `docs/fe/FE_DOC_INDEX.md` | §2 Reading Guide |
+| Scaffold status (what's stub vs missing) | `docs/fe/FE_DOC_INDEX.md` | §1 Scaffold |
+| Auth flow, token storage rules | `docs/MASTER_v1.2.md` | §6 JWT Config |
+| KDS urgency colors + WS/SSE config | `docs/MASTER_v1.2.md` | §2, §5 |
+| Zustand store + interceptor pattern | `docs/spec/Spec1_Auth_Updated_v2.md` | F2 State & Token |
+| 3-layer state rule + guard pattern | `docs/FE_STATE_MANAGEMENT.md` | all |
+| API endpoint URLs + request body | `docs/contract/API_CONTRACT_v1.2.md` | §2–§10 |
+| Error codes → toast messages | `docs/contract/ERROR_CONTRACT_v1.1.md` | §4 FE Integration |
+| Next.js conventions | `docs/MASTER_v1.2.md` | §7.2 |
 
 **§  ****Section 3 — Folder Structure**
 | fe/
@@ -55,22 +57,23 @@ KHÔNG hardcode màu HEX — dùng Tailwind class từ MASTER.docx §1.1. |
     └── api-client.ts               ← axios instance + interceptors |
 | --- |
 
-**§  ****Section 4 — Current Work: Spec 001 — Auth**
-**☐  **fe/lib/api-client.ts — axios instance, request interceptor (Bearer), response interceptor (401 → refresh)
-**☐  **fe/features/auth/auth.store.ts — Zustand: user, accessToken IN MEMORY (không localStorage)
-**☐  **fe/features/auth/auth.api.ts — login(), logout(), refreshToken(), getMe()
-**☐  **fe/app/(auth)/login/page.tsx — form với React Hook Form + Zod validation
-**☐  **fe/app/(auth)/layout.tsx — centered card layout cho auth pages
-**☐  **fe/components/guards/AuthGuard.tsx — HOC check auth → redirect /login
-**☐  **fe/components/guards/RoleGuard.tsx — HOC check role_value >= required → 403
+**§  ****Section 4 — Phase 5 Status**
+**Full scaffold status + per-domain reading guide → `docs/fe/FE_DOC_INDEX.md`**
 
-**Critical Implementation Notes**
-| Access token: KHÔNG lưu localStorage. Lưu trong module-level Zustand state (memory only). Xem MASTER §3.1.
-Refresh token: httpOnly cookie — KHÔNG handle thủ công. Browser gửi tự động với credentials.
-interceptor: on 401 → call /auth/refresh → update store → retry original request. Xem 001_auth F2.
-Design tokens: KHÔNG hardcode '#FF7A1A'. Dùng 'text-orange-500'. Xem MASTER §1.1.
-State: Server state → TanStack Query. Client state → Zustand. Form → React Hook Form + Zod.
-Sau F5: onMount → GET /auth/me (access token sẽ được refresh tự động nếu cần). |
+**✅  **layout.tsx + globals.css + tailwind.config.ts — complete (Tailwind tokens, fonts)
+**✅  **5 UI components (badge, button, card, input, label) — complete
+**⚠️  **fe/src/lib/utils.ts — cn() exists; `formatVND()` MUST BE ADDED (see FE_DOC_INDEX §5.6)
+**⚠️  **All 10 page stubs exist with TODO placeholders — body missing
+**⬜  **api-client.ts, auth.store.ts, auth.api.ts — not created (Task 5.1 FIRST)
+**⬜  **types/, hooks/, store/cart.ts, guards/, features/ — not created
+
+**Critical Notes (do NOT get these wrong)**
+| Access token: Zustand in-memory ONLY. KHÔNG lưu localStorage (XSS).
+Refresh cookie: httpOnly cookie — browser gửi tự động, không handle thủ công.
+Design tokens: KHÔNG hardcode hex. KHÔNG dùng text-orange-500. Dùng `text-primary`, `bg-card`, etc. → xem globals.css + FE_DOC_INDEX §3.
+Guest exception: token có sub='guest' → KHÔNG gọi /auth/refresh → redirect /table/:tableId.
+State layers: server state → TanStack Query · client state → Zustand · form → RHF+Zod.
+SSE auth: Bearer header (NOT ?token=). WS auth: ?token= query param. |
 | --- |
 
 **§  ****Section 5 — Working Protocol**

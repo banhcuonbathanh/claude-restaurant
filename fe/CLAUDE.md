@@ -55,11 +55,12 @@ docker compose up -d --build fe  # rebuild FE container
 
 ## Critical Pointers
 
-- KHÔNG hardcode hex — dùng Tailwind class từ `docs/MASTER_v1.2.md §2`
+- KHÔNG hardcode hex — dùng token từ tailwind.config.ts: `bg-primary`, `text-card`, `text-muted-fg` → `docs/fe/FE_DOC_INDEX.md §3`
+- `formatVND()` cho mọi giá tiền — từ `src/lib/utils.ts` (đã có)
 - Access token: Zustand memory ONLY → `docs/MASTER_v1.2.md §6`
 - SSE auth: `Authorization: Bearer` header · WS auth: `?token=` query param → `docs/MASTER_v1.2.md §5`
 - All IDs: `string` (UUID) — never `number`
-- Next.js conventions → `docs/MASTER_v1.2.md §7.2`
+- Scaffold status + patterns → `docs/fe/FE_DOC_INDEX.md`
 
 ## Root Context
 
