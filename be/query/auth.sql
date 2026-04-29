@@ -42,9 +42,9 @@ WHERE staff_id = ? AND expires_at > NOW();
 DELETE FROM refresh_tokens
 WHERE id = (
     SELECT id FROM (
-        SELECT id FROM refresh_tokens
-        WHERE staff_id = ? AND expires_at > NOW()
-        ORDER BY last_used_at ASC
+        SELECT rt.id FROM refresh_tokens AS rt
+        WHERE rt.staff_id = ? AND rt.expires_at > NOW()
+        ORDER BY rt.last_used_at ASC
         LIMIT 1
     ) AS oldest
 );

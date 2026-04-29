@@ -2,9 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Design tokens — from MASTER_v1.2.docx §2
-   Use these CSS variables via Tailwind classes (bg-primary, text-success, etc.)
-   NEVER hardcode hex values in component files. */
+/* Design tokens from MASTER_v1.2 §2 — NEVER hardcode hex in components */
 :root {
   --color-primary:    #FF7A1A;
   --color-background: #0A0F1E;
@@ -12,10 +10,41 @@
   --color-success:    #3DB870;
   --color-warning:    #FCD34D;
   --color-urgent:     #FC8181;
+  --color-foreground: #F9FAFB;
+  --color-border:     #2D3748;
+  --color-muted:      #374151;
+  --color-muted-fg:   #9CA3AF;
+  --radius:           0.5rem;
 }
 
-body {
-  background-color: var(--color-background);
-  color: #F9FAFB;
-  font-family: 'Be Vietnam Pro', sans-serif;
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: 'Be Vietnam Pro', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--color-foreground);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .glow-primary {
+    box-shadow: 0 0 40px -10px var(--color-primary);
+  }
+
+  .gradient-hero {
+    background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 122, 26, 0.15), transparent);
+  }
 }

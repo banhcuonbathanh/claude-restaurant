@@ -9,14 +9,14 @@ import (
 	"banhcuon/be/internal/service"
 )
 
-// respondError writes a standardised error JSON.
-// Format: {"error": "CODE", "message": "human readable"}
-// Ref: ERROR_CONTRACT_v1.1.docx
-func respondError(c *gin.Context, status int, code, message string) {
-	c.AbortWithStatusJSON(status, gin.H{
-		"error":   code,
-		"message": message,
-	})
+// respondError writes a standardised error JSON per ERROR_CONTRACT_v1.1.
+// Format: {"error": "CODE", "message": "...", "details": {...}} — details is optional.
+func respondError(c *gin.Context, status int, code, message string, details ...any) {
+	body := gin.H{"error": code, "message": message}
+	if len(details) > 0 && details[0] != nil {
+		body["details"] = details[0]
+	}
+	c.AbortWithStatusJSON(status, body)
 }
 
 // handleServiceError maps service.AppError to HTTP responses.

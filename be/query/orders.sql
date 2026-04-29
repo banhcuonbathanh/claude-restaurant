@@ -46,7 +46,7 @@ SET total_amount = (
     WHERE order_id = orders.id
 ),
 updated_at = NOW()
-WHERE id = ?;
+WHERE orders.id = ?;
 
 -- name: CreateOrderItem :exec
 INSERT INTO order_items (id, order_id, product_id, combo_id, combo_ref_id, name, unit_price, quantity, qty_served, toppings_snapshot, note)

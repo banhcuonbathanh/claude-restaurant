@@ -19,9 +19,12 @@ var (
 )
 
 // Claims extends RegisteredClaims with staff-specific fields.
+// For guest tokens: Subject="guest", Role="customer", TableID=<table UUID>.
+// For staff tokens: Subject=<staff UUID>, Role=<role>, TableID="".
 type Claims struct {
 	gojwt.RegisteredClaims
-	Role string `json:"role"`
+	Role    string `json:"role"`
+	TableID string `json:"table_id,omitempty"`
 }
 
 // AccessTTL reads JWT_ACCESS_TTL env (seconds), defaults to 86400 (24h).
@@ -59,6 +62,29 @@ func GenerateAccessToken(staffID, role string) (string, error) {
 			ExpiresAt: gojwt.NewNumericDate(now.Add(AccessTTL())),
 		},
 		Role: role,
+	}
+
+	token := gojwt.NewWithClaims(gojwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(secret))
+}
+
+// GenerateGuestToken issues a short-lived (2h) stateless JWT for QR customers.
+// sub="guest", role="customer", table_id=tableID. Not stored in DB.
+func GenerateGuestToken(tableID string) (string, error) {
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		return "", fmt.Errorf("jwt: JWT_SECRET env not set")
+	}
+
+	now := time.Now()
+	claims := Claims{
+		RegisteredClaims: gojwt.RegisteredClaims{
+			Subject:   "guest",
+			IssuedAt:  gojwt.NewNumericDate(now),
+			ExpiresAt: gojwt.NewNumericDate(now.Add(2 * time.Hour)),
+		},
+		Role:    "customer",
+		TableID: tableID,
 	}
 
 	token := gojwt.NewWithClaims(gojwt.SigningMethodHS256, claims)

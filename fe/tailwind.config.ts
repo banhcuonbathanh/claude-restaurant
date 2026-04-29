@@ -9,17 +9,28 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Design tokens — use these classes, never hardcode hex values in components
         primary:    'var(--color-primary)',
         background: 'var(--color-background)',
         card:       'var(--color-card)',
         success:    'var(--color-success)',
         warning:    'var(--color-warning)',
         urgent:     'var(--color-urgent)',
+        foreground: 'var(--color-foreground)',
+        border:     'var(--color-border)',
+        muted:      'var(--color-muted)',
+        'muted-fg': 'var(--color-muted-fg)',
+        ring:       'var(--color-primary)',
       },
       fontFamily: {
-        display: ['Playfair Display', 'serif'],
-        body:    ['Be Vietnam Pro', 'sans-serif'],
+        display: ['var(--font-display)', 'serif'],
+        body:    ['var(--font-body)', 'sans-serif'],
+      },
+      borderRadius: {
+        lg:  'var(--radius)',
+        md:  'calc(var(--radius) - 2px)',
+        sm:  'calc(var(--radius) - 4px)',
+        xl:  'calc(var(--radius) + 4px)',
+        '2xl': 'calc(var(--radius) + 8px)',
       },
     },
   },
