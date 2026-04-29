@@ -275,6 +275,226 @@ Xây dựng Orders API đầy đủ: tạo đơn, cập nhật trạng thái, th
 - [ ] State machine đúng thứ tự — không skip
 - [ ] Chef click KDS → status cycle → SSE push tới customer
 - [ ] Inventory deduction thất bại → rollback → 409 (không 500)
+
+---
+
+## 12. Multi-Table Group (Option A — Linked Orders)
+
+> **Schema:** `orders.group_id CHAR(36) NULL` — xem migration 008. Mỗi bàn giữ order riêng; share `group_id` để hiển thị tổng hợp cho khách và cashier.
+
+### 12.1 Group API Endpoints
+
+| Method | Path | Role | Mô Tả |
+|---|---|---|---|
+| POST | /api/v1/orders/group | Cashier+ | Tạo group: link 2+ orders lại |
+| GET | /api/v1/orders/group/:groupId | Auth* | Xem toàn bộ orders trong group (combined view) |
+| POST | /api/v1/orders/group/:groupId/orders | Cashier+ | Thêm order vào group đã có |
+| DELETE | /api/v1/orders/group/:groupId/orders/:orderId | Cashier+ | Gỡ 1 order khỏi group (set group_id=NULL) |
+| DELETE | /api/v1/orders/group/:groupId | Manager+ | Giải tán toàn bộ group |
+
+> *Auth: Guest token hợp lệ nếu order của họ thuộc group — BE kiểm tra `orders.group_id` match.
+
+---
+
+### 12.2 POST /api/v1/orders/group — Tạo Group
+
+**Auth:** Cashier+ | **Mô tả:** Cashier chọn 2+ bàn đang có active order → link lại thành 1 group.
+
+**Request Body:**
+```json
+{ "order_ids": ["uuid-ban-05", "uuid-ban-07"] }
+```
+
+**Validation:**
+- Tất cả `order_ids` phải tồn tại và `status IN (pending, confirmed, preparing, ready)`
+- Không order nào đã thuộc group khác (`group_id IS NOT NULL`) — phải gỡ khỏi group cũ trước
+- Tối thiểu 2 orders
+
+**Response 201:**
+```json
+{
+  "group_id": "new-uuid",
+  "tables": ["Bàn 05", "Bàn 07"],
+  "order_count": 2,
+  "total_amount": 180000,
+  "orders": [
+    { "id": "uuid", "order_number": "ORD-20260429-001", "table_name": "Bàn 05", "total_amount": 95000 },
+    { "id": "uuid", "order_number": "ORD-20260429-002", "table_name": "Bàn 07", "total_amount": 85000 }
+  ]
+}
+```
+
+**Side effects:** Publish Redis event `group:{groupId}` → `group_created` → tất cả SSE subscribers nhận cập nhật.
+
+---
+
+### 12.3 GET /api/v1/orders/group/:groupId — Combined View cho Khách
+
+**Auth:** Cashier+ hoặc Guest có order trong group
+**Mô tả:** Trả về toàn bộ thông tin của nhóm — đây là endpoint khách hàng dùng để xem tổng hợp.
+
+**Response 200:**
+```json
+{
+  "group_id": "uuid",
+  "tables": ["Bàn 05", "Bàn 07"],
+  "combined_status": "preparing",
+  "total_amount": 180000,
+  "orders": [
+    {
+      "id": "uuid",
+      "order_number": "ORD-20260429-001",
+      "table_name": "Bàn 05",
+      "status": "preparing",
+      "total_amount": 95000,
+      "items": [
+        {
+          "id": "uuid",
+          "name": "Bánh Cuốn Thịt",
+          "quantity": 2,
+          "qty_served": 1,
+          "derived_status": "preparing",
+          "topping_snapshot": [{ "name": "Chả lụa", "price": 10000 }],
+          "note": "Ít mắm"
+        }
+      ]
+    },
+    {
+      "id": "uuid",
+      "order_number": "ORD-20260429-002",
+      "table_name": "Bàn 07",
+      "status": "confirmed",
+      "total_amount": 85000,
+      "items": [
+        {
+          "id": "uuid",
+          "name": "Bánh Cuốn Tôm",
+          "quantity": 3,
+          "qty_served": 0,
+          "derived_status": "pending",
+          "topping_snapshot": null,
+          "note": ""
+        }
+      ]
+    }
+  ]
+}
+```
+
+**`combined_status` logic:**
+| Điều Kiện | combined_status |
+|---|---|
+| Tất cả orders = delivered | `delivered` |
+| Bất kỳ order = preparing | `preparing` |
+| Bất kỳ order = confirmed | `confirmed` |
+| Tất cả orders = pending | `pending` |
+| Bất kỳ order = ready | `ready` |
+
+---
+
+### 12.4 GET /api/v1/orders/group/:groupId/events — Group SSE
+
+**Auth:** Cashier+ hoặc Guest có order trong group
+**Mô tả:** SSE stream tổng hợp — subscribe tới Redis channel của TẤT CẢ orders trong group.
+
+```go
+// GET /api/v1/orders/group/:groupId/events
+func (h *OrderHandler) StreamGroupSSE(c *gin.Context) {
+    groupID := c.Param("groupId")
+
+    // Lấy tất cả orders trong group
+    orders := h.service.GetOrdersByGroupID(ctx, groupID)
+    channels := make([]string, len(orders))
+    for i, o := range orders {
+        channels[i] = fmt.Sprintf("order:%s", o.ID)
+    }
+
+    c.Header("Content-Type", "text/event-stream")
+    c.Header("Cache-Control", "no-cache")
+    c.Header("X-Accel-Buffering", "no")
+
+    // Subscribe tới tất cả channels cùng lúc
+    sub := h.redis.Subscribe(ctx, channels...)
+    defer sub.Close()
+
+    // Initial state: gửi full group snapshot
+    group := h.service.GetGroup(ctx, groupID)
+    sendSSEEvent(c, "group_init", group)
+
+    for msg := range sub.Channel() {
+        // Re-fetch group state sau mỗi event để có combined_status mới nhất
+        group := h.service.GetGroup(ctx, groupID)
+        sendSSEEvent(c, msg.Type, group)
+    }
+}
+```
+
+**Event types:**
+| Event | Khi Nào | Payload |
+|---|---|---|
+| `group_init` | Kết nối lần đầu | Full group object (§12.3 response) |
+| `item_progress` | Chef cập nhật qty_served | Full group object (client re-render) |
+| `order_status_changed` | Bất kỳ order đổi status | Full group object |
+| `group_updated` | Thêm/bớt order khỏi group | Full group object |
+
+> **FE behavior:** Khi khách hàng mở trang theo dõi đơn và `order.group_id != null`, FE subscribe vào `/orders/group/:groupId/events` thay vì (hoặc đồng thời với) `/orders/:id/events`. Hiển thị tất cả bàn trong group với label "Bàn 05", "Bàn 07".
+
+---
+
+### 12.5 Payment cho Group
+
+| Tình Huống | Flow |
+|---|---|
+| **Thanh toán chung** (1 bill toàn nhóm) | Cashier chọn "Thanh toán nhóm" → `POST /payments/group/:groupId` → BE tạo payment cho từng order → tổng = SUM(total_amount) |
+| **Thanh toán riêng** (mỗi bàn 1 bill) | Cashier xử lý từng order độc lập qua `POST /payments` như bình thường |
+
+```
+POST /api/v1/payments/group/:groupId
+Auth: Cashier+
+Body: { "method": "cash" | "vnpay" | "momo" | "zalopay" }
+
+Validation:
+- Tất cả orders trong group phải có status = ready
+- Không order nào đã có payment completed
+
+Response 201:
+{
+  "group_id": "uuid",
+  "payments": [
+    { "order_id": "uuid", "payment_id": "uuid", "amount": 95000 },
+    { "order_id": "uuid", "payment_id": "uuid", "amount": 85000 }
+  ],
+  "total": 180000
+}
+```
+
+---
+
+### 12.6 Business Rules — Group
+
+| Mã | Rule |
+|---|---|
+| GRP-001 | 1 order chỉ thuộc 1 group tại 1 thời điểm |
+| GRP-002 | Chỉ Cashier+ tạo/sửa group — customer chỉ được xem |
+| GRP-003 | Group không ảnh hưởng 1-table-1-active rule — mỗi bàn vẫn có tối đa 1 active order |
+| GRP-004 | Cancel order trong group: thực hiện trên từng order riêng — không cascade sang order khác |
+| GRP-005 | Khi tất cả orders trong group = delivered → group tự giải tán (group_id vẫn giữ trong DB để audit) |
+| GRP-006 | Kitchen (KDS) không thay đổi — vẫn hiển thị theo từng order/bàn riêng |
+
+---
+
+### 12.7 Acceptance Criteria — Group
+
+| # | Kịch Bản | Kết Quả Mong Đợi |
+|---|---|---|
+| AC-G1 | Cashier link Bàn 05 + Bàn 07 | group_id được set trên cả 2 orders |
+| AC-G2 | Khách Bàn 05 mở order tracking | Thấy items của cả Bàn 05 và Bàn 07, labeled rõ ràng |
+| AC-G3 | Chef done item ở Bàn 07 | SSE group_events push tới khách Bàn 05 và Bàn 07 |
+| AC-G4 | Cashier thêm Bàn 09 vào group | Group có 3 orders, SSE notifies tất cả subscribers |
+| AC-G5 | Cashier tách Bàn 07 khỏi group | Bàn 07 group_id = NULL, không còn thấy trong group view |
+| AC-G6 | POST /orders/group với order đã có group_id | 409 ORDER_ALREADY_GROUPED |
+| AC-G7 | Guest token Bàn 05 gọi GET /orders/group/:groupId | 200 — thấy toàn bộ group. Guest Bàn 11 (không trong group) gọi → 403 |
+| AC-G8 | Thanh toán chung cả nhóm khi 1 order chưa ready | 422 GROUP_NOT_ALL_READY |
 - [ ] Huỷ đơn < 30% → success; ≥ 30% → 409
 - [ ] Customer không xem được đơn của người khác
 - [ ] WS Kitchen nhận new_order ngay khi tạo

@@ -11,13 +11,23 @@
 | Phase | Status | Progress |
 |---|---|---|
 | Phase 0 — Docs & Architecture | ✅ COMPLETE | 100% |
-| Phase 1 — DB Migrations (001–007) | ✅ COMPLETE | 100% |
-| Phase 2 — Feature Specs | 🔄 IN PROGRESS | 71% (5/7) |
+| Phase 1 — DB Migrations (001–008) | 🔄 IN PROGRESS | 87% (migration 008 pending) |
+| Phase 2 — Feature Specs | ✅ COMPLETE | 100% (7/7) |
 | Phase 3 — sqlc + Project Setup | 🔄 IN PROGRESS | 80% (sqlc generate pending) |
 | Phase 4 — Backend Implementation | ⬜ NOT STARTED | 0% |
 | Phase 5 — Frontend Implementation | ⬜ NOT STARTED | 0% |
 | Phase 6 — DevOps / Infrastructure | 🔄 IN PROGRESS | 40% (Dockerfiles + compose done) |
 | Phase 7 — Testing & Go-Live | ⬜ NOT STARTED | 0% |
+
+---
+
+## Phase 1 — DB Migrations (Addendum)
+
+> **Migration 008 — Multi-table Group support**
+
+| ID | Status | Task | Notes |
+|---|---|---|---|
+| P1-8 | ⬜ | Run migration `008_order_groups.sql` — adds `group_id CHAR(36) NULL` + index to `orders` table | See [008_order_groups.sql.md](task/task1_database/Ver%202/008_order_groups.sql.md) |
 
 ---
 
@@ -27,8 +37,8 @@
 
 | ID | Status | Task | Spec Ref |
 |---|---|---|---|
-| P2-1 | ⬜ | Write `docs/spec/Spec_6_QR_POS.md` — QR token decode flow, guest auth, table assignment, offline POS edge cases, active-order-on-scan conflict | — |
-| P2-2 | ⬜ | Write `docs/spec/Spec_7_Staff_Management.md` — CRUD staff, deactivation, cache invalidation, manager cannot deactivate own account | — |
+| P2-1 | ✅ | Write `docs/spec/Spec_6_QR_POS.md` — QR token decode flow, guest auth, table assignment, offline POS edge cases, active-order-on-scan conflict, multi-table group, staff-orders-for-customer, per-item toppings | Spec 6 |
+| P2-2 | ✅ | Write `docs/spec/Spec_7_Staff_Management.md` — CRUD staff, deactivation, cache invalidation, manager cannot deactivate own account | Spec 7 |
 
 ---
 
@@ -81,7 +91,10 @@
 | 4.3-2 | ⬜ | `be/internal/service/order_service.go` — CreateOrder (1-table-1-active check, combo expansion in TX, order_seq from Redis, WS publish), CancelOrder (30% rule, SSE publish), UpdateItemStatus (qty_served cycle, auto-ready), GetOrder (customer visibility check), UpdateOrderStatus (state machine validation) | Spec4 AC |
 | 4.3-3 | ⬜ | `be/internal/sse/handler.go` — SSE headers (`text/event-stream`, `X-Accel-Buffering: no`), Redis pub/sub subscribe, initial state event, 15s heartbeat | Spec4 AC |
 | 4.3-4 | ⬜ | `be/internal/handler/order_handler.go` — POST /orders, GET /orders, GET /orders/:id, PATCH /orders/:id/status, DELETE /orders/:id, PATCH items/:itemId/status, PATCH items/:itemId/flag, GET /orders/:id/events (SSE) | Spec4 AC |
-| 4.3-AC | ⬜ | Verify: combo expansion creates parent+sub-items, 1-table-1-active → 409, invalid state transition rejected, chef click → SSE to customer, cancel <30% success, cancel ≥30% → 422, customer cannot see other orders, WS `new_order` on create, SSE heartbeat 15s | Spec4 |
+| 4.3-5 | ⬜ | `be/internal/service/group_service.go` — CreateGroup (validate all order_ids active + ungrouped, set group_id), AddOrder, RemoveOrder (set NULL), GetGroup (combined view + combined_status logic), Disband | Spec4 §12 |
+| 4.3-6 | ⬜ | `be/internal/handler/group_handler.go` — POST /orders/group, GET /orders/group/:id, POST /orders/group/:id/orders, DELETE /orders/group/:id/orders/:orderId, DELETE /orders/group/:id, POST /payments/group/:id | Spec4 §12 |
+| 4.3-7 | ⬜ | `be/internal/sse/group_handler.go` — StreamGroupSSE: query all order IDs in group → subscribe all Redis channels simultaneously → send full group snapshot on every event | Spec4 §12.4 |
+| 4.3-AC | ⬜ | Verify: combo expansion creates parent+sub-items, 1-table-1-active → 409, invalid state transition rejected, chef click → SSE to customer, cancel <30% success, cancel ≥30% → 422, customer cannot see other orders, WS `new_order` on create, SSE heartbeat 15s, group AC-G1 through AC-G8 | Spec4 |
 
 ### Task 4.4 — WebSocket Hub
 

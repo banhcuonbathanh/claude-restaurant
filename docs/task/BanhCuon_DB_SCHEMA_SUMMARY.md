@@ -192,6 +192,7 @@ Fallback: `INSERT ... ON DUPLICATE KEY UPDATE last_seq = last_seq + 1`
 | `note` | TEXT NULL | |
 | `total_amount` | DECIMAL(10,0) DEFAULT 0 | ⚠️ DENORMALIZED — must recalculate after every order_items mutation |
 | `created_by` | CHAR(36) NULL | FK → staff ON DELETE SET NULL. NULL = customer self-order. ⚠️ NOT `staff_id` |
+| `group_id` | CHAR(36) NULL | **v1.2 NEW (migration 008)** — shared UUID for multi-table group (Option A). NULL = standalone order. No FK — application-level constraint. |
 | `created_at`, `updated_at`, `deleted_at` | DATETIME | |
 
 Composite index: `idx_orders_table_status (table_id, status)` — used for One Active Order check.
@@ -229,6 +230,18 @@ pending → confirmed → preparing → ready → delivered
 | Combo sub-item | NOT NULL | NULL | NOT NULL |
 
 ⚠️ `order_items.status` and `order_items.flagged` do NOT exist in migration. Derive status from `qty_served`: 0 = pending, 0 < x < quantity = preparing, x = quantity = done.
+
+---
+
+## 008_order_groups.sql (v1.0)
+
+> Additive migration — adds `group_id` to `orders`. See full SQL: [008_order_groups.sql.md](task1_database/Ver%202/008_order_groups.sql.md)
+
+| Column Added | Type | Notes |
+|---|---|---|
+| `group_id` | CHAR(36) NULL | Shared UUID across orders in a multi-table group. NULL = standalone. |
+
+Index added: `idx_orders_group_id (group_id)` — supports `WHERE group_id = ?` lookup.
 
 ---
 
