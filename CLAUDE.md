@@ -49,7 +49,7 @@ READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 | Phase 2 — Feature Specs | ✅ COMPLETE (7/7) | — |
 | Phase 3 — sqlc + Project Setup | ✅ COMPLETE — generated + verified | — |
 | Phase 4 — Backend | ✅ COMPLETE — all domains coded + all AC verified and fixed | — |
-| Phase 5 — Frontend | 🔄 IN PROGRESS — 5.1 auth + 5.2 menu/cart ✅; 5.3–5.5 remain | — |
+| Phase 5 — Frontend | ✅ COMPLETE — 5.1 auth + 5.2 menu/cart + 5.3 checkout/SSE + 5.4 KDS + 5.5 POS/Payment ✅ | — |
 | Phase 6 — DevOps | 🔄 40% — Dockerfiles + compose done; Caddy + CI + .env.example pending | Can run parallel with P4 |
 | Phase 7 — Testing + Go-Live | ⬜ NOT STARTED | Needs P4+P5 |
 
@@ -124,11 +124,10 @@ FE state (strict): server → TanStack Query · client → Zustand · forms → 
 
 ## Current Work
 
-- **Status:** Phase 5 🔄 IN PROGRESS. 5.1 auth + 5.2 menu/cart complete. `npm run build` passes clean.
-- **Branch:** feature/p5-2-menu-cart
-- **Done:** 5.1 auth flow (api-client interceptors, auth.store, providers, AuthGuard, RoleGuard, login page) · 5.2 menu/cart (types, CartStore, CategoryTabs, ProductCard, ToppingModal, ComboModal, CartDrawer, menu page, QR table page)
+- **Status:** Phase 5 ✅ COMPLETE. Phase 6 (DevOps) next. `npm run build` passes clean.
+- **Branch:** feature/p5-2-menu-cart (all P5 work uncommitted — commit before starting P6)
+- **Done:** 5.1 auth · 5.2 menu/cart · 5.3 checkout/SSE · 5.4 KDS · 5.5 POS + cashier payment page
 - **Next (in order):**
-  1. **5.3** — Checkout + Order Tracking: `npm install sonner @microsoft/fetch-event-source` first, then checkout page + useOrderSSE + order/[id] page
-  2. **5.4** — KDS WebSocket screen
-  3. **Phase 6** — DevOps: Caddyfile + .env.example + CI workflow (can parallel)
+  1. **Commit** all P5 work on current branch, then open PR → merge to main
+  2. **Phase 6 (6-1)** — `.env.example` · then 6-2 migrate script · 6-3 Caddyfile · 6-4 compose health checks · 6-5 CI
 - **How to pick the next task:** Open `docs/TASKS.md` → find next ⬜ task with all dependencies ✅.

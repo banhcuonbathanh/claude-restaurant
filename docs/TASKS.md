@@ -15,7 +15,7 @@
 | Phase 2 — Feature Specs | ✅ COMPLETE | 100% (7/7) |
 | Phase 3 — sqlc + Project Setup | ✅ COMPLETE | 100% (sqlc generated + field names verified) |
 | Phase 4 — Backend Implementation | ✅ COMPLETE | 100% (all domains coded + all AC verified and fixed) |
-| Phase 5 — Frontend Implementation | 🔄 IN PROGRESS | ~70% (5.1 auth + 5.2 menu/cart ✅; 5.3–5.5 remain) |
+| Phase 5 — Frontend Implementation | ✅ COMPLETE | 100% (5.1 auth + 5.2 menu/cart + 5.3 checkout/SSE + 5.4 KDS + 5.5 POS/Payment ✅) |
 | Phase 6 — DevOps / Infrastructure | 🔄 IN PROGRESS | 40% (Dockerfiles + compose done) |
 | Phase 7 — Testing & Go-Live | ⬜ NOT STARTED | 0% |
 
@@ -186,11 +186,11 @@
 
 | ID | Status | Task | AC |
 |---|---|---|---|
-| 5.3-1 | ⬜ | `fe/src/app/(shop)/checkout/page.tsx` — Guard: empty cart → redirect /menu. RHF + Zod schema (customer_name, phone regex, note, payment_method enum). Submit: setPaymentMethod → POST /orders (NO payment_method in body, HAS source field) → clearCart → redirect `/order/${id}` | Spec3 AC |
-| 5.3-2 | ⬜ | `fe/src/hooks/useOrderSSE.ts` — SSE to `/orders/:id/events`, Authorization Bearer header (not query param), exponential backoff (maxAttempts=5, base=1s, max=30s), set connectionError after 3 fails | Spec3 AC |
-| 5.3-3 | ⬜ | `fe/src/app/(shop)/order/[id]/page.tsx` — useOrderSSE, progress bar `Math.round((totalServed/totalQty)*100)%`, item list with StatusBadge, cancel button only if `<30% && status!=='delivered'`, confirm modal before DELETE /orders/:id, ConnectionErrorBanner after 3 fails | Spec3 AC |
-| 5.3-4 | ⬜ | `fe/src/components/shared/StatusBadge.tsx`, `ConnectionErrorBanner.tsx` (`EmptyState.tsx` ✅ done in 5.2-9) | — |
-| 5.3-AC | ⬜ | Verify: POST payload has no payment_method field + has source field, SSE uses Bearer not query param, token from Zustand (not localStorage), progress bar updates real-time, cancel button <30% only, banner after 3 SSE fails, all prices use formatVND() | Spec3 |
+| 5.3-1 | ✅ | `fe/src/app/(shop)/checkout/page.tsx` — Guard: empty cart → redirect /menu. RHF + Zod schema (customer_name, phone regex, note, payment_method enum). Submit: setPaymentMethod → POST /orders (NO payment_method in body, HAS source field) → clearCart → redirect `/order/${id}` | Spec3 AC |
+| 5.3-2 | ✅ | `fe/src/hooks/useOrderSSE.ts` — SSE to `/orders/:id/events`, Authorization Bearer header (not query param), exponential backoff (maxAttempts=5, base=1s, max=30s), set connectionError after 3 fails | Spec3 AC |
+| 5.3-3 | ✅ | `fe/src/app/(shop)/order/[id]/page.tsx` — useOrderSSE, progress bar `Math.round((totalServed/totalQty)*100)%`, item list with StatusBadge, cancel button only if `<30% && status!=='delivered'`, confirm modal before DELETE /orders/:id, ConnectionErrorBanner after 3 fails | Spec3 AC |
+| 5.3-4 | ✅ | `fe/src/components/shared/StatusBadge.tsx`, `ConnectionErrorBanner.tsx` (`EmptyState.tsx` ✅ done in 5.2-9) | — |
+| 5.3-AC | ✅ | Verify: POST payload has no payment_method field + has source field, SSE uses Bearer not query param, token from Zustand (not localStorage), progress bar updates real-time, cancel button <30% only, banner after 3 SSE fails, all prices use formatVND() | Spec3 |
 
 ### Task 5.4 — KDS Screen
 
@@ -198,7 +198,7 @@
 
 | ID | Status | Task | AC |
 |---|---|---|---|
-| 5.4-1 | ⬜ | `fe/src/app/(dashboard)/kds/page.tsx` — Full-screen bg `#0A0F1E`, WS `/ws/kds?token={accessToken}`, same WS_RECONNECT config as SSE. Cards: table+order number, timestamp, elapsed time, item list (sub-items only, not combo header). Color: <10min normal, 10-20min yellow border, >20min or flagged red border. Click item → PATCH status cycle. Flag → PATCH flag toggle. Sound alert on new_order (Web Audio API). | Spec4 FE |
+| 5.4-1 | ✅ | `fe/src/app/(dashboard)/kds/page.tsx` — Full-screen bg `#0A0F1E`, WS `/ws/kds?token={accessToken}`, same WS_RECONNECT config as SSE. Cards: table+order number, timestamp, elapsed time, item list (sub-items only, not combo header). Color: <10min normal, 10-20min yellow border, >20min or flagged red border. Click item → PATCH status cycle. Flag → PATCH flag toggle. Sound alert on new_order (Web Audio API). | Spec4 FE |
 
 ### Task 5.5 — POS & Payment UI
 
@@ -206,8 +206,8 @@
 
 | ID | Status | Task | AC |
 |---|---|---|---|
-| 5.5-1 | ⬜ | `fe/src/app/(dashboard)/pos/page.tsx` — 2-column layout (menu browse left, order summary right), RoleGuard Cashier+, POST /orders with `customer_name="Khách tại quán"` / `customer_phone="0000000000"`, navigate to payment page when order.status = 'ready' | Spec5 FE |
-| 5.5-2 | ⬜ | `fe/src/app/(dashboard)/cashier/payment/[id]/page.tsx` — Show order total, QR image from POST /payments response, subscribe WS `payment_success`, on success: toast → window.print() → redirect /pos. COD button → immediate. Optional proof upload via PATCH /payments/:id/proof. Print: `@media print { .no-print { display: none } }` | Spec5 FE AC |
+| 5.5-1 | ✅ | `fe/src/app/(dashboard)/pos/page.tsx` — 2-column layout (menu browse left, order summary right), RoleGuard Cashier+, POST /orders with `customer_name="Khách tại quán"` / `customer_phone="0000000000"`, navigate to payment page when order.status = 'ready' | Spec5 FE |
+| 5.5-2 | ✅ | `fe/src/app/(dashboard)/cashier/payment/[id]/page.tsx` — Show order total, QR image from POST /payments response, subscribe WS `payment_success`, on success: toast → window.print() → redirect /pos. COD button → immediate. Optional proof upload via PATCH /payments/:id/proof. Print: `@media print { .no-print { display: none } }` | Spec5 FE AC |
 
 ---
 
