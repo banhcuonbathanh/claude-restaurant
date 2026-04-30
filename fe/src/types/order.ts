@@ -7,16 +7,17 @@ export function deriveItemStatus(qty_served: number, quantity: number): ItemStat
 }
 
 export interface OrderItem {
-  id:              string
-  product_id:      string | null
-  combo_id:        string | null
-  combo_ref_id:    string | null
-  name:            string
-  quantity:        number
-  qty_served:      number
-  unit_price:      number
-  note:            string | null
+  id:               string
+  product_id:       string | null
+  combo_id:         string | null
+  combo_ref_id:     string | null
+  name:             string
+  quantity:         number
+  qty_served:       number
+  unit_price:       number
+  note:             string | null
   topping_snapshot: object | null
+  flagged:          boolean
 }
 
 export type OrderStatus =

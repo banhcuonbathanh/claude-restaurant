@@ -15,7 +15,7 @@
 | Phase 2 — Feature Specs | ✅ COMPLETE | 100% (7/7) |
 | Phase 3 — sqlc + Project Setup | ✅ COMPLETE | 100% (sqlc generated + field names verified) |
 | Phase 4 — Backend Implementation | ✅ COMPLETE | 100% (all domains coded + all AC verified and fixed) |
-| Phase 5 — Frontend Implementation | ⬜ NOT STARTED | 0% (scaffold stubs only) |
+| Phase 5 — Frontend Implementation | 🔄 IN PROGRESS | ~70% (5.1 auth + 5.2 menu/cart ✅; 5.3–5.5 remain) |
 | Phase 6 — DevOps / Infrastructure | 🔄 IN PROGRESS | 40% (Dockerfiles + compose done) |
 | Phase 7 — Testing & Go-Live | ⬜ NOT STARTED | 0% |
 
@@ -154,13 +154,13 @@
 
 | ID | Status | Task | AC |
 |---|---|---|---|
-| 5.1-1 | ⬜ | `fe/src/lib/api-client.ts` — Axios instance, request interceptor (attach Bearer from Zustand), response interceptor (401 → refresh → retry once, 2nd 401 → clear store → redirect /login), withCredentials: true | Spec1 FE AC |
-| 5.1-2 | ⬜ | `fe/src/features/auth/auth.store.ts` — Zustand: `user`, `accessToken` (memory only, never localStorage), setAuth, clearAuth | Spec1 FE AC |
-| 5.1-3 | ⬜ | `fe/src/features/auth/auth.api.ts` — login, logout, refreshToken, getMe | — |
-| 5.1-4 | ⬜ | `fe/src/app/(auth)/login/page.tsx` — RHF + Zod (username min 3, password min 6), role-based redirect (chef→/kds, cashier→/pos, manager/admin→/dashboard, customer→/menu), inline error on wrong credentials | Spec1 FE AC |
-| 5.1-5 | ⬜ | `fe/src/components/guards/AuthGuard.tsx` — On mount: if no token → try getMe() → if fails → redirect /login | — |
-| 5.1-6 | ⬜ | `fe/src/components/guards/RoleGuard.tsx` — Role value compare, show 403 page (not redirect) if insufficient | — |
-| 5.1-AC | ⬜ | Verify: token never in localStorage (DevTools check), F5 → silent session restore, 401 → auto refresh → retry, 2nd 401 → /login, wrong role → 403 page | Spec1 FE |
+| 5.1-1 | ✅ | `fe/src/lib/api-client.ts` — Axios instance, request interceptor (attach Bearer from Zustand), response interceptor (401 → refresh → retry once, 2nd 401 → clear store → redirect /login), withCredentials: true | Spec1 FE AC |
+| 5.1-2 | ✅ | `fe/src/features/auth/auth.store.ts` — Zustand: `user`, `accessToken` (memory only, never localStorage), setAuth, clearAuth | Spec1 FE AC |
+| 5.1-3 | ✅ | `fe/src/features/auth/auth.api.ts` — login, logout, refreshToken, getMe | — |
+| 5.1-4 | ✅ | `fe/src/app/(auth)/login/page.tsx` — RHF + Zod (username min 3, password min 6), role-based redirect (chef→/kds, cashier→/pos, manager/admin→/dashboard, customer→/menu), inline error on wrong credentials | Spec1 FE AC |
+| 5.1-5 | ✅ | `fe/src/components/guards/AuthGuard.tsx` — On mount: if no token → try getMe() → if fails → redirect /login | — |
+| 5.1-6 | ✅ | `fe/src/components/guards/RoleGuard.tsx` — Role value compare, show 403 page (not redirect) if insufficient | — |
+| 5.1-AC | ✅ | Verify: token never in localStorage (DevTools check), F5 → silent session restore, 401 → auto refresh → retry, 2nd 401 → /login, wrong role → 403 page | Spec1 FE |
 
 ### Task 5.2 — Menu & Cart
 
@@ -168,27 +168,28 @@
 
 | ID | Status | Task | AC |
 |---|---|---|---|
-| 5.2-1 | ⬜ | `fe/src/types/product.ts` — Topping, Product, ComboItem, Combo interfaces (NO slug, NO base_price, NO image_url, NO price_delta) | Spec3 |
-| 5.2-2 | ⬜ | `fe/src/types/order.ts` + `fe/src/types/cart.ts` — CartItem, Order, OrderItem, itemStatus derive function | Spec4 |
-| 5.2-3 | ⬜ | `fe/src/store/cart.ts` — CartStore: items, tableId, paymentMethod, addItem (dedup same product+toppings → increment qty), removeItem, updateQty, clearCart, setTableId, setPaymentMethod, computed: total, itemCount | Spec3 |
-| 5.2-4 | ⬜ | `fe/src/components/menu/CategoryTabs.tsx` — Sticky, horizontal scroll mobile, active = `border-b-2 border-orange-500` | Spec3 |
-| 5.2-5 | ⬜ | `fe/src/components/menu/ProductCard.tsx` — image_path, name, formatVND(price) in orange, "+Thêm" button, "Hết" badge if !is_available | Spec3 |
-| 5.2-6 | ⬜ | `fe/src/components/menu/ToppingModal.tsx` — Checkbox list, `+{price}₫` per topping, footer total = product.price + sum(selected topping prices) | Spec3 |
-| 5.2-7 | ⬜ | `fe/src/components/menu/ComboModal.tsx` — Combo image, combo_items list with quantities, confirm button | Spec3 |
-| 5.2-8 | ⬜ | `fe/src/components/menu/CartDrawer.tsx` — Slide-in from right, qty stepper, total, "Thanh toán" → /checkout | Spec3 |
-| 5.2-9 | ⬜ | `fe/src/app/(shop)/menu/page.tsx` — TanStack Query for products, CategoryTabs, ProductCard grid, CartDrawer | Spec3 AC |
-| 5.2-10 | ⬜ | `fe/src/app/table/[tableId]/page.tsx` — POST /auth/guest → store token in Zustand (not localStorage) → cartStore.setTableId() → redirect /menu | Spec6 |
+| 5.2-1 | ✅ | `fe/src/types/product.ts` — Topping, Product, ComboItem, Combo interfaces (NO slug, NO base_price, NO image_url, NO price_delta) | Spec3 |
+| 5.2-2 | ✅ | `fe/src/types/order.ts` + `fe/src/types/cart.ts` — CartItem, Order, OrderItem, itemStatus derive function | Spec4 |
+| 5.2-3 | ✅ | `fe/src/store/cart.ts` — CartStore: items, tableId, paymentMethod, addItem (dedup same product+toppings → increment qty), removeItem, updateQty, clearCart, setTableId, setPaymentMethod, computed: total, itemCount | Spec3 |
+| 5.2-4 | ✅ | `fe/src/components/menu/CategoryTabs.tsx` — Sticky, horizontal scroll mobile, active = `border-b-2 border-primary` | Spec3 |
+| 5.2-5 | ✅ | `fe/src/components/menu/ProductCard.tsx` — image_path, name, formatVND(price) in orange, "+Thêm" button, "Hết" badge if !is_available | Spec3 |
+| 5.2-6 | ✅ | `fe/src/components/menu/ToppingModal.tsx` — Checkbox list, `+{price}₫` per topping, footer total = product.price + sum(selected topping prices) | Spec3 |
+| 5.2-7 | ✅ | `fe/src/components/menu/ComboModal.tsx` — Combo image, combo_items list with quantities, confirm button | Spec3 |
+| 5.2-8 | ✅ | `fe/src/components/menu/CartDrawer.tsx` — Slide-in from right, qty stepper, total, "Thanh toán" → /checkout | Spec3 |
+| 5.2-9 | ✅ | `fe/src/app/(shop)/menu/page.tsx` — TanStack Query for products, CategoryTabs, ProductCard grid, CartDrawer. Also created `EmptyState.tsx` (replaces 5.3-4 partial) | Spec3 AC |
+| 5.2-10 | ✅ | `fe/src/app/table/[tableId]/page.tsx` — POST /auth/guest {qr_token} → store token in Zustand (not localStorage) → cartStore.setTableId(table.id) → redirect /menu | Spec6 |
 
 ### Task 5.3 — Checkout & Order Tracking
 
 > **Dependency:** 5.2 cart + 4.3 orders API working
+> ⚠️ **Before starting:** run `cd fe && npm install sonner @microsoft/fetch-event-source` — needed for toast + SSE hook
 
 | ID | Status | Task | AC |
 |---|---|---|---|
 | 5.3-1 | ⬜ | `fe/src/app/(shop)/checkout/page.tsx` — Guard: empty cart → redirect /menu. RHF + Zod schema (customer_name, phone regex, note, payment_method enum). Submit: setPaymentMethod → POST /orders (NO payment_method in body, HAS source field) → clearCart → redirect `/order/${id}` | Spec3 AC |
 | 5.3-2 | ⬜ | `fe/src/hooks/useOrderSSE.ts` — SSE to `/orders/:id/events`, Authorization Bearer header (not query param), exponential backoff (maxAttempts=5, base=1s, max=30s), set connectionError after 3 fails | Spec3 AC |
 | 5.3-3 | ⬜ | `fe/src/app/(shop)/order/[id]/page.tsx` — useOrderSSE, progress bar `Math.round((totalServed/totalQty)*100)%`, item list with StatusBadge, cancel button only if `<30% && status!=='delivered'`, confirm modal before DELETE /orders/:id, ConnectionErrorBanner after 3 fails | Spec3 AC |
-| 5.3-4 | ⬜ | `fe/src/components/shared/StatusBadge.tsx`, `ConnectionErrorBanner.tsx`, `EmptyState.tsx` | — |
+| 5.3-4 | ⬜ | `fe/src/components/shared/StatusBadge.tsx`, `ConnectionErrorBanner.tsx` (`EmptyState.tsx` ✅ done in 5.2-9) | — |
 | 5.3-AC | ⬜ | Verify: POST payload has no payment_method field + has source field, SSE uses Bearer not query param, token from Zustand (not localStorage), progress bar updates real-time, cancel button <30% only, banner after 3 SSE fails, all prices use formatVND() | Spec3 |
 
 ### Task 5.4 — KDS Screen
