@@ -1,3 +1,7 @@
+> **SUPERSEDED** — Use [`FE_SYSTEM_GUIDE.md`](FE_SYSTEM_GUIDE.md) as the primary FE reference. This file is kept for reference only.
+
+---
+
 # FE Documentation Index — Phase 5 Navigation Guide
 
 > **Purpose:** Single navigation guide for all FE implementation work.

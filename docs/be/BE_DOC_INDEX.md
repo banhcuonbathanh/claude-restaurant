@@ -1,3 +1,7 @@
+> **SUPERSEDED** — Use [`BE_SYSTEM_GUIDE.md`](BE_SYSTEM_GUIDE.md) as the primary BE reference. This file is kept for reference only.
+
+---
+
 # BE Documentation Index — Phase 4 Navigation Guide
 
 > **Purpose:** Single navigation guide for all BE implementation work.

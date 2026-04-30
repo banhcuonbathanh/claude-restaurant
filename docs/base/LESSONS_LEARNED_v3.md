@@ -80,6 +80,10 @@ These are structural gaps identified after a full audit of the workflow. Each ha
 **Problem:** TASKS.md mixes 20-minute tasks (pubsub.go wrappers) with 3-hour tasks (full auth service). This makes session planning unreliable and increases the chance of leaving a task half-done.
 **Mitigation:** When a task in TASKS.md looks like it will take more than 90 minutes in a single session, break it into sub-tasks before starting. The signal: any task with 3+ distinct files to create, or any task that crosses two service layers. Flag with ❓ CLARIFY to confirm the breakdown before coding.
 
+### Weakness 5 — Navigation-only index files cause multi-file context switching
+**Problem:** BE_DOC_INDEX.md and FE_DOC_INDEX.md pointed to the right files but contained no actual content. Every session required opening 4–6 different files just to get context before writing a single line of code. This increased the chance of missing a critical rule.
+**Resolution (2026-04-30):** Created `docs/be/BE_SYSTEM_GUIDE.md` and `docs/fe/FE_SYSTEM_GUIDE.md` — comprehensive system guides that consolidate: epic breakdown · all critical rules · code patterns · DI skeleton · error codes · per-domain reading list. Each guide is the single entry point for its side. Spec files are still the source of domain-specific detail, but the guide tells you exactly which spec to read and when.
+
 ---
 
 ## 💡  0.5 — Tips Để Làm Việc Hiệu Quả Nhất Với Claude
@@ -149,6 +153,8 @@ These are structural gaps identified after a full audit of the workflow. Each ha
 | Error codes | MASTER.docx §7 | Reference không copy |
 | API endpoints (bảng) | API_CONTRACT.docx | Specs reference section số |
 | Domain-specific sqlc queries | docs/specs/NNN_domain.docx | Không repeat ở nơi khác |
+| BE implementation guide (epics · patterns · rules) | docs/be/BE_SYSTEM_GUIDE.md | Reference từ CLAUDE.md — không copy content |
+| FE implementation guide (epics · patterns · rules) | docs/fe/FE_SYSTEM_GUIDE.md | Reference từ CLAUDE.md — không copy content |
 | Current work / branch | CLAUDE.md §Current Work | Update sau mỗi /handoff |
 
 # ✅  Phần 3 — Checklist Trước Khi Viết Bất Kỳ Doc Nào

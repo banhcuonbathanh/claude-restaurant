@@ -13,11 +13,22 @@
 | Phase 0 — Docs & Architecture | ✅ COMPLETE | 100% |
 | Phase 1 — DB Migrations (001–008) | 🔄 IN PROGRESS | 87% (migration 008 pending) |
 | Phase 2 — Feature Specs | ✅ COMPLETE | 100% (7/7) |
-| Phase 3 — sqlc + Project Setup | 🔄 IN PROGRESS | 80% (sqlc generate pending) |
-| Phase 4 — Backend Implementation | ⬜ NOT STARTED | 0% |
-| Phase 5 — Frontend Implementation | ⬜ NOT STARTED | 0% |
+| Phase 3 — sqlc + Project Setup | ✅ COMPLETE | 100% (sqlc generated + field names verified) |
+| Phase 4 — Backend Implementation | 🔄 IN PROGRESS | ~15% (auth infra done; handler missing) |
+| Phase 5 — Frontend Implementation | ⬜ NOT STARTED | 0% (scaffold stubs only) |
 | Phase 6 — DevOps / Infrastructure | 🔄 IN PROGRESS | 40% (Dockerfiles + compose done) |
 | Phase 7 — Testing & Go-Live | ⬜ NOT STARTED | 0% |
+
+---
+
+## Phase 0 — Docs & Architecture (Addendum)
+
+> **Doc Restructuring — 2026-04-30:** Replaced navigation-only index files with comprehensive system guides.
+
+| ID | Status | Task | Notes |
+|---|---|---|---|
+| P0-A1 | ✅ | Create `docs/be/BE_SYSTEM_GUIDE.md` — comprehensive BE manual (8 epics · business rules · auth flow · error codes · DI pattern · code patterns · per-epic reading list) | Supersedes BE_DOC_INDEX.md as primary guide |
+| P0-A2 | ✅ | Create `docs/fe/FE_SYSTEM_GUIDE.md` — comprehensive FE manual (8 epics · design tokens · TS conventions · auth/token rules · all code patterns · per-epic reading list) | Supersedes FE_DOC_INDEX.md as primary guide |
 
 ---
 
@@ -48,8 +59,8 @@
 
 | ID | Status | Task | Notes |
 |---|---|---|---|
-| P3-1 | ⬜ | Install sqlc CLI and run `sqlc generate` → creates `be/internal/db/` (models + querier) | `cd be && sqlc generate` |
-| P3-2 | ⬜ | Verify generated struct field names — must match schema: `price` not `base_price`, `image_path` not `image_url`, `created_by` not `staff_id`, `gateway_data` not `webhook_payload`, payment status `completed` not `success` | Read `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` |
+| P3-1 | ✅ | Install sqlc CLI and run `sqlc generate` → creates `be/internal/db/` (models + querier) | `cd be && sqlc generate` |
+| P3-2 | ✅ | Verify generated struct field names — must match schema: `price` not `base_price`, `image_path` not `image_url`, `created_by` not `staff_id`, `gateway_data` not `webhook_payload`, payment status `completed` not `success` | Read `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` |
 
 ---
 
@@ -62,11 +73,11 @@
 
 | ID | Status | Task | AC |
 |---|---|---|---|
-| 4.1-1 | ⬜ | `be/pkg/redis/pubsub.go` — Publish, Subscribe, Unsubscribe wrappers | — |
-| 4.1-2 | ⬜ | `be/pkg/redis/bloom.go` — Add, Exists (for `bloom:order_exists`, `bloom:product_ids`) | — |
-| 4.1-3 | ⬜ | `be/internal/repository/auth_repo.go` — Wrap all sqlc auth queries (GetStaffByUsername, GetStaffByID, CreateRefreshToken, GetRefreshToken, DeleteRefreshToken, DeleteRefreshTokensByStaff, SetStaffActive, ListActiveSessionsByStaff) | — |
-| 4.1-4 | ⬜ | `be/internal/service/auth_service.go` — Login (rate limit check → bcrypt → access token → refresh token → max 5 sessions), Refresh, Logout, ValidateIsActive | Spec1 AC |
-| 4.1-5 | ⬜ | Complete `be/internal/middleware/auth.go` — parse Bearer, Redis is_active cache (TTL 5min), set `staff_id` + `role` in context, 401 `ACCOUNT_DISABLED` if is_active=false | Spec1 AC |
+| 4.1-1 | ✅ | `be/pkg/redis/pubsub.go` — Publish, Subscribe, Unsubscribe wrappers | — |
+| 4.1-2 | ✅ | `be/pkg/redis/bloom.go` — Add, Exists (for `bloom:order_exists`, `bloom:product_ids`) | — |
+| 4.1-3 | ✅ | `be/internal/repository/auth_repo.go` — Wrap all sqlc auth queries (GetStaffByUsername, GetStaffByID, CreateRefreshToken, GetRefreshToken, DeleteRefreshToken, DeleteRefreshTokensByStaff, SetStaffActive, ListActiveSessionsByStaff) | — |
+| 4.1-4 | ✅ | `be/internal/service/auth_service.go` — Login (rate limit check → bcrypt → access token → refresh token → max 5 sessions), Refresh, Logout, GetMe, GuestLogin, DeactivateStaff, ReactivateStaff | Spec1 AC |
+| 4.1-5 | ✅ | `be/internal/middleware/auth.go` — parse Bearer, JWT validate, set claims/staff_id/role in context, httpOnly cookie helpers | Spec1 AC |
 | 4.1-6 | ⬜ | `be/internal/handler/auth_handler.go` — POST /login (httpOnly cookie), POST /refresh, POST /logout, GET /me, POST /guest | Spec1 AC |
 | 4.1-AC | ⬜ | Verify all Acceptance Criteria from Spec1: wrong-password same error, 6th login → 429, dual sessions, single logout, admin deactivate → 401, is_active Redis cache hit, error format `{"error":"AUTH_001","message":"..."}` | Spec1 |
 
