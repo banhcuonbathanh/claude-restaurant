@@ -2,7 +2,7 @@
 
 > **Version:** v1.0 · 2026-04-29
 > **Rule:** Update status here after every task. ⬜ = not started · 🔄 = in progress · ✅ = done · 🔴 = blocked
-> **Before starting any task:** Follow `docs/IMPLEMENTATION_WORKFLOW.md` — READ → PLAN → ALIGN → IMPLEMENT → REVIEW → TEST → DONE
+> **Before starting any task:** `git checkout -b feature/<task-id>-<short-name>` (e.g. `feature/p1-8-order-groups`), then follow `docs/IMPLEMENTATION_WORKFLOW.md` — READ → PLAN → ALIGN → IMPLEMENT → REVIEW → TEST → DONE
 
 ---
 
@@ -11,10 +11,10 @@
 | Phase | Status | Progress |
 |---|---|---|
 | Phase 0 — Docs & Architecture | ✅ COMPLETE | 100% |
-| Phase 1 — DB Migrations (001–008) | 🔄 IN PROGRESS | 87% (migration 008 pending) |
+| Phase 1 — DB Migrations (001–008) | ✅ COMPLETE | 100% |
 | Phase 2 — Feature Specs | ✅ COMPLETE | 100% (7/7) |
 | Phase 3 — sqlc + Project Setup | ✅ COMPLETE | 100% (sqlc generated + field names verified) |
-| Phase 4 — Backend Implementation | 🔄 IN PROGRESS | ~85% (all domains coded, build passes; AC verification + group service pending P1-8) |
+| Phase 4 — Backend Implementation | 🔄 IN PROGRESS | ~90% (all domains coded + group service fully implemented; AC verification pending) |
 | Phase 5 — Frontend Implementation | ⬜ NOT STARTED | 0% (scaffold stubs only) |
 | Phase 6 — DevOps / Infrastructure | 🔄 IN PROGRESS | 40% (Dockerfiles + compose done) |
 | Phase 7 — Testing & Go-Live | ⬜ NOT STARTED | 0% |
@@ -38,7 +38,7 @@
 
 | ID | Status | Task | Notes |
 |---|---|---|---|
-| P1-8 | ⬜ | Run migration `008_order_groups.sql` — adds `group_id CHAR(36) NULL` + index to `orders` table | See [008_order_groups.sql.md](task/task1_database/Ver%202/008_order_groups.sql.md) |
+| P1-8 | ✅ | Run migration `008_order_groups.sql` — adds `group_id CHAR(36) NULL` + index to `orders` table | See [008_order_groups.sql.md](task/task1_database/Ver%202/008_order_groups.sql.md) |
 
 ---
 
@@ -102,9 +102,9 @@
 | 4.3-2 | ✅ | `be/internal/service/order_service.go` — CreateOrder (1-table-1-active check, combo expansion in TX, order_seq from Redis, WS publish), CancelOrder (30% rule, SSE publish), UpdateItemStatus (qty_served cycle, auto-ready), GetOrder (customer visibility check), UpdateOrderStatus (state machine validation) | Spec4 AC |
 | 4.3-3 | ✅ | `be/internal/sse/handler.go` — SSE headers (`text/event-stream`, `X-Accel-Buffering: no`), Redis pub/sub subscribe, initial state event, 15s heartbeat | Spec4 AC |
 | 4.3-4 | ✅ | `be/internal/handler/order_handler.go` — POST /orders, GET /orders, GET /orders/:id, PATCH /orders/:id/status, DELETE /orders/:id, PATCH items/:itemId/status, PATCH items/:itemId/flag, GET /orders/:id/events (SSE) | Spec4 AC |
-| 4.3-5 | 🔴 | `be/internal/service/group_service.go` — stub only, returns 501 NOT_IMPLEMENTED. BLOCKED on P1-8 (migration 008 must add group_id column first) | Spec4 §12 |
-| 4.3-6 | ✅ | `be/internal/handler/group_handler.go` — stubs returning 501 NOT_IMPLEMENTED (CreateGroup, GetGroup, RemoveFromGroup, DisbandGroup) | Spec4 §12 |
-| 4.3-7 | 🔴 | `be/internal/sse/group_handler.go` — NOT created. BLOCKED on P1-8 (migration 008 must run first) | Spec4 §12.4 |
+| 4.3-5 | ✅ | `be/internal/service/group_service.go` — full implementation: CreateGroup, AddToGroup, GetGroupOrders, RemoveFromGroup, DisbandGroup, HasOrderInGroup; ErrAlreadyGrouped sentinel added | Spec4 §12 |
+| 4.3-6 | ✅ | `be/internal/handler/group_handler.go` — full handlers: CreateGroup, GetGroup, AddToGroup, RemoveFromGroup, DisbandGroup; routes wired in main.go with correct RBAC (Cashier+ create/add/remove, Manager+ disband) | Spec4 §12 |
+| 4.3-7 | ✅ | `be/internal/sse/group_handler.go` — StreamGroup: subscribes to Redis `group:{id}`, sends full snapshot on connect + on every event, 15s heartbeat | Spec4 §12.4 |
 | 4.3-AC | ⬜ | Verify: combo expansion creates parent+sub-items, 1-table-1-active → 409, invalid state transition rejected, chef click → SSE to customer, cancel <30% success, cancel ≥30% → 422, customer cannot see other orders, WS `new_order` on create, SSE heartbeat 15s, group AC-G1 through AC-G8 | Spec4 |
 
 ### Task 4.4 — WebSocket Hub

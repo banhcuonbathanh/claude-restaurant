@@ -7,7 +7,7 @@
 
 ## Claude Workflow
 
-**Commands:** `/start [feature]` · `/handoff` to close.
+**Commands:** `/handoff` to close.
 
 **Prefixes:** `💡 SUGGESTION` · `⚠️ FLAG` · `🚨 RISK` · `🔴 STOP` · `❓ CLARIFY` · `🔄 REDIRECT`
 
@@ -45,10 +45,10 @@ READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 | Phase | Status | Blocking |
 |---|---|---|
 | Phase 0 — Architecture & Docs | ✅ COMPLETE | — |
-| Phase 1 — DB Migrations | 🔄 87% — migration 008 pending | — |
+| Phase 1 — DB Migrations | ✅ COMPLETE | — |
 | Phase 2 — Feature Specs | ✅ COMPLETE (7/7) | — |
 | Phase 3 — sqlc + Project Setup | ✅ COMPLETE — generated + verified | — |
-| Phase 4 — Backend | 🔄 ~85% — all domains coded + build clean; AC verification + group service (P1-8) pending | — |
+| Phase 4 — Backend | 🔄 ~90% — all domains coded + group service fully implemented; AC verification pending | — |
 | Phase 5 — Frontend | ⬜ NOT STARTED (scaffold stubs only) | Needs P4.1 fully done first |
 | Phase 6 — DevOps | 🔄 40% — Dockerfiles + compose done; Caddy + CI + .env.example pending | Can run parallel with P4 |
 | Phase 7 — Testing + Go-Live | ⬜ NOT STARTED | Needs P4+P5 |
@@ -87,15 +87,15 @@ docs/claude/CLAUDE_BE.md · CLAUDE_FE.md · CLAUDE_DEVOPS.md
 
 ## Single Sources (đọc trước khi code)
 
-| Loại | File |
-|---|---|
-| DB field names | `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` |
-| Error codes + format | `docs/contract/ERROR_CONTRACT_v1.1.md` |
-| Business rules (order, payment, cancel) | `docs/MASTER_v1.2.md §4` |
-| RBAC roles + hierarchy | `docs/MASTER_v1.2.md §3` |
-| Design tokens (màu, font) | `docs/MASTER_v1.2.md §2` |
-| JWT config + auth rules | `docs/MASTER_v1.2.md §6` |
-| Realtime (SSE/WS config) | `docs/MASTER_v1.2.md §5` + `docs/contract/API_CONTRACT_v1.2.md §10` |
+> Cross-cutting only. Domain-specific refs live in `CLAUDE_BE.md §2` and `CLAUDE_FE.md §2`.
+
+| Loại | File | Who |
+|---|---|---|
+| Error codes + format | `docs/contract/ERROR_CONTRACT_v1.1.md` | BE + FE |
+| Business rules (order, payment, cancel) | `docs/MASTER_v1.2.md §4` | BE + FE |
+| RBAC roles + hierarchy | `docs/MASTER_v1.2.md §3` | BE + FE |
+| JWT config + auth rules | `docs/MASTER_v1.2.md §6` | BE + FE |
+| Realtime (SSE/WS config) | `docs/MASTER_v1.2.md §5` + `docs/contract/API_CONTRACT_v1.2.md §10` | BE + FE + DevOps |
 
 ## Commands
 
@@ -124,12 +124,11 @@ FE state (strict): server → TanStack Query · client → Zustand · forms → 
 
 ## Current Work
 
-- **Status:** Phase 4 ~85% complete. All domains coded (`go build ./be/...` passes clean). Group service stubbed pending migration 008.
+- **Status:** Phase 4 ~90% complete. All domains coded + group service fully implemented (`go build ./be/...` passes clean).
 - **Branch:** main
-- **Done:** All Phase 4 BE implementation — auth handler · product repo/svc/handler · order repo/svc/handler · SSE handler · WebSocket hub+client+handler · payment gateways (VNPay/MoMo/ZaloPay) · payment repo/svc/handler · payment timeout job · file cleanup job · table repo/handler · file handler · `main.go` full DI + all routes wired
+- **Done:** All Phase 4 BE + P1-8 migration 008 applied · group_service (CreateGroup/AddToGroup/GetGroupOrders/RemoveFromGroup/DisbandGroup) · sse/group_handler (StreamGroup) · AddToGroup handler · routes wired in main.go · sqlc regenerated with group_id
 - **Next (in order):**
-  1. **P1-8** — Run migration `008_order_groups.sql` (enables group service + 4.3-5 + 4.3-7)
-  2. **4.1-AC** — Verify Spec1 acceptance criteria against running server
-  3. **4.2-AC / 4.3-AC / 4.5-AC** — Verify remaining domain ACs
-  4. **Phase 5** — Frontend (start with 5.1 api-client + Zustand stores)
+  1. **4.1-AC** — Verify Spec1 acceptance criteria against running server
+  2. **4.2-AC / 4.3-AC / 4.5-AC** — Verify remaining domain ACs
+  3. **Phase 5** — Frontend (start with 5.1 api-client + Zustand stores)
 - **How to pick the next task:** Open `docs/TASKS.md` → find next ⬜ task with all dependencies ✅.

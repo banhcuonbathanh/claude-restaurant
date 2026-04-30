@@ -83,3 +83,16 @@ ON DUPLICATE KEY UPDATE last_seq = last_seq + 1;
 SELECT last_seq FROM order_sequences
 WHERE date_key = ?
 LIMIT 1;
+
+-- name: SetOrderGroupID :exec
+UPDATE orders SET group_id = ?, updated_at = NOW()
+WHERE id = ? AND deleted_at IS NULL;
+
+-- name: ClearOrderGroupID :exec
+UPDATE orders SET group_id = NULL, updated_at = NOW()
+WHERE id = ? AND deleted_at IS NULL;
+
+-- name: ListOrdersByGroupID :many
+SELECT * FROM orders
+WHERE group_id = ? AND deleted_at IS NULL
+ORDER BY created_at ASC;

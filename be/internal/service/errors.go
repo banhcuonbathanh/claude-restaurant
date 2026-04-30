@@ -32,6 +32,7 @@ var (
 	ErrPaymentAlreadyExists  = &AppError{Status: http.StatusConflict, Code: "PAYMENT_ALREADY_EXISTS", Message: "Đơn hàng đã có thanh toán"}
 	ErrInternalError         = &AppError{Status: http.StatusInternalServerError, Code: "INTERNAL_ERROR", Message: "Lỗi máy chủ nội bộ"}
 	ErrInvalidInput          = &AppError{Status: http.StatusBadRequest, Code: "INVALID_INPUT", Message: "Dữ liệu đầu vào không hợp lệ"}
+	ErrAlreadyGrouped        = &AppError{Status: http.StatusConflict, Code: "ORDER_ALREADY_GROUPED", Message: "Đơn hàng đã thuộc nhóm khác"}
 )
 
 // NewAppError creates a new AppError.

@@ -12,6 +12,16 @@ import (
 	"time"
 )
 
+const clearOrderGroupID = `-- name: ClearOrderGroupID :exec
+UPDATE orders SET group_id = NULL, updated_at = NOW()
+WHERE id = ? AND deleted_at IS NULL
+`
+
+func (q *Queries) ClearOrderGroupID(ctx context.Context, id string) error {
+	_, err := q.db.ExecContext(ctx, clearOrderGroupID, id)
+	return err
+}
+
 const createOrder = `-- name: CreateOrder :exec
 INSERT INTO orders (id, order_number, table_id, status, source, customer_name, customer_phone, note, total_amount, created_by)
 VALUES (?, ?, ?, 'pending', ?, ?, ?, ?, 0, ?)
@@ -77,7 +87,7 @@ func (q *Queries) CreateOrderItem(ctx context.Context, arg CreateOrderItemParams
 }
 
 const getActiveOrderByTable = `-- name: GetActiveOrderByTable :one
-SELECT id, order_number, table_id, status, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at FROM orders
+SELECT id, order_number, table_id, status, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at, group_id FROM orders
 WHERE table_id = ?
   AND status IN ('pending','confirmed','preparing','ready')
   AND deleted_at IS NULL
@@ -101,12 +111,13 @@ func (q *Queries) GetActiveOrderByTable(ctx context.Context, tableID sql.NullStr
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.GroupID,
 	)
 	return i, err
 }
 
 const getOrderByID = `-- name: GetOrderByID :one
-SELECT id, order_number, table_id, status, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at FROM orders
+SELECT id, order_number, table_id, status, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at, group_id FROM orders
 WHERE id = ? AND deleted_at IS NULL
 LIMIT 1
 `
@@ -128,6 +139,7 @@ func (q *Queries) GetOrderByID(ctx context.Context, id string) (Order, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
+		&i.GroupID,
 	)
 	return i, err
 }
@@ -216,7 +228,7 @@ func (q *Queries) GetOrderSequence(ctx context.Context, dateKey time.Time) (int3
 }
 
 const listAllOrders = `-- name: ListAllOrders :many
-SELECT id, order_number, table_id, status, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at FROM orders
+SELECT id, order_number, table_id, status, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at, group_id FROM orders
 WHERE deleted_at IS NULL
 ORDER BY created_at DESC
 LIMIT ? OFFSET ?
@@ -245,6 +257,51 @@ func (q *Queries) ListAllOrders(ctx context.Context, limit int32, offset int32) 
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.GroupID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listOrdersByGroupID = `-- name: ListOrdersByGroupID :many
+SELECT id, order_number, table_id, status, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at, group_id FROM orders
+WHERE group_id = ? AND deleted_at IS NULL
+ORDER BY created_at ASC
+`
+
+func (q *Queries) ListOrdersByGroupID(ctx context.Context, groupID sql.NullString) ([]Order, error) {
+	rows, err := q.db.QueryContext(ctx, listOrdersByGroupID, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Order{}
+	for rows.Next() {
+		var i Order
+		if err := rows.Scan(
+			&i.ID,
+			&i.OrderNumber,
+			&i.TableID,
+			&i.Status,
+			&i.Source,
+			&i.CustomerName,
+			&i.CustomerPhone,
+			&i.Note,
+			&i.TotalAmount,
+			&i.CreatedBy,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.GroupID,
 		); err != nil {
 			return nil, err
 		}
@@ -260,7 +317,7 @@ func (q *Queries) ListAllOrders(ctx context.Context, limit int32, offset int32) 
 }
 
 const listOrdersByStatus = `-- name: ListOrdersByStatus :many
-SELECT id, order_number, table_id, status, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at FROM orders
+SELECT id, order_number, table_id, status, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at, group_id FROM orders
 WHERE status = ? AND deleted_at IS NULL
 ORDER BY created_at DESC
 LIMIT ? OFFSET ?
@@ -289,6 +346,7 @@ func (q *Queries) ListOrdersByStatus(ctx context.Context, status OrdersStatus, l
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
+			&i.GroupID,
 		); err != nil {
 			return nil, err
 		}
@@ -318,6 +376,16 @@ WHERE orders.id = ?
 // Skipping this causes total_amount drift and wrong payment charges.
 func (q *Queries) RecalculateTotalAmount(ctx context.Context, id string) error {
 	_, err := q.db.ExecContext(ctx, recalculateTotalAmount, id)
+	return err
+}
+
+const setOrderGroupID = `-- name: SetOrderGroupID :exec
+UPDATE orders SET group_id = ?, updated_at = NOW()
+WHERE id = ? AND deleted_at IS NULL
+`
+
+func (q *Queries) SetOrderGroupID(ctx context.Context, groupID sql.NullString, iD string) error {
+	_, err := q.db.ExecContext(ctx, setOrderGroupID, groupID, iD)
 	return err
 }
 

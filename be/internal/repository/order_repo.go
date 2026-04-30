@@ -49,6 +49,9 @@ type OrderRepository interface {
 	RecalculateTotalAmount(ctx context.Context, id string) error
 	SoftDeleteOrder(ctx context.Context, id string) error
 	SumQtyServedAndQuantity(ctx context.Context, orderID string) (served int64, total int64, err error)
+	SetOrderGroupID(ctx context.Context, orderID, groupID string) error
+	ClearOrderGroupID(ctx context.Context, orderID string) error
+	ListOrdersByGroupID(ctx context.Context, groupID string) ([]db.Order, error)
 }
 
 type orderRepo struct {
@@ -176,6 +179,18 @@ func (r *orderRepo) SumQtyServedAndQuantity(ctx context.Context, orderID string)
 	served = toInt64(row.TotalServed)
 	total = toInt64(row.TotalQuantity)
 	return served, total, nil
+}
+
+func (r *orderRepo) SetOrderGroupID(ctx context.Context, orderID, groupID string) error {
+	return r.q.SetOrderGroupID(ctx, sql.NullString{String: groupID, Valid: true}, orderID)
+}
+
+func (r *orderRepo) ClearOrderGroupID(ctx context.Context, orderID string) error {
+	return r.q.ClearOrderGroupID(ctx, orderID)
+}
+
+func (r *orderRepo) ListOrdersByGroupID(ctx context.Context, groupID string) ([]db.Order, error) {
+	return r.q.ListOrdersByGroupID(ctx, sql.NullString{String: groupID, Valid: true})
 }
 
 func toInt64(v interface{}) int64 {

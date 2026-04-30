@@ -119,6 +119,8 @@ These are structural gaps identified after a full audit of the workflow. Each ha
 | CLAUDE.md là nơi chứa mọi thứ | CLAUDE.md phình lên 300+ dòng với cả spec detail lẫn business rules | Claude đọc toàn bộ mỗi session → tốn token, attention bị loãng |
 | Spec = implementation guide | Spec files chứa cả color hex, JWT expiry, error codes — không liên quan domain | Spec phải đọc thêm 5 files khác để verify consistency |
 | Schema ở khắp nơi | DB table columns khai báo trong spec, trong CLAUDE_BE, trong migration SQL | SQL file là DDL thật — 2 chỗ còn lại luôn lỗi thời sau migration thay đổi |
+| ALTER TABLE không đi kèm sqlc generate | Chạy migration 008 (ADD COLUMN group_id), nhưng quên `cd be && sqlc generate` → `db.Order` struct thiếu `GroupID`, queries `SELECT *` scan sai số cột, compile error | Sau mọi migration có ADD/DROP COLUMN phải chạy `sqlc generate` ngay lập tức trước khi viết code dùng column mới |
+| goose không có trong local hoặc container | goose không cài local, container runtime không có goose binary → không thể chạy `goose up` bình thường | Workaround: chạy SQL trực tiếp qua `docker exec <mysql-container> mysql -u<user> -p<pass> <db> -e "..."` rồi INSERT thủ công vào `goose_db_version (version_id, is_applied, tstamp)` |
 
 # ✅  Phần 2 — Kiến Trúc Đúng Từ Đầu
 | Nếu được làm lại từ đầu, đây là cấu trúc file tối ưu. Mỗi loại thông tin có đúng 1 nhà — không ở đâu khác. |

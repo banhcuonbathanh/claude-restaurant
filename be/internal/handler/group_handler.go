@@ -60,9 +60,27 @@ func (h *GroupHandler) RemoveFromGroup(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
-// DisbandGroup handles DELETE /orders/group/:id (Staff+)
+// DisbandGroup handles DELETE /orders/group/:id (Manager+)
 func (h *GroupHandler) DisbandGroup(c *gin.Context) {
 	if err := h.svc.DisbandGroup(c.Request.Context(), c.Param("id")); err != nil {
+		handleServiceError(c, err)
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
+type addToGroupReq struct {
+	OrderID string `json:"order_id" binding:"required"`
+}
+
+// AddToGroup handles POST /orders/group/:id/orders (Cashier+)
+func (h *GroupHandler) AddToGroup(c *gin.Context) {
+	var req addToGroupReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		respondError(c, http.StatusBadRequest, "INVALID_INPUT", "order_id là bắt buộc")
+		return
+	}
+	if err := h.svc.AddToGroup(c.Request.Context(), c.Param("id"), req.OrderID); err != nil {
 		handleServiceError(c, err)
 		return
 	}

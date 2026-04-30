@@ -12,6 +12,7 @@ import (
 
 type Querier interface {
 	AttachToppingToProduct(ctx context.Context, productID string, toppingID string) error
+	ClearOrderGroupID(ctx context.Context, id string) error
 	CountActiveSessionsByStaff(ctx context.Context, staffID string) (int64, error)
 	CreateCategory(ctx context.Context, iD string, name string, description sql.NullString, sortOrder int32) error
 	CreateCombo(ctx context.Context, arg CreateComboParams) error
@@ -53,6 +54,7 @@ type Querier interface {
 	ListCategories(ctx context.Context) ([]Category, error)
 	ListCombos(ctx context.Context) ([]Combo, error)
 	ListCombosAvailable(ctx context.Context) ([]Combo, error)
+	ListOrdersByGroupID(ctx context.Context, groupID sql.NullString) ([]Order, error)
 	ListOrdersByStatus(ctx context.Context, status OrdersStatus, limit int32, offset int32) ([]Order, error)
 	ListOrphanFilesOlderThan24h(ctx context.Context) ([]FileAttachment, error)
 	ListProducts(ctx context.Context) ([]Product, error)
@@ -63,6 +65,7 @@ type Querier interface {
 	// recalculateTotalAmount MUST be called after every order_items mutation.
 	// Skipping this causes total_amount drift and wrong payment charges.
 	RecalculateTotalAmount(ctx context.Context, id string) error
+	SetOrderGroupID(ctx context.Context, groupID sql.NullString, iD string) error
 	SetPaymentRefunded(ctx context.Context, refundedAmount sql.NullString, iD string) error
 	SetStaffActive(ctx context.Context, isActive bool, iD string) error
 	SoftDeleteCategory(ctx context.Context, id string) error
