@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Playfair_Display, Be_Vietnam_Pro } from 'next/font/google'
+import { Providers } from '@/lib/providers'
 import './globals.css'
 
 const playfair = Playfair_Display({
@@ -26,7 +27,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi" className={`${playfair.variable} ${beVietnam.variable}`}>
-      <body className="font-body">{children}</body>
+      <body className="font-body">
+          <Providers>{children}</Providers>
+        </body>
     </html>
   )
 }
