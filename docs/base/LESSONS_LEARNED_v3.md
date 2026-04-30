@@ -267,5 +267,14 @@ Primary: #FF7A1A
 | Enforcement | Chỉ dựa vào ý thức — dễ bị phá vỡ khi deadline | Tự động qua /audit + pre-commit + PR checklist |
 | Claude workflow clarity | Không rõ Claude làm gì mỗi bước | Prefix hệ thống + Standard Session Loop rõ ràng |
 
+## ⚙️  Phase 4 Implementation Lessons (2026-04-30)
+
+| Anti-Pattern | Ví Dụ Cụ Thể | Correct Approach |
+| --- | --- | --- |
+| Passing `map[string]string` as `json.RawMessage` | `HandleVNPayWebhook` called `processWebhookResult(..., params)` where params was `map[string]string` but arg was `json.RawMessage` — Go does not auto-convert | Always `json.Marshal(params)` first → `rawPayload(rawJSON)`. Pattern: whenever one webhook fn takes raw bytes and another takes a typed map, marshal before passing |
+| Named return: `error` keyword as return name | `SumQtyServedAndQuantity(ctx, id string) (int64, int64, error)` — writing `(served, total int64, error)` fails compilation: `error` is a keyword, not a name | Always name the error return: `(served int64, total int64, err error)` |
+| Polling vs Redis keyspace for timeout job | Spec said "Redis keyspace notification listener" for payment timeout — implemented as polling ticker (1 min interval) instead | Polling is valid and simpler (no Redis `notify-keyspace-events` config required). Document the deviation. If keyspace needed later, it requires `CONFIG SET notify-keyspace-events KEA` on Redis and a separate Subscribe. |
+| Raw SQL for tables when sqlc not configured | `table_repo.go` uses raw `QueryRowContext/ExecContext` because no sqlc query annotations exist for tables table | sqlc only generates code for `.sql` query files in the configured directory. Either add `-- name: ListTables :many` annotations to a `.sql` query file and regenerate, OR keep raw SQL but note it in repo comments. |
+
 | 🍜  BanhCuon System · LESSONS_LEARNED.docx · v3.0 · Updated with Claude Workflow Guide · Tháng 4/2026 |
 | --- |

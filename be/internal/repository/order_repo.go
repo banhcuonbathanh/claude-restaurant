@@ -48,7 +48,7 @@ type OrderRepository interface {
 	UpdateQtyServed(ctx context.Context, qtyServed int32, id string) error
 	RecalculateTotalAmount(ctx context.Context, id string) error
 	SoftDeleteOrder(ctx context.Context, id string) error
-	SumQtyServedAndQuantity(ctx context.Context, orderID string) (served, total int64, error)
+	SumQtyServedAndQuantity(ctx context.Context, orderID string) (served int64, total int64, err error)
 }
 
 type orderRepo struct {
@@ -168,7 +168,7 @@ func (r *orderRepo) SoftDeleteOrder(ctx context.Context, id string) error {
 	return r.q.SoftDeleteOrder(ctx, id)
 }
 
-func (r *orderRepo) SumQtyServedAndQuantity(ctx context.Context, orderID string) (served, total int64, error) {
+func (r *orderRepo) SumQtyServedAndQuantity(ctx context.Context, orderID string) (served int64, total int64, err error) {
 	row, err := r.q.SumQtyServedAndQuantity(ctx, orderID)
 	if err != nil {
 		return 0, 0, err

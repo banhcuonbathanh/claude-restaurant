@@ -295,6 +295,18 @@ func hashToken(raw string) string {
 	return hex.EncodeToString(h[:])
 }
 
+// NewPublicUUID is the exported alias for use by handler/other packages.
+func NewPublicUUID() string { return newUUID() }
+
+// NewRandomBytes returns n cryptographically random bytes.
+func NewRandomBytes(n int) []byte {
+	b := make([]byte, n)
+	if _, err := rand.Read(b); err != nil {
+		panic("service: crypto/rand read failed: " + err.Error())
+	}
+	return b
+}
+
 // newUUID generates a UUID v4 string using crypto/rand.
 func newUUID() string {
 	b := make([]byte, 16)

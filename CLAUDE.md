@@ -48,7 +48,7 @@ READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 | Phase 1 — DB Migrations | 🔄 87% — migration 008 pending | — |
 | Phase 2 — Feature Specs | ✅ COMPLETE (7/7) | — |
 | Phase 3 — sqlc + Project Setup | ✅ COMPLETE — generated + verified | — |
-| Phase 4 — Backend | 🔄 ~15% — auth infra done; handler + all other domains pending | 4.1-6 auth_handler is next |
+| Phase 4 — Backend | 🔄 ~85% — all domains coded + build clean; AC verification + group service (P1-8) pending | — |
 | Phase 5 — Frontend | ⬜ NOT STARTED (scaffold stubs only) | Needs P4.1 fully done first |
 | Phase 6 — DevOps | 🔄 40% — Dockerfiles + compose done; Caddy + CI + .env.example pending | Can run parallel with P4 |
 | Phase 7 — Testing + Go-Live | ⬜ NOT STARTED | Needs P4+P5 |
@@ -124,12 +124,12 @@ FE state (strict): server → TanStack Query · client → Zustand · forms → 
 
 ## Current Work
 
-- **Status:** Phase 3 ✅ complete. Docs restructured (2026-04-30) — BE_SYSTEM_GUIDE + FE_SYSTEM_GUIDE created. Phase 4 auth infra done — handler is the last blocker.
+- **Status:** Phase 4 ~85% complete. All domains coded (`go build ./be/...` passes clean). Group service stubbed pending migration 008.
 - **Branch:** main
-- **Done:** go.mod fixed · Dockerfiles fixed · sqlc generated (`be/internal/db/` ✅) · `pkg/redis/pubsub.go` + `bloom.go` · `repository/auth_repo.go` · `service/auth_service.go` · `middleware/auth.go` · FE scaffold stubs · **`docs/be/BE_SYSTEM_GUIDE.md`** ✅ · **`docs/fe/FE_SYSTEM_GUIDE.md`** ✅
+- **Done:** All Phase 4 BE implementation — auth handler · product repo/svc/handler · order repo/svc/handler · SSE handler · WebSocket hub+client+handler · payment gateways (VNPay/MoMo/ZaloPay) · payment repo/svc/handler · payment timeout job · file cleanup job · table repo/handler · file handler · `main.go` full DI + all routes wired
 - **Next (in order):**
-  1. **BE-1** — Run migration `008_order_groups.sql` + `.env.example` + scripts/migrate.sh (see BE_SYSTEM_GUIDE §10 Epic BE-1)
-  2. **BE-2** — `be/internal/handler/auth_handler.go` — 5 handlers (see BE_SYSTEM_GUIDE §10 Epic BE-2)
-  3. **BE-2 AC** — Verify all Spec1 acceptance criteria
-  4. **FE-1** — api-client + Zustand stores + guards (see FE_SYSTEM_GUIDE §10 Epic FE-1) — can start once BE-2 done
-- **How to pick the next task:** Open `docs/be/BE_SYSTEM_GUIDE.md` or `docs/fe/FE_SYSTEM_GUIDE.md` → find your epic → read only the listed docs → implement.
+  1. **P1-8** — Run migration `008_order_groups.sql` (enables group service + 4.3-5 + 4.3-7)
+  2. **4.1-AC** — Verify Spec1 acceptance criteria against running server
+  3. **4.2-AC / 4.3-AC / 4.5-AC** — Verify remaining domain ACs
+  4. **Phase 5** — Frontend (start with 5.1 api-client + Zustand stores)
+- **How to pick the next task:** Open `docs/TASKS.md` → find next ⬜ task with all dependencies ✅.

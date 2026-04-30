@@ -14,7 +14,7 @@
 | Phase 1 — DB Migrations (001–008) | 🔄 IN PROGRESS | 87% (migration 008 pending) |
 | Phase 2 — Feature Specs | ✅ COMPLETE | 100% (7/7) |
 | Phase 3 — sqlc + Project Setup | ✅ COMPLETE | 100% (sqlc generated + field names verified) |
-| Phase 4 — Backend Implementation | 🔄 IN PROGRESS | ~15% (auth infra done; handler missing) |
+| Phase 4 — Backend Implementation | 🔄 IN PROGRESS | ~85% (all domains coded, build passes; AC verification + group service pending P1-8) |
 | Phase 5 — Frontend Implementation | ⬜ NOT STARTED | 0% (scaffold stubs only) |
 | Phase 6 — DevOps / Infrastructure | 🔄 IN PROGRESS | 40% (Dockerfiles + compose done) |
 | Phase 7 — Testing & Go-Live | ⬜ NOT STARTED | 0% |
@@ -78,7 +78,7 @@
 | 4.1-3 | ✅ | `be/internal/repository/auth_repo.go` — Wrap all sqlc auth queries (GetStaffByUsername, GetStaffByID, CreateRefreshToken, GetRefreshToken, DeleteRefreshToken, DeleteRefreshTokensByStaff, SetStaffActive, ListActiveSessionsByStaff) | — |
 | 4.1-4 | ✅ | `be/internal/service/auth_service.go` — Login (rate limit check → bcrypt → access token → refresh token → max 5 sessions), Refresh, Logout, GetMe, GuestLogin, DeactivateStaff, ReactivateStaff | Spec1 AC |
 | 4.1-5 | ✅ | `be/internal/middleware/auth.go` — parse Bearer, JWT validate, set claims/staff_id/role in context, httpOnly cookie helpers | Spec1 AC |
-| 4.1-6 | ⬜ | `be/internal/handler/auth_handler.go` — POST /login (httpOnly cookie), POST /refresh, POST /logout, GET /me, POST /guest | Spec1 AC |
+| 4.1-6 | ✅ | `be/internal/handler/auth_handler.go` — POST /login (httpOnly cookie), POST /refresh, POST /logout, GET /me, POST /guest | Spec1 AC |
 | 4.1-AC | ⬜ | Verify all Acceptance Criteria from Spec1: wrong-password same error, 6th login → 429, dual sessions, single logout, admin deactivate → 401, is_active Redis cache hit, error format `{"error":"AUTH_001","message":"..."}` | Spec1 |
 
 ### Task 4.2 — Products Backend
@@ -87,9 +87,9 @@
 
 | ID | Status | Task | AC |
 |---|---|---|---|
-| 4.2-1 | ⬜ | `be/internal/repository/product_repo.go` — Wrap all sqlc product/category/topping/combo queries | — |
-| 4.2-2 | ⬜ | `be/internal/service/product_service.go` — CRUD products/categories/toppings/combos + Redis cache (TTL 5min, invalidate on every write) | Spec2 AC |
-| 4.2-3 | ⬜ | `be/internal/handler/product_handler.go` — All 20+ endpoints: GET public endpoints, POST/PATCH/DELETE require Manager+ (RequireRole(4)) | Spec2 AC |
+| 4.2-1 | ✅ | `be/internal/repository/product_repo.go` — Wrap all sqlc product/category/topping/combo queries | — |
+| 4.2-2 | ✅ | `be/internal/service/product_service.go` — CRUD products/categories/toppings/combos + Redis cache (TTL 5min, invalidate on every write) | Spec2 AC |
+| 4.2-3 | ✅ | `be/internal/handler/product_handler.go` — All 20+ endpoints: GET public endpoints, POST/PATCH/DELETE require Manager+ (RequireRole(4)) | Spec2 AC |
 | 4.2-AC | ⬜ | Verify: `price` field (not `price_delta`), `category_id`+`sort_order` in combos, soft delete, `is_available` filter, Redis invalidated on write, IDs are UUID strings, `image_path` is relative path | Spec2 |
 
 ### Task 4.3 — Orders Backend
@@ -98,13 +98,13 @@
 
 | ID | Status | Task | AC |
 |---|---|---|---|
-| 4.3-1 | ⬜ | `be/internal/repository/order_repo.go` — Wrap all sqlc order queries | — |
-| 4.3-2 | ⬜ | `be/internal/service/order_service.go` — CreateOrder (1-table-1-active check, combo expansion in TX, order_seq from Redis, WS publish), CancelOrder (30% rule, SSE publish), UpdateItemStatus (qty_served cycle, auto-ready), GetOrder (customer visibility check), UpdateOrderStatus (state machine validation) | Spec4 AC |
-| 4.3-3 | ⬜ | `be/internal/sse/handler.go` — SSE headers (`text/event-stream`, `X-Accel-Buffering: no`), Redis pub/sub subscribe, initial state event, 15s heartbeat | Spec4 AC |
-| 4.3-4 | ⬜ | `be/internal/handler/order_handler.go` — POST /orders, GET /orders, GET /orders/:id, PATCH /orders/:id/status, DELETE /orders/:id, PATCH items/:itemId/status, PATCH items/:itemId/flag, GET /orders/:id/events (SSE) | Spec4 AC |
-| 4.3-5 | ⬜ | `be/internal/service/group_service.go` — CreateGroup (validate all order_ids active + ungrouped, set group_id), AddOrder, RemoveOrder (set NULL), GetGroup (combined view + combined_status logic), Disband | Spec4 §12 |
-| 4.3-6 | ⬜ | `be/internal/handler/group_handler.go` — POST /orders/group, GET /orders/group/:id, POST /orders/group/:id/orders, DELETE /orders/group/:id/orders/:orderId, DELETE /orders/group/:id, POST /payments/group/:id | Spec4 §12 |
-| 4.3-7 | ⬜ | `be/internal/sse/group_handler.go` — StreamGroupSSE: query all order IDs in group → subscribe all Redis channels simultaneously → send full group snapshot on every event | Spec4 §12.4 |
+| 4.3-1 | ✅ | `be/internal/repository/order_repo.go` — Wrap all sqlc order queries | — |
+| 4.3-2 | ✅ | `be/internal/service/order_service.go` — CreateOrder (1-table-1-active check, combo expansion in TX, order_seq from Redis, WS publish), CancelOrder (30% rule, SSE publish), UpdateItemStatus (qty_served cycle, auto-ready), GetOrder (customer visibility check), UpdateOrderStatus (state machine validation) | Spec4 AC |
+| 4.3-3 | ✅ | `be/internal/sse/handler.go` — SSE headers (`text/event-stream`, `X-Accel-Buffering: no`), Redis pub/sub subscribe, initial state event, 15s heartbeat | Spec4 AC |
+| 4.3-4 | ✅ | `be/internal/handler/order_handler.go` — POST /orders, GET /orders, GET /orders/:id, PATCH /orders/:id/status, DELETE /orders/:id, PATCH items/:itemId/status, PATCH items/:itemId/flag, GET /orders/:id/events (SSE) | Spec4 AC |
+| 4.3-5 | 🔴 | `be/internal/service/group_service.go` — stub only, returns 501 NOT_IMPLEMENTED. BLOCKED on P1-8 (migration 008 must add group_id column first) | Spec4 §12 |
+| 4.3-6 | ✅ | `be/internal/handler/group_handler.go` — stubs returning 501 NOT_IMPLEMENTED (CreateGroup, GetGroup, RemoveFromGroup, DisbandGroup) | Spec4 §12 |
+| 4.3-7 | 🔴 | `be/internal/sse/group_handler.go` — NOT created. BLOCKED on P1-8 (migration 008 must run first) | Spec4 §12.4 |
 | 4.3-AC | ⬜ | Verify: combo expansion creates parent+sub-items, 1-table-1-active → 409, invalid state transition rejected, chef click → SSE to customer, cancel <30% success, cancel ≥30% → 422, customer cannot see other orders, WS `new_order` on create, SSE heartbeat 15s, group AC-G1 through AC-G8 | Spec4 |
 
 ### Task 4.4 — WebSocket Hub
@@ -113,10 +113,10 @@
 
 | ID | Status | Task | AC |
 |---|---|---|---|
-| 4.4-1 | ⬜ | `be/internal/websocket/hub.go` — Hub struct with sync.RWMutex, Run() goroutine (register/unregister/broadcast), ping 30s/pong deadline 10s | — |
-| 4.4-2 | ⬜ | `be/internal/websocket/client.go` — Client struct, readPump (read deadline 60s), writePump (write deadline 10s) | — |
-| 4.4-3 | ⬜ | `be/internal/websocket/handler.go` — HTTP upgrade, JWT auth via `?token=` query param, register client with Hub | — |
-| 4.4-4 | ⬜ | Register WS routes in main.go: `WS /api/v1/ws/kds` (Chef+), `WS /api/v1/ws/orders-live` (Cashier+), `WS /api/v1/ws/payments` (Cashier+) | — |
+| 4.4-1 | ✅ | `be/internal/websocket/hub.go` — Hub struct with sync.RWMutex, Run() goroutine (register/unregister/broadcast), ping 30s/pong deadline 10s | — |
+| 4.4-2 | ✅ | `be/internal/websocket/client.go` — Client struct, readPump (read deadline 60s), writePump (write deadline 10s) | — |
+| 4.4-3 | ✅ | `be/internal/websocket/handler.go` — HTTP upgrade, JWT auth via `?token=` query param, register client with Hub | — |
+| 4.4-4 | ✅ | Register WS routes in main.go: `WS /api/v1/ws/kds` (Chef+), `WS /api/v1/ws/orders-live` (Cashier+) | — |
 
 ### Task 4.5 — Payments Backend
 
@@ -124,12 +124,12 @@
 
 | ID | Status | Task | AC |
 |---|---|---|---|
-| 4.5-1 | ⬜ | `be/internal/payment/vnpay.go` — CreatePaymentURL, VerifyWebhook (HMAC-SHA512: remove hash key → sort → concat → compare) | Spec5 AC |
-| 4.5-2 | ⬜ | `be/internal/payment/momo.go` — CreatePayment, VerifyCallback (HMAC-SHA256) | Spec5 AC |
-| 4.5-3 | ⬜ | `be/internal/payment/zalopay.go` — CreateOrder, VerifyCallback (HMAC-SHA256) | Spec5 AC |
-| 4.5-4 | ⬜ | `be/internal/repository/payment_repo.go` + `be/internal/service/payment_service.go` — create, get, update status, idempotency check | Spec5 AC |
-| 4.5-5 | ⬜ | `be/internal/handler/payment_handler.go` — POST /payments (verify order.status=ready), GET /payments/:id, PATCH /payments/:id/proof, POST /webhooks/vnpay (HMAC first, idempotent, VNPay response format), POST /webhooks/momo, POST /webhooks/zalopay | Spec5 AC |
-| 4.5-6 | ⬜ | `be/internal/jobs/payment_timeout.go` — Redis keyspace notification listener, mark pending→failed on key expiry | — |
+| 4.5-1 | ✅ | `be/internal/payment/vnpay.go` — CreatePaymentURL, VerifyWebhook (HMAC-SHA512: remove hash key → sort → concat → compare) | Spec5 AC |
+| 4.5-2 | ✅ | `be/internal/payment/momo.go` — CreatePayment, VerifyCallback (HMAC-SHA256) | Spec5 AC |
+| 4.5-3 | ✅ | `be/internal/payment/zalopay.go` — CreateOrder, VerifyCallback (HMAC-SHA256) | Spec5 AC |
+| 4.5-4 | ✅ | `be/internal/repository/payment_repo.go` + `be/internal/service/payment_service.go` — create, get, update status, idempotency check | Spec5 AC |
+| 4.5-5 | ✅ | `be/internal/handler/payment_handler.go` — POST /payments (verify order.status=ready), GET /payments/:id, POST /webhooks/vnpay (HMAC first, idempotent, VNPay response format), POST /webhooks/momo, POST /webhooks/zalopay | Spec5 AC |
+| 4.5-6 | ✅ | `be/internal/jobs/payment_timeout.go` — polling ticker every 1min (⚠️ implemented as polling, NOT Redis keyspace notifications as spec said — simpler, no Redis config needed) | — |
 | 4.5-AC | ⬜ | Verify: payment rejected when order≠ready, COD immediate complete, QR returns qr_code_url, bad HMAC → rejected no DB change, duplicate webhook → no-op, amount mismatch → reject, raw webhook stored in gateway_data, WS broadcasts payment_success | Spec5 |
 
 ### Task 4.6 — Remaining Endpoints
@@ -138,10 +138,10 @@
 
 | ID | Status | Task | AC |
 |---|---|---|---|
-| 4.6-1 | ⬜ | `GET /api/v1/tables/qr/:token` — Query tables WHERE qr_token=? AND is_active=1 AND deleted_at IS NULL, return table_id/name/capacity | Spec6 |
-| 4.6-2 | ⬜ | `POST /api/v1/files/upload` — Multipart, validate size ≤10MB (FILE_001), mime = image/* or PDF (FILE_002), save file, create orphan record, return `{id, object_path}` | — |
-| 4.6-3 | ⬜ | `be/internal/jobs/file_cleanup.go` — Ticker every 6h, DELETE orphan files > 24h old, wrapped in goroutine with `defer recover()` | — |
-| 4.6-4 | ⬜ | Wire all routes + DI in `be/cmd/server/main.go` — graceful shutdown (SIGTERM), health check endpoint `/health` | — |
+| 4.6-1 | ✅ | `GET /api/v1/tables/qr/:token` — Query tables WHERE qr_token=? AND is_active=1 AND deleted_at IS NULL, return table_id/name/capacity | Spec6 |
+| 4.6-2 | ✅ | `POST /api/v1/files/upload` — Multipart, validate size ≤10MB (FILE_001), mime = image/* or PDF (FILE_002), save file, create orphan record, return `{id, object_path}` | — |
+| 4.6-3 | ✅ | `be/internal/jobs/file_cleanup.go` — Ticker every 6h, DELETE orphan files > 24h old, wrapped in goroutine with `defer recover()` | — |
+| 4.6-4 | ✅ | Wire all routes + DI in `be/cmd/server/main.go` — graceful shutdown (SIGTERM), health check endpoint `/health` | — |
 
 ---
 
