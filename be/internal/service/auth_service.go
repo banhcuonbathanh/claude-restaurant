@@ -229,6 +229,27 @@ func (s *AuthService) DeactivateStaff(ctx context.Context, staffID string) error
 	return nil
 }
 
+// IsStaffActive checks is_active from Redis cache (TTL 5min); falls back to DB on cache miss.
+// Used by AuthRequired middleware for every authenticated request.
+func (s *AuthService) IsStaffActive(ctx context.Context, staffID string) (bool, error) {
+	key := fmt.Sprintf("auth:staff:%s", staffID)
+	val, err := s.rdb.Get(ctx, key).Result()
+	if err == nil {
+		return val == "active", nil
+	}
+	if err != redis.Nil {
+		// Redis unavailable — fail open so a Redis blip doesn't lock everyone out.
+		return true, nil
+	}
+	// Cache miss: query DB and repopulate cache.
+	staff, dbErr := s.repo.GetStaffByID(ctx, staffID)
+	if dbErr != nil {
+		return false, fmt.Errorf("auth: is_active DB lookup: %w", dbErr)
+	}
+	s.setIsActiveCache(ctx, staffID, staff.IsActive)
+	return staff.IsActive, nil
+}
+
 // ReactivateStaff sets is_active=true and clears the cached disabled status.
 func (s *AuthService) ReactivateStaff(ctx context.Context, staffID string) error {
 	if err := s.repo.SetStaffActive(ctx, true, staffID); err != nil {

@@ -6,6 +6,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
 	"os"
 	"time"
 )
@@ -57,6 +60,37 @@ func ZaloPayVerifyCallback(body []byte) (bool, map[string]any, error) {
 
 	expected := zaloPayHMAC(key2, data)
 	return expected == received, payload, nil
+}
+
+// ZaloPayCallAPI POSTs the signed create-payment payload to ZaloPay's API
+// and returns the order_url from the response.
+func ZaloPayCallAPI(payload map[string]any) (orderURL string, err error) {
+	endpoint := os.Getenv("ZALOPAY_ENDPOINT")
+	if endpoint == "" {
+		return "", fmt.Errorf("zalopay: ZALOPAY_ENDPOINT not set")
+	}
+
+	// ZaloPay expects form-encoded body
+	form := url.Values{}
+	for k, v := range payload {
+		form.Set(k, fmt.Sprintf("%v", v))
+	}
+	resp, err := http.PostForm(endpoint, form) //nolint:gosec
+	if err != nil {
+		return "", fmt.Errorf("zalopay: http post: %w", err)
+	}
+	defer resp.Body.Close()
+	raw, _ := io.ReadAll(resp.Body)
+
+	var result map[string]any
+	if err := json.Unmarshal(raw, &result); err != nil {
+		return "", fmt.Errorf("zalopay: unmarshal response: %w", err)
+	}
+	orderURL, _ = result["order_url"].(string)
+	if orderURL == "" {
+		orderURL, _ = result["qr_link"].(string)
+	}
+	return orderURL, nil
 }
 
 func zaloPayHMAC(secret, data string) string {

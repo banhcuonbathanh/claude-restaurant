@@ -28,7 +28,7 @@ var (
 	ErrForbidden             = &AppError{Status: http.StatusForbidden, Code: "FORBIDDEN", Message: "Không đủ quyền truy cập"}
 	ErrTableHasActiveOrder   = &AppError{Status: http.StatusConflict, Code: "TABLE_HAS_ACTIVE_ORDER", Message: "Bàn đã có đơn đang xử lý"}
 	ErrOrderNotReady         = &AppError{Status: http.StatusConflict, Code: "ORDER_NOT_READY", Message: "Đơn hàng chưa sẵn sàng thanh toán"}
-	ErrCancelThreshold       = &AppError{Status: http.StatusConflict, Code: "CANCEL_THRESHOLD", Message: "Không thể huỷ khi đã phục vụ từ 30% trở lên"}
+	ErrCancelThreshold       = &AppError{Status: http.StatusUnprocessableEntity, Code: "CANCEL_THRESHOLD", Message: "Không thể huỷ khi đã phục vụ từ 30% trở lên"}
 	ErrPaymentAlreadyExists  = &AppError{Status: http.StatusConflict, Code: "PAYMENT_ALREADY_EXISTS", Message: "Đơn hàng đã có thanh toán"}
 	ErrInternalError         = &AppError{Status: http.StatusInternalServerError, Code: "INTERNAL_ERROR", Message: "Lỗi máy chủ nội bộ"}
 	ErrInvalidInput          = &AppError{Status: http.StatusBadRequest, Code: "INVALID_INPUT", Message: "Dữ liệu đầu vào không hợp lệ"}

@@ -48,7 +48,7 @@ READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 | Phase 1 — DB Migrations | ✅ COMPLETE | — |
 | Phase 2 — Feature Specs | ✅ COMPLETE (7/7) | — |
 | Phase 3 — sqlc + Project Setup | ✅ COMPLETE — generated + verified | — |
-| Phase 4 — Backend | 🔄 ~90% — all domains coded + group service fully implemented; AC verification pending | — |
+| Phase 4 — Backend | ✅ COMPLETE — all domains coded + all AC verified and fixed | — |
 | Phase 5 — Frontend | ⬜ NOT STARTED (scaffold stubs only) | Needs P4.1 fully done first |
 | Phase 6 — DevOps | 🔄 40% — Dockerfiles + compose done; Caddy + CI + .env.example pending | Can run parallel with P4 |
 | Phase 7 — Testing + Go-Live | ⬜ NOT STARTED | Needs P4+P5 |
@@ -124,11 +124,10 @@ FE state (strict): server → TanStack Query · client → Zustand · forms → 
 
 ## Current Work
 
-- **Status:** Phase 4 ~90% complete. All domains coded + group service fully implemented (`go build ./be/...` passes clean).
+- **Status:** Phase 4 ✅ COMPLETE. All domains coded + all AC gaps fixed (`go build ./be/...` passes clean).
 - **Branch:** main
-- **Done:** All Phase 4 BE + P1-8 migration 008 applied · group_service (CreateGroup/AddToGroup/GetGroupOrders/RemoveFromGroup/DisbandGroup) · sse/group_handler (StreamGroup) · AddToGroup handler · routes wired in main.go · sqlc regenerated with group_id
+- **Done:** All Phase 4 BE · AC fixes: is_active middleware check (Spec1 §10) · image_path field names · is_available public filter · cancel 422 status · gateway QR URL generation · amount mismatch webhook guard
 - **Next (in order):**
-  1. **4.1-AC** — Verify Spec1 acceptance criteria against running server
-  2. **4.2-AC / 4.3-AC / 4.5-AC** — Verify remaining domain ACs
-  3. **Phase 5** — Frontend (start with 5.1 api-client + Zustand stores)
+  1. **Phase 5** — Frontend (start with 5.1 api-client + Zustand stores)
+  2. **Phase 6** — DevOps remaining: Caddyfile + .env.example + CI workflow
 - **How to pick the next task:** Open `docs/TASKS.md` → find next ⬜ task with all dependencies ✅.

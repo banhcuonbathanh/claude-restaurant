@@ -106,6 +106,9 @@ func main() {
 
 	v1 := r.Group("/api/v1")
 
+	// authMW wraps AuthRequired with is_active check (Spec1 §10).
+	authMW := middleware.AuthRequired(authSvc)
+
 	// ── Auth (public + authenticated) ─────────────────────────────────────────
 	authR := v1.Group("/auth")
 	authR.POST("/login", authH.Login)
@@ -113,7 +116,7 @@ func main() {
 	authR.POST("/guest", authH.Guest)
 	{
 		protected := authR.Group("")
-		protected.Use(middleware.AuthRequired())
+		protected.Use(authMW)
 		protected.POST("/logout", authH.Logout)
 		protected.GET("/me", authH.Me)
 	}
@@ -124,13 +127,14 @@ func main() {
 	prodR.GET("/:id", productH.GetProduct)
 	{
 		mgr := prodR.Group("")
-		mgr.Use(middleware.AuthRequired(), middleware.AtLeast("manager"))
+		mgr.Use(authMW, middleware.AtLeast("manager"))
+		mgr.GET("/all", productH.ListAllProducts) // includes unavailable — Manager+
 		mgr.POST("", productH.CreateProduct)
 		mgr.PUT("/:id", productH.UpdateProduct)
 	}
 	{
 		adm := prodR.Group("")
-		adm.Use(middleware.AuthRequired(), middleware.AtLeast("admin"))
+		adm.Use(authMW, middleware.AtLeast("admin"))
 		adm.DELETE("/:id", productH.DeleteProduct)
 	}
 
@@ -139,13 +143,13 @@ func main() {
 	catR.GET("", productH.ListCategories)
 	{
 		mgr := catR.Group("")
-		mgr.Use(middleware.AuthRequired(), middleware.AtLeast("manager"))
+		mgr.Use(authMW, middleware.AtLeast("manager"))
 		mgr.POST("", productH.CreateCategory)
 		mgr.PUT("/:id", productH.UpdateCategory)
 	}
 	{
 		adm := catR.Group("")
-		adm.Use(middleware.AuthRequired(), middleware.AtLeast("admin"))
+		adm.Use(authMW, middleware.AtLeast("admin"))
 		adm.DELETE("/:id", productH.DeleteCategory)
 	}
 
@@ -154,13 +158,13 @@ func main() {
 	topR.GET("", productH.ListToppings)
 	{
 		mgr := topR.Group("")
-		mgr.Use(middleware.AuthRequired(), middleware.AtLeast("manager"))
+		mgr.Use(authMW, middleware.AtLeast("manager"))
 		mgr.POST("", productH.CreateTopping)
 		mgr.PUT("/:id", productH.UpdateTopping)
 	}
 	{
 		adm := topR.Group("")
-		adm.Use(middleware.AuthRequired(), middleware.AtLeast("admin"))
+		adm.Use(authMW, middleware.AtLeast("admin"))
 		adm.DELETE("/:id", productH.DeleteTopping)
 	}
 
@@ -169,18 +173,18 @@ func main() {
 	comboR.GET("", productH.ListCombos)
 	{
 		mgr := comboR.Group("")
-		mgr.Use(middleware.AuthRequired(), middleware.AtLeast("manager"))
+		mgr.Use(authMW, middleware.AtLeast("manager"))
 		mgr.POST("", productH.CreateCombo)
 	}
 	{
 		adm := comboR.Group("")
-		adm.Use(middleware.AuthRequired(), middleware.AtLeast("admin"))
+		adm.Use(authMW, middleware.AtLeast("admin"))
 		adm.DELETE("/:id", productH.DeleteCombo)
 	}
 
 	// ── Orders ────────────────────────────────────────────────────────────────
 	orderR := v1.Group("/orders")
-	orderR.Use(middleware.AuthRequired())
+	orderR.Use(authMW)
 	orderR.POST("", orderH.Create)
 	orderR.GET("/live", middleware.AtLeast("cashier"), orderH.ListLive)
 	orderR.GET("/:id", orderH.Get)
@@ -188,18 +192,18 @@ func main() {
 	orderR.DELETE("/:id", orderH.Cancel)
 	orderR.GET("/:id/events", sse.StreamOrder(rdb))
 	orderR.POST("/group", middleware.AtLeast("cashier"), groupH.CreateGroup)
-	orderR.GET("/group/:id", middleware.AuthRequired(), groupH.GetGroup)
+	orderR.GET("/group/:id", groupH.GetGroup)
 	orderR.POST("/group/:id/orders", middleware.AtLeast("cashier"), groupH.AddToGroup)
 	orderR.DELETE("/group/:id/orders/:orderId", middleware.AtLeast("cashier"), groupH.RemoveFromGroup)
 	orderR.DELETE("/group/:id", middleware.AtLeast("manager"), groupH.DisbandGroup)
-	orderR.GET("/group/:id/events", middleware.AuthRequired(), sse.StreamGroup(rdb, groupSvc))
+	orderR.GET("/group/:id/events", sse.StreamGroup(rdb, groupSvc))
 
 	// Order items (chef updates qty_served)
-	v1.PATCH("/orders/items/:id", middleware.AuthRequired(), middleware.AtLeast("chef"), orderH.UpdateItemServed)
+	v1.PATCH("/orders/items/:id", authMW, middleware.AtLeast("chef"), orderH.UpdateItemServed)
 
 	// ── Payments ──────────────────────────────────────────────────────────────
 	payR := v1.Group("/payments")
-	payR.Use(middleware.AuthRequired(), middleware.AtLeast("cashier"))
+	payR.Use(authMW, middleware.AtLeast("cashier"))
 	payR.POST("", paymentH.Create)
 	payR.GET("/:id", paymentH.GetPayment)
 
@@ -213,19 +217,19 @@ func main() {
 	tableR.GET("/qr/:token", tableH.DecodeQR) // public
 	{
 		staff := tableR.Group("")
-		staff.Use(middleware.AuthRequired(), middleware.AtLeast("cashier"))
+		staff.Use(authMW, middleware.AtLeast("cashier"))
 		staff.GET("", tableH.ListTables)
 	}
 	{
 		mgr := tableR.Group("")
-		mgr.Use(middleware.AuthRequired(), middleware.AtLeast("manager"))
+		mgr.Use(authMW, middleware.AtLeast("manager"))
 		mgr.POST("", tableH.CreateTable)
 		mgr.PATCH("/:id", tableH.UpdateTable)
 	}
 
 	// ── Files ─────────────────────────────────────────────────────────────────
 	fileR := v1.Group("/files")
-	fileR.Use(middleware.AuthRequired(), middleware.AtLeast("cashier"))
+	fileR.Use(authMW, middleware.AtLeast("cashier"))
 	fileR.POST("/upload", fileH.Upload)
 
 	// ── WebSocket ─────────────────────────────────────────────────────────────

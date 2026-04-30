@@ -145,7 +145,8 @@ func (s *ProductService) GetComboSnapshot(ctx context.Context, comboID string) (
 
 // ─── Product CRUD ─────────────────────────────────────────────────────────────
 
-// ListProducts returns all products (with category + toppings) from cache or DB.
+// ListProducts returns available products (public endpoint — hides is_available=false per Spec2 AC).
+// Managers who need to see all products including unavailable should use ListAllProducts.
 func (s *ProductService) ListProducts(ctx context.Context) ([]ProductDetails, error) {
 	// Try cache
 	if cached := s.getCacheJSON(ctx, cacheKeyProductsList); cached != "" {
@@ -155,7 +156,7 @@ func (s *ProductService) ListProducts(ctx context.Context) ([]ProductDetails, er
 		}
 	}
 
-	products, err := s.repo.ListProducts(ctx)
+	products, err := s.repo.ListProductsAvailable(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("product: list: %w", err)
 	}
@@ -172,6 +173,24 @@ func (s *ProductService) ListProducts(ctx context.Context) ([]ProductDetails, er
 	}
 
 	s.setCacheJSON(ctx, cacheKeyProductsList, result)
+	return result, nil
+}
+
+// ListAllProducts returns all products including unavailable ones (manager use).
+func (s *ProductService) ListAllProducts(ctx context.Context) ([]ProductDetails, error) {
+	products, err := s.repo.ListProducts(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("product: list all: %w", err)
+	}
+	cats, err := s.buildCategoryMap(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]ProductDetails, 0, len(products))
+	for _, p := range products {
+		toppings, _ := s.repo.GetToppingsByProductID(ctx, p.ID)
+		result = append(result, s.enrichProduct(p, cats, toppings))
+	}
 	return result, nil
 }
 
@@ -435,7 +454,7 @@ func (s *ProductService) DeleteTopping(ctx context.Context, id string) error {
 
 // ─── Combo CRUD ───────────────────────────────────────────────────────────────
 
-// ListCombos returns all combos with their items (cached).
+// ListCombos returns available combos with their items (public endpoint).
 func (s *ProductService) ListCombos(ctx context.Context) ([]ComboDetails, error) {
 	if cached := s.getCacheJSON(ctx, cacheKeyCombos); cached != "" {
 		var result []ComboDetails
@@ -444,7 +463,7 @@ func (s *ProductService) ListCombos(ctx context.Context) ([]ComboDetails, error)
 		}
 	}
 
-	combos, err := s.repo.ListCombos(ctx)
+	combos, err := s.repo.ListCombosAvailable(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("combo: list: %w", err)
 	}

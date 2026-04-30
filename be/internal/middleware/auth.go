@@ -2,6 +2,7 @@
 package middleware
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"strings"
@@ -21,9 +22,15 @@ const (
 	ContextKeyRole    contextKey = "auth_role"
 )
 
-// AuthRequired validates the Bearer token in the Authorization header.
-// On success it sets claims in gin.Context. On failure it aborts with AUTH_001.
-func AuthRequired() gin.HandlerFunc {
+// IsActiveChecker is implemented by AuthService.IsStaffActive.
+// Middleware receives this interface so it can check is_active without importing the service package.
+type IsActiveChecker interface {
+	IsStaffActive(ctx context.Context, staffID string) (bool, error)
+}
+
+// AuthRequired validates the Bearer token and checks is_active (Spec1 §10, step 4.5).
+// On success it sets claims in gin.Context. On failure it aborts with AUTH_001/ACCOUNT_DISABLED.
+func AuthRequired(checker IsActiveChecker) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		raw := extractBearer(c.GetHeader("Authorization"))
 		if raw == "" {
@@ -40,6 +47,16 @@ func AuthRequired() gin.HandlerFunc {
 				abortAuth(c, http.StatusUnauthorized, "AUTH_001", "Token không hợp lệ")
 			}
 			return
+		}
+
+		// Step 4.5 — is_active check (Redis cache, DB fallback). Spec1 §10.
+		// Guests (role="customer") are stateless JWTs with no DB record — skip check.
+		if claims.Role != "customer" {
+			active, isErr := checker.IsStaffActive(c.Request.Context(), claims.Subject)
+			if isErr != nil || !active {
+				abortAuth(c, http.StatusUnauthorized, "ACCOUNT_DISABLED", "Tài khoản đã bị vô hiệu hóa")
+				return
+			}
 		}
 
 		c.Set(string(ContextKeyClaims), claims)

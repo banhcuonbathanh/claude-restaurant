@@ -1,11 +1,14 @@
 package payment
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"time"
 )
@@ -75,6 +78,32 @@ func MoMoVerifyCallback(body []byte) (bool, map[string]any, error) {
 
 	expected := momoHMAC(secretKey, rawHash)
 	return expected == received, payload, nil
+}
+
+// MoMoCallAPI sends the signed create-payment payload to MoMo's API and returns
+// the payUrl and qrCodeUrl from the response.
+func MoMoCallAPI(payload map[string]any) (payURL, qrCodeURL string, err error) {
+	endpoint := os.Getenv("MOMO_ENDPOINT")
+	if endpoint == "" {
+		return "", "", fmt.Errorf("momo: MOMO_ENDPOINT not set")
+	}
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return "", "", fmt.Errorf("momo: marshal payload: %w", err)
+	}
+	resp, err := http.Post(endpoint, "application/json", bytes.NewReader(body)) //nolint:gosec
+	if err != nil {
+		return "", "", fmt.Errorf("momo: http post: %w", err)
+	}
+	defer resp.Body.Close()
+	raw, _ := io.ReadAll(resp.Body)
+	var result map[string]any
+	if err := json.Unmarshal(raw, &result); err != nil {
+		return "", "", fmt.Errorf("momo: unmarshal response: %w", err)
+	}
+	payURL, _ = result["payUrl"].(string)
+	qrCodeURL, _ = result["qrCodeUrl"].(string)
+	return payURL, qrCodeURL, nil
 }
 
 func momoHMAC(secret, data string) string {

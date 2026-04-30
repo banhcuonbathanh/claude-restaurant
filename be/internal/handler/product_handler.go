@@ -38,9 +38,24 @@ func buildImageURL(path string) string {
 
 // ─── Products ────────────────────────────────────────────────────────────────
 
-// ListProducts handles GET /products
+// ListProducts handles GET /products (public — available only).
 func (h *ProductHandler) ListProducts(c *gin.Context) {
 	products, err := h.svc.ListProducts(c.Request.Context())
+	if err != nil {
+		handleServiceError(c, err)
+		return
+	}
+
+	data := make([]gin.H, 0, len(products))
+	for _, p := range products {
+		data = append(data, productJSON(p))
+	}
+	c.JSON(http.StatusOK, gin.H{"data": data})
+}
+
+// ListAllProducts handles GET /products/all (Manager+ — includes unavailable).
+func (h *ProductHandler) ListAllProducts(c *gin.Context) {
+	products, err := h.svc.ListAllProducts(c.Request.Context())
 	if err != nil {
 		handleServiceError(c, err)
 		return
@@ -325,7 +340,7 @@ func (h *ProductHandler) ListCombos(c *gin.Context) {
 			"name":         combo.Name,
 			"description":  combo.Description,
 			"price":        combo.Price,
-			"image_url":    buildImageURL(combo.ImagePath),
+			"image_path":   combo.ImagePath,
 			"is_available": combo.IsAvailable,
 			"sort_order":   combo.SortOrder,
 			"category_id":  combo.CategoryID,
@@ -394,11 +409,11 @@ func productJSON(p service.ProductDetails) gin.H {
 		toppings = append(toppings, gin.H{"id": t.ID, "name": t.Name, "price": t.Price})
 	}
 	return gin.H{
-		"id":          p.ID,
-		"name":        p.Name,
-		"price":       p.Price,
-		"description": p.Description,
-		"image_url":   buildImageURL(p.ImagePath),
+		"id":           p.ID,
+		"name":         p.Name,
+		"price":        p.Price,
+		"description":  p.Description,
+		"image_path":   p.ImagePath,
 		"is_available": p.IsAvailable,
 		"sort_order":   p.SortOrder,
 		"category": gin.H{

@@ -14,7 +14,7 @@
 | Phase 1 — DB Migrations (001–008) | ✅ COMPLETE | 100% |
 | Phase 2 — Feature Specs | ✅ COMPLETE | 100% (7/7) |
 | Phase 3 — sqlc + Project Setup | ✅ COMPLETE | 100% (sqlc generated + field names verified) |
-| Phase 4 — Backend Implementation | 🔄 IN PROGRESS | ~90% (all domains coded + group service fully implemented; AC verification pending) |
+| Phase 4 — Backend Implementation | ✅ COMPLETE | 100% (all domains coded + all AC verified and fixed) |
 | Phase 5 — Frontend Implementation | ⬜ NOT STARTED | 0% (scaffold stubs only) |
 | Phase 6 — DevOps / Infrastructure | 🔄 IN PROGRESS | 40% (Dockerfiles + compose done) |
 | Phase 7 — Testing & Go-Live | ⬜ NOT STARTED | 0% |
@@ -79,7 +79,7 @@
 | 4.1-4 | ✅ | `be/internal/service/auth_service.go` — Login (rate limit check → bcrypt → access token → refresh token → max 5 sessions), Refresh, Logout, GetMe, GuestLogin, DeactivateStaff, ReactivateStaff | Spec1 AC |
 | 4.1-5 | ✅ | `be/internal/middleware/auth.go` — parse Bearer, JWT validate, set claims/staff_id/role in context, httpOnly cookie helpers | Spec1 AC |
 | 4.1-6 | ✅ | `be/internal/handler/auth_handler.go` — POST /login (httpOnly cookie), POST /refresh, POST /logout, GET /me, POST /guest | Spec1 AC |
-| 4.1-AC | ⬜ | Verify all Acceptance Criteria from Spec1: wrong-password same error, 6th login → 429, dual sessions, single logout, admin deactivate → 401, is_active Redis cache hit, error format `{"error":"AUTH_001","message":"..."}` | Spec1 |
+| 4.1-AC | ✅ | Verify all Acceptance Criteria from Spec1: wrong-password same error, 6th login → 429, dual sessions, single logout, admin deactivate → 401, is_active Redis cache hit, error format `{"error":"AUTH_001","message":"..."}` | Spec1 |
 
 ### Task 4.2 — Products Backend
 
@@ -90,7 +90,7 @@
 | 4.2-1 | ✅ | `be/internal/repository/product_repo.go` — Wrap all sqlc product/category/topping/combo queries | — |
 | 4.2-2 | ✅ | `be/internal/service/product_service.go` — CRUD products/categories/toppings/combos + Redis cache (TTL 5min, invalidate on every write) | Spec2 AC |
 | 4.2-3 | ✅ | `be/internal/handler/product_handler.go` — All 20+ endpoints: GET public endpoints, POST/PATCH/DELETE require Manager+ (RequireRole(4)) | Spec2 AC |
-| 4.2-AC | ⬜ | Verify: `price` field (not `price_delta`), `category_id`+`sort_order` in combos, soft delete, `is_available` filter, Redis invalidated on write, IDs are UUID strings, `image_path` is relative path | Spec2 |
+| 4.2-AC | ✅ | Verify: `price` field (not `price_delta`), `category_id`+`sort_order` in combos, soft delete, `is_available` filter, Redis invalidated on write, IDs are UUID strings, `image_path` is relative path | Spec2 |
 
 ### Task 4.3 — Orders Backend
 
@@ -105,7 +105,7 @@
 | 4.3-5 | ✅ | `be/internal/service/group_service.go` — full implementation: CreateGroup, AddToGroup, GetGroupOrders, RemoveFromGroup, DisbandGroup, HasOrderInGroup; ErrAlreadyGrouped sentinel added | Spec4 §12 |
 | 4.3-6 | ✅ | `be/internal/handler/group_handler.go` — full handlers: CreateGroup, GetGroup, AddToGroup, RemoveFromGroup, DisbandGroup; routes wired in main.go with correct RBAC (Cashier+ create/add/remove, Manager+ disband) | Spec4 §12 |
 | 4.3-7 | ✅ | `be/internal/sse/group_handler.go` — StreamGroup: subscribes to Redis `group:{id}`, sends full snapshot on connect + on every event, 15s heartbeat | Spec4 §12.4 |
-| 4.3-AC | ⬜ | Verify: combo expansion creates parent+sub-items, 1-table-1-active → 409, invalid state transition rejected, chef click → SSE to customer, cancel <30% success, cancel ≥30% → 422, customer cannot see other orders, WS `new_order` on create, SSE heartbeat 15s, group AC-G1 through AC-G8 | Spec4 |
+| 4.3-AC | ✅ | Verify: combo expansion creates parent+sub-items, 1-table-1-active → 409, invalid state transition rejected, chef click → SSE to customer, cancel <30% success, cancel ≥30% → 422, customer cannot see other orders, WS `new_order` on create, SSE heartbeat 15s, group AC-G1 through AC-G8 | Spec4 |
 
 ### Task 4.4 — WebSocket Hub
 
@@ -130,7 +130,7 @@
 | 4.5-4 | ✅ | `be/internal/repository/payment_repo.go` + `be/internal/service/payment_service.go` — create, get, update status, idempotency check | Spec5 AC |
 | 4.5-5 | ✅ | `be/internal/handler/payment_handler.go` — POST /payments (verify order.status=ready), GET /payments/:id, POST /webhooks/vnpay (HMAC first, idempotent, VNPay response format), POST /webhooks/momo, POST /webhooks/zalopay | Spec5 AC |
 | 4.5-6 | ✅ | `be/internal/jobs/payment_timeout.go` — polling ticker every 1min (⚠️ implemented as polling, NOT Redis keyspace notifications as spec said — simpler, no Redis config needed) | — |
-| 4.5-AC | ⬜ | Verify: payment rejected when order≠ready, COD immediate complete, QR returns qr_code_url, bad HMAC → rejected no DB change, duplicate webhook → no-op, amount mismatch → reject, raw webhook stored in gateway_data, WS broadcasts payment_success | Spec5 |
+| 4.5-AC | ✅ | Verify: payment rejected when order≠ready, COD immediate complete, QR returns qr_code_url, bad HMAC → rejected no DB change, duplicate webhook → no-op, amount mismatch → reject, raw webhook stored in gateway_data, WS broadcasts payment_success | Spec5 |
 
 ### Task 4.6 — Remaining Endpoints
 
