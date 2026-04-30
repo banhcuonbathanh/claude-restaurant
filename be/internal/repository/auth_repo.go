@@ -21,9 +21,9 @@ type AuthRepository interface {
 	CountActiveSessionsByStaff(ctx context.Context, staffID string) (int64, error)
 	DeleteOldestSessionByStaff(ctx context.Context, staffID string) error
 	UpdateRefreshTokenLastUsed(ctx context.Context, tokenHash string) error
-	// GetTableIDByQRToken returns the table UUID for a given QR token.
+	// GetTableByQRToken returns the full table row for a given QR token.
 	// Returns sql.ErrNoRows if the table is not found, inactive, or deleted.
-	GetTableIDByQRToken(ctx context.Context, qrToken string) (string, error)
+	GetTableByQRToken(ctx context.Context, qrToken string) (db.Table, error)
 }
 
 type authRepo struct {
@@ -83,15 +83,17 @@ func (r *authRepo) UpdateRefreshTokenLastUsed(ctx context.Context, tokenHash str
 	return r.q.UpdateRefreshTokenLastUsed(ctx, tokenHash)
 }
 
-// GetTableIDByQRToken queries the tables table directly (no sqlc query generated for this yet).
-func (r *authRepo) GetTableIDByQRToken(ctx context.Context, qrToken string) (string, error) {
-	const query = `SELECT id FROM tables WHERE qr_token = ? AND is_active = 1 AND deleted_at IS NULL LIMIT 1`
-	var tableID string
+// GetTableByQRToken returns the full table row for a given QR token.
+func (r *authRepo) GetTableByQRToken(ctx context.Context, qrToken string) (db.Table, error) {
+	const query = `SELECT id, name, qr_token, capacity, status, is_active, created_at, updated_at, deleted_at
+		FROM tables WHERE qr_token = ? AND is_active = 1 AND deleted_at IS NULL LIMIT 1`
 	row := r.dbtx.QueryRowContext(ctx, query, qrToken)
-	if err := row.Scan(&tableID); err != nil {
-		return "", err
+	var t db.Table
+	if err := row.Scan(&t.ID, &t.Name, &t.QrToken, &t.Capacity, &t.Status, &t.IsActive,
+		&t.CreatedAt, &t.UpdatedAt, &t.DeletedAt); err != nil {
+		return db.Table{}, err
 	}
-	return tableID, nil
+	return t, nil
 }
 
 // compile-time interface check

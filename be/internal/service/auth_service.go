@@ -184,22 +184,39 @@ func (s *AuthService) GetMe(ctx context.Context, staffID string) (db.Staff, erro
 	return staff, nil
 }
 
+// GuestLoginResult holds the guest JWT and the table the QR code belongs to.
+type GuestLoginResult struct {
+	AccessToken string
+	ExpiresIn   int // seconds
+	TableID     string
+	TableName   string
+	Capacity    int32
+	TableStatus string
+}
+
 // GuestLogin validates a QR token and returns a short-lived guest JWT (2h, stateless).
-func (s *AuthService) GuestLogin(ctx context.Context, qrToken string) (string, error) {
-	tableID, err := s.repo.GetTableIDByQRToken(ctx, qrToken)
+func (s *AuthService) GuestLogin(ctx context.Context, qrToken string) (GuestLoginResult, error) {
+	table, err := s.repo.GetTableByQRToken(ctx, qrToken)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return "", ErrNotFound
+			return GuestLoginResult{}, ErrNotFound
 		}
-		return "", fmt.Errorf("auth: get table by qr token: %w", err)
+		return GuestLoginResult{}, fmt.Errorf("auth: get table by qr token: %w", err)
 	}
 
-	accessToken, err := jwtpkg.GenerateGuestToken(tableID)
+	accessToken, err := jwtpkg.GenerateGuestToken(table.ID)
 	if err != nil {
-		return "", fmt.Errorf("auth: generate guest token: %w", err)
+		return GuestLoginResult{}, fmt.Errorf("auth: generate guest token: %w", err)
 	}
 
-	return accessToken, nil
+	return GuestLoginResult{
+		AccessToken: accessToken,
+		ExpiresIn:   7200,
+		TableID:     table.ID,
+		TableName:   table.Name,
+		Capacity:    table.Capacity,
+		TableStatus: string(table.Status),
+	}, nil
 }
 
 // DeactivateStaff sets is_active=false and immediately clears the Redis is_active cache.
