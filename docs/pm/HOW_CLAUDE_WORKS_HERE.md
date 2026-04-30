@@ -32,11 +32,17 @@ When I open this project, here is my exact boot sequence:
    → Find the first ⬜ task where all dependencies are ✅
    → If a task is 🔴 BLOCKED, skip it and explain why
 
-3. Follow docs/IMPLEMENTATION_WORKFLOW.md for that task
+3. Open the matching system guide for the domain of that task
+   → BE task  → docs/be/BE_SYSTEM_GUIDE.md
+   → FE task  → docs/fe/FE_SYSTEM_GUIDE.md
+   → Infra    → docs/devops/DEVOPS_SYSTEM_GUIDE.md
+   → Find the exact epic, read only the docs listed for it
+
+4. Follow docs/IMPLEMENTATION_WORKFLOW.md for that task
    → Run the 7-step loop: READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 ```
 
-I do not guess what to work on. I do not jump straight to coding. The TASKS.md is the single queue I read from.
+I do not guess what to work on. I do not jump straight to coding. The TASKS.md is the single queue I read from. The system guide for the domain is the technical reference — I do not read all docs, only what the guide lists per epic.
 
 ---
 
@@ -122,21 +128,33 @@ I update exactly the right documents:
 
 ---
 
-## 4. The Document Architecture — 3 Layers
+## 4. The Document Architecture — 5 Layers
 
-The project separates documents into three layers so Claude always knows exactly where to look:
+The project separates documents into five layers so Claude always knows exactly where to look:
 
 ```
 Layer 1 — Navigation (always loaded)
-  CLAUDE.md                          ← project map, phase status, commands, current work
+  CLAUDE.md                               ← project map, phase status, commands, current work
+  README.md                               ← big picture: stack, quick start, full doc map
 
-Layer 2 — Shared facts (read when needed)
-  docs/MASTER_v1.2.md                ← RBAC §3, business rules §4, realtime §5, JWT §6, design tokens §2
-  docs/contract/API_CONTRACT_v1.2.md ← all endpoints
-  docs/contract/ERROR_CONTRACT_v1.1.md ← error codes + respondError pattern
+Layer 2 — Onboarding (read on day 1 per role)
+  docs/onboarding/BE_DEV.md              ← BE: stack, entry point, first 3 tasks, key rules
+  docs/onboarding/FE_DEV.md             ← FE: stack, state ownership, first 3 tasks, key rules
+  docs/onboarding/DEVOPS.md             ← DevOps: ownership, first 3 tasks, key rules
+  docs/onboarding/LEAD.md               ← Lead: phase status, PR review checklist
+
+Layer 3 — System guides (read at the start of every coding session per role)
+  docs/be/BE_SYSTEM_GUIDE.md            ← BE epics, scaffold state, code patterns, per-epic reading list
+  docs/fe/FE_SYSTEM_GUIDE.md            ← FE epics, scaffold state, state rules, per-epic reading list
+  docs/devops/DEVOPS_SYSTEM_GUIDE.md    ← DevOps epics, Dockerfile patterns, compose spec, CI/CD
+
+Layer 4 — Shared facts (read when needed — not all at once)
+  docs/MASTER_v1.2.md                   ← RBAC §3, business rules §4, realtime §5, JWT §6, design tokens §2
+  docs/contract/API_CONTRACT_v1.2.md    ← all endpoints
+  docs/contract/ERROR_CONTRACT_v1.1.md  ← error codes + respondError pattern
   docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md ← field names (single source of truth)
 
-Layer 3 — Domain specs (read only for that domain)
+Layer 5 — Domain specs (read only for that domain — listed in system guides)
   docs/spec/Spec1_Auth_Updated_v2.md
   docs/spec/Spec_2_Products_API_v2_CORRECTED.md
   docs/spec/Spec_3_Menu_Checkout_UI_v2.md
@@ -146,7 +164,9 @@ Layer 3 — Domain specs (read only for that domain)
   docs/spec/Spec_7_Staff_Management.md
 ```
 
-**The principle:** One fact, one home. If a field name appears in one place, it is only authoritative in the DB_SCHEMA_SUMMARY — not in CLAUDE.md, not in a spec. This prevents the two-docs-contradicting-each-other problem.
+**Reading order per session:** CLAUDE.md → TASKS.md (find next task) → system guide for that role (find that epic) → only the docs that epic lists → implement.
+
+**The principle:** One fact, one home. System guides tell you *what to read* — they do not duplicate the facts inside those docs. If two documents contradict each other, surface it as `⚠️ FLAG` and ask. Do not pick one silently.
 
 ---
 
@@ -215,22 +235,22 @@ These are explicit constraints built into the system:
 ## 9. Current Project State (as of April 2026)
 
 ```
-Phase 0 — Docs & Architecture    ✅ COMPLETE
-Phase 1 — DB Migrations          🔄 87% (migration 008 pending)
+Phase 0 — Docs & Architecture    ✅ COMPLETE (+ BE/FE/DevOps system guides + onboarding added 2026-04-30)
+Phase 1 — DB Migrations          🔄 87% (migration 008 pending — task P1-8)
 Phase 2 — Feature Specs          ✅ COMPLETE (all 7 specs written)
-Phase 3 — sqlc + Project Setup   🔄 80% (sqlc generate not yet run)
-Phase 4 — Backend                ⬜ Blocked until Phase 3 done
-Phase 5 — Frontend               ⬜ Blocked until Phase 4.1 (auth) done
-Phase 6 — DevOps                 🔄 40% (Dockerfiles + compose done)
+Phase 3 — sqlc + Project Setup   ✅ COMPLETE (sqlc generated + field names verified)
+Phase 4 — Backend                🔄 ~15% (auth infra done; auth_handler.go is next — BE-2)
+Phase 5 — Frontend               ⬜ Blocked until Phase 4 auth handler done
+Phase 6 — DevOps                 🔄 40% (.env.example + Caddyfile + CI pending — DO-4/5/6)
 Phase 7 — Testing & Go-Live      ⬜ Not started
 ```
 
-**The immediate bottleneck:** Run `sqlc generate` (task P3-1). This unblocks all of Phase 4.
+**The immediate bottlenecks (in order):**
+1. `P1-8` — Run migration `008_order_groups.sql`
+2. `BE-2` — Write `be/internal/handler/auth_handler.go` (5 handlers) — unblocks all of Phase 5
+3. `DO-4` — Create `.env.example` + `scripts/migrate.sh` — unblocks local dev for everyone
 
-The first thing to work on when you next open this project:
-1. `P3-1` — `cd be && sqlc generate` → verify `be/internal/db/` is created
-2. `P3-2` — Verify generated struct field names match schema
-3. `4.1-1` through `4.1-6` — Auth backend (unblocks everything else)
+**Where to find these tasks:** `docs/TASKS.md` → `docs/be/BE_SYSTEM_GUIDE.md §10 Epic BE-2`
 
 ---
 
