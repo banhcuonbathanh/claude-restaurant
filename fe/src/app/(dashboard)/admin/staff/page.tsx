@@ -176,7 +176,7 @@ export default function StaffPage() {
                     <div className="flex gap-2 justify-end">
                       <button
                         onClick={() => openEdit(s)}
-                        className="px-3 py-1 text-xs border border-gray-200 rounded-lg hover:bg-gray-50"
+                        className="px-3 py-1 text-xs border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50"
                       >
                         Sửa
                       </button>
@@ -220,7 +220,7 @@ export default function StaffPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
                   <input
                     {...createForm.register('username')}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                     placeholder="chef_an"
                   />
                   {createForm.formState.errors.username && (
@@ -232,7 +232,7 @@ export default function StaffPage() {
                   <input
                     type="password"
                     {...createForm.register('password')}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                   {createForm.formState.errors.password && (
                     <p className="text-red-500 text-xs mt-1">{createForm.formState.errors.password.message}</p>
@@ -244,7 +244,7 @@ export default function StaffPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Tên đầy đủ</label>
                 <input
                   {...createForm.register('full_name')}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                   placeholder="Nguyễn Văn An"
                 />
                 {createForm.formState.errors.full_name && (
@@ -256,7 +256,7 @@ export default function StaffPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Vai trò</label>
                 <select
                   {...createForm.register('role')}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                 >
                   {roles.map(r => (
                     <option key={r} value={r}>{ROLE_LABELS[r]}</option>
@@ -269,7 +269,7 @@ export default function StaffPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Số điện thoại</label>
                   <input
                     {...createForm.register('phone')}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                     placeholder="0901234567"
                   />
                 </div>
@@ -278,7 +278,7 @@ export default function StaffPage() {
                   <input
                     type="email"
                     {...createForm.register('email')}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                     placeholder="an@quán.vn"
                   />
                   {createForm.formState.errors.email && (
@@ -288,7 +288,7 @@ export default function StaffPage() {
               </div>
 
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={closeModal} className="flex-1 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50">
+                <button type="button" onClick={closeModal} className="flex-1 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-50">
                   Huỷ
                 </button>
                 <button
@@ -319,7 +319,7 @@ export default function StaffPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Tên đầy đủ</label>
                 <input
                   {...editForm.register('full_name')}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
                 {editForm.formState.errors.full_name && (
                   <p className="text-red-500 text-xs mt-1">{editForm.formState.errors.full_name.message}</p>
@@ -330,7 +330,7 @@ export default function StaffPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Vai trò</label>
                 <select
                   {...editForm.register('role')}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                 >
                   {roles.map(r => (
                     <option key={r} value={r}>{ROLE_LABELS[r]}</option>
@@ -343,7 +343,7 @@ export default function StaffPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Số điện thoại</label>
                   <input
                     {...editForm.register('phone')}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
                 <div>
@@ -351,7 +351,7 @@ export default function StaffPage() {
                   <input
                     type="email"
                     {...editForm.register('email')}
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                   {editForm.formState.errors.email && (
                     <p className="text-red-500 text-xs mt-1">{editForm.formState.errors.email.message}</p>
@@ -360,7 +360,7 @@ export default function StaffPage() {
               </div>
 
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={closeModal} className="flex-1 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50">
+                <button type="button" onClick={closeModal} className="flex-1 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-50">
                   Huỷ
                 </button>
                 <button

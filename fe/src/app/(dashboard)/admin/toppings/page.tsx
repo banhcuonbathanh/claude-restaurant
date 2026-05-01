@@ -110,7 +110,7 @@ export default function ToppingsPage() {
                     <div className="flex gap-2 justify-end">
                       <button
                         onClick={() => openEdit(t)}
-                        className="px-3 py-1 text-xs border border-gray-200 rounded-lg hover:bg-gray-50"
+                        className="px-3 py-1 text-xs border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50"
                       >
                         Sửa
                       </button>
@@ -149,7 +149,7 @@ export default function ToppingsPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Tên topping</label>
                 <input
                   {...register('name')}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                   placeholder="Hành phi, Trứng, Giò..."
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
@@ -159,7 +159,7 @@ export default function ToppingsPage() {
                 <input
                   type="number"
                   {...register('price')}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                   placeholder="5000"
                 />
                 {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>}
@@ -168,7 +168,7 @@ export default function ToppingsPage() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50"
+                  className="flex-1 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-50"
                 >
                   Huỷ
                 </button>

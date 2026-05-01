@@ -99,7 +99,7 @@ export default function CategoriesPage() {
                     <div className="flex gap-2 justify-end">
                       <button
                         onClick={() => openEdit(c)}
-                        className="px-3 py-1 text-xs border border-gray-200 rounded-lg hover:bg-gray-50"
+                        className="px-3 py-1 text-xs border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50"
                       >
                         Sửa
                       </button>
@@ -138,7 +138,7 @@ export default function CategoriesPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Tên danh mục</label>
                 <input
                   {...register('name')}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
                   placeholder="Bánh cuốn, Bún bò..."
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
@@ -148,14 +148,14 @@ export default function CategoriesPage() {
                 <input
                   type="number"
                   {...register('sort_order')}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50"
+                  className="flex-1 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-50"
                 >
                   Huỷ
                 </button>
