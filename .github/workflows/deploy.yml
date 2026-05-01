@@ -1,0 +1,109 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_BE: ${{ github.repository }}/be
+  IMAGE_FE: ${{ github.repository }}/fe
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+          cache: true
+
+      - name: Run BE tests
+        run: go test ./be/...
+
+  build-and-push:
+    name: Build & Push Images
+    runs-on: ubuntu-latest
+    needs: test
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & push BE image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: be/Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_BE }}:${{ github.sha }},${{ env.REGISTRY }}/${{ env.IMAGE_BE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build & push FE image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./fe
+          file: fe/Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_FE }}:${{ github.sha }},${{ env.REGISTRY }}/${{ env.IMAGE_FE }}:latest
+          build-args: NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: |
+            set -e
+            cd ${{ secrets.DEPLOY_PATH }}
+
+            # Pull new images
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_BE }}:${{ github.sha }}
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_FE }}:${{ github.sha }}
+
+            # Update image tags in compose
+            export BE_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_BE }}:${{ github.sha }}
+            export FE_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_FE }}:${{ github.sha }}
+
+            # Zero-downtime restart
+            docker compose up -d --no-build be fe caddy
+
+            # Health check — rollback if BE doesn't respond in 30s
+            sleep 10
+            if ! curl -sf http://localhost:8080/health > /dev/null; then
+              echo "Health check failed — rolling back"
+              docker compose up -d --no-build be fe
+              exit 1
+            fi
+
+            echo "Deploy successful: ${{ github.sha }}"

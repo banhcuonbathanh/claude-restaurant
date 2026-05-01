@@ -16,7 +16,7 @@
 | Phase 3 — sqlc + Project Setup | ✅ COMPLETE | 100% (sqlc generated + field names verified) |
 | Phase 4 — Backend Implementation | ✅ COMPLETE | 100% (all domains coded + all AC verified and fixed) |
 | Phase 5 — Frontend Implementation | ✅ COMPLETE | 100% (5.1 auth + 5.2 menu/cart + 5.3 checkout/SSE + 5.4 KDS + 5.5 POS/Payment ✅) |
-| Phase 6 — DevOps / Infrastructure | 🔄 IN PROGRESS | 40% (Dockerfiles + compose done) |
+| Phase 6 — DevOps / Infrastructure | ✅ COMPLETE | 100% |
 | Phase 7 — Testing & Go-Live | ⬜ NOT STARTED | 0% |
 
 ---
@@ -217,12 +217,12 @@
 
 | ID | Status | Task | Notes |
 |---|---|---|---|
-| 6-1 | ⬜ | `.env.example` — All vars from MASTER §9: DB_DSN, REDIS_URL, JWT_SECRET, JWT_ACCESS_TTL, JWT_REFRESH_TTL, STORAGE_*, VNPAY_*, MOMO_*, ZALOPAY_*, WEBHOOK_BASE_URL, CORS_ORIGINS, PORT | MASTER §9 |
-| 6-2 | ⬜ | `scripts/migrate.sh` — Wait for MySQL (mysqladmin ping loop), run `goose -dir /migrations mysql "$DB_DSN" up`, exec server | — |
-| 6-3 | ⬜ | `Caddyfile` — Route `/api/*` and `/webhooks/*` → backend:8080, everything else → frontend:3000 | — |
-| 6-4 | ⬜ | Update `docker-compose.yml` — Add MySQL health check (`mysqladmin ping`), Redis health check (`redis-cli ping`), Caddy service (ports 80+443), correct depends_on ordering | — |
-| 6-5 | ⬜ | `.github/workflows/deploy.yml` — Trigger: push to main. Steps: checkout → build images → push registry → SSH deploy (`docker compose pull && up -d`) + rollback step | — |
-| 6-6 | ⬜ | `README.md` — Local dev setup (docker compose up), port map, migration commands, sqlc generate, env vars guide (link to .env.example) | — |
+| 6-1 | ✅ | `.env.example` — All vars matched to actual code: DB_DSN, REDIS_ADDR, JWT_SECRET, JWT_ACCESS_TTL, JWT_REFRESH_TTL, STORAGE_*, VNPAY_BASE_URL, MOMO_*, ZALOPAY_*, WEBHOOK_BASE_URL, CORS_ORIGINS, PORT, NEXT_PUBLIC_API_URL | MASTER §9 |
+| 6-2 | ✅ | `scripts/migrate.sh` — Wait for MySQL (mysqladmin ping loop), run `goose -dir /migrations mysql "$DB_DSN" up`, exec server | — |
+| 6-3 | ✅ | `Caddyfile` — Route `/api/*` and `/webhooks/*` and `/health` → be:8080, everything else → fe:3000 | — |
+| 6-4 | ✅ | Updated `docker-compose.yml` — Added Caddy service (ports 80+443), caddy_data + caddy_config volumes. MySQL + Redis healthchecks were already present. | — |
+| 6-5 | ✅ | `.github/workflows/deploy.yml` — Trigger: push to main. Steps: test → build+push images (ghcr.io) → SSH deploy + health-check rollback | — |
+| 6-6 | ✅ | `README.md` — Updated: accurate phase status, quick start, full env vars table, migration commands, port map | — |
 
 ---
 

@@ -50,7 +50,7 @@ READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 | Phase 3 — sqlc + Project Setup | ✅ COMPLETE — generated + verified | — |
 | Phase 4 — Backend | ✅ COMPLETE — all domains coded + all AC verified and fixed | — |
 | Phase 5 — Frontend | ✅ COMPLETE — 5.1 auth + 5.2 menu/cart + 5.3 checkout/SSE + 5.4 KDS + 5.5 POS/Payment ✅ | — |
-| Phase 6 — DevOps | 🔄 40% — Dockerfiles + compose done; Caddy + CI + .env.example pending | Can run parallel with P4 |
+| Phase 6 — DevOps | ✅ COMPLETE — .env.example + migrate.sh + Caddyfile + Caddy in compose + CI/CD + README | — |
 | Phase 7 — Testing + Go-Live | ⬜ NOT STARTED | Needs P4+P5 |
 
 ## Document Map (3 Tầng)
@@ -124,10 +124,10 @@ FE state (strict): server → TanStack Query · client → Zustand · forms → 
 
 ## Current Work
 
-- **Status:** Phase 5 ✅ COMPLETE. Phase 6 (DevOps) next. `npm run build` passes clean.
-- **Branch:** feature/p5-2-menu-cart (all P5 work uncommitted — commit before starting P6)
-- **Done:** 5.1 auth · 5.2 menu/cart · 5.3 checkout/SSE · 5.4 KDS · 5.5 POS + cashier payment page
+- **Status:** Phase 5 ✅ COMPLETE. Phase 6 ✅ COMPLETE.
+- **Branch:** feature/p5-2-menu-cart (P5 + P6 work uncommitted — commit + PR before starting P7)
+- **Done:** 5.1–5.5 frontend · 6-1 .env.example · 6-2 migrate.sh · 6-3 Caddyfile · 6-4 Caddy in compose · 6-5 CI/CD · 6-6 README
 - **Next (in order):**
-  1. **Commit** all P5 work on current branch, then open PR → merge to main
-  2. **Phase 6 (6-1)** — `.env.example` · then 6-2 migrate script · 6-3 Caddyfile · 6-4 compose health checks · 6-5 CI
+  1. **Commit** all work on current branch, then open PR → merge to main
+  2. **Phase 7** — testing + go-live (see `docs/TASKS.md` §Phase 7)
 - **How to pick the next task:** Open `docs/TASKS.md` → find next ⬜ task with all dependencies ✅.

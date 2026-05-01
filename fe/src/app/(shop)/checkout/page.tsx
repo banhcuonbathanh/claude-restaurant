@@ -65,7 +65,7 @@ export default function CheckoutPage() {
     },
     onSuccess: (data) => {
       cart.clearCart()
-      router.push(`/order/${data.id}`)
+      router.push(`/order/${data.data.id}`)
     },
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { message?: string } } })

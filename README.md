@@ -12,56 +12,91 @@ QR ordering · Kitchen Display (KDS) · POS · Payment webhooks
 | Frontend | Next.js 14 App Router · TypeScript · Tailwind v3 · Zustand · TanStack Query v5 |
 | Infra | Docker Compose · Caddy (auto TLS) · GitHub Actions |
 
-**Ports:** BE=8080 · FE=3000 · MySQL=3306 · Redis=6379
+**Ports (local):** BE=8080 · FE=3000 · MySQL=3306 · Redis=6379 · RedisInsight=8001
 
 ---
 
 ## Quick Start (local dev)
 
 ```bash
+# 1. Copy env template and fill in required secrets
 cp .env.example .env
+
+# 2. Generate JWT secret
 openssl rand -hex 32   # paste into JWT_SECRET in .env
+
+# 3. Start all services
 docker compose up -d
-docker compose ps      # all services should show running
+
+# 4. Verify everything is running
+docker compose ps
+curl http://localhost:8080/health
 ```
 
-Full local dev guide → [`docs/DOCKER_GUIDE.md`](docs/DOCKER_GUIDE.md)
+The BE runs DB migrations automatically on startup via goose.
 
 ---
 
-## Documentation — 3 Layers
+## Environment Variables
 
-### Layer 1 — WHY & WHAT (goals, requirements, rules)
-> Read this to understand what we're building and why decisions were made.
+All variables are documented in [.env.example](.env.example).
 
-| Doc | Purpose |
-|---|---|
-| [`docs/qui_trinh/BanhCuon_BRD_v1.md`](docs/qui_trinh/BanhCuon_BRD_v1.md) | Business requirements |
-| [`docs/qui_trinh/BanhCuon_SRS_v1.md`](docs/qui_trinh/BanhCuon_SRS_v1.md) | System requirements |
-| [`docs/qui_trinh/BanhCuon_FSD_v1.md`](docs/qui_trinh/BanhCuon_FSD_v1.md) | Functional spec |
-| [`docs/qui_trinh/BanhCuon_UXUI_Design_v1.md`](docs/qui_trinh/BanhCuon_UXUI_Design_v1.md) | UX/UI design |
-| [`docs/MASTER_v1.2.md`](docs/MASTER_v1.2.md) | RBAC · business rules · JWT · realtime · design tokens |
-| [`docs/contract/API_CONTRACT_v1.2.md`](docs/contract/API_CONTRACT_v1.2.md) | All API endpoints |
-| [`docs/contract/ERROR_CONTRACT_v1.1.md`](docs/contract/ERROR_CONTRACT_v1.1.md) | Error codes + format |
+| Variable | Required | Description |
+|---|---|---|
+| `MYSQL_ROOT_PASSWORD` | ✅ | MySQL root password (docker-compose only) |
+| `MYSQL_PASSWORD` | ✅ | MySQL app user password |
+| `DB_DSN` | ✅ | Full MySQL DSN — must match `MYSQL_PASSWORD` |
+| `REDIS_ADDR` | — | Redis host:port (default: `redis:6379`) |
+| `JWT_SECRET` | ✅ | 256-bit hex — generate with `openssl rand -hex 32` |
+| `JWT_ACCESS_TTL` | — | Access token TTL in seconds (default: 86400) |
+| `JWT_REFRESH_TTL` | — | Refresh token TTL in seconds (default: 2592000) |
+| `STORAGE_BASE_URL` | — | Public URL prefix for uploaded files |
+| `STORAGE_BASE_PATH` | — | Filesystem path for uploads (default: /var/www/uploads) |
+| `VNPAY_*` | — | VNPay payment gateway credentials |
+| `MOMO_*` | — | MoMo payment gateway credentials |
+| `ZALOPAY_*` | — | ZaloPay payment gateway credentials |
+| `WEBHOOK_BASE_URL` | — | Public base URL for payment webhooks (use ngrok locally) |
+| `NEXT_PUBLIC_API_URL` | — | API URL baked into the FE at build time |
 
-### Layer 2 — HOW (technical guides for active development)
-> Read this when you're coding. Start with your role's system guide.
+---
 
-| Doc | Audience |
-|---|---|
-| [`docs/be/BE_SYSTEM_GUIDE.md`](docs/be/BE_SYSTEM_GUIDE.md) | Backend developer |
-| [`docs/fe/FE_SYSTEM_GUIDE.md`](docs/fe/FE_SYSTEM_GUIDE.md) | Frontend developer |
-| [`docs/devops/DEVOPS_SYSTEM_GUIDE.md`](docs/devops/DEVOPS_SYSTEM_GUIDE.md) | DevOps engineer |
+## Common Commands
 
-### Layer 3 — NOW (onboarding — current state + first tasks)
-> Read this on day 1. Gets you to your first task in 5 minutes.
+```bash
+# Backend
+go build ./...
+go test ./be/internal/service/... -run TestLogin
+goose -dir be/migrations mysql "$DB_DSN" up
 
-| Doc | Audience |
-|---|---|
-| [`docs/onboarding/BE_DEV.md`](docs/onboarding/BE_DEV.md) | Backend developer |
-| [`docs/onboarding/FE_DEV.md`](docs/onboarding/FE_DEV.md) | Frontend developer |
-| [`docs/onboarding/DEVOPS.md`](docs/onboarding/DEVOPS.md) | DevOps engineer |
-| [`docs/onboarding/LEAD.md`](docs/onboarding/LEAD.md) | Tech lead |
+# Frontend
+cd fe && npm run dev           # :3000
+cd fe && npm run build
+
+# Docker
+docker compose up -d                    # start full stack
+docker compose up -d --build be fe     # rebuild after code changes
+docker compose logs -f be              # tail BE logs
+docker compose down                    # stop (keeps volumes)
+docker compose down -v                 # stop + delete volumes (⚠️ loses data)
+
+# sqlc (after editing .sql query files)
+cd be && sqlc generate
+```
+
+---
+
+## Migration Commands
+
+```bash
+# Run all pending migrations
+goose -dir be/migrations mysql "$DB_DSN" up
+
+# Check migration status
+goose -dir be/migrations mysql "$DB_DSN" status
+
+# Roll back last migration
+goose -dir be/migrations mysql "$DB_DSN" down
+```
 
 ---
 
@@ -70,21 +105,25 @@ Full local dev guide → [`docs/DOCKER_GUIDE.md`](docs/DOCKER_GUIDE.md)
 | Phase | Status |
 |---|---|
 | Phase 0 — Architecture & Docs | ✅ Complete |
-| Phase 1 — DB Migrations | 🔄 87% (migration 008 pending) |
+| Phase 1 — DB Migrations | ✅ Complete |
 | Phase 2 — Feature Specs | ✅ Complete |
 | Phase 3 — sqlc + Project Setup | ✅ Complete |
-| Phase 4 — Backend | 🔄 ~15% (auth handler is next) |
-| Phase 5 — Frontend | ⬜ Not started (blocked on Phase 4 auth) |
-| Phase 6 — DevOps | 🔄 40% (Caddy + CI pending) |
+| Phase 4 — Backend | ✅ Complete |
+| Phase 5 — Frontend | ✅ Complete |
+| Phase 6 — DevOps | ✅ Complete |
 | Phase 7 — Testing & Go-Live | ⬜ Not started |
 
 Full task list → [`docs/TASKS.md`](docs/TASKS.md)
 
 ---
 
-## New to the project?
+## Documentation
 
-1. Read your onboarding card (Layer 3 above)
-2. Open your system guide (Layer 2)
-3. Check [`docs/TASKS.md`](docs/TASKS.md) for your next task
-4. Follow the 7-step workflow in [`docs/IMPLEMENTATION_WORKFLOW.md`](docs/IMPLEMENTATION_WORKFLOW.md)
+| Doc | Purpose |
+|---|---|
+| [`docs/MASTER_v1.2.md`](docs/MASTER_v1.2.md) | RBAC · business rules · JWT · realtime · design tokens |
+| [`docs/contract/API_CONTRACT_v1.2.md`](docs/contract/API_CONTRACT_v1.2.md) | All API endpoints |
+| [`docs/contract/ERROR_CONTRACT_v1.1.md`](docs/contract/ERROR_CONTRACT_v1.1.md) | Error codes + format |
+| [`docs/be/BE_SYSTEM_GUIDE.md`](docs/be/BE_SYSTEM_GUIDE.md) | Backend developer guide |
+| [`docs/fe/FE_SYSTEM_GUIDE.md`](docs/fe/FE_SYSTEM_GUIDE.md) | Frontend developer guide |
+| [`docs/TASKS.md`](docs/TASKS.md) | Master task list |
