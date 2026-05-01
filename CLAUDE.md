@@ -52,7 +52,7 @@ READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 | Phase 5 — Frontend | ✅ COMPLETE — 5.1 auth + 5.2 menu/cart + 5.3 checkout/SSE + 5.4 KDS + 5.5 POS/Payment ✅ | — |
 | Phase 6 — DevOps | ✅ COMPLETE — .env.example + migrate.sh + Caddyfile + Caddy in compose + CI/CD + README | — |
 | Phase 7 — Testing + Go-Live | ⬜ NOT STARTED | Needs P4+P5 |
-| Phase 8 — Admin Dashboard | 🔄 IN PROGRESS — FE pages built (products/categories/toppings/staff), BE staff endpoints need verify | — |
+| Phase 8 — Admin Dashboard | ✅ COMPLETE — FE pages + BE staff CRUD (8-1→8-13) all done | — |
 
 ## Document Map (3 Tầng)
 
@@ -125,13 +125,12 @@ FE state (strict): server → TanStack Query · client → Zustand · forms → 
 
 ## Current Work
 
-- **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 FE 🔄 IN PROGRESS.
-- **Branch:** test (admin dashboard work in progress)
-- **Done:** 5.1–5.5 frontend · 6-1–6-6 DevOps · 8-1–8-8 Admin FE pages (products/categories/toppings/staff)
+- **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 ✅ · Phase 7 ⬜ NEXT.
+- **Branch:** test — committed, pushed. PR open at github.com/banhcuonbathanh/claude-restaurant/pull/new/test → merge to main.
+- **Done this session:** 8-9→8-13 BE staff endpoints (staff_repo/service/handler + wired in main.go) · `go build ./...` clean · Phase 8 ✅ COMPLETE.
 - **Next (in order):**
-  1. **Verify/implement** BE staff endpoints (8-9 through 8-13) — see `docs/TASKS.md §Phase 8`
-  2. **Test** admin pages against live BE (run `docker compose up -d`)
-  3. **Commit** all work + open PR → merge to main
-  4. **Phase 7** — testing + go-live (see `docs/TASKS.md §Phase 7`)
-- **Admin page URL:** `/admin` (redirects to `/admin/products`) — requires Manager+ role
+  1. **Merge PR** `test` → `main` (open at GitHub, needs browser auth for gh CLI)
+  2. **Phase 7-6** — `scripts/seed.sql` (3+ categories, 10+ products, 4 staff, 5 tables) — run `docker compose up -d` first
+  3. **Phase 7-1/7-2/7-3** — BE unit tests (auth/order/payment services)
+  4. **Phase 7-5** — integration test suite against test DB
 - **How to pick the next task:** Open `docs/TASKS.md` → find next ⬜ task with all dependencies ✅.

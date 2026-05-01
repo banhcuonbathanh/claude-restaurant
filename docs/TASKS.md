@@ -284,9 +284,9 @@
 | 8-7 | ✅ | `fe/src/app/(dashboard)/admin/toppings/page.tsx` — List + Add/Edit modal + Delete | Spec2 AC |
 | 8-8 | ✅ | `fe/src/app/(dashboard)/admin/staff/page.tsx` — List + Add modal (with password) + Edit modal + Activate/Deactivate toggle + Delete (Admin only) | Spec7 AC |
 
-### Backend — Staff Endpoints (⬜ Pending)
+### Backend — Staff Endpoints (✅ Complete)
 
-> **Note:** Products/categories/toppings CRUD already exist from Phase 4.2. Staff endpoints need to be verified/added.
+> **Note:** Products/categories/toppings CRUD already exist from Phase 4.2. Staff endpoints implemented from scratch (no sqlc queries existed).
 
 | ID | Status | Task | Notes |
 |---|---|---|---|
