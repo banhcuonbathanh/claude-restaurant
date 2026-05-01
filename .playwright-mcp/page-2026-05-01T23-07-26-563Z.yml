@@ -1,0 +1,45 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Sản phẩm" [ref=e6] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Danh mục" [ref=e7] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e8] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e9] [cursor=pointer]:
+          - /url: /admin/staff
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - heading "Danh mục (1)" [level=2] [ref=e13]
+        - button "+ Thêm danh mục" [active] [ref=e14] [cursor=pointer]
+      - table [ref=e16]:
+        - rowgroup [ref=e17]:
+          - row "Tên danh mục Thứ tự" [ref=e18]:
+            - columnheader "Tên danh mục" [ref=e19]
+            - columnheader "Thứ tự" [ref=e20]
+            - columnheader [ref=e21]
+        - rowgroup [ref=e22]:
+          - row "Bánh Cuốn 1 Sửa Xóa" [ref=e23]:
+            - cell "Bánh Cuốn" [ref=e24]
+            - cell "1" [ref=e25]
+            - cell "Sửa Xóa" [ref=e26]:
+              - generic [ref=e27]:
+                - button "Sửa" [ref=e28] [cursor=pointer]
+                - button "Xóa" [ref=e29] [cursor=pointer]
+      - generic [ref=e32]:
+        - heading "Thêm danh mục" [level=3] [ref=e34]
+        - generic [ref=e35]:
+          - generic [ref=e36]:
+            - generic [ref=e37]: Tên danh mục
+            - textbox "Bánh cuốn, Bún bò..." [ref=e38]
+          - generic [ref=e39]:
+            - generic [ref=e40]: Thứ tự hiển thị
+            - spinbutton [ref=e41]: "0"
+          - generic [ref=e42]:
+            - button "Huỷ" [ref=e43] [cursor=pointer]
+            - button "Lưu" [ref=e44] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e30]

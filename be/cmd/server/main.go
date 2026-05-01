@@ -149,7 +149,8 @@ func main() {
 		mgr.Use(authMW, middleware.AtLeast("manager"))
 		mgr.GET("/all", productH.ListAllProducts) // includes unavailable — Manager+
 		mgr.POST("", productH.CreateProduct)
-		mgr.PUT("/:id", productH.UpdateProduct)
+		mgr.PATCH("/:id", productH.UpdateProduct)
+		mgr.PATCH("/:id/availability", productH.UpdateProduct)
 	}
 	{
 		adm := prodR.Group("")
@@ -164,7 +165,7 @@ func main() {
 		mgr := catR.Group("")
 		mgr.Use(authMW, middleware.AtLeast("manager"))
 		mgr.POST("", productH.CreateCategory)
-		mgr.PUT("/:id", productH.UpdateCategory)
+		mgr.PATCH("/:id", productH.UpdateCategory)
 	}
 	{
 		adm := catR.Group("")
@@ -179,7 +180,7 @@ func main() {
 		mgr := topR.Group("")
 		mgr.Use(authMW, middleware.AtLeast("manager"))
 		mgr.POST("", productH.CreateTopping)
-		mgr.PUT("/:id", productH.UpdateTopping)
+		mgr.PATCH("/:id", productH.UpdateTopping)
 	}
 	{
 		adm := topR.Group("")

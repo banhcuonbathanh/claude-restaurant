@@ -95,3 +95,12 @@ Field	Value
 Username	admin
 Password	Admin@123
 Role	admin
+
+
+Swagger UI: http://localhost:8090/swagger/
+
+Open the URL
+Expand POST /api/v1/auth/login → Try it out → body: {"username":"admin","password":"<your-password>"} → Execute
+Copy access_token from response
+Click Authorize (top right padlock) → paste token → Authorize
+Now test every endpoint one by one — Categories, Products, Toppings, Staff all have full CRUD

@@ -1,0 +1,56 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Sản phẩm" [ref=e6] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Danh mục" [ref=e7] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e8] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e9] [cursor=pointer]:
+          - /url: /admin/staff
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - heading "Danh mục (2)" [level=2] [ref=e68]
+        - button "+ Thêm danh mục" [ref=e14] [cursor=pointer]
+      - table [ref=e16]:
+        - rowgroup [ref=e17]:
+          - row "Tên danh mục Thứ tự" [ref=e18]:
+            - columnheader "Tên danh mục" [ref=e19]
+            - columnheader "Thứ tự" [ref=e20]
+            - columnheader [ref=e21]
+        - rowgroup [ref=e22]:
+          - row "Bánh Cuốn 1 Sửa Xóa" [ref=e41]:
+            - cell "Bánh Cuốn" [ref=e42]
+            - cell "1" [ref=e43]
+            - cell "Sửa Xóa" [ref=e44]:
+              - generic [ref=e45]:
+                - button "Sửa" [ref=e46] [cursor=pointer]
+                - button "Xóa" [ref=e47] [cursor=pointer]
+          - row "Chả 2 Sửa Xóa" [ref=e69]:
+            - cell "Chả" [ref=e70]
+            - cell "2" [ref=e71]
+            - cell "Sửa Xóa" [ref=e72]:
+              - generic [ref=e73]:
+                - button "Sửa" [ref=e74] [cursor=pointer]
+                - button "Xóa" [ref=e75] [cursor=pointer]
+      - generic [ref=e83]:
+        - heading "Sửa danh mục" [level=3] [ref=e85]
+        - generic [ref=e86]:
+          - generic [ref=e87]:
+            - generic [ref=e88]: Tên danh mục
+            - textbox "Bánh cuốn, Bún bò..." [ref=e89]: Chả Lụa
+          - generic [ref=e90]:
+            - generic [ref=e91]: Thứ tự hiển thị
+            - spinbutton [ref=e92]: "2"
+          - generic [ref=e93]:
+            - button "Huỷ" [ref=e94] [cursor=pointer]
+            - button "Lưu" [ref=e95] [cursor=pointer]
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e96]:
+        - img [ref=e98]
+        - generic [ref=e101]: Có lỗi xảy ra
+  - alert [ref=e25]

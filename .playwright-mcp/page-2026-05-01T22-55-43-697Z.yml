@@ -1,0 +1,14 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - heading "Quán Bánh Cuốn" [level=1] [ref=e4]
+    - paragraph [ref=e5]: Đăng nhập để tiếp tục
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - text: Tên đăng nhập
+        - textbox "Tên đăng nhập" [ref=e8]
+      - generic [ref=e9]:
+        - text: Mật khẩu
+        - textbox "Mật khẩu" [ref=e10]
+      - button "Đăng nhập" [ref=e11] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e12]
