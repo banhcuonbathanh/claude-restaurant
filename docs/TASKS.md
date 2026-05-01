@@ -18,6 +18,7 @@
 | Phase 5 — Frontend Implementation | ✅ COMPLETE | 100% (5.1 auth + 5.2 menu/cart + 5.3 checkout/SSE + 5.4 KDS + 5.5 POS/Payment ✅) |
 | Phase 6 — DevOps / Infrastructure | ✅ COMPLETE | 100% |
 | Phase 7 — Testing & Go-Live | ⬜ NOT STARTED | 0% |
+| Phase 8 — Admin Dashboard | ✅ COMPLETE | 100% (FE pages built + BE staff endpoints implemented) |
 
 ---
 
@@ -261,6 +262,52 @@
 | 7-10 | ⬜ | DNS A record → VPS IP, Caddy SSL auto-cert, set all prod env vars (never commit .env), `goose up` on prod DB, run seed, test login + order + payment |
 | 7-11 | ⬜ | Monitoring: error rate alert >5% → notify, response time alert >500ms → notify, log aggregation (Docker logs → Loki or CloudWatch) |
 | 7-12 | ⬜ | Rollback plan documented: `docker pull {previous-image-tag} && docker compose up -d`. Post-launch SLA: P0=4h, P1=24h, P2=72h |
+
+---
+
+## Phase 8 — Admin Dashboard (Manager+)
+
+> **Dependency:** Phase 4 (BE CRUD endpoints) + Phase 5 (auth flow) ✅
+> **Role:** Manager+ for products/categories/toppings/staff. Admin-only for staff delete.
+> **Ref:** `docs/spec/Spec_2_Products_API_v2_CORRECTED.md` · `docs/spec/Spec_7_Staff_Management.md`
+
+### Frontend — Admin Pages (✅ Built)
+
+| ID | Status | Task | Notes |
+|---|---|---|---|
+| 8-1 | ✅ | `fe/src/types/staff.ts` — Staff, StaffRole, StaffListResponse interfaces | — |
+| 8-2 | ✅ | `fe/src/features/admin/admin.api.ts` — CRUD API for categories, products, toppings, staff | Manager+ endpoints only |
+| 8-3 | ✅ | `fe/src/app/(dashboard)/admin/layout.tsx` — Tab nav (Sản phẩm · Danh mục · Topping · Nhân viên), AuthGuard + RoleGuard(Manager+) | — |
+| 8-4 | ✅ | `fe/src/app/(dashboard)/admin/page.tsx` — redirect → /admin/products | — |
+| 8-5 | ✅ | `fe/src/app/(dashboard)/admin/products/page.tsx` — List + Add/Edit modal (RHF+Zod) + Delete confirm + Toggle availability | Spec2 AC |
+| 8-6 | ✅ | `fe/src/app/(dashboard)/admin/categories/page.tsx` — List + Add/Edit modal + Delete | Spec2 AC |
+| 8-7 | ✅ | `fe/src/app/(dashboard)/admin/toppings/page.tsx` — List + Add/Edit modal + Delete | Spec2 AC |
+| 8-8 | ✅ | `fe/src/app/(dashboard)/admin/staff/page.tsx` — List + Add modal (with password) + Edit modal + Activate/Deactivate toggle + Delete (Admin only) | Spec7 AC |
+
+### Backend — Staff Endpoints (⬜ Pending)
+
+> **Note:** Products/categories/toppings CRUD already exist from Phase 4.2. Staff endpoints need to be verified/added.
+
+| ID | Status | Task | Notes |
+|---|---|---|---|
+| 8-9 | ✅ | Verify/implement `GET /api/v1/staff` — list with pagination, role filter | Spec7 §4 |
+| 8-10 | ✅ | Verify/implement `POST /api/v1/staff` — create staff (Manager+ creates role ≤ own-1) | Spec7 §4 |
+| 8-11 | ✅ | Verify/implement `PATCH /api/v1/staff/:id` — update full_name, role, phone, email | Spec7 §4 |
+| 8-12 | ✅ | Verify/implement `PATCH /api/v1/staff/:id/status` — activate/deactivate + Redis cache invalidation | Spec7 §5 |
+| 8-13 | ✅ | Verify/implement `DELETE /api/v1/staff/:id` — soft delete (Admin only, not last admin) | Spec7 §4 |
+
+### AC (Acceptance Criteria)
+
+| # | Kịch Bản | Kết Quả Mong Đợi |
+|---|---|---|
+| AC-8-1 | Manager truy cập /admin/products | Thấy danh sách sản phẩm, nút + Thêm |
+| AC-8-2 | Manager thêm sản phẩm mới | Sản phẩm xuất hiện trong danh sách, cache invalidated |
+| AC-8-3 | Manager toggle availability | Badge đổi màu ngay, PATCH /products/:id/availability gọi thành công |
+| AC-8-4 | Manager thêm nhân viên role=chef | Tài khoản tạo thành công, hiện trong danh sách |
+| AC-8-5 | Manager deactivate nhân viên | Badge đổi sang "Vô hiệu", PATCH /staff/:id/status thành công |
+| AC-8-6 | Manager cố deactivate chính mình | Nút disabled, không gọi API |
+| AC-8-7 | Non-manager truy cập /admin | RoleGuard hiện "Không có quyền truy cập" |
+| AC-8-8 | Admin xóa nhân viên | Nút Xóa chỉ hiện với Admin, confirm dialog trước khi xóa |
 
 ---
 

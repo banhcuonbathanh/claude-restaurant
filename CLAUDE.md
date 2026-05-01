@@ -52,6 +52,7 @@ READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 | Phase 5 — Frontend | ✅ COMPLETE — 5.1 auth + 5.2 menu/cart + 5.3 checkout/SSE + 5.4 KDS + 5.5 POS/Payment ✅ | — |
 | Phase 6 — DevOps | ✅ COMPLETE — .env.example + migrate.sh + Caddyfile + Caddy in compose + CI/CD + README | — |
 | Phase 7 — Testing + Go-Live | ⬜ NOT STARTED | Needs P4+P5 |
+| Phase 8 — Admin Dashboard | 🔄 IN PROGRESS — FE pages built (products/categories/toppings/staff), BE staff endpoints need verify | — |
 
 ## Document Map (3 Tầng)
 
@@ -124,10 +125,13 @@ FE state (strict): server → TanStack Query · client → Zustand · forms → 
 
 ## Current Work
 
-- **Status:** Phase 5 ✅ COMPLETE. Phase 6 ✅ COMPLETE.
-- **Branch:** feature/p5-2-menu-cart (P5 + P6 work uncommitted — commit + PR before starting P7)
-- **Done:** 5.1–5.5 frontend · 6-1 .env.example · 6-2 migrate.sh · 6-3 Caddyfile · 6-4 Caddy in compose · 6-5 CI/CD · 6-6 README
+- **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 FE 🔄 IN PROGRESS.
+- **Branch:** test (admin dashboard work in progress)
+- **Done:** 5.1–5.5 frontend · 6-1–6-6 DevOps · 8-1–8-8 Admin FE pages (products/categories/toppings/staff)
 - **Next (in order):**
-  1. **Commit** all work on current branch, then open PR → merge to main
-  2. **Phase 7** — testing + go-live (see `docs/TASKS.md` §Phase 7)
+  1. **Verify/implement** BE staff endpoints (8-9 through 8-13) — see `docs/TASKS.md §Phase 8`
+  2. **Test** admin pages against live BE (run `docker compose up -d`)
+  3. **Commit** all work + open PR → merge to main
+  4. **Phase 7** — testing + go-live (see `docs/TASKS.md §Phase 7`)
+- **Admin page URL:** `/admin` (redirects to `/admin/products`) — requires Manager+ role
 - **How to pick the next task:** Open `docs/TASKS.md` → find next ⬜ task with all dependencies ✅.

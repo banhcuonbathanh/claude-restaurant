@@ -74,6 +74,7 @@ func main() {
 	paymentRepo := repository.NewPaymentRepo(sqlDB)
 	fileRepo    := repository.NewFileRepo(sqlDB)
 	tableRepo   := repository.NewTableRepo(sqlDB)
+	staffRepo   := repository.NewStaffRepo(sqlDB)
 
 	// ── 5. Services ───────────────────────────────────────────────────────────
 	authSvc    := service.NewAuthService(authRepo, rdb)
@@ -81,6 +82,7 @@ func main() {
 	orderSvc   := service.NewOrderService(orderRepo, rdb, productSvc)
 	paymentSvc := service.NewPaymentService(paymentRepo, orderSvc, orderSvc, rdb)
 	groupSvc   := service.NewGroupService(orderRepo, rdb)
+	staffSvc   := service.NewStaffService(staffRepo, rdb)
 
 	// ── 6. WebSocket Hub ──────────────────────────────────────────────────────
 	hub := ws.NewHub()
@@ -94,6 +96,7 @@ func main() {
 	groupH   := handler.NewGroupHandler(groupSvc)
 	fileH    := handler.NewFileHandler(fileRepo)
 	tableH   := handler.NewTableHandler(tableRepo)
+	staffH   := handler.NewStaffHandler(staffSvc)
 
 	// ── 8. Router ─────────────────────────────────────────────────────────────
 	r := gin.New()
@@ -225,6 +228,20 @@ func main() {
 		mgr.Use(authMW, middleware.AtLeast("manager"))
 		mgr.POST("", tableH.CreateTable)
 		mgr.PATCH("/:id", tableH.UpdateTable)
+	}
+
+	// ── Staff ─────────────────────────────────────────────────────────────────
+	staffR := v1.Group("/staff")
+	staffR.Use(authMW, middleware.AtLeast("manager"))
+	staffR.GET("", staffH.ListStaff)
+	staffR.POST("", staffH.CreateStaff)
+	staffR.GET("/:id", staffH.GetStaff)
+	staffR.PATCH("/:id", staffH.UpdateStaff)
+	staffR.PATCH("/:id/status", staffH.SetStaffStatus)
+	{
+		adm := staffR.Group("")
+		adm.Use(middleware.AtLeast("admin"))
+		adm.DELETE("/:id", staffH.DeleteStaff)
 	}
 
 	// ── Files ─────────────────────────────────────────────────────────────────
