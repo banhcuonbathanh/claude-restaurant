@@ -58,3 +58,40 @@ docs/spec/Spec1_Auth_Updated_v2.md — all 5 endpoints + AC
 docs/contract/ERROR_CONTRACT_v1.1.md — error format
 docs/contract/API_CONTRACT_v1.2.md — endpoint signatures
 docs/be/BE_SYSTEM_GUIDE.md §10 Epic BE-2 — code patterns
+
+
+
+# 1. Make sure you're on a stable base (usually main)
+git checkout main
+
+# 2. Update main (optional but recommended)
+git pull origin main
+
+# 3. Create and switch to the new 'test' branch
+git checkout -b test
+
+# 4. Merge the first feature branch
+git merge feature/p5-1-auth-flow
+
+# 5. Merge the second feature branch
+git merge feature/p5-2-menu-cart
+
+docker compose up -d --build fe
+
+
+cd fe && npm run dev
+That runs on port 3000 as well (you'd need to stop the Docker fe container first with docker compose stop fe).
+
+
+http://localhost:3000/menu
+
+
+http://localhost:3000
+
+
+http://localhost:3000/admin
+
+Field	Value
+Username	admin
+Password	Admin@123
+Role	admin

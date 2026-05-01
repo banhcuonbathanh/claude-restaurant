@@ -9,14 +9,15 @@
 
 | Phase | Name | Status | Progress |
 |---|---|---|---|
-| Phase 0 | Architecture & Documentation | ✅ COMPLETE | 90% (API_CONTRACT missing) |
-| Phase 1 | Database Migrations (001–007) | ✅ COMPLETE | 100% |
-| Phase 2 | Feature Specs (BA) | 🔄 IN PROGRESS | 71% (5/7 done) |
-| Phase 3 | sqlc + Project Setup | ⬜ NOT STARTED | 0% |
-| Phase 4 | Backend Implementation | ⬜ NOT STARTED | 0% |
-| Phase 5 | Frontend Implementation | ⬜ NOT STARTED | 0% |
-| Phase 6 | DevOps / Infrastructure | ⬜ NOT STARTED | 0% |
+| Phase 0 | Architecture & Documentation | ✅ COMPLETE | 100% |
+| Phase 1 | Database Migrations (001–008) | ✅ COMPLETE | 100% |
+| Phase 2 | Feature Specs (BA) | ✅ COMPLETE | 100% (7/7 done) |
+| Phase 3 | sqlc + Project Setup | ✅ COMPLETE | 100% |
+| Phase 4 | Backend Implementation | ✅ COMPLETE | 100% |
+| Phase 5 | Frontend Implementation | ✅ COMPLETE | 100% (5.1–5.5) |
+| Phase 6 | DevOps / Infrastructure | ✅ COMPLETE | 100% |
 | Phase 7 | Testing, UAT & Go-Live | ⬜ NOT STARTED | 0% |
+| Phase 8 | Admin Dashboard (Manager+) | 🔄 IN PROGRESS | 50% (FE ✅, BE staff endpoints ⬜) |
 
 ---
 
