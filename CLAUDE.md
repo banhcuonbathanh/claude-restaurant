@@ -64,6 +64,7 @@ docs/contract/API_CONTRACT_v1.2.md           ← tất cả endpoints (bảng, k
 docs/contract/ERROR_CONTRACT_v1.1.md         ← error codes + respondError pattern
 docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md      ← DB schema overview (SINGLE SOURCE field names)
 docs/qui_trinh/BanhCuon_Project_Checklist.md ← AC per task
+docs/api/openapi.yaml                         ← OpenAPI 3.0 spec — Swagger UI tại :8090 (docker compose swagger service)
 ```
 
 **Tầng 3 — Development system guides (read these before coding):**
@@ -127,7 +128,7 @@ FE state (strict): server → TanStack Query · client → Zustand · forms → 
 
 - **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 ✅ · Phase 7 ⬜ NEXT.
 - **Branch:** test — committed, pushed. PR open at github.com/banhcuonbathanh/claude-restaurant/pull/new/test → merge to main.
-- **Done this session:** 8-9→8-13 BE staff endpoints (staff_repo/service/handler + wired in main.go) · `go build ./...` clean · Phase 8 ✅ COMPLETE.
+- **Done this session:** Swagger UI added (:8090) + `docs/api/openapi.yaml` created · BE PUT→PATCH fix (categories/products/toppings in main.go) · FE admin Categories CRUD tested ✅ (all 4 ops) · FE Docker rebuilt (Tailwind purge fix).
 - **Next (in order):**
   1. **Merge PR** `test` → `main` (open at GitHub, needs browser auth for gh CLI)
   2. **Phase 7-6** — `scripts/seed.sql` (3+ categories, 10+ products, 4 staff, 5 tables) — run `docker compose up -d` first
