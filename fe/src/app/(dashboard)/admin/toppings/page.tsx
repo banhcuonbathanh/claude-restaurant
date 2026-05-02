@@ -129,7 +129,11 @@ export default function ToppingsPage() {
                         <span className="text-gray-400 text-xs">Chưa gắn sản phẩm</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-right text-orange-600 font-medium">+{formatVND(t.price)}</td>
+                    <td className="px-4 py-3 text-right font-medium">
+                      {t.price === 0
+                        ? <span className="text-green-600">Miễn phí</span>
+                        : <span className="text-orange-600">+{formatVND(t.price)}</span>}
+                    </td>
                     <td className="px-4 py-3 text-center">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         t.is_available

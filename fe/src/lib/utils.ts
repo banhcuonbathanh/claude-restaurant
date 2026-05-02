@@ -23,3 +23,11 @@ export function formatDateTime(date: string): string {
 export function formatPercent(n: number): string {
   return `${n.toFixed(1).replace('.', ',')}%`
 }
+
+export function getImageUrl(path: string | null | undefined): string | null {
+  if (!path) return null
+  if (path.startsWith('http')) return path
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1'
+  const base = apiUrl.replace(/\/api\/v1\/?$/, '')
+  return `${base}/${path}`
+}

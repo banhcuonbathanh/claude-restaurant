@@ -123,6 +123,11 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
+	// Static file serving for uploaded images
+	if storagePath := os.Getenv("STORAGE_BASE_PATH"); storagePath != "" {
+		r.Static("/uploads", storagePath+"/uploads")
+	}
+
 	v1 := r.Group("/api/v1")
 
 	// authMW wraps AuthRequired with is_active check (Spec1 §10).

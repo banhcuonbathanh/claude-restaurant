@@ -1,0 +1,80 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Sản phẩm" [ref=e6] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Danh mục" [ref=e7] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e8] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e9] [cursor=pointer]:
+          - /url: /admin/staff
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - heading "Sản phẩm (2)" [level=2] [ref=e13]
+        - button "+ Thêm sản phẩm" [active] [ref=e14] [cursor=pointer]
+      - table [ref=e16]:
+        - rowgroup [ref=e17]:
+          - row "Tên sản phẩm Danh mục Topping Giá Trạng thái" [ref=e18]:
+            - columnheader "Tên sản phẩm" [ref=e19]
+            - columnheader "Danh mục" [ref=e20]
+            - columnheader "Topping" [ref=e21]
+            - columnheader "Giá" [ref=e22]
+            - columnheader "Trạng thái" [ref=e23]
+            - columnheader [ref=e24]
+        - rowgroup [ref=e25]:
+          - row "p1 Bánh Cuốn — 24 ₫ Đang bán Sửa Xóa" [ref=e26]:
+            - cell "p1" [ref=e27]
+            - cell "Bánh Cuốn" [ref=e28]
+            - cell "—" [ref=e29]
+            - cell "24 ₫" [ref=e30]
+            - cell "Đang bán" [ref=e31]:
+              - button "Đang bán" [ref=e32] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e33]:
+              - generic [ref=e34]:
+                - button "Sửa" [ref=e35] [cursor=pointer]
+                - button "Xóa" [ref=e36] [cursor=pointer]
+          - row "test 1 Bánh Cuốn — 30 ₫ Đang bán Sửa Xóa" [ref=e37]:
+            - cell "test 1" [ref=e38]
+            - cell "Bánh Cuốn" [ref=e39]
+            - cell "—" [ref=e40]
+            - cell "30 ₫" [ref=e41]
+            - cell "Đang bán" [ref=e42]:
+              - button "Đang bán" [ref=e43] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e44]:
+              - generic [ref=e45]:
+                - button "Sửa" [ref=e46] [cursor=pointer]
+                - button "Xóa" [ref=e47] [cursor=pointer]
+      - generic [ref=e50]:
+        - heading "Thêm sản phẩm" [level=3] [ref=e52]
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - generic [ref=e55]: Danh mục
+            - combobox [ref=e56]:
+              - option "-- Chọn danh mục --" [selected]
+              - option "Bánh Cuốn"
+          - generic [ref=e57]:
+            - generic [ref=e58]: Tên sản phẩm
+            - textbox "Bánh cuốn nhân tôm" [ref=e59]
+          - generic [ref=e60]:
+            - generic [ref=e61]: Mô tả (tuỳ chọn)
+            - textbox [ref=e62]
+          - generic [ref=e63]:
+            - generic [ref=e64]:
+              - generic [ref=e65]: Giá (₫)
+              - spinbutton [ref=e66]: "0"
+            - generic [ref=e67]:
+              - generic [ref=e68]: Thứ tự
+              - spinbutton [ref=e69]: "0"
+          - generic [ref=e70]:
+            - generic [ref=e71]: Topping áp dụng(giữ Ctrl/Cmd để chọn nhiều)
+            - listbox [ref=e72]:
+              - option "topping 1 (+12 ₫)" [ref=e73]
+              - option "topping 2 (+1 ₫)" [ref=e74]
+          - generic [ref=e75]:
+            - button "Huỷ" [ref=e76] [cursor=pointer]
+            - button "Lưu" [ref=e77] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e48]

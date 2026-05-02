@@ -1,14 +1,14 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { formatVND } from '@/lib/utils'
+import { formatVND, getImageUrl } from '@/lib/utils'
 import {
   listProducts, createProduct, updateProduct, deleteProduct, toggleAvailability,
-  listCategories, listToppings,
+  listCategories, listToppings, uploadFile,
 } from '@/features/admin/admin.api'
 import type { Product, Category, Topping } from '@/types/product'
 
@@ -26,6 +26,10 @@ export default function ProductsPage() {
   const qc = useQueryClient()
   const [editItem, setEditItem] = useState<Product | null>(null)
   const [showModal, setShowModal] = useState(false)
+  const [imagePath, setImagePath] = useState<string | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const { data: products = [], isLoading } = useQuery<Product[]>({
     queryKey: ['admin', 'products'],
@@ -46,9 +50,18 @@ export default function ProductsPage() {
 
   const selectedToppingIds = watch('topping_ids') ?? []
 
+  const toggleTopping = (id: string) => {
+    const next = selectedToppingIds.includes(id)
+      ? selectedToppingIds.filter(t => t !== id)
+      : [...selectedToppingIds, id]
+    setValue('topping_ids', next)
+  }
+
   const openAdd = () => {
     reset({ category_id: '', name: '', description: '', price: 0, sort_order: 0, topping_ids: [] })
     setEditItem(null)
+    setImagePath(null)
+    setImagePreview(null)
     setShowModal(true)
   }
   const openEdit = (p: Product) => {
@@ -61,15 +74,36 @@ export default function ProductsPage() {
       topping_ids: p.toppings.map(t => t.id),
     })
     setEditItem(p)
+    setImagePath(p.image_path ?? null)
+    setImagePreview(getImageUrl(p.image_path))
     setShowModal(true)
   }
   const closeModal = () => setShowModal(false)
 
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setImagePreview(URL.createObjectURL(file))
+    setUploading(true)
+    try {
+      const result = await uploadFile(file)
+      setImagePath(result.object_path)
+    } catch {
+      toast.error('Tải ảnh thất bại')
+      setImagePreview(null)
+      setImagePath(null)
+    } finally {
+      setUploading(false)
+    }
+  }
+
   const saveMut = useMutation({
-    mutationFn: (values: FormValues) =>
-      editItem
-        ? updateProduct(editItem.id, values)
-        : createProduct(values),
+    mutationFn: (values: FormValues) => {
+      const payload = { ...values, image_path: imagePath ?? undefined }
+      return editItem
+        ? updateProduct(editItem.id, payload)
+        : createProduct(payload)
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin', 'products'] })
       toast.success(editItem ? 'Đã cập nhật sản phẩm' : 'Đã thêm sản phẩm')
@@ -118,6 +152,7 @@ export default function ProductsPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b">
               <tr>
+                <th className="px-4 py-3 w-14" />
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Tên sản phẩm</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Danh mục</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Topping</th>
@@ -129,6 +164,20 @@ export default function ProductsPage() {
             <tbody className="divide-y divide-gray-100">
               {products.map(p => (
                 <tr key={p.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3">
+                    {p.image_path ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={getImageUrl(p.image_path) ?? ''}
+                        alt={p.name}
+                        className="w-10 h-10 rounded-lg object-cover bg-gray-100"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300 text-lg">
+                        🖼
+                      </div>
+                    )}
+                  </td>
                   <td className="px-4 py-3 font-medium text-gray-900">{p.name}</td>
                   <td className="px-4 py-3 text-gray-500">{p.category_name}</td>
                   <td className="px-4 py-3">
@@ -177,7 +226,7 @@ export default function ProductsPage() {
               ))}
               {products.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-10 text-center text-gray-400">
+                  <td colSpan={7} className="px-4 py-10 text-center text-gray-400">
                     Chưa có sản phẩm nào
                   </td>
                 </tr>
@@ -229,6 +278,50 @@ export default function ProductsPage() {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Hình ảnh</label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+                <div className="flex items-center gap-3">
+                  {imagePreview ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={imagePreview}
+                      alt="preview"
+                      className="w-16 h-16 rounded-lg object-cover bg-gray-100 border border-gray-200"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-lg bg-gray-100 border border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xs text-center">
+                      Chưa có ảnh
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="px-3 py-1.5 text-xs border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      {uploading ? 'Đang tải...' : imagePreview ? 'Đổi ảnh' : 'Chọn ảnh'}
+                    </button>
+                    {imagePreview && (
+                      <button
+                        type="button"
+                        onClick={() => { setImagePath(null); setImagePreview(null) }}
+                        className="px-3 py-1.5 text-xs border border-red-200 text-red-500 rounded-lg hover:bg-red-50"
+                      >
+                        Xoá ảnh
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Giá (₫)</label>
@@ -251,24 +344,28 @@ export default function ProductsPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Topping áp dụng
-                  <span className="ml-1 text-xs font-normal text-gray-400">(giữ Ctrl/Cmd để chọn nhiều)</span>
-                </label>
-                <select
-                  multiple
-                  value={selectedToppingIds}
-                  onChange={e => setValue('topping_ids', Array.from(e.target.selectedOptions).map(o => o.value))}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 min-h-[96px]"
-                >
-                  {toppings.map(t => (
-                    <option key={t.id} value={t.id}>
-                      {t.name} (+{formatVND(t.price)})
-                    </option>
-                  ))}
-                </select>
-                {toppings.length === 0 && (
-                  <p className="text-xs text-gray-400 mt-1">Chưa có topping nào — thêm ở trang Topping trước</p>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Topping áp dụng</label>
+                {toppings.length === 0 ? (
+                  <p className="text-xs text-gray-400">Chưa có topping nào — thêm ở trang Topping trước</p>
+                ) : (
+                  <div className="border border-gray-200 rounded-lg p-3 space-y-2 max-h-40 overflow-y-auto">
+                    {toppings.map(t => (
+                      <label key={t.id} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 rounded px-1 py-0.5">
+                        <input
+                          type="checkbox"
+                          checked={selectedToppingIds.includes(t.id)}
+                          onChange={() => toggleTopping(t.id)}
+                          className="accent-orange-500 w-4 h-4"
+                        />
+                        <span className="text-sm text-gray-800">{t.name}</span>
+                        <span className="ml-auto text-xs">
+                          {t.price === 0
+                            ? <span className="text-green-600">Miễn phí</span>
+                            : <span className="text-orange-600">+{formatVND(t.price)}</span>}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
                 )}
                 {selectedToppingIds.length > 0 && (
                   <p className="text-xs text-gray-500 mt-1">{selectedToppingIds.length} topping đã chọn</p>

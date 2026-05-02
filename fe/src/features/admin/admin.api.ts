@@ -25,6 +25,15 @@ export interface CreateProductInput {
   price:        number
   sort_order?:  number
   topping_ids?: string[]
+  image_path?:  string
+}
+
+export const uploadFile = (file: File): Promise<{ id: string; object_path: string }> => {
+  const form = new FormData()
+  form.append('file', file)
+  return api.post('/files/upload', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }).then(r => r.data.data)
 }
 
 export const listProducts = (): Promise<Product[]> =>

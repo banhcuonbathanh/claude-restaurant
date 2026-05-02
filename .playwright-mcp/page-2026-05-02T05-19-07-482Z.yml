@@ -1,0 +1,99 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Sản phẩm" [ref=e6] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Danh mục" [ref=e7] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e8] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e9] [cursor=pointer]:
+          - /url: /admin/staff
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - heading "Sản phẩm (2)" [level=2] [ref=e13]
+        - button "+ Thêm sản phẩm" [active] [ref=e14] [cursor=pointer]
+      - table [ref=e16]:
+        - rowgroup [ref=e17]:
+          - row "Tên sản phẩm Danh mục Topping Giá Trạng thái" [ref=e18]:
+            - columnheader [ref=e19]
+            - columnheader "Tên sản phẩm" [ref=e20]
+            - columnheader "Danh mục" [ref=e21]
+            - columnheader "Topping" [ref=e22]
+            - columnheader "Giá" [ref=e23]
+            - columnheader "Trạng thái" [ref=e24]
+            - columnheader [ref=e25]
+        - rowgroup [ref=e26]:
+          - row "🖼 p1 Bánh Cuốn topping 1 topping 2 24 ₫ Đang bán Sửa Xóa" [ref=e27]:
+            - cell "🖼" [ref=e28]:
+              - generic [ref=e29]: 🖼
+            - cell "p1" [ref=e30]
+            - cell "Bánh Cuốn" [ref=e31]
+            - cell "topping 1 topping 2" [ref=e32]:
+              - generic [ref=e33]:
+                - generic [ref=e34]: topping 1
+                - generic [ref=e35]: topping 2
+            - cell "24 ₫" [ref=e36]
+            - cell "Đang bán" [ref=e37]:
+              - button "Đang bán" [ref=e38] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e39]:
+              - generic [ref=e40]:
+                - button "Sửa" [ref=e41] [cursor=pointer]
+                - button "Xóa" [ref=e42] [cursor=pointer]
+          - row "🖼 test 1 Bánh Cuốn — 30 ₫ Đang bán Sửa Xóa" [ref=e43]:
+            - cell "🖼" [ref=e44]:
+              - generic [ref=e45]: 🖼
+            - cell "test 1" [ref=e46]
+            - cell "Bánh Cuốn" [ref=e47]
+            - cell "—" [ref=e48]
+            - cell "30 ₫" [ref=e49]
+            - cell "Đang bán" [ref=e50]:
+              - button "Đang bán" [ref=e51] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e52]:
+              - generic [ref=e53]:
+                - button "Sửa" [ref=e54] [cursor=pointer]
+                - button "Xóa" [ref=e55] [cursor=pointer]
+      - generic [ref=e58]:
+        - heading "Thêm sản phẩm" [level=3] [ref=e60]
+        - generic [ref=e61]:
+          - generic [ref=e62]:
+            - generic [ref=e63]: Danh mục
+            - combobox [ref=e64]:
+              - option "-- Chọn danh mục --" [selected]
+              - option "Bánh Cuốn"
+          - generic [ref=e65]:
+            - generic [ref=e66]: Tên sản phẩm
+            - textbox "Bánh cuốn nhân tôm" [ref=e67]
+          - generic [ref=e68]:
+            - generic [ref=e69]: Mô tả (tuỳ chọn)
+            - textbox [ref=e70]
+          - generic [ref=e71]:
+            - generic [ref=e72]: Hình ảnh
+            - generic [ref=e73]:
+              - generic [ref=e74]: Chưa có ảnh
+              - button "Chọn ảnh" [ref=e76] [cursor=pointer]
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - generic [ref=e79]: Giá (₫)
+              - spinbutton [ref=e80]: "0"
+            - generic [ref=e81]:
+              - generic [ref=e82]: Thứ tự
+              - spinbutton [ref=e83]: "0"
+          - generic [ref=e84]:
+            - generic [ref=e85]: Topping áp dụng
+            - generic [ref=e86]:
+              - generic [ref=e87] [cursor=pointer]:
+                - checkbox "topping 1 +12 ₫" [ref=e88]
+                - generic [ref=e89]: topping 1
+                - generic [ref=e91]: +12 ₫
+              - generic [ref=e92] [cursor=pointer]:
+                - checkbox "topping 2 +1 ₫" [ref=e93]
+                - generic [ref=e94]: topping 2
+                - generic [ref=e96]: +1 ₫
+          - generic [ref=e97]:
+            - button "Huỷ" [ref=e98] [cursor=pointer]
+            - button "Lưu" [ref=e99] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e56]

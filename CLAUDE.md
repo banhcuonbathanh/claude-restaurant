@@ -127,11 +127,11 @@ FE state (strict): server → TanStack Query · client → Zustand · forms → 
 ## Current Work
 
 - **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 ✅ · Phase 7 ⬜ NEXT.
-- **Branch:** test — all fixes in working tree (not committed). Run `docker compose up -d --build be fe` before testing.
-- **Done this session:** Fixed BE `binding:"required"` on `Price int64` (toppings create/update was rejecting price=0) · Fixed `productJSON` flat keys (`category_id`/`category_name`) · Added topping selector checkboxes to products modal · Added "Áp dụng cho sản phẩm" column to toppings page · Changed `listProducts` in admin.api.ts to call `/products/all`.
+- **Branch:** test — all changes in working tree (not committed). Run `docker compose up -d --build be fe` before testing.
+- **Done this session:** Added product image upload to admin — `uploadFile()` in admin.api.ts · `getImageUrl()` in utils.ts · image upload field + preview in products form modal · thumbnail column in products table · BE static file serving `/uploads` in main.go · `uploads_data` docker volume + `STORAGE_BASE_PATH` env in docker-compose.yml.
 - **Next (in order):**
-  1. **Rebuild + commit** — `docker compose up -d --build be fe` then commit the 4 modified files
-  2. **Phase 7-6** — `scripts/seed.sql` (3+ categories, 10+ products, 5+ toppings, 4 staff, 5 tables)
+  1. **Commit** — commit the 6 modified files (`be/cmd/server/main.go`, `docker-compose.yml`, `fe/src/app/(dashboard)/admin/products/page.tsx`, `fe/src/app/(dashboard)/admin/toppings/page.tsx`, `fe/src/features/admin/admin.api.ts`, `fe/src/lib/utils.ts`)
+  2. **Phase 7-6** — `scripts/seed.sql` (3+ categories, 10+ products with images, 5+ toppings, 4 staff, 5 tables)
   3. **Phase 7-1/7-2/7-3** — BE unit tests (auth/order/payment services)
   4. **Phase 7-5** — integration test suite against test DB
 - **How to pick the next task:** Open `docs/TASKS.md` → find next ⬜ task with all dependencies ✅.
