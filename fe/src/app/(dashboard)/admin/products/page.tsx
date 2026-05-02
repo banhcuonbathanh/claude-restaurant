@@ -8,9 +8,9 @@ import { toast } from 'sonner'
 import { formatVND } from '@/lib/utils'
 import {
   listProducts, createProduct, updateProduct, deleteProduct, toggleAvailability,
-  listCategories,
+  listCategories, listToppings,
 } from '@/features/admin/admin.api'
-import type { Product, Category } from '@/types/product'
+import type { Product, Category, Topping } from '@/types/product'
 
 const schema = z.object({
   category_id:  z.string().min(1, 'Chọn danh mục'),
@@ -18,6 +18,7 @@ const schema = z.object({
   description:  z.string().optional(),
   price:        z.coerce.number().min(0, 'Giá không hợp lệ'),
   sort_order:   z.coerce.number().int().default(0),
+  topping_ids:  z.array(z.string()).default([]),
 })
 type FormValues = z.infer<typeof schema>
 
@@ -34,18 +35,31 @@ export default function ProductsPage() {
     queryKey: ['admin', 'categories'],
     queryFn:  listCategories,
   })
+  const { data: toppings = [] } = useQuery<Topping[]>({
+    queryKey: ['admin', 'toppings'],
+    queryFn:  listToppings,
+  })
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
   })
 
+  const selectedToppingIds = watch('topping_ids') ?? []
+
   const openAdd = () => {
-    reset({ category_id: '', name: '', description: '', price: 0, sort_order: 0 })
+    reset({ category_id: '', name: '', description: '', price: 0, sort_order: 0, topping_ids: [] })
     setEditItem(null)
     setShowModal(true)
   }
   const openEdit = (p: Product) => {
-    reset({ category_id: p.category_id, name: p.name, description: p.description ?? '', price: p.price, sort_order: p.sort_order })
+    reset({
+      category_id: p.category_id,
+      name: p.name,
+      description: p.description ?? '',
+      price: p.price,
+      sort_order: p.sort_order,
+      topping_ids: p.toppings.map(t => t.id),
+    })
     setEditItem(p)
     setShowModal(true)
   }
@@ -106,6 +120,7 @@ export default function ProductsPage() {
               <tr>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Tên sản phẩm</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Danh mục</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">Topping</th>
                 <th className="text-right px-4 py-3 font-medium text-gray-600">Giá</th>
                 <th className="text-center px-4 py-3 font-medium text-gray-600">Trạng thái</th>
                 <th className="px-4 py-3" />
@@ -116,6 +131,19 @@ export default function ProductsPage() {
                 <tr key={p.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-medium text-gray-900">{p.name}</td>
                   <td className="px-4 py-3 text-gray-500">{p.category_name}</td>
+                  <td className="px-4 py-3">
+                    {p.toppings.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {p.toppings.map(t => (
+                          <span key={t.id} className="px-1.5 py-0.5 bg-orange-50 text-orange-700 text-xs rounded">
+                            {t.name}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-xs">—</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-right text-gray-900">{formatVND(p.price)}</td>
                   <td className="px-4 py-3 text-center">
                     <button
@@ -149,7 +177,7 @@ export default function ProductsPage() {
               ))}
               {products.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-gray-400">
+                  <td colSpan={6} className="px-4 py-10 text-center text-gray-400">
                     Chưa có sản phẩm nào
                   </td>
                 </tr>
@@ -161,8 +189,8 @@ export default function ProductsPage() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-md shadow-xl">
-            <div className="px-6 py-4 border-b">
+          <div className="bg-white rounded-xl w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b sticky top-0 bg-white">
               <h3 className="font-semibold text-gray-900">
                 {editItem ? 'Sửa sản phẩm' : 'Thêm sản phẩm'}
               </h3>
@@ -220,6 +248,31 @@ export default function ProductsPage() {
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Topping áp dụng
+                  <span className="ml-1 text-xs font-normal text-gray-400">(giữ Ctrl/Cmd để chọn nhiều)</span>
+                </label>
+                <select
+                  multiple
+                  value={selectedToppingIds}
+                  onChange={e => setValue('topping_ids', Array.from(e.target.selectedOptions).map(o => o.value))}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 min-h-[96px]"
+                >
+                  {toppings.map(t => (
+                    <option key={t.id} value={t.id}>
+                      {t.name} (+{formatVND(t.price)})
+                    </option>
+                  ))}
+                </select>
+                {toppings.length === 0 && (
+                  <p className="text-xs text-gray-400 mt-1">Chưa có topping nào — thêm ở trang Topping trước</p>
+                )}
+                {selectedToppingIds.length > 0 && (
+                  <p className="text-xs text-gray-500 mt-1">{selectedToppingIds.length} topping đã chọn</p>
+                )}
               </div>
 
               <div className="flex gap-3 pt-2">

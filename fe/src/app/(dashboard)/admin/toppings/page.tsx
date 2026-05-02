@@ -1,13 +1,13 @@
 'use client'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { formatVND } from '@/lib/utils'
-import { listToppings, createTopping, updateTopping, deleteTopping } from '@/features/admin/admin.api'
-import type { Topping } from '@/types/product'
+import { listToppings, createTopping, updateTopping, deleteTopping, listProducts } from '@/features/admin/admin.api'
+import type { Topping, Product } from '@/types/product'
 
 const schema = z.object({
   name:  z.string().min(1, 'Nhập tên topping').max(100),
@@ -24,6 +24,23 @@ export default function ToppingsPage() {
     queryKey: ['admin', 'toppings'],
     queryFn:  listToppings,
   })
+  const { data: products = [] } = useQuery<Product[]>({
+    queryKey: ['admin', 'products'],
+    queryFn:  listProducts,
+  })
+
+  // reverse map: topping_id → product names
+  const toppingProducts = useMemo(() => {
+    const map = new Map<string, string[]>()
+    for (const p of products) {
+      for (const t of p.toppings) {
+        const names = map.get(t.id) ?? []
+        names.push(p.name)
+        map.set(t.id, names)
+      }
+    }
+    return map
+  }, [products])
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -87,46 +104,63 @@ export default function ToppingsPage() {
             <thead className="bg-gray-50 border-b">
               <tr>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Tên topping</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">Áp dụng cho sản phẩm</th>
                 <th className="text-right px-4 py-3 font-medium text-gray-600">Giá thêm</th>
                 <th className="text-center px-4 py-3 font-medium text-gray-600">Trạng thái</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {toppings.map(t => (
-                <tr key={t.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-900">{t.name}</td>
-                  <td className="px-4 py-3 text-right text-orange-600 font-medium">+{formatVND(t.price)}</td>
-                  <td className="px-4 py-3 text-center">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      t.is_available
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-gray-100 text-gray-500'
-                    }`}>
-                      {t.is_available ? 'Có sẵn' : 'Hết'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2 justify-end">
-                      <button
-                        onClick={() => openEdit(t)}
-                        className="px-3 py-1 text-xs border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50"
-                      >
-                        Sửa
-                      </button>
-                      <button
-                        onClick={() => handleDelete(t.id, t.name)}
-                        className="px-3 py-1 text-xs border border-red-200 text-red-600 rounded-lg hover:bg-red-50"
-                      >
-                        Xóa
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {toppings.map(t => {
+                const linkedProducts = toppingProducts.get(t.id) ?? []
+                return (
+                  <tr key={t.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 font-medium text-gray-900">{t.name}</td>
+                    <td className="px-4 py-3">
+                      {linkedProducts.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {linkedProducts.map(name => (
+                            <span key={name} className="px-1.5 py-0.5 bg-blue-50 text-blue-700 text-xs rounded">
+                              {name}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-xs">Chưa gắn sản phẩm</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-right text-orange-600 font-medium">+{formatVND(t.price)}</td>
+                    <td className="px-4 py-3 text-center">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        t.is_available
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-gray-100 text-gray-500'
+                      }`}>
+                        {t.is_available ? 'Có sẵn' : 'Hết'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-2 justify-end">
+                        <button
+                          onClick={() => openEdit(t)}
+                          className="px-3 py-1 text-xs border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50"
+                        >
+                          Sửa
+                        </button>
+                        <button
+                          onClick={() => handleDelete(t.id, t.name)}
+                          className="px-3 py-1 text-xs border border-red-200 text-red-600 rounded-lg hover:bg-red-50"
+                        >
+                          Xóa
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
               {toppings.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-10 text-center text-gray-400">
+                  <td colSpan={5} className="px-4 py-10 text-center text-gray-400">
                     Chưa có topping nào
                   </td>
                 </tr>
@@ -164,6 +198,7 @@ export default function ToppingsPage() {
                 />
                 {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>}
               </div>
+              <p className="text-xs text-gray-400">Gắn topping vào sản phẩm từ trang Sản phẩm → Sửa.</p>
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"

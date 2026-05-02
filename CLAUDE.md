@@ -127,11 +127,11 @@ FE state (strict): server → TanStack Query · client → Zustand · forms → 
 ## Current Work
 
 - **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 ✅ · Phase 7 ⬜ NEXT.
-- **Branch:** test — committed, pushed. PR open at github.com/banhcuonbathanh/claude-restaurant/pull/new/test → merge to main.
-- **Done this session:** Swagger UI added (:8090) + `docs/api/openapi.yaml` created · BE PUT→PATCH fix (categories/products/toppings in main.go) · FE admin Categories CRUD tested ✅ (all 4 ops) · FE Docker rebuilt (Tailwind purge fix).
+- **Branch:** test — all fixes in working tree (not committed). Run `docker compose up -d --build be fe` before testing.
+- **Done this session:** Fixed BE `binding:"required"` on `Price int64` (toppings create/update was rejecting price=0) · Fixed `productJSON` flat keys (`category_id`/`category_name`) · Added topping selector checkboxes to products modal · Added "Áp dụng cho sản phẩm" column to toppings page · Changed `listProducts` in admin.api.ts to call `/products/all`.
 - **Next (in order):**
-  1. **Merge PR** `test` → `main` (open at GitHub, needs browser auth for gh CLI)
-  2. **Phase 7-6** — `scripts/seed.sql` (3+ categories, 10+ products, 4 staff, 5 tables) — run `docker compose up -d` first
+  1. **Rebuild + commit** — `docker compose up -d --build be fe` then commit the 4 modified files
+  2. **Phase 7-6** — `scripts/seed.sql` (3+ categories, 10+ products, 5+ toppings, 4 staff, 5 tables)
   3. **Phase 7-1/7-2/7-3** — BE unit tests (auth/order/payment services)
   4. **Phase 7-5** — integration test suite against test DB
 - **How to pick the next task:** Open `docs/TASKS.md` → find next ⬜ task with all dependencies ✅.

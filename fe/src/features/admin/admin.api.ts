@@ -24,10 +24,11 @@ export interface CreateProductInput {
   description?: string
   price:        number
   sort_order?:  number
+  topping_ids?: string[]
 }
 
 export const listProducts = (): Promise<Product[]> =>
-  api.get('/products').then(r => r.data?.data ?? r.data ?? [])
+  api.get('/products/all').then(r => r.data?.data ?? r.data ?? [])
 
 export const createProduct = (body: CreateProductInput): Promise<Product> =>
   api.post('/products', body).then(r => r.data.data)

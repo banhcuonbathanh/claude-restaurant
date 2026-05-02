@@ -270,7 +270,7 @@ func (h *ProductHandler) ListToppings(c *gin.Context) {
 
 type createToppingRequest struct {
 	Name  string `json:"name" binding:"required"`
-	Price int64  `json:"price" binding:"required,min=0"`
+	Price int64  `json:"price" binding:"min=0"`
 }
 
 // CreateTopping handles POST /toppings (Manager+)
@@ -290,7 +290,7 @@ func (h *ProductHandler) CreateTopping(c *gin.Context) {
 
 type updateToppingRequest struct {
 	Name  string `json:"name" binding:"required"`
-	Price int64  `json:"price" binding:"required,min=0"`
+	Price int64  `json:"price" binding:"min=0"`
 }
 
 // UpdateTopping handles PUT /toppings/:id (Manager+)
@@ -409,18 +409,16 @@ func productJSON(p service.ProductDetails) gin.H {
 		toppings = append(toppings, gin.H{"id": t.ID, "name": t.Name, "price": t.Price})
 	}
 	return gin.H{
-		"id":           p.ID,
-		"name":         p.Name,
-		"price":        p.Price,
-		"description":  p.Description,
-		"image_path":   p.ImagePath,
-		"is_available": p.IsAvailable,
-		"sort_order":   p.SortOrder,
-		"category": gin.H{
-			"id":   p.CategoryID,
-			"name": p.CategoryName,
-		},
-		"toppings": toppings,
+		"id":            p.ID,
+		"name":          p.Name,
+		"price":         p.Price,
+		"description":   p.Description,
+		"image_path":    p.ImagePath,
+		"is_available":  p.IsAvailable,
+		"sort_order":    p.SortOrder,
+		"category_id":   p.CategoryID,
+		"category_name": p.CategoryName,
+		"toppings":      toppings,
 	}
 }
 
