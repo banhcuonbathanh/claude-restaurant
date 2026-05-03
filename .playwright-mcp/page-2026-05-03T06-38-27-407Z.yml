@@ -1,0 +1,173 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - img [ref=e7]
+          - generic [ref=e10]: Bánh Cuốn
+        - generic [ref=e11]:
+          - button "Menu" [ref=e12] [cursor=pointer]
+          - button "Đơn Hàng" [ref=e13] [cursor=pointer]
+          - button "Đăng Nhập" [ref=e14] [cursor=pointer]
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - img [ref=e18]
+        - text: Hệ thống POS & Đặt Bàn thông minh
+      - heading "Quán Bánh Cuốn" [level=1] [ref=e20]
+      - paragraph [ref=e21]: Trải nghiệm đặt món tiện lợi qua QR code. Quản lý bếp và thanh toán trong một hệ thống.
+      - generic [ref=e22]:
+        - button "Xem Menu" [ref=e23] [cursor=pointer]:
+          - img
+          - text: Xem Menu
+        - button "Quét QR Bàn" [ref=e24] [cursor=pointer]
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - img [ref=e27]
+          - text: 4.9 Đánh giá
+        - generic [ref=e29]:
+          - img [ref=e30]
+          - text: 8–15 Phút
+        - generic [ref=e33]:
+          - img [ref=e34]
+          - text: 3 Đầu Bếp
+    - generic [ref=e36]:
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - heading "Thực Đơn Hôm Nay" [level=2] [ref=e39]
+          - paragraph [ref=e40]: Tươi ngon mỗi ngày, làm từ nguyên liệu chọn lọc
+        - button "Xem tất cả" [ref=e41] [cursor=pointer]
+      - generic [ref=e42]:
+        - generic [ref=e43]:
+          - img [ref=e45]
+          - generic [ref=e48]:
+            - generic [ref=e49]:
+              - heading "Bánh Cuốn Nhân Thịt" [level=3] [ref=e50]
+              - generic [ref=e51]: Bán Chạy
+            - paragraph [ref=e52]: Bánh cuốn mềm mịn, nhân thịt heo xay, mộc nhĩ thơm ngon
+          - generic [ref=e53]:
+            - generic [ref=e54]:
+              - text: 45,000đ
+              - generic [ref=e55]:
+                - img [ref=e56]
+                - text: 8 phút
+            - button "Thêm" [ref=e59] [cursor=pointer]:
+              - img
+              - text: Thêm
+        - generic [ref=e60]:
+          - img [ref=e62]
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - heading "Bánh Cuốn Chả" [level=3] [ref=e67]
+              - generic [ref=e68]: Mới
+            - paragraph [ref=e69]: Kết hợp với chả lụa thượng hạng, nước chấm pha chuẩn vị
+          - generic [ref=e70]:
+            - generic [ref=e71]:
+              - text: 50,000đ
+              - generic [ref=e72]:
+                - img [ref=e73]
+                - text: 10 phút
+            - button "Thêm" [ref=e76] [cursor=pointer]:
+              - img
+              - text: Thêm
+        - generic [ref=e77]:
+          - img [ref=e79]
+          - generic [ref=e82]:
+            - generic [ref=e83]:
+              - heading "Bánh Cuốn Tôm" [level=3] [ref=e84]
+              - generic [ref=e85]: Đặc Biệt
+            - paragraph [ref=e86]: Nhân tôm tươi, hành phi giòn, ăn kèm rau sống tươi ngon
+          - generic [ref=e87]:
+            - generic [ref=e88]:
+              - text: 55,000đ
+              - generic [ref=e89]:
+                - img [ref=e90]
+                - text: 12 phút
+            - button "Thêm" [ref=e93] [cursor=pointer]:
+              - img
+              - text: Thêm
+    - generic [ref=e95]:
+      - generic [ref=e96]:
+        - heading "Quét Bàn Của Bạn" [level=3] [ref=e97]
+        - paragraph [ref=e98]: Nhập số bàn để bắt đầu đặt món ngay tại chỗ
+      - generic [ref=e100]:
+        - text: Số Bàn
+        - spinbutton "Số Bàn" [ref=e101]
+      - button "Bắt Đầu Đặt Món" [ref=e103] [cursor=pointer]
+    - generic [ref=e105]:
+      - generic [ref=e106]:
+        - heading "Design System" [level=2] [ref=e107]
+        - paragraph [ref=e108]: Components dùng trong toàn bộ ứng dụng
+      - generic [ref=e109]:
+        - heading "Buttons" [level=3] [ref=e111]
+        - generic [ref=e112]:
+          - button "Default" [ref=e113] [cursor=pointer]
+          - button "Secondary" [ref=e114] [cursor=pointer]
+          - button "Outline" [ref=e115] [cursor=pointer]
+          - button "Ghost" [ref=e116] [cursor=pointer]
+          - button "Success" [ref=e117] [cursor=pointer]
+          - button "Warning" [ref=e118] [cursor=pointer]
+          - button "Destructive" [ref=e119] [cursor=pointer]
+          - button "Disabled" [disabled]
+        - generic [ref=e120]:
+          - button "Small" [ref=e121] [cursor=pointer]
+          - button "Default" [ref=e122] [cursor=pointer]
+          - button "Large" [ref=e123] [cursor=pointer]
+          - button "Extra Large" [ref=e124] [cursor=pointer]
+          - button [ref=e125] [cursor=pointer]:
+            - img
+      - generic [ref=e126]:
+        - heading "Badges" [level=3] [ref=e128]
+        - generic [ref=e129]:
+          - generic [ref=e130]: Default
+          - generic [ref=e131]: Secondary
+          - generic [ref=e132]: Hoàn Thành
+          - generic [ref=e133]: Đang Chờ
+          - generic [ref=e134]: Khẩn Cấp
+          - generic [ref=e135]: Outline
+          - generic [ref=e136]: Muted
+      - generic [ref=e137]:
+        - heading "Form Controls" [level=3] [ref=e139]
+        - generic [ref=e140]:
+          - generic [ref=e141]:
+            - text: Tên Món
+            - textbox "Tên Món" [ref=e142]:
+              - /placeholder: Nhập tên món ăn...
+          - generic [ref=e143]:
+            - text: Giá Tiền
+            - spinbutton "Giá Tiền" [ref=e144]
+          - generic [ref=e145]:
+            - text: Disabled
+            - textbox "Disabled" [disabled] [ref=e146]:
+              - /placeholder: Không thể nhập...
+          - generic [ref=e147]:
+            - text: Tìm Kiếm
+            - searchbox "Tìm Kiếm" [ref=e148]
+      - generic [ref=e149]:
+        - generic [ref=e150]:
+          - generic [ref=e151]:
+            - generic [ref=e152]:
+              - heading "Bàn 5" [level=3] [ref=e153]
+              - generic [ref=e154]: Hoàn Thành
+            - paragraph [ref=e155]: "Đơn #00123 · 3 món"
+          - paragraph [ref=e157]: 135,000đ
+          - button "In Hoá Đơn" [ref=e159] [cursor=pointer]
+        - generic [ref=e160]:
+          - generic [ref=e161]:
+            - generic [ref=e162]:
+              - heading "Bàn 12" [level=3] [ref=e163]
+              - generic [ref=e164]: Đang Nấu
+            - paragraph [ref=e165]: "Đơn #00124 · 2 món"
+          - paragraph [ref=e167]: 90,000đ
+          - button "Theo Dõi" [ref=e169] [cursor=pointer]
+        - generic [ref=e170]:
+          - generic [ref=e171]:
+            - generic [ref=e172]:
+              - heading "Bàn 3" [level=3] [ref=e173]
+              - generic [ref=e174]: Khẩn Cấp
+            - paragraph [ref=e175]: "Đơn #00125 · 5 món · 18 phút"
+          - paragraph [ref=e177]: 225,000đ
+          - button "Xử Lý Ngay" [ref=e179] [cursor=pointer]
+    - contentinfo [ref=e180]:
+      - paragraph [ref=e181]: © 2026 Quán Bánh Cuốn · Hệ thống POS & Đặt Bàn
+  - region "Notifications alt+T"
+  - alert [ref=e182]

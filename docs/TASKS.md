@@ -309,6 +309,15 @@
 | AC-8-7 | Non-manager truy cập /admin | RoleGuard hiện "Không có quyền truy cập" |
 | AC-8-8 | Admin xóa nhân viên | Nút Xóa chỉ hiện với Admin, confirm dialog trước khi xóa |
 
+### Admin Dashboard Addendum — Overview + Marketing (2026-05-03)
+
+| ID | Status | Task | Notes |
+|---|---|---|---|
+| 8-14 | ✅ | `fe/src/app/(dashboard)/admin/overview/page.tsx` — Live floor view: stat cards · "N bàn chờ xác nhận" section with Phục vụ/Mang đi/Huỷ action buttons · Kiểm tra toggle → PrepPanel with per-table dish detail + remaining summary · All-tables grid with urgency color borders · WS real-time via `/ws/orders-live` | Spec 9 §2 |
+| 8-15 | ✅ | `fe/src/app/(dashboard)/admin/marketing/page.tsx` — QR code generator (10 tables, copy/SVG/print) + product catalogue display | Spec 9 §3 |
+| 8-16 | ✅ | `fe/src/features/admin/admin.api.ts` — Added `updateOrderStatus()` + `listLiveOrders()` + `listTables()` functions | Used by overview page |
+| 8-17 | ✅ | Admin layout tab nav updated — added Tổng quan + Marketing tabs | `fe/src/app/(dashboard)/admin/layout.tsx` |
+
 ---
 
 ## Critical Rules (Never Forget)

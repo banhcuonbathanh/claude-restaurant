@@ -97,3 +97,23 @@ export const setStaffStatus = (id: string, is_active: boolean): Promise<void> =>
 
 export const deleteStaff = (id: string): Promise<void> =>
   api.delete(`/staff/${id}`)
+
+// ── Tables ────────────────────────────────────────────────────────────────────
+
+export interface Table {
+  id:       string
+  name:     string
+  capacity: number
+  status:   'available' | 'occupied' | 'reserved'
+}
+
+export const listTables = (): Promise<Table[]> =>
+  api.get('/tables').then(r => r.data?.data ?? r.data ?? [])
+
+// ── Orders Live ───────────────────────────────────────────────────────────────
+
+export const listLiveOrders = (): Promise<import('@/types/order').Order[]> =>
+  api.get('/orders/live').then(r => r.data?.data ?? r.data ?? [])
+
+export const updateOrderStatus = (id: string, status: string): Promise<void> =>
+  api.patch(`/orders/${id}/status`, { status })

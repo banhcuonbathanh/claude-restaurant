@@ -52,7 +52,7 @@ READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 | Phase 5 — Frontend | ✅ COMPLETE — 5.1 auth + 5.2 menu/cart + 5.3 checkout/SSE + 5.4 KDS + 5.5 POS/Payment ✅ | — |
 | Phase 6 — DevOps | ✅ COMPLETE — .env.example + migrate.sh + Caddyfile + Caddy in compose + CI/CD + README | — |
 | Phase 7 — Testing + Go-Live | ⬜ NOT STARTED | Needs P4+P5 |
-| Phase 8 — Admin Dashboard | ✅ COMPLETE — FE pages + BE staff CRUD (8-1→8-13) all done | — |
+| Phase 8 — Admin Dashboard | ✅ COMPLETE — FE pages + BE staff CRUD + Overview + Marketing (8-1→8-17) | — |
 
 ## Document Map (3 Tầng)
 
@@ -84,6 +84,7 @@ docs/spec/Spec_4_Orders_API.md
 docs/spec/Spec_5_Payment_Webhooks.md
 docs/spec/Spec_6_QR_POS.md
 docs/spec/Spec_7_Staff_Management.md
+docs/spec/Spec_9_Admin_Dashboard_Pages.md  ← Overview page (live floor + Kiểm tra) + Marketing (QR codes)
 docs/claude/CLAUDE_BE.md · CLAUDE_FE.md · CLAUDE_DEVOPS.md
 ```
 
@@ -127,11 +128,13 @@ FE state (strict): server → TanStack Query · client → Zustand · forms → 
 ## Current Work
 
 - **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 ✅ · Phase 7 ⬜ NEXT.
-- **Branch:** test — all changes in working tree (not committed). Run `docker compose up -d --build be fe` before testing.
-- **Done this session:** Added product image upload to admin — `uploadFile()` in admin.api.ts · `getImageUrl()` in utils.ts · image upload field + preview in products form modal · thumbnail column in products table · BE static file serving `/uploads` in main.go · `uploads_data` docker volume + `STORAGE_BASE_PATH` env in docker-compose.yml.
+- **Branch:** test — all changes in working tree (not committed). Run `docker compose up -d --build fe` before testing.
+- **Done this session:**
+  - Overview page interactive features: Phục vụ/Mang đi/Huỷ buttons on pending orders · Kiểm tra toggle (multi-select) · PrepPanel rewritten to show per-table dish status + remaining summary · `updateOrderStatus()` added to admin.api.ts
+  - Spec 9 written: `docs/spec/Spec_9_Admin_Dashboard_Pages.md` (Overview + Marketing pages)
 - **Next (in order):**
-  1. **Commit** — commit the 6 modified files (`be/cmd/server/main.go`, `docker-compose.yml`, `fe/src/app/(dashboard)/admin/products/page.tsx`, `fe/src/app/(dashboard)/admin/toppings/page.tsx`, `fe/src/features/admin/admin.api.ts`, `fe/src/lib/utils.ts`)
-  2. **Phase 7-6** — `scripts/seed.sql` (3+ categories, 10+ products with images, 5+ toppings, 4 staff, 5 tables)
+  1. **Commit** — all modified files in `fe/` (overview/page.tsx, admin.api.ts, layout.tsx, marketing/page.tsx, etc.)
+  2. **Phase 7-6** — `scripts/seed.sql` (3+ categories, 10+ products with images, 5+ toppings, 4 staff, 5 tables with qr_token)
   3. **Phase 7-1/7-2/7-3** — BE unit tests (auth/order/payment services)
   4. **Phase 7-5** — integration test suite against test DB
 - **How to pick the next task:** Open `docs/TASKS.md` → find next ⬜ task with all dependencies ✅.

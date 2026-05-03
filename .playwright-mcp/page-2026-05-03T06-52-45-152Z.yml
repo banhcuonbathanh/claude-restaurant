@@ -1,0 +1,191 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Sản phẩm" [ref=e6] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Danh mục" [ref=e7] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e8] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e9] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Marketing" [ref=e10] [cursor=pointer]:
+          - /url: /admin/marketing
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - heading "Marketing" [level=2] [ref=e14]
+        - paragraph [ref=e15]: QR code bàn, link công khai, và tổng quan thực đơn cho marketing.
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - img [ref=e19]
+          - generic [ref=e22]:
+            - paragraph [ref=e23]: "2"
+            - paragraph [ref=e24]: Sản phẩm
+        - generic [ref=e25]:
+          - img [ref=e27]
+          - generic [ref=e30]:
+            - paragraph [ref=e31]: "2"
+            - paragraph [ref=e32]: Đang bán
+        - generic [ref=e33]:
+          - img [ref=e35]
+          - generic [ref=e39]:
+            - paragraph [ref=e40]: "1"
+            - paragraph [ref=e41]: Danh mục
+        - generic [ref=e42]:
+          - img [ref=e44]
+          - generic [ref=e47]:
+            - paragraph [ref=e48]: "2"
+            - paragraph [ref=e49]: Topping
+      - generic [ref=e50]:
+        - heading "Trang Giới Thiệu Công Khai" [level=3] [ref=e51]
+        - paragraph [ref=e52]: Chia sẻ link này để khách hàng tìm hiểu về quán.
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - img [ref=e55]
+            - generic [ref=e61]: http://localhost:3000
+          - button "Copy" [ref=e62] [cursor=pointer]:
+            - img [ref=e63]
+            - text: Copy
+          - link "Mở" [ref=e66] [cursor=pointer]:
+            - /url: http://localhost:3000
+            - img [ref=e67]
+            - text: Mở
+      - generic [ref=e71]:
+        - generic [ref=e72]:
+          - generic [ref=e73]:
+            - heading "QR Code Bàn" [level=3] [ref=e74]
+            - paragraph [ref=e75]: In QR và đặt lên bàn để khách quét đặt món.
+          - button "In Tất Cả" [ref=e76] [cursor=pointer]:
+            - img [ref=e77]
+            - text: In Tất Cả
+        - generic [ref=e81]:
+          - generic [ref=e82]:
+            - paragraph [ref=e83]: Bàn 1
+            - img [ref=e85]
+            - paragraph [ref=e88]: http://localhost:3000/table/1
+            - generic [ref=e89]:
+              - button "Copy" [ref=e90] [cursor=pointer]:
+                - img [ref=e91]
+                - text: Copy
+              - button "SVG" [ref=e94] [cursor=pointer]:
+                - img [ref=e95]
+                - text: SVG
+          - generic [ref=e98]:
+            - paragraph [ref=e99]: Bàn 2
+            - img [ref=e101]
+            - paragraph [ref=e104]: http://localhost:3000/table/2
+            - generic [ref=e105]:
+              - button "Copy" [ref=e106] [cursor=pointer]:
+                - img [ref=e107]
+                - text: Copy
+              - button "SVG" [ref=e110] [cursor=pointer]:
+                - img [ref=e111]
+                - text: SVG
+          - generic [ref=e114]:
+            - paragraph [ref=e115]: Bàn 3
+            - img [ref=e117]
+            - paragraph [ref=e120]: http://localhost:3000/table/3
+            - generic [ref=e121]:
+              - button "Copy" [ref=e122] [cursor=pointer]:
+                - img [ref=e123]
+                - text: Copy
+              - button "SVG" [ref=e126] [cursor=pointer]:
+                - img [ref=e127]
+                - text: SVG
+          - generic [ref=e130]:
+            - paragraph [ref=e131]: Bàn 4
+            - img [ref=e133]
+            - paragraph [ref=e136]: http://localhost:3000/table/4
+            - generic [ref=e137]:
+              - button "Copy" [ref=e138] [cursor=pointer]:
+                - img [ref=e139]
+                - text: Copy
+              - button "SVG" [ref=e142] [cursor=pointer]:
+                - img [ref=e143]
+                - text: SVG
+          - generic [ref=e146]:
+            - paragraph [ref=e147]: Bàn 5
+            - img [ref=e149]
+            - paragraph [ref=e152]: http://localhost:3000/table/5
+            - generic [ref=e153]:
+              - button "Copy" [ref=e154] [cursor=pointer]:
+                - img [ref=e155]
+                - text: Copy
+              - button "SVG" [ref=e158] [cursor=pointer]:
+                - img [ref=e159]
+                - text: SVG
+          - generic [ref=e162]:
+            - paragraph [ref=e163]: Bàn 6
+            - img [ref=e165]
+            - paragraph [ref=e168]: http://localhost:3000/table/6
+            - generic [ref=e169]:
+              - button "Copy" [ref=e170] [cursor=pointer]:
+                - img [ref=e171]
+                - text: Copy
+              - button "SVG" [ref=e174] [cursor=pointer]:
+                - img [ref=e175]
+                - text: SVG
+          - generic [ref=e178]:
+            - paragraph [ref=e179]: Bàn 7
+            - img [ref=e181]
+            - paragraph [ref=e184]: http://localhost:3000/table/7
+            - generic [ref=e185]:
+              - button "Copy" [ref=e186] [cursor=pointer]:
+                - img [ref=e187]
+                - text: Copy
+              - button "SVG" [ref=e190] [cursor=pointer]:
+                - img [ref=e191]
+                - text: SVG
+          - generic [ref=e194]:
+            - paragraph [ref=e195]: Bàn 8
+            - img [ref=e197]
+            - paragraph [ref=e200]: http://localhost:3000/table/8
+            - generic [ref=e201]:
+              - button "Copy" [ref=e202] [cursor=pointer]:
+                - img [ref=e203]
+                - text: Copy
+              - button "SVG" [ref=e206] [cursor=pointer]:
+                - img [ref=e207]
+                - text: SVG
+          - generic [ref=e210]:
+            - paragraph [ref=e211]: Bàn 9
+            - img [ref=e213]
+            - paragraph [ref=e216]: http://localhost:3000/table/9
+            - generic [ref=e217]:
+              - button "Copy" [ref=e218] [cursor=pointer]:
+                - img [ref=e219]
+                - text: Copy
+              - button "SVG" [ref=e222] [cursor=pointer]:
+                - img [ref=e223]
+                - text: SVG
+          - generic [ref=e226]:
+            - paragraph [ref=e227]: Bàn 10
+            - img [ref=e229]
+            - paragraph [ref=e232]: http://localhost:3000/table/10
+            - generic [ref=e233]:
+              - button "Copy" [ref=e234] [cursor=pointer]:
+                - img [ref=e235]
+                - text: Copy
+              - button "SVG" [ref=e238] [cursor=pointer]:
+                - img [ref=e239]
+                - text: SVG
+      - generic [ref=e242]:
+        - heading "Spotlight Thực Đơn" [level=3] [ref=e243]
+        - paragraph [ref=e244]: Các món hàng đầu có thể dùng làm nội dung marketing.
+        - generic [ref=e245]:
+          - generic [ref=e246]:
+            - generic [ref=e247]: "1"
+            - generic [ref=e248]: p1
+            - generic [ref=e249]: sdfsdf
+            - generic [ref=e250]: 24đ
+            - generic [ref=e251]: Đang bán
+          - generic [ref=e252]:
+            - generic [ref=e253]: "2"
+            - generic [ref=e254]: test 1
+            - generic [ref=e255]: sdsafdsadf
+            - generic [ref=e256]: 30đ
+            - generic [ref=e257]: Đang bán
+  - region "Notifications alt+T"
+  - alert [ref=e258]

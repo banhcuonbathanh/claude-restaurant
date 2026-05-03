@@ -6,10 +6,12 @@ import { RoleGuard } from '@/components/guards/RoleGuard'
 import { Role } from '@/types/auth'
 
 const tabs = [
+  { href: '/admin/overview',   label: 'Tổng quan' },
   { href: '/admin/products',   label: 'Sản phẩm' },
   { href: '/admin/categories', label: 'Danh mục' },
   { href: '/admin/toppings',   label: 'Topping' },
   { href: '/admin/staff',      label: 'Nhân viên' },
+  { href: '/admin/marketing',  label: 'Marketing' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -27,7 +29,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   key={tab.href}
                   href={tab.href}
                   className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
-                    pathname.startsWith(tab.href)
+                    pathname === tab.href
                       ? 'border-orange-500 text-orange-600'
                       : 'border-transparent text-gray-500 hover:text-gray-800'
                   }`}

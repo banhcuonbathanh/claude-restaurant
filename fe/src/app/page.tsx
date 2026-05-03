@@ -1,40 +1,62 @@
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ShoppingCart, Utensils, Clock, ChefHat, Zap, Star } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Utensils, QrCode, LayoutDashboard, ChefHat, CreditCard, BarChart3,
+  ArrowRight, CheckCircle2, Zap, Shield, Clock, Star,
+} from "lucide-react"
 
-const menuItems = [
+const features = [
   {
-    name: "Bánh Cuốn Nhân Thịt",
-    desc: "Bánh cuốn mềm mịn, nhân thịt heo xay, mộc nhĩ thơm ngon",
-    price: "45,000đ",
-    badge: "Bán Chạy",
-    badgeVariant: "default" as const,
-    time: "8 phút",
+    icon: <QrCode className="h-6 w-6 text-primary" />,
+    title: "QR Đặt Bàn",
+    desc: "Khách quét QR, xem menu, và đặt món không cần app — trực tiếp trên trình duyệt.",
   },
   {
-    name: "Bánh Cuốn Chả",
-    desc: "Kết hợp với chả lụa thượng hạng, nước chấm pha chuẩn vị",
-    price: "50,000đ",
-    badge: "Mới",
-    badgeVariant: "success" as const,
-    time: "10 phút",
+    icon: <ChefHat className="h-6 w-6 text-success" />,
+    title: "KDS Bếp Thời Gian Thực",
+    desc: "Màn hình bếp cập nhật tức thì qua WebSocket. Màu sắc cảnh báo theo mức độ khẩn cấp.",
   },
   {
-    name: "Bánh Cuốn Tôm",
-    desc: "Nhân tôm tươi, hành phi giòn, ăn kèm rau sống tươi ngon",
-    price: "55,000đ",
-    badge: "Đặc Biệt",
-    badgeVariant: "warning" as const,
-    time: "12 phút",
+    icon: <CreditCard className="h-6 w-6 text-warning" />,
+    title: "POS & Thanh Toán",
+    desc: "Thu ngân xử lý đơn, nhận thanh toán tiền mặt hoặc chuyển khoản, in hoá đơn nhanh.",
+  },
+  {
+    icon: <LayoutDashboard className="h-6 w-6 text-primary" />,
+    title: "Admin Dashboard",
+    desc: "Quản lý sản phẩm, danh mục, topping, nhân viên và bàn — toàn bộ trong một giao diện.",
+  },
+  {
+    icon: <BarChart3 className="h-6 w-6 text-success" />,
+    title: "Báo Cáo & Thống Kê",
+    desc: "Theo dõi doanh thu, món bán chạy, và hiệu suất ca làm việc theo ngày/tuần/tháng.",
+  },
+  {
+    icon: <Shield className="h-6 w-6 text-warning" />,
+    title: "Phân Quyền Vai Trò",
+    desc: "Phân quyền rõ ràng: Admin · Manager · Cashier · Chef. Mỗi vai trò chỉ thấy chức năng của mình.",
   },
 ]
 
-export default function HomePage() {
+const steps = [
+  { num: "01", title: "Tạo Menu", desc: "Thêm danh mục, món ăn, và topping tùy chọn từ Admin Dashboard." },
+  { num: "02", title: "In QR Bàn", desc: "Hệ thống tạo QR code cho từng bàn. In ra và dán lên bàn là xong." },
+  { num: "03", title: "Khách Tự Đặt", desc: "Khách quét QR → xem menu → đặt món → đơn tự động đẩy lên bếp." },
+  { num: "04", title: "Bếp & Thanh Toán", desc: "Bếp nhận đơn trên KDS. Thu ngân thanh toán và đóng bàn trên POS." },
+]
+
+const stats = [
+  { icon: <Zap className="h-4 w-4 text-primary" />, value: "< 1s", label: "Đơn đến bếp" },
+  { icon: <Clock className="h-4 w-4 text-success" />, value: "8–15 phút", label: "Thời gian phục vụ" },
+  { icon: <Star className="h-4 w-4 text-warning" />, value: "99.9%", label: "Uptime" },
+  { icon: <CheckCircle2 className="h-4 w-4 text-success" />, value: "0 app", label: "Cài đặt cho khách" },
+]
+
+export default function MarketingPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
 
       {/* ── Navbar ── */}
       <nav className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
@@ -43,244 +65,227 @@ export default function HomePage() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
               <Utensils className="h-4 w-4 text-white" />
             </div>
-            <span className="font-display text-lg font-semibold text-foreground">Bánh Cuốn</span>
+            <span className="font-display text-lg font-semibold">Bánh Cuốn POS</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm">Menu</Button>
-            <Button variant="ghost" size="sm">Đơn Hàng</Button>
-            <Button size="sm">Đăng Nhập</Button>
+            <Button variant="ghost" size="sm" asChild>
+              <a href="#features">Tính Năng</a>
+            </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <a href="#how-it-works">Cách Dùng</a>
+            </Button>
+            <Button size="sm" asChild>
+              <Link href="/admin">Vào Dashboard</Link>
+            </Button>
           </div>
         </div>
       </nav>
 
       {/* ── Hero ── */}
-      <section className="gradient-hero relative overflow-hidden py-24">
+      <section className="gradient-hero relative overflow-hidden py-28">
         <div className="mx-auto max-w-6xl px-4 text-center">
-          <Badge variant="secondary" className="mb-4">
+          <Badge variant="secondary" className="mb-5 gap-1.5">
             <Zap className="h-3 w-3" />
-            Hệ thống POS &amp; Đặt Bàn thông minh
+            Hệ thống POS + QR + KDS cho quán ăn Việt
           </Badge>
-          <h1 className="font-display text-5xl font-bold leading-tight text-foreground md:text-6xl">
-            Quán{" "}
-            <span className="text-primary">Bánh Cuốn</span>
+
+          <h1 className="font-display text-5xl font-bold leading-tight md:text-7xl">
+            Quản Lý Quán{" "}
+            <span className="text-primary">Thông Minh</span>
+            <br />Không Cần Cài App
           </h1>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-muted-fg">
-            Trải nghiệm đặt món tiện lợi qua QR code. Quản lý bếp và thanh toán trong một hệ thống.
+
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-fg md:text-xl">
+            Khách quét QR → đặt món → bếp nhận ngay → thu ngân thanh toán.
+            Toàn bộ luồng trong một hệ thống, thời gian thực.
           </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Button size="lg" className="gap-2">
-              <ShoppingCart className="h-5 w-5" />
-              Xem Menu
+
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+            <Button size="xl" className="gap-2 glow-primary" asChild>
+              <Link href="/admin">
+                <LayoutDashboard className="h-5 w-5" />
+                Vào Admin Dashboard
+              </Link>
             </Button>
-            <Button variant="outline" size="lg">Quét QR Bàn</Button>
+            <Button variant="outline" size="xl" className="gap-2" asChild>
+              <Link href="/table/1">
+                <QrCode className="h-5 w-5" />
+                Thử Menu Khách
+              </Link>
+            </Button>
           </div>
 
-          {/* Stats row */}
-          <div className="mt-12 flex flex-wrap justify-center gap-6">
-            {[
-              { icon: <Star className="h-4 w-4 text-warning" />, label: "4.9 Đánh giá" },
-              { icon: <Clock className="h-4 w-4 text-success" />, label: "8–15 Phút" },
-              { icon: <ChefHat className="h-4 w-4 text-primary" />, label: "3 Đầu Bếp" },
-            ].map((s) => (
-              <div key={s.label} className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm text-foreground">
+          {/* Stats */}
+          <div className="mt-16 flex flex-wrap justify-center gap-4">
+            {stats.map((s) => (
+              <div
+                key={s.label}
+                className="flex items-center gap-3 rounded-xl border border-border bg-card px-5 py-3"
+              >
                 {s.icon}
-                {s.label}
+                <div className="text-left">
+                  <p className="text-base font-bold">{s.value}</p>
+                  <p className="text-xs text-muted-fg">{s.label}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Menu Cards ── */}
-      <section className="mx-auto max-w-6xl px-4 py-16">
-        <div className="mb-8 flex items-end justify-between">
-          <div>
-            <h2 className="font-display text-3xl font-bold text-foreground">Thực Đơn Hôm Nay</h2>
-            <p className="mt-1 text-muted-fg">Tươi ngon mỗi ngày, làm từ nguyên liệu chọn lọc</p>
-          </div>
-          <Button variant="outline" size="sm">Xem tất cả</Button>
+      {/* ── Features ── */}
+      <section id="features" className="mx-auto max-w-6xl px-4 py-24">
+        <div className="mb-14 text-center">
+          <Badge variant="outline" className="mb-3">Tính Năng</Badge>
+          <h2 className="font-display text-4xl font-bold">Mọi Thứ Bạn Cần</h2>
+          <p className="mt-3 text-muted-fg">Từ bếp đến quầy thu ngân, tất cả kết nối liền mạch.</p>
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {menuItems.map((item) => (
-            <Card key={item.name} className="group overflow-hidden transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5">
-              {/* Placeholder image area */}
-              <div className="h-48 bg-gradient-to-br from-muted to-card flex items-center justify-center border-b border-border">
-                <Utensils className="h-12 w-12 text-muted-fg opacity-30" />
-              </div>
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-base leading-snug">{item.name}</CardTitle>
-                  <Badge variant={item.badgeVariant} className="shrink-0 text-[10px]">{item.badge}</Badge>
+          {features.map((f) => (
+            <Card
+              key={f.title}
+              className="group border-border/60 transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5"
+            >
+              <CardHeader>
+                <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-card">
+                  {f.icon}
                 </div>
-                <CardDescription>{item.desc}</CardDescription>
+                <CardTitle className="text-base">{f.title}</CardTitle>
               </CardHeader>
-              <CardFooter className="flex items-center justify-between pt-0">
-                <div>
-                  <span className="text-xl font-bold text-primary">{item.price}</span>
-                  <div className="flex items-center gap-1 text-xs text-muted-fg mt-0.5">
-                    <Clock className="h-3 w-3" />
-                    {item.time}
-                  </div>
-                </div>
-                <Button size="sm" className="gap-1.5">
-                  <ShoppingCart className="h-3.5 w-3.5" />
-                  Thêm
-                </Button>
-              </CardFooter>
+              <CardContent>
+                <p className="text-sm text-muted-fg">{f.desc}</p>
+              </CardContent>
             </Card>
           ))}
         </div>
       </section>
 
-      {/* ── QR Entry Form ── */}
-      <section className="mx-auto max-w-6xl px-4 pb-16">
-        <Card className="mx-auto max-w-md border-primary/20 bg-gradient-to-b from-card to-background">
-          <CardHeader>
-            <CardTitle className="font-display text-2xl">Quét Bàn Của Bạn</CardTitle>
-            <CardDescription>Nhập số bàn để bắt đầu đặt món ngay tại chỗ</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="table">Số Bàn</Label>
-              <Input id="table" type="number" placeholder="Ví dụ: 5" min={1} max={30} />
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full" size="lg">Bắt Đầu Đặt Món</Button>
-          </CardFooter>
-        </Card>
-      </section>
-
-      {/* ── Design System Showcase ── */}
-      <section className="border-t border-border bg-card/30 px-4 py-16">
-        <div className="mx-auto max-w-6xl space-y-10">
-          <div className="text-center">
-            <h2 className="font-display text-2xl font-bold text-foreground">Design System</h2>
-            <p className="mt-1 text-sm text-muted-fg">Components dùng trong toàn bộ ứng dụng</p>
+      {/* ── How it works ── */}
+      <section id="how-it-works" className="border-y border-border bg-card/20 py-24">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="mb-14 text-center">
+            <Badge variant="outline" className="mb-3">Cách Dùng</Badge>
+            <h2 className="font-display text-4xl font-bold">Bắt Đầu Trong 4 Bước</h2>
+            <p className="mt-3 text-muted-fg">Triển khai nhanh, không cần kiến thức kỹ thuật.</p>
           </div>
 
-          {/* Buttons */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Buttons</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-3">
-              <Button>Default</Button>
-              <Button variant="secondary">Secondary</Button>
-              <Button variant="outline">Outline</Button>
-              <Button variant="ghost">Ghost</Button>
-              <Button variant="success">Success</Button>
-              <Button variant="warning">Warning</Button>
-              <Button variant="destructive">Destructive</Button>
-              <Button disabled>Disabled</Button>
-            </CardContent>
-            <CardContent className="flex flex-wrap gap-3 pt-0">
-              <Button size="sm">Small</Button>
-              <Button size="default">Default</Button>
-              <Button size="lg">Large</Button>
-              <Button size="xl">Extra Large</Button>
-              <Button size="icon"><ShoppingCart /></Button>
-            </CardContent>
-          </Card>
-
-          {/* Badges */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Badges</CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-3">
-              <Badge>Default</Badge>
-              <Badge variant="secondary">Secondary</Badge>
-              <Badge variant="success">Hoàn Thành</Badge>
-              <Badge variant="warning">Đang Chờ</Badge>
-              <Badge variant="urgent">Khẩn Cấp</Badge>
-              <Badge variant="outline">Outline</Badge>
-              <Badge variant="muted">Muted</Badge>
-            </CardContent>
-          </Card>
-
-          {/* Inputs */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Form Controls</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="demo-name">Tên Món</Label>
-                <Input id="demo-name" placeholder="Nhập tên món ăn..." />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="demo-price">Giá Tiền</Label>
-                <Input id="demo-price" type="number" placeholder="45000" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="demo-disabled">Disabled</Label>
-                <Input id="demo-disabled" placeholder="Không thể nhập..." disabled />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="demo-search">Tìm Kiếm</Label>
-                <Input id="demo-search" type="search" placeholder="Tìm theo tên..." />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Order status cards */}
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Card className="border-success/30">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">Bàn 5</CardTitle>
-                  <Badge variant="success">Hoàn Thành</Badge>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {steps.map((s, i) => (
+              <div key={s.num} className="relative flex flex-col gap-3">
+                {i < steps.length - 1 && (
+                  <ArrowRight className="absolute -right-3 top-3 hidden h-5 w-5 text-border lg:block" />
+                )}
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 font-display text-xl font-bold text-primary">
+                  {s.num}
                 </div>
-                <CardDescription>Đơn #00123 · 3 món</CardDescription>
+                <h3 className="font-semibold">{s.title}</h3>
+                <p className="text-sm text-muted-fg">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Role Overview ── */}
+      <section className="mx-auto max-w-6xl px-4 py-24">
+        <div className="mb-14 text-center">
+          <Badge variant="outline" className="mb-3">Vai Trò</Badge>
+          <h2 className="font-display text-4xl font-bold">Đúng Người, Đúng Chức Năng</h2>
+          <p className="mt-3 text-muted-fg">Mỗi vai trò có giao diện riêng, phân quyền rõ ràng.</p>
+        </div>
+
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            {
+              role: "Admin",
+              color: "text-primary border-primary/30 bg-primary/5",
+              dot: "bg-primary",
+              tasks: ["Quản lý sản phẩm & menu", "Quản lý nhân viên", "Cấu hình hệ thống", "Xem báo cáo tổng"],
+            },
+            {
+              role: "Manager",
+              color: "text-success border-success/30 bg-success/5",
+              dot: "bg-success",
+              tasks: ["Xem báo cáo doanh thu", "Quản lý ca làm", "Xem đơn đang chạy", "Điều phối bàn"],
+            },
+            {
+              role: "Cashier",
+              color: "text-warning border-warning/30 bg-warning/5",
+              dot: "bg-warning",
+              tasks: ["Giao diện POS", "Nhận thanh toán", "In hoá đơn", "Đóng bàn"],
+            },
+            {
+              role: "Chef",
+              color: "text-urgent border-urgent/30 bg-urgent/5",
+              dot: "bg-urgent",
+              tasks: ["Màn hình KDS bếp", "Xác nhận hoàn thành", "Cảnh báo khẩn cấp", "Lịch sử đơn"],
+            },
+          ].map((r) => (
+            <Card key={r.role} className={`border ${r.color}`}>
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <div className={`h-2 w-2 rounded-full ${r.dot}`} />
+                  <CardTitle className="text-base">{r.role}</CardTitle>
+                </div>
               </CardHeader>
               <CardContent>
-                <p className="text-2xl font-bold text-success">135,000đ</p>
+                <ul className="space-y-2">
+                  {r.tasks.map((t) => (
+                    <li key={t} className="flex items-start gap-2 text-sm text-muted-fg">
+                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-current opacity-60" />
+                      {t}
+                    </li>
+                  ))}
+                </ul>
               </CardContent>
-              <CardFooter className="gap-2">
-                <Button variant="success" size="sm" className="flex-1">In Hoá Đơn</Button>
-              </CardFooter>
             </Card>
+          ))}
+        </div>
+      </section>
 
-            <Card className="border-warning/30">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">Bàn 12</CardTitle>
-                  <Badge variant="warning">Đang Nấu</Badge>
-                </div>
-                <CardDescription>Đơn #00124 · 2 món</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold text-warning">90,000đ</p>
-              </CardContent>
-              <CardFooter>
-                <Button variant="warning" size="sm" className="flex-1">Theo Dõi</Button>
-              </CardFooter>
-            </Card>
-
-            <Card className="border-urgent/30">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">Bàn 3</CardTitle>
-                  <Badge variant="urgent">Khẩn Cấp</Badge>
-                </div>
-                <CardDescription>Đơn #00125 · 5 món · 18 phút</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold text-urgent">225,000đ</p>
-              </CardContent>
-              <CardFooter>
-                <Button variant="destructive" size="sm" className="flex-1">Xử Lý Ngay</Button>
-              </CardFooter>
-            </Card>
+      {/* ── CTA ── */}
+      <section className="gradient-hero border-t border-border py-24">
+        <div className="mx-auto max-w-2xl px-4 text-center">
+          <h2 className="font-display text-4xl font-bold md:text-5xl">
+            Sẵn Sàng Chạy?
+          </h2>
+          <p className="mt-4 text-lg text-muted-fg">
+            Hệ thống đã được triển khai đầy đủ. Đăng nhập vào dashboard để bắt đầu quản lý quán.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <Button size="xl" className="gap-2 glow-primary" asChild>
+              <Link href="/admin">
+                <LayoutDashboard className="h-5 w-5" />
+                Vào Admin Dashboard
+              </Link>
+            </Button>
+            <Button variant="outline" size="xl" className="gap-2" asChild>
+              <Link href="/table/1">
+                <QrCode className="h-5 w-5" />
+                Xem Demo Khách
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-border px-4 py-8 text-center text-sm text-muted-fg">
-        <p>© 2026 Quán Bánh Cuốn · Hệ thống POS &amp; Đặt Bàn</p>
+      <footer className="border-t border-border px-4 py-8">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 text-sm text-muted-fg">
+          <div className="flex items-center gap-2">
+            <div className="flex h-6 w-6 items-center justify-center rounded bg-primary">
+              <Utensils className="h-3 w-3 text-white" />
+            </div>
+            <span>Bánh Cuốn POS</span>
+          </div>
+          <p>© 2026 · Hệ thống QR Ordering + POS + KDS</p>
+          <div className="flex gap-4">
+            <Link href="/admin" className="hover:text-foreground transition-colors">Admin</Link>
+            <Link href="/table/1" className="hover:text-foreground transition-colors">Demo Khách</Link>
+            <Link href="/auth/login" className="hover:text-foreground transition-colors">Đăng Nhập</Link>
+          </div>
+        </div>
       </footer>
     </div>
   )
