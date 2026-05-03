@@ -339,6 +339,25 @@ If you cannot fill `draw_ref` → no wireframe exists yet → run Step 0b DRAW f
 
 ---
 
+## Phase 9 — Overview Page (Real API + Component Extraction)
+
+> **Spec:** `Spec_9 §2` · **Wireframe:** `docs/fe/wireframes/overview.md`
+> **Dependency:** Phase 8 ✅ · Phase 4 ✅ (BE endpoints live)
+> **Goal:** Replace `USE_MOCK = true` with real API + WS; extract inline components to files; verify all 6 zones match spec.
+
+| ID | Domain | Task | Status | spec_ref | draw_ref |
+|---|---|---|---|---|---|
+| 9-1 | FE | `admin.api.ts` — verify `listTables`, `listLiveOrders`, `updateOrderStatus` use real axios calls (no mock path) | ⬜ | `Spec_9 §2.1 §4` | `wireframes/overview.md ZoneF` |
+| 9-2 | FE | `useOverviewWS` hook — WS connect/reconnect (exponential backoff) + 6 message type handlers → mutate TanStack Query cache | ⬜ | `Spec_9 §2.1` | `wireframes/overview.md ZoneF` |
+| 9-3 | FE | `StatCards` component — 4 stat cards derived from live orders (tables served · pending items · preparing items · urgency >20min/10–20min) | ⬜ | `Spec_9 §2.2` | `wireframes/overview.md ZoneA` |
+| 9-4 | FE | `WaitingCard` + `WaitingSection` — pending order cards with Kiểm tra toggle + 3 action buttons (disabled while loadingIds) | ⬜ | `Spec_9 §2.4` | `wireframes/overview.md ZoneB` |
+| 9-5 | FE | `PrepPanel` — conditional panel (checkedTableIds.size > 0), collapsible per-table sections + Tổng cần làm summary sorted by remaining qty desc | ⬜ | `Spec_9 §2.5` | `wireframes/overview.md ZoneC` |
+| 9-6 | FE | `OrderDetail` — progress bar + 3 mini counters + item list with status dots + Hoàn thành (ready→delivered) / Huỷ / Kiểm tra buttons | ⬜ | `Spec_9 §2.6` | `wireframes/overview.md ZoneE` |
+| 9-7 | FE | `TableCard` + `TableGrid` — urgency border (gray/orange/yellow/red), occupied-first sort vi-VN locale, empty state icon | ⬜ | `Spec_9 §2.3 §2.6` | `wireframes/overview.md ZoneD` |
+| 9-8 | FE | `overview/page.tsx` — assemble all zones, flip `USE_MOCK=false`, wire `useOverviewWS`, 30s timer tick for urgency recompute | ⬜ | `Spec_9 §2` | `wireframes/overview.md` |
+
+---
+
 ## Critical Rules (Never Forget)
 
 | Rule | Detail |
