@@ -84,6 +84,16 @@ These are structural gaps identified after a full audit of the workflow. Each ha
 **Problem:** BE_DOC_INDEX.md and FE_DOC_INDEX.md pointed to the right files but contained no actual content. Every session required opening 4–6 different files just to get context before writing a single line of code. This increased the chance of missing a critical rule.
 **Resolution (2026-04-30):** Created `docs/be/BE_SYSTEM_GUIDE.md` and `docs/fe/FE_SYSTEM_GUIDE.md` — comprehensive system guides that consolidate: epic breakdown · all critical rules · code patterns · DI skeleton · error codes · per-domain reading list. Each guide is the single entry point for its side. Spec files are still the source of domain-specific detail, but the guide tells you exactly which spec to read and when.
 
+### Weakness 6 — FE tasks created without a visual model (2026-05-03)
+**Problem:** Phase 8 FE tasks (admin overview, PrepPanel, etc.) were created directly from spec text with no wireframe. Components like PrepPanel and the Kiểm tra toggle were discovered mid-coding, not during planning. This caused task rows to be rewritten after implementation started, and some components were built without clear spec traceability.
+**Root cause:** The workflow went Spec → TASKS.md → code with no intermediate visual step. FE is inherently spatial — a text spec cannot fully define what needs to be built without a layout drawing.
+**Resolution (2026-05-03):** Added **Step 0 — FE Pre-Task Phase** to `IMPLEMENTATION_WORKFLOW.md`:
+  - `0a READ SPEC` — read domain spec end-to-end, mark every screen + data source
+  - `0b DRAW Wireframe` — ASCII or Excalidraw frame, label every zone `[ComponentName]` + data source. Save to `docs/fe/wireframes/[page].md`
+  - `0c DECOMPOSE` — 1 component = 1 task row. Shared components first, page.tsx assembly last
+  - `0d WRITE TASK ROWS` — each row must have `spec_ref: Spec_X §Y.Z` + `draw_ref: wireframes/p.md zone-N`
+**Rule:** A FE task row with no `spec_ref` is not ready to start. A FE task row with no `draw_ref` means no wireframe exists yet — run 0b first.
+
 ---
 
 ## 💡  0.5 — Tips Để Làm Việc Hiệu Quả Nhất Với Claude

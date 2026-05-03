@@ -86,6 +86,8 @@ docs/spec/Spec_6_QR_POS.md
 docs/spec/Spec_7_Staff_Management.md
 docs/spec/Spec_9_Admin_Dashboard_Pages.md  ← Overview page (live floor + Kiểm tra) + Marketing (QR codes)
 docs/claude/CLAUDE_BE.md · CLAUDE_FE.md · CLAUDE_DEVOPS.md
+docs/fe/wireframes/_TEMPLATE.md           ← wireframe template — copy before drawing any new FE page (Step 0b)
+docs/workflow.excalidraw                  ← Claude workflow diagram v1.1 (FE Pre-Task Phase + arrows)
 ```
 
 ## Single Sources (đọc trước khi code)
@@ -130,10 +132,12 @@ FE state (strict): server → TanStack Query · client → Zustand · forms → 
 - **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 ✅ · Phase 7 ⬜ NEXT.
 - **Branch:** test — all changes in working tree (not committed). Run `docker compose up -d --build fe` before testing.
 - **Done this session:**
-  - Overview page interactive features: Phục vụ/Mang đi/Huỷ buttons on pending orders · Kiểm tra toggle (multi-select) · PrepPanel rewritten to show per-table dish status + remaining summary · `updateOrderStatus()` added to admin.api.ts
-  - Spec 9 written: `docs/spec/Spec_9_Admin_Dashboard_Pages.md` (Overview + Marketing pages)
+  - FE Pre-Task Phase (Step 0) added to `IMPLEMENTATION_WORKFLOW.md` — 4 sub-steps: READ SPEC → DRAW → DECOMPOSE → WRITE TASK ROWS
+  - `TASKS.md` v1.1 — FE task format with `spec_ref` + `draw_ref` required columns
+  - `docs/workflow.excalidraw` v1.1 — FE Pre-Task Phase section + margin arrows + version badge
+  - `docs/fe/wireframes/_TEMPLATE.md` — wireframe template for new FE pages
 - **Next (in order):**
-  1. **Commit** — all modified files in `fe/` (overview/page.tsx, admin.api.ts, layout.tsx, marketing/page.tsx, etc.)
+  1. **Commit** — all modified files in `fe/` (overview/page.tsx, products/page.tsx) + workflow docs
   2. **Phase 7-6** — `scripts/seed.sql` (3+ categories, 10+ products with images, 5+ toppings, 4 staff, 5 tables with qr_token)
   3. **Phase 7-1/7-2/7-3** — BE unit tests (auth/order/payment services)
   4. **Phase 7-5** — integration test suite against test DB

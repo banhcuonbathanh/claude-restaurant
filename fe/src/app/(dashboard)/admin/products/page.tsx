@@ -8,7 +8,10 @@ import { toast } from 'sonner'
 import { formatVND, getImageUrl } from '@/lib/utils'
 import {
   listProducts, createProduct, updateProduct, deleteProduct, toggleAvailability,
-  listCategories, listToppings, uploadFile,
+  listCategories, createCategory,
+  listToppings, createTopping,
+  createStaff,
+  uploadFile,
 } from '@/features/admin/admin.api'
 import type { Product, Category, Topping } from '@/types/product'
 
@@ -29,6 +32,7 @@ export default function ProductsPage() {
   const [imagePath, setImagePath] = useState<string | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [seedLoading, setSeedLoading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const { data: products = [], isLoading } = useQuery<Product[]>({
@@ -133,16 +137,86 @@ export default function ProductsPage() {
     deleteMut.mutate(id)
   }
 
+  const handleSeed = async () => {
+    setSeedLoading(true)
+    try {
+      // Step 1: categories
+      const catResults = await Promise.allSettled([
+        createCategory({ name: 'Bánh cuốn', sort_order: 1 }),
+        createCategory({ name: 'Đồ uống', sort_order: 2 }),
+        createCategory({ name: 'Món thêm', sort_order: 3 }),
+      ])
+      const newCats = catResults
+        .filter((r): r is PromiseFulfilledResult<Category> => r.status === 'fulfilled')
+        .map(r => r.value)
+
+      // Step 2: toppings + staff in parallel
+      const [topResults] = await Promise.all([
+        Promise.allSettled([
+          createTopping({ name: 'Hành phi', price: 0 }),
+          createTopping({ name: 'Trứng chiên', price: 5000 }),
+          createTopping({ name: 'Giò lụa', price: 10000 }),
+          createTopping({ name: 'Chả quế', price: 8000 }),
+          createTopping({ name: 'Tôm tươi', price: 15000 }),
+        ]),
+        Promise.allSettled([
+          createStaff({ username: 'chef_demo01', password: 'DemoPass1', full_name: 'Nguyễn Văn Bếp', role: 'chef' }),
+          createStaff({ username: 'cashier01', password: 'DemoPass1', full_name: 'Trần Thị Thu', role: 'cashier' }),
+          createStaff({ username: 'staff_demo01', password: 'DemoPass1', full_name: 'Lê Văn Phục', role: 'staff' }),
+        ]),
+      ])
+      const topIds = topResults
+        .filter((r): r is PromiseFulfilledResult<Topping> => r.status === 'fulfilled')
+        .map(r => r.value.id)
+
+      // Step 3: products — use newly created cats, fall back to existing
+      const usableCats = newCats.length > 0 ? newCats : categories
+      if (usableCats.length === 0) {
+        toast.warning('Không có danh mục — sản phẩm mẫu chưa được tạo')
+      } else {
+        const c0 = usableCats[0].id
+        const c1 = (usableCats[1] ?? usableCats[0]).id
+        const c2 = (usableCats[2] ?? usableCats[0]).id
+        await Promise.allSettled([
+          createProduct({ category_id: c0, name: 'Bánh cuốn nhân tôm', description: 'Bánh cuốn truyền thống nhân tôm tươi', price: 45000, sort_order: 1, topping_ids: topIds.slice(0, 3) }),
+          createProduct({ category_id: c0, name: 'Bánh cuốn nhân thịt', description: 'Bánh cuốn nhân thịt băm đặc biệt', price: 40000, sort_order: 2, topping_ids: topIds.slice(0, 2) }),
+          createProduct({ category_id: c0, name: 'Bánh cuốn chay', description: 'Bánh cuốn chay không nhân', price: 30000, sort_order: 3, topping_ids: topIds.slice(0, 1) }),
+          createProduct({ category_id: c0, name: 'Bánh cuốn đặc biệt', description: 'Combo đặc biệt đủ nhân, đủ topping', price: 65000, sort_order: 4, topping_ids: topIds }),
+          createProduct({ category_id: c1, name: 'Trà đá', description: 'Trà đá truyền thống', price: 10000, sort_order: 1, topping_ids: [] }),
+          createProduct({ category_id: c1, name: 'Nước cam', description: 'Nước cam tươi ép', price: 25000, sort_order: 2, topping_ids: [] }),
+          createProduct({ category_id: c1, name: 'Soda chanh', description: 'Soda chanh bạc hà mát lạnh', price: 20000, sort_order: 3, topping_ids: [] }),
+          createProduct({ category_id: c2, name: 'Chả lụa thái lát', description: 'Chả lụa thái lát kèm dưa leo', price: 15000, sort_order: 1, topping_ids: [] }),
+        ])
+      }
+
+      qc.invalidateQueries({ queryKey: ['admin'] })
+      toast.success('Đã tạo dữ liệu mẫu thành công!')
+    } catch {
+      toast.error('Có lỗi khi tạo dữ liệu mẫu')
+    } finally {
+      setSeedLoading(false)
+    }
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold text-gray-900">Sản phẩm ({products.length})</h2>
-        <button
-          onClick={openAdd}
-          className="px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600 transition-colors"
-        >
-          + Thêm sản phẩm
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleSeed}
+            disabled={seedLoading}
+            className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+          >
+            {seedLoading ? 'Đang tạo...' : '🌱 Dữ liệu mẫu'}
+          </button>
+          <button
+            onClick={openAdd}
+            className="px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600 transition-colors"
+          >
+            + Thêm sản phẩm
+          </button>
+        </div>
       </div>
 
       {isLoading ? (

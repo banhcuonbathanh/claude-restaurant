@@ -90,6 +90,52 @@ const MOCK_ORDERS: Order[] = [
   },
 ]
 
+const FAKE_DISHES = [
+  { name: 'Bánh Cuốn Thịt',  price: 45000 },
+  { name: 'Bánh Cuốn Tôm',   price: 50000 },
+  { name: 'Nem Rán',          price: 35000 },
+  { name: 'Chả Giò',          price: 35000 },
+  { name: 'Chả Quế',          price: 30000 },
+  { name: 'Bún Bò Huế',       price: 55000 },
+  { name: 'Gỏi Cuốn',         price: 40000 },
+  { name: 'Phở Bò Tái',       price: 60000 },
+  { name: 'Chả Lụa',          price: 25000 },
+  { name: 'Nước Chanh',        price: 20000 },
+  { name: 'Trà Đá',            price: 10000 },
+  { name: 'Nước Cam',          price: 25000 },
+]
+function makeFakeOrder(tableId: string, orderIndex: number): Order {
+  const dishCount = 2 + Math.floor(Math.random() * 3)
+  const shuffled  = [...FAKE_DISHES].sort(() => Math.random() - 0.5).slice(0, dishCount)
+  const items: OrderItem[] = shuffled.map((d, i) => ({
+    id:              crypto.randomUUID(),
+    product_id:      crypto.randomUUID(),
+    combo_id:        null,
+    combo_ref_id:    null,
+    name:            d.name,
+    quantity:        1 + Math.floor(Math.random() * 3),
+    qty_served:      0,
+    unit_price:      d.price,
+    note:            null,
+    topping_snapshot: null,
+    flagged:         false,
+  }))
+  const total = items.reduce((s, i) => s + i.unit_price * i.quantity, 0)
+  return {
+    id:             crypto.randomUUID(),
+    order_number:   `ORD-F${String(orderIndex).padStart(3, '0')}`,
+    status:         'pending',
+    source:         Math.random() > 0.5 ? 'qr' : 'pos',
+    table_id:       tableId,
+    customer_name:  null,
+    customer_phone: null,
+    total_amount:   total,
+    note:           Math.random() > 0.7 ? 'Ít cay' : null,
+    created_at:     new Date(Date.now() - Math.floor(Math.random() * 4) * 60_000).toISOString(),
+    items,
+  }
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function elapsedMins(createdAt: string, now: number) {
@@ -487,6 +533,16 @@ export default function OverviewPage() {
   const [now, setNow] = useState(() => Date.now())
   const [loadingIds, setLoadingIds] = useState<Set<string>>(new Set())
   const [checkedTableIds, setCheckedTableIds] = useState<Set<string>>(new Set())
+  const fakeOrderIdx = useRef(0)
+
+  function addFakeOrder(currentTables: Table[], currentOrders: Order[]) {
+    const occupiedIds = new Set(currentOrders.map(o => o.table_id).filter(Boolean))
+    const freeTables  = currentTables.filter(t => !occupiedIds.has(t.id))
+    if (freeTables.length === 0) return
+    const table = freeTables[Math.floor(Math.random() * freeTables.length)]
+    const order = makeFakeOrder(table.id, ++fakeOrderIdx.current)
+    setOrders(prev => [order, ...prev])
+  }
 
   function toggleCheck(tableId: string) {
     setCheckedTableIds(prev => {
@@ -657,9 +713,19 @@ export default function OverviewPage() {
           <h2 className="text-xl font-bold text-gray-900">Tổng quan sàn</h2>
           <p className="text-sm text-gray-400 mt-0.5">Tất cả bàn — cập nhật theo thời gian thực</p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-xs text-gray-500">Live</span>
+        <div className="flex items-center gap-3">
+          {USE_MOCK && (
+            <button
+              onClick={() => addFakeOrder(tables, orders)}
+              className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-violet-100 hover:bg-violet-200 text-violet-700 transition-colors"
+            >
+              + Thêm đơn thử
+            </button>
+          )}
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-xs text-gray-500">Live</span>
+          </div>
         </div>
       </div>
 

@@ -16,6 +16,90 @@ Every task, every time. Steps 1–3 happen before a single line of code is writt
 
 ---
 
+## Step 0 — FE Pre-Task Phase (FE pages only)
+
+> **When to run:** Before creating task rows for any new FE page or multi-component feature.
+> **Skip if:** The task is a bug fix, a minor change to an existing component, or a BE-only task.
+
+### The FE Pre-Task flow
+
+```
+READ SPEC → DRAW Wireframe → DECOMPOSE Components → WRITE TASK ROWS (with spec_ref)
+```
+
+All four steps happen **before touching code or writing task rows in TASKS.md**.
+
+---
+
+### Step 0a — READ SPEC
+
+Read the relevant spec (e.g. `Spec_9_Admin_Dashboard_Pages.md`) end-to-end.
+
+Mark every **screen**, **component**, and **data source** mentioned. If a section is missing or says "TBD" — flag ❓ CLARIFY before proceeding.
+
+---
+
+### Step 0b — DRAW Wireframe
+
+Create a page-level wireframe **before identifying components**. The wireframe:
+
+- Labels every visible zone: `[ComponentName]`
+- Notes the data source per zone: `GET /orders/live`, SSE stream, Zustand store, etc.
+- Notes interactions: button → which API call, toggle → which state change
+- Identifies shared vs. page-specific components
+
+**Format:** ASCII wireframe in a markdown file **or** an Excalidraw frame.
+
+**Save to:** `docs/fe/wireframes/[page-name].md` (or `.excalidraw`)
+
+**Example (ASCII):**
+
+```
+┌─────────────────────────────────────────────┐
+│  [PageHeader]  title + breadcrumbs          │
+├──────────────────┬──────────────────────────┤
+│  [OrderList]     │  [PrepPanel]             │
+│  GET /orders/live│  per-table dish status   │
+│  SSE stream      │  computed from OrderList │
+├──────────────────┴──────────────────────────┤
+│  [ActionBar]  buttons → PATCH /orders/:id   │
+└─────────────────────────────────────────────┘
+```
+
+---
+
+### Step 0c — DECOMPOSE
+
+From the wireframe, extract one task row per distinct component or concern:
+
+1. **Shared/base components first** — components used by multiple pages
+2. **API layer** — api.ts functions for this feature
+3. **Page-specific components** — leaf components (cards, panels, modals)
+4. **Page assembly** — the page.tsx that composes everything
+
+**Each task row MUST include `spec_ref` and `draw_ref`:**
+
+```
+| ID   | Domain | Task                              | Status | spec_ref              | draw_ref                      |
+|------|--------|-----------------------------------|--------|-----------------------|-------------------------------|
+| 9-1  | FE     | PrepPanel component               | ⬜     | Spec_9 §3.2           | wireframes/overview.md zone-B |
+| 9-2  | FE     | ActionBar (Phục vụ/Mang đi/Huỷ)  | ⬜     | Spec_9 §3.3           | wireframes/overview.md zone-C |
+| 9-3  | FE     | overview/page.tsx — assemble      | ⬜     | Spec_9 §3             | wireframes/overview.md        |
+```
+
+**Rule:** A task with no `spec_ref` is not ready to start. Stop and trace it back to the spec first.
+
+---
+
+### Step 0d — ALIGN on wireframe (optional but recommended)
+
+Before coding, show the wireframe + task breakdown to the user and confirm:
+- Correct zones identified?
+- Any component missing or misnamed?
+- Spec_ref correct for each task?
+
+---
+
 ## Step 1 — READ
 
 **Goal:** Understand all constraints before touching code.
@@ -257,6 +341,10 @@ If you are unsure which doc to update, ask: "Is this about the state of *this* p
 | State machine allows pending→ready skip | Not validated in service | Step 5 SELF-REVIEW correctness |
 | Colors hardcoded as hex in CSS | Ignored MASTER §2 | Step 4 IMPLEMENT rules |
 | Task done but TASKS.md not updated | Skipped Step 7 | Step 7 DONE |
+| FE component discovered mid-coding (e.g. PrepPanel) | No wireframe before tasking | Step 0b DRAW |
+| FE task has no spec traceability | No spec_ref on task row | Step 0c DECOMPOSE |
+| FE page built wrong layout | Task created before drawing | Step 0b DRAW |
+| FE task done but refers to wrong spec section | spec_ref not verified | Step 0c DECOMPOSE |
 
 ---
 

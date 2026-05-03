@@ -1,8 +1,27 @@
 # Project Task Tracker — Hệ Thống Quản Lý Quán Bánh Cuốn
 
-> **Version:** v1.0 · 2026-04-29
+> **Version:** v1.1 · 2026-05-03
 > **Rule:** Update status here after every task. ⬜ = not started · 🔄 = in progress · ✅ = done · 🔴 = blocked
 > **Before starting any task:** `git checkout -b feature/<task-id>-<short-name>` (e.g. `feature/p1-8-order-groups`), then follow `docs/IMPLEMENTATION_WORKFLOW.md` — READ → PLAN → ALIGN → IMPLEMENT → REVIEW → TEST → DONE
+
+---
+
+## FE Task Format (v1.1 — applies to Phase 9+)
+
+> **Rule:** Every new FE task row MUST have `spec_ref` and `draw_ref`. Tasks without these fields are not ready to start.
+> **Before creating FE task rows:** Run Step 0 in `IMPLEMENTATION_WORKFLOW.md` — DRAW wireframe first, then decompose.
+
+| ID | Domain | Task | Status | spec_ref | draw_ref |
+|---|---|---|---|---|---|
+| template | FE | Description of what to build | ⬜ | `Spec_X §Y.Z` | `wireframes/page.md zone-N` |
+
+**`spec_ref`** — exact section in the spec that defines this component's behaviour (e.g. `Spec_9 §3.2`)
+**`draw_ref`** — wireframe file + zone label (e.g. `wireframes/overview.md zone-B`)
+
+If you cannot fill `spec_ref` → the spec is missing a section → flag ❓ CLARIFY before proceeding.
+If you cannot fill `draw_ref` → no wireframe exists yet → run Step 0b DRAW first.
+
+---
 
 ---
 
