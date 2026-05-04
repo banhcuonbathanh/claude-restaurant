@@ -129,16 +129,15 @@ FE state (strict): server → TanStack Query · client → Zustand · forms → 
 
 ## Current Work
 
-- **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 ✅ · Phase 7 ⬜ NEXT.
-- **Branch:** test — all changes in working tree (not committed). Run `docker compose up -d --build fe` before testing.
+- **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 ✅ · Phase 7 ⬜ NEXT · Phase 9 ⬜ NEXT.
+- **Branch:** test — all committed. Run `docker compose up -d --build fe` after any FE change.
 - **Done this session:**
-  - FE Pre-Task Phase (Step 0) added to `IMPLEMENTATION_WORKFLOW.md` — 4 sub-steps: READ SPEC → DRAW → DECOMPOSE → WRITE TASK ROWS
-  - `TASKS.md` v1.1 — FE task format with `spec_ref` + `draw_ref` required columns
-  - `docs/workflow.excalidraw` v1.1 — FE Pre-Task Phase section + margin arrows + version badge
-  - `docs/fe/wireframes/_TEMPLATE.md` — wireframe template for new FE pages
+  - KDS (`5.4-1`) — compact list-style cards: `còn ×N` badges, Kiểm tra / Trạng thái dropdown / hide-show buttons
+  - Overview (`8-14`) — "Danh sách cần chuẩn bị" redesigned as collapsible list (no per-row borders)
+  - Overview (`8-14`) — "Đang phục vụ" new list section: `tổng ×N · ra ×M · còn ×K` per dish, total fee per row, Tổng cần làm toggle
+  - Overview (`8-14`) — removed `OrderDetail` + `TableCard`; added `EmptyTableCard` + occupied list inline
 - **Next (in order):**
-  1. **Commit** — all modified files in `fe/` (overview/page.tsx, products/page.tsx) + workflow docs
-  2. **Phase 7-6** — `scripts/seed.sql` (3+ categories, 10+ products with images, 5+ toppings, 4 staff, 5 tables with qr_token)
+  1. **Phase 9** — flip `USE_MOCK=false` in overview/page.tsx + wire real WS (`9-1`, `9-8`)
+  2. **Phase 7-6** — `scripts/seed.sql` (3+ categories, 10+ products, 5+ toppings, 4 staff, 5 tables with qr_token)
   3. **Phase 7-1/7-2/7-3** — BE unit tests (auth/order/payment services)
-  4. **Phase 7-5** — integration test suite against test DB
 - **How to pick the next task:** Open `docs/TASKS.md` → find next ⬜ task with all dependencies ✅.
