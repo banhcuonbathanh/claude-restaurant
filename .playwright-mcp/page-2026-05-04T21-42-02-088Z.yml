@@ -1,0 +1,122 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Tổng quan" [ref=e6] [cursor=pointer]:
+          - /url: /admin/overview
+        - link "Sản phẩm" [ref=e7] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Combo" [ref=e8] [cursor=pointer]:
+          - /url: /admin/combos
+        - link "Danh mục" [ref=e9] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e10] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e11] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Marketing" [ref=e12] [cursor=pointer]:
+          - /url: /admin/marketing
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - heading "Combo (6)" [level=2] [ref=e226]
+        - generic [ref=e17]:
+          - button "🎲 Random combo" [ref=e18] [cursor=pointer]
+          - button "+ Thêm combo" [ref=e19] [cursor=pointer]
+      - table [ref=e21]:
+        - rowgroup [ref=e22]:
+          - row "Tên combo Sản phẩm trong combo Giá combo Giá lẻ Tiết kiệm" [ref=e23]:
+            - columnheader "Tên combo" [ref=e24]
+            - columnheader "Sản phẩm trong combo" [ref=e25]
+            - columnheader "Giá combo" [ref=e26]
+            - columnheader "Giá lẻ" [ref=e27]
+            - columnheader "Tiết kiệm" [ref=e28]
+            - columnheader [ref=e29]
+        - rowgroup [ref=e30]:
+          - row "Combo Đặc Biệt Bánh cuốn đặc biệt đủ nhân, kèm nước cam và chả lụa Nước cam ×1 Bánh cuốn đặc biệt ×1 Chả lụa thái lát ×1 90.000 ₫ 105.000 ₫ -15.000 ₫ Xóa" [ref=e31]:
+            - cell "Combo Đặc Biệt Bánh cuốn đặc biệt đủ nhân, kèm nước cam và chả lụa" [ref=e32]:
+              - paragraph [ref=e33]: Combo Đặc Biệt
+              - paragraph [ref=e34]: Bánh cuốn đặc biệt đủ nhân, kèm nước cam và chả lụa
+            - cell "Nước cam ×1 Bánh cuốn đặc biệt ×1 Chả lụa thái lát ×1" [ref=e35]:
+              - generic [ref=e36]:
+                - generic [ref=e37]: Nước cam ×1
+                - generic [ref=e38]: Bánh cuốn đặc biệt ×1
+                - generic [ref=e39]: Chả lụa thái lát ×1
+            - cell "90.000 ₫" [ref=e40]
+            - cell "105.000 ₫" [ref=e41]
+            - cell "-15.000 ₫" [ref=e42]:
+              - generic [ref=e43]: "-15.000 ₫"
+            - cell "Xóa" [ref=e44]:
+              - button "Xóa" [ref=e45] [cursor=pointer]
+          - row "Combo Đôi Bánh cuốn nhân thịt ×2 Trà đá ×2 75.000 ₫ 100.000 ₫ -25.000 ₫ Xóa" [ref=e46]:
+            - cell "Combo Đôi" [ref=e47]:
+              - paragraph [ref=e48]: Combo Đôi
+            - cell "Bánh cuốn nhân thịt ×2 Trà đá ×2" [ref=e49]:
+              - generic [ref=e50]:
+                - generic [ref=e51]: Bánh cuốn nhân thịt ×2
+                - generic [ref=e52]: Trà đá ×2
+            - cell "75.000 ₫" [ref=e53]
+            - cell "100.000 ₫" [ref=e54]
+            - cell "-25.000 ₫" [ref=e55]:
+              - generic [ref=e56]: "-25.000 ₫"
+            - cell "Xóa" [ref=e57]:
+              - button "Xóa" [ref=e58] [cursor=pointer]
+          - row "Combo Gia Đình Bánh cuốn nhân tôm ×2 Nước cam ×2 110.000 ₫ 140.000 ₫ -30.000 ₫ Xóa" [ref=e59]:
+            - cell "Combo Gia Đình" [ref=e60]:
+              - paragraph [ref=e61]: Combo Gia Đình
+            - cell "Bánh cuốn nhân tôm ×2 Nước cam ×2" [ref=e62]:
+              - generic [ref=e63]:
+                - generic [ref=e64]: Bánh cuốn nhân tôm ×2
+                - generic [ref=e65]: Nước cam ×2
+            - cell "110.000 ₫" [ref=e66]
+            - cell "140.000 ₫" [ref=e67]
+            - cell "-30.000 ₫" [ref=e68]:
+              - generic [ref=e69]: "-30.000 ₫"
+            - cell "Xóa" [ref=e70]:
+              - button "Xóa" [ref=e71] [cursor=pointer]
+          - row "Combo Văn Phòng Soda chanh ×2 Nước cam ×1 57.000 ₫ 65.000 ₫ -8.000 ₫ Xóa" [ref=e227]:
+            - cell "Combo Văn Phòng" [ref=e228]:
+              - paragraph [ref=e229]: Combo Văn Phòng
+            - cell "Soda chanh ×2 Nước cam ×1" [ref=e230]:
+              - generic [ref=e231]:
+                - generic [ref=e232]: Soda chanh ×2
+                - generic [ref=e233]: Nước cam ×1
+            - cell "57.000 ₫" [ref=e234]
+            - cell "65.000 ₫" [ref=e235]
+            - cell "-8.000 ₫" [ref=e236]:
+              - generic [ref=e237]: "-8.000 ₫"
+            - cell "Xóa" [ref=e238]:
+              - button "Xóa" [ref=e239] [cursor=pointer]
+          - row "Combo Cuối Tuần Trà đá ×1 Chả lụa thái lát ×2 Soda chanh ×1 51.000 ₫ 60.000 ₫ -9.000 ₫ Xóa" [ref=e240]:
+            - cell "Combo Cuối Tuần" [ref=e241]:
+              - paragraph [ref=e242]: Combo Cuối Tuần
+            - cell "Trà đá ×1 Chả lụa thái lát ×2 Soda chanh ×1" [ref=e243]:
+              - generic [ref=e244]:
+                - generic [ref=e245]: Trà đá ×1
+                - generic [ref=e246]: Chả lụa thái lát ×2
+                - generic [ref=e247]: Soda chanh ×1
+            - cell "51.000 ₫" [ref=e248]
+            - cell "60.000 ₫" [ref=e249]
+            - cell "-9.000 ₫" [ref=e250]:
+              - generic [ref=e251]: "-9.000 ₫"
+            - cell "Xóa" [ref=e252]:
+              - button "Xóa" [ref=e253] [cursor=pointer]
+          - row "Combo Bữa Sáng Nước cam ×2 p1 ×2 45.000 ₫ 50.048 ₫ -5.048 ₫ Xóa" [ref=e254]:
+            - cell "Combo Bữa Sáng" [ref=e255]:
+              - paragraph [ref=e256]: Combo Bữa Sáng
+            - cell "Nước cam ×2 p1 ×2" [ref=e257]:
+              - generic [ref=e258]:
+                - generic [ref=e259]: Nước cam ×2
+                - generic [ref=e260]: p1 ×2
+            - cell "45.000 ₫" [ref=e261]
+            - cell "50.048 ₫" [ref=e262]
+            - cell "-5.048 ₫" [ref=e263]:
+              - generic [ref=e264]: "-5.048 ₫"
+            - cell "Xóa" [ref=e265]:
+              - button "Xóa" [ref=e266] [cursor=pointer]
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e267]:
+        - img [ref=e269]
+        - generic [ref=e272]: Đã tạo 3 combo ngẫu nhiên!
+  - alert [ref=e72]

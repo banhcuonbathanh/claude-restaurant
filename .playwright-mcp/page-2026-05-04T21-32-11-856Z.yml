@@ -1,0 +1,101 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Tổng quan" [ref=e6] [cursor=pointer]:
+          - /url: /admin/overview
+        - link "Sản phẩm" [ref=e7] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Combo" [ref=e8] [cursor=pointer]:
+          - /url: /admin/combos
+        - link "Danh mục" [ref=e9] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e10] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e11] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Marketing" [ref=e12] [cursor=pointer]:
+          - /url: /admin/marketing
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - heading "Combo (1)" [level=2] [ref=e114]
+        - button "+ Thêm combo" [ref=e17] [cursor=pointer]
+      - table [ref=e19]:
+        - rowgroup [ref=e20]:
+          - row "Tên combo Sản phẩm trong combo Giá combo Giá lẻ Tiết kiệm" [ref=e21]:
+            - columnheader "Tên combo" [ref=e22]
+            - columnheader "Sản phẩm trong combo" [ref=e23]
+            - columnheader "Giá combo" [ref=e24]
+            - columnheader "Giá lẻ" [ref=e25]
+            - columnheader "Tiết kiệm" [ref=e26]
+            - columnheader [ref=e27]
+        - rowgroup [ref=e28]:
+          - row "Combo Gia Đình Bánh cuốn nhân tôm ×2 Nước cam ×2 110.000 ₫ 140.000 ₫ -30.000 ₫ Xóa" [ref=e115]:
+            - cell "Combo Gia Đình" [ref=e116]:
+              - paragraph [ref=e117]: Combo Gia Đình
+            - cell "Bánh cuốn nhân tôm ×2 Nước cam ×2" [ref=e118]:
+              - generic [ref=e119]:
+                - generic [ref=e120]: Bánh cuốn nhân tôm ×2
+                - generic [ref=e121]: Nước cam ×2
+            - cell "110.000 ₫" [ref=e122]
+            - cell "140.000 ₫" [ref=e123]
+            - cell "-30.000 ₫" [ref=e124]:
+              - generic [ref=e125]: "-30.000 ₫"
+            - cell "Xóa" [ref=e126]:
+              - button "Xóa" [ref=e127] [cursor=pointer]
+      - generic [ref=e135]:
+        - heading "Tạo combo mới" [level=3] [ref=e137]
+        - generic [ref=e138]:
+          - generic [ref=e139]:
+            - generic [ref=e140]: Tên combo
+            - textbox "Combo gia đình" [active] [ref=e141]: Combo Đôi
+          - generic [ref=e142]:
+            - generic [ref=e143]: Mô tả (tuỳ chọn)
+            - textbox [ref=e144]
+          - generic [ref=e145]:
+            - generic [ref=e146]:
+              - generic [ref=e147]: Sản phẩm trong combo
+              - button "+ Thêm món" [ref=e148] [cursor=pointer]
+            - generic [ref=e150]:
+              - combobox [ref=e152]:
+                - option "-- Chọn sản phẩm --"
+                - option "p1 (24 ₫)"
+                - option "Bánh cuốn nhân tôm (45.000 ₫)"
+                - option "Bánh cuốn nhân tôm (45.000 ₫)"
+                - option "Bánh cuốn nhân tôm (45.000 ₫)"
+                - option "Chả lụa thái lát (15.000 ₫)"
+                - option "Chả lụa thái lát (15.000 ₫)"
+                - option "Chả lụa thái lát (15.000 ₫)"
+                - option "Trà đá (10.000 ₫)"
+                - option "Trà đá (10.000 ₫)"
+                - option "Trà đá (10.000 ₫)"
+                - option "Bánh cuốn nhân thịt (40.000 ₫)" [selected]
+                - option "Bánh cuốn nhân thịt (40.000 ₫)"
+                - option "Bánh cuốn nhân thịt (40.000 ₫)"
+                - option "Nước cam (25.000 ₫)"
+                - option "Nước cam (25.000 ₫)"
+                - option "Nước cam (25.000 ₫)"
+                - option "Bánh cuốn chay (30.000 ₫)"
+                - option "Bánh cuốn chay (30.000 ₫)"
+                - option "Bánh cuốn chay (30.000 ₫)"
+                - option "Soda chanh (20.000 ₫)"
+                - option "Soda chanh (20.000 ₫)"
+                - option "Soda chanh (20.000 ₫)"
+                - option "test 1 (30 ₫)"
+                - option "Bánh cuốn đặc biệt (65.000 ₫)"
+                - option "Bánh cuốn đặc biệt (65.000 ₫)"
+                - option "Bánh cuốn đặc biệt (65.000 ₫)"
+              - spinbutton [ref=e154]: "1"
+          - generic [ref=e155]:
+            - generic [ref=e156]:
+              - generic [ref=e157]: Giá combo (₫)
+              - spinbutton [ref=e158]: "0"
+            - generic [ref=e159]:
+              - generic [ref=e160]: Thứ tự
+              - spinbutton [ref=e161]: "0"
+          - generic [ref=e162]:
+            - button "Huỷ" [ref=e163] [cursor=pointer]
+            - button "Tạo combo" [ref=e164] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e31]

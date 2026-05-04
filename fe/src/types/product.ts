@@ -34,6 +34,7 @@ export interface Combo {
   id:           string
   category_id:  string | null
   name:         string
+  description:  string | null
   price:        number
   image_path:   string | null
   sort_order:   number

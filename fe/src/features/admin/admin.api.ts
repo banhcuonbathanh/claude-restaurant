@@ -1,5 +1,5 @@
 import { api } from '@/lib/api-client'
-import type { Category, Product, Topping } from '@/types/product'
+import type { Category, Combo, Product, Topping } from '@/types/product'
 import type { Staff, StaffListResponse } from '@/types/staff'
 
 // ── Categories ───────────────────────────────────────────────────────────────
@@ -97,6 +97,50 @@ export const setStaffStatus = (id: string, is_active: boolean): Promise<void> =>
 
 export const deleteStaff = (id: string): Promise<void> =>
   api.delete(`/staff/${id}`)
+
+// ── Combos ────────────────────────────────────────────────────────────────────
+
+export interface CreateComboInput {
+  name:         string
+  price:        number
+  category_id?: string
+  description?: string
+  sort_order?:  number
+  items:        { product_id: string; quantity: number }[]
+}
+
+interface RawComboItem { id: string; product_id: string; quantity: number }
+interface RawCombo {
+  id: string; name: string; description: string | null; price: number
+  image_path: string | null; is_available: boolean; sort_order: number
+  category_id: string | null; combo_items: RawComboItem[]
+}
+
+export const listCombos = (): Promise<Combo[]> =>
+  api.get('/combos').then(r => {
+    const raw: RawCombo[] = r.data?.data ?? r.data ?? []
+    return raw.map(c => ({
+      id:           c.id,
+      name:         c.name,
+      description:  c.description ?? null,
+      price:        c.price,
+      image_path:   c.image_path ?? null,
+      is_available: c.is_available,
+      sort_order:   c.sort_order,
+      category_id:  c.category_id ?? null,
+      items: (c.combo_items ?? []).map(i => ({
+        product_id:   i.product_id,
+        product_name: '',
+        quantity:     i.quantity,
+      })),
+    }))
+  })
+
+export const createCombo = (body: CreateComboInput): Promise<{ id: string }> =>
+  api.post('/combos', body).then(r => r.data.data)
+
+export const deleteCombo = (id: string): Promise<void> =>
+  api.delete(`/combos/${id}`)
 
 // ── Tables ────────────────────────────────────────────────────────────────────
 

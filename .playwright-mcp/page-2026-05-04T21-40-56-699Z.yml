@@ -1,0 +1,169 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Tổng quan" [ref=e6] [cursor=pointer]:
+          - /url: /admin/overview
+        - link "Sản phẩm" [ref=e7] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Combo" [ref=e8] [cursor=pointer]:
+          - /url: /admin/combos
+        - link "Danh mục" [ref=e9] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e10] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e11] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Marketing" [ref=e12] [cursor=pointer]:
+          - /url: /admin/marketing
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - heading "Combo (3)" [level=2] [ref=e16]
+        - generic [ref=e17]:
+          - button "🎲 Random combo" [ref=e18] [cursor=pointer]
+          - button "+ Thêm combo" [active] [ref=e19] [cursor=pointer]
+      - table [ref=e21]:
+        - rowgroup [ref=e22]:
+          - row "Tên combo Sản phẩm trong combo Giá combo Giá lẻ Tiết kiệm" [ref=e23]:
+            - columnheader "Tên combo" [ref=e24]
+            - columnheader "Sản phẩm trong combo" [ref=e25]
+            - columnheader "Giá combo" [ref=e26]
+            - columnheader "Giá lẻ" [ref=e27]
+            - columnheader "Tiết kiệm" [ref=e28]
+            - columnheader [ref=e29]
+        - rowgroup [ref=e30]:
+          - row "Combo Đặc Biệt Bánh cuốn đặc biệt đủ nhân, kèm nước cam và chả lụa Nước cam ×1 Bánh cuốn đặc biệt ×1 Chả lụa thái lát ×1 90.000 ₫ 105.000 ₫ -15.000 ₫ Xóa" [ref=e31]:
+            - cell "Combo Đặc Biệt Bánh cuốn đặc biệt đủ nhân, kèm nước cam và chả lụa" [ref=e32]:
+              - paragraph [ref=e33]: Combo Đặc Biệt
+              - paragraph [ref=e34]: Bánh cuốn đặc biệt đủ nhân, kèm nước cam và chả lụa
+            - cell "Nước cam ×1 Bánh cuốn đặc biệt ×1 Chả lụa thái lát ×1" [ref=e35]:
+              - generic [ref=e36]:
+                - generic [ref=e37]: Nước cam ×1
+                - generic [ref=e38]: Bánh cuốn đặc biệt ×1
+                - generic [ref=e39]: Chả lụa thái lát ×1
+            - cell "90.000 ₫" [ref=e40]
+            - cell "105.000 ₫" [ref=e41]
+            - cell "-15.000 ₫" [ref=e42]:
+              - generic [ref=e43]: "-15.000 ₫"
+            - cell "Xóa" [ref=e44]:
+              - button "Xóa" [ref=e45] [cursor=pointer]
+          - row "Combo Đôi Bánh cuốn nhân thịt ×2 Trà đá ×2 75.000 ₫ 100.000 ₫ -25.000 ₫ Xóa" [ref=e46]:
+            - cell "Combo Đôi" [ref=e47]:
+              - paragraph [ref=e48]: Combo Đôi
+            - cell "Bánh cuốn nhân thịt ×2 Trà đá ×2" [ref=e49]:
+              - generic [ref=e50]:
+                - generic [ref=e51]: Bánh cuốn nhân thịt ×2
+                - generic [ref=e52]: Trà đá ×2
+            - cell "75.000 ₫" [ref=e53]
+            - cell "100.000 ₫" [ref=e54]
+            - cell "-25.000 ₫" [ref=e55]:
+              - generic [ref=e56]: "-25.000 ₫"
+            - cell "Xóa" [ref=e57]:
+              - button "Xóa" [ref=e58] [cursor=pointer]
+          - row "Combo Gia Đình Bánh cuốn nhân tôm ×2 Nước cam ×2 110.000 ₫ 140.000 ₫ -30.000 ₫ Xóa" [ref=e59]:
+            - cell "Combo Gia Đình" [ref=e60]:
+              - paragraph [ref=e61]: Combo Gia Đình
+            - cell "Bánh cuốn nhân tôm ×2 Nước cam ×2" [ref=e62]:
+              - generic [ref=e63]:
+                - generic [ref=e64]: Bánh cuốn nhân tôm ×2
+                - generic [ref=e65]: Nước cam ×2
+            - cell "110.000 ₫" [ref=e66]
+            - cell "140.000 ₫" [ref=e67]
+            - cell "-30.000 ₫" [ref=e68]:
+              - generic [ref=e69]: "-30.000 ₫"
+            - cell "Xóa" [ref=e70]:
+              - button "Xóa" [ref=e71] [cursor=pointer]
+      - generic [ref=e74]:
+        - heading "Tạo combo mới" [level=3] [ref=e76]
+        - generic [ref=e77]:
+          - generic [ref=e78]:
+            - generic [ref=e79]:
+              - generic [ref=e80]:
+                - generic [ref=e81]: Tên combo
+                - textbox "Combo gia đình" [ref=e82]
+              - generic [ref=e83]:
+                - generic [ref=e84]: Mô tả (tuỳ chọn)
+                - textbox "Mô tả ngắn về combo" [ref=e85]
+            - generic [ref=e86]:
+              - generic [ref=e88]: Chọn sản phẩm
+              - generic [ref=e89]:
+                - generic [ref=e93] [cursor=pointer]:
+                  - generic [ref=e94]:
+                    - generic [ref=e95]: p1
+                    - generic [ref=e96]: 24 ₫
+                  - generic [ref=e97]:
+                    - generic [ref=e98]: topping 1 +12 ₫
+                    - generic [ref=e99]: topping 2 +1 ₫
+                  - paragraph [ref=e100]: sdfsdf
+                - generic [ref=e104] [cursor=pointer]:
+                  - generic [ref=e105]:
+                    - generic [ref=e106]: Bánh cuốn nhân tôm
+                    - generic [ref=e107]: 45.000 ₫
+                  - generic [ref=e108]:
+                    - generic [ref=e109]: Giò lụa +10.000 ₫
+                    - generic [ref=e110]: Hành phi
+                    - generic [ref=e111]: Trứng chiên +5.000 ₫
+                  - paragraph [ref=e112]: Bánh cuốn truyền thống nhân tôm tươi
+                - generic [ref=e116] [cursor=pointer]:
+                  - generic [ref=e117]:
+                    - generic [ref=e118]: Chả lụa thái lát
+                    - generic [ref=e119]: 15.000 ₫
+                  - paragraph [ref=e120]: Chả lụa thái lát kèm dưa leo
+                - generic [ref=e124] [cursor=pointer]:
+                  - generic [ref=e125]:
+                    - generic [ref=e126]: Trà đá
+                    - generic [ref=e127]: 10.000 ₫
+                  - paragraph [ref=e128]: Trà đá truyền thống
+                - generic [ref=e132] [cursor=pointer]:
+                  - generic [ref=e133]:
+                    - generic [ref=e134]: Bánh cuốn nhân thịt
+                    - generic [ref=e135]: 40.000 ₫
+                  - generic [ref=e136]:
+                    - generic [ref=e137]: Hành phi
+                    - generic [ref=e138]: Trứng chiên +5.000 ₫
+                  - paragraph [ref=e139]: Bánh cuốn nhân thịt băm đặc biệt
+                - generic [ref=e143] [cursor=pointer]:
+                  - generic [ref=e144]:
+                    - generic [ref=e145]: Nước cam
+                    - generic [ref=e146]: 25.000 ₫
+                  - paragraph [ref=e147]: Nước cam tươi ép
+                - generic [ref=e151] [cursor=pointer]:
+                  - generic [ref=e152]:
+                    - generic [ref=e153]: Bánh cuốn chay
+                    - generic [ref=e154]: 30.000 ₫
+                  - generic [ref=e156]: Hành phi
+                  - paragraph [ref=e157]: Bánh cuốn chay không nhân
+                - generic [ref=e161] [cursor=pointer]:
+                  - generic [ref=e162]:
+                    - generic [ref=e163]: Soda chanh
+                    - generic [ref=e164]: 20.000 ₫
+                  - paragraph [ref=e165]: Soda chanh bạc hà mát lạnh
+                - generic [ref=e169] [cursor=pointer]:
+                  - generic [ref=e170]:
+                    - generic [ref=e171]: test 1
+                    - generic [ref=e172]: 30 ₫
+                  - paragraph [ref=e173]: sdsafdsadf
+                - generic [ref=e177] [cursor=pointer]:
+                  - generic [ref=e178]:
+                    - generic [ref=e179]: Bánh cuốn đặc biệt
+                    - generic [ref=e180]: 65.000 ₫
+                  - generic [ref=e181]:
+                    - generic [ref=e182]: Chả quế +8.000 ₫
+                    - generic [ref=e183]: Giò lụa +10.000 ₫
+                    - generic [ref=e184]: Hành phi
+                    - generic [ref=e185]: Tôm tươi +15.000 ₫
+                    - generic [ref=e186]: Trứng chiên +5.000 ₫
+                  - paragraph [ref=e187]: Combo đặc biệt đủ nhân, đủ topping
+            - generic [ref=e188]:
+              - generic [ref=e189]:
+                - generic [ref=e190]: Giá combo (₫)
+                - spinbutton [ref=e191]: "0"
+              - generic [ref=e192]:
+                - generic [ref=e193]: Thứ tự
+                - spinbutton [ref=e194]: "0"
+          - generic [ref=e195]:
+            - button "Huỷ" [ref=e196] [cursor=pointer]
+            - button "Tạo combo" [ref=e197] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e72]

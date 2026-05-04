@@ -1,0 +1,90 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Tổng quan" [ref=e6] [cursor=pointer]:
+          - /url: /admin/overview
+        - link "Sản phẩm" [ref=e7] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Combo" [ref=e8] [cursor=pointer]:
+          - /url: /admin/combos
+        - link "Danh mục" [ref=e9] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e10] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e11] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Marketing" [ref=e12] [cursor=pointer]:
+          - /url: /admin/marketing
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - heading "Combo (0)" [level=2] [ref=e16]
+        - button "+ Thêm combo" [ref=e17] [cursor=pointer]
+      - table [ref=e19]:
+        - rowgroup [ref=e20]:
+          - row "Tên combo Sản phẩm trong combo Giá combo Giá lẻ Tiết kiệm" [ref=e21]:
+            - columnheader "Tên combo" [ref=e22]
+            - columnheader "Sản phẩm trong combo" [ref=e23]
+            - columnheader "Giá combo" [ref=e24]
+            - columnheader "Giá lẻ" [ref=e25]
+            - columnheader "Tiết kiệm" [ref=e26]
+            - columnheader [ref=e27]
+        - rowgroup [ref=e28]:
+          - row "Chưa có combo nào — hãy tạo combo đầu tiên" [ref=e29]:
+            - cell "Chưa có combo nào — hãy tạo combo đầu tiên" [ref=e30]
+      - generic [ref=e33]:
+        - heading "Tạo combo mới" [level=3] [ref=e35]
+        - generic [ref=e36]:
+          - generic [ref=e37]:
+            - generic [ref=e38]: Tên combo
+            - textbox "Combo gia đình" [ref=e39]: Combo Gia Đình
+          - generic [ref=e40]:
+            - generic [ref=e41]: Mô tả (tuỳ chọn)
+            - textbox [active] [ref=e42]: Combo dành cho cả gia đình, gồm bánh cuốn tôm và nước cam tươi
+          - generic [ref=e43]:
+            - generic [ref=e44]:
+              - generic [ref=e45]: Sản phẩm trong combo
+              - button "+ Thêm món" [ref=e46] [cursor=pointer]
+            - generic [ref=e48]:
+              - combobox [ref=e50]:
+                - option "-- Chọn sản phẩm --"
+                - option "p1 (24 ₫)"
+                - option "Bánh cuốn nhân tôm (45.000 ₫)" [selected]
+                - option "Bánh cuốn nhân tôm (45.000 ₫)"
+                - option "Bánh cuốn nhân tôm (45.000 ₫)"
+                - option "Chả lụa thái lát (15.000 ₫)"
+                - option "Chả lụa thái lát (15.000 ₫)"
+                - option "Chả lụa thái lát (15.000 ₫)"
+                - option "Trà đá (10.000 ₫)"
+                - option "Trà đá (10.000 ₫)"
+                - option "Trà đá (10.000 ₫)"
+                - option "Bánh cuốn nhân thịt (40.000 ₫)"
+                - option "Bánh cuốn nhân thịt (40.000 ₫)"
+                - option "Bánh cuốn nhân thịt (40.000 ₫)"
+                - option "Nước cam (25.000 ₫)"
+                - option "Nước cam (25.000 ₫)"
+                - option "Nước cam (25.000 ₫)"
+                - option "Bánh cuốn chay (30.000 ₫)"
+                - option "Bánh cuốn chay (30.000 ₫)"
+                - option "Bánh cuốn chay (30.000 ₫)"
+                - option "Soda chanh (20.000 ₫)"
+                - option "Soda chanh (20.000 ₫)"
+                - option "Soda chanh (20.000 ₫)"
+                - option "test 1 (30 ₫)"
+                - option "Bánh cuốn đặc biệt (65.000 ₫)"
+                - option "Bánh cuốn đặc biệt (65.000 ₫)"
+                - option "Bánh cuốn đặc biệt (65.000 ₫)"
+              - spinbutton [ref=e52]: "1"
+          - generic [ref=e53]:
+            - generic [ref=e54]:
+              - generic [ref=e55]: Giá combo (₫)
+              - spinbutton [ref=e56]: "0"
+            - generic [ref=e57]:
+              - generic [ref=e58]: Thứ tự
+              - spinbutton [ref=e59]: "0"
+          - generic [ref=e60]:
+            - button "Huỷ" [ref=e61] [cursor=pointer]
+            - button "Tạo combo" [ref=e62] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e31]

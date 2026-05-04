@@ -1,0 +1,419 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Tổng quan" [ref=e6] [cursor=pointer]:
+          - /url: /admin/overview
+        - link "Sản phẩm" [active] [ref=e7] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Danh mục" [ref=e8] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e9] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e10] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Marketing" [ref=e11] [cursor=pointer]:
+          - /url: /admin/marketing
+    - generic [ref=e356]:
+      - generic [ref=e357]:
+        - heading "Sản phẩm (26)" [level=2] [ref=e358]
+        - generic [ref=e359]:
+          - button "🌱 Dữ liệu mẫu" [ref=e360] [cursor=pointer]
+          - button "+ Thêm sản phẩm" [ref=e361] [cursor=pointer]
+      - table [ref=e363]:
+        - rowgroup [ref=e364]:
+          - row "Tên sản phẩm Danh mục Topping Giá Trạng thái" [ref=e365]:
+            - columnheader [ref=e366]
+            - columnheader "Tên sản phẩm" [ref=e367]
+            - columnheader "Danh mục" [ref=e368]
+            - columnheader "Topping" [ref=e369]
+            - columnheader "Giá" [ref=e370]
+            - columnheader "Trạng thái" [ref=e371]
+            - columnheader [ref=e372]
+        - rowgroup [ref=e373]:
+          - row "p1 p1 Bánh Cuốn topping 1 topping 2 24 ₫ Đang bán Sửa Xóa" [ref=e374]:
+            - cell "p1" [ref=e375]:
+              - img "p1" [ref=e376]
+            - cell "p1" [ref=e377]
+            - cell "Bánh Cuốn" [ref=e378]
+            - cell "topping 1 topping 2" [ref=e379]:
+              - generic [ref=e380]:
+                - generic [ref=e381]: topping 1
+                - generic [ref=e382]: topping 2
+            - cell "24 ₫" [ref=e383]
+            - cell "Đang bán" [ref=e384]:
+              - button "Đang bán" [ref=e385] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e386]:
+              - generic [ref=e387]:
+                - button "Sửa" [ref=e388] [cursor=pointer]
+                - button "Xóa" [ref=e389] [cursor=pointer]
+          - row "🖼 Bánh cuốn nhân tôm Bánh cuốn Giò lụa Hành phi Trứng chiên 45.000 ₫ Đang bán Sửa Xóa" [ref=e390]:
+            - cell "🖼" [ref=e391]:
+              - generic [ref=e392]: 🖼
+            - cell "Bánh cuốn nhân tôm" [ref=e393]
+            - cell "Bánh cuốn" [ref=e394]
+            - cell "Giò lụa Hành phi Trứng chiên" [ref=e395]:
+              - generic [ref=e396]:
+                - generic [ref=e397]: Giò lụa
+                - generic [ref=e398]: Hành phi
+                - generic [ref=e399]: Trứng chiên
+            - cell "45.000 ₫" [ref=e400]
+            - cell "Đang bán" [ref=e401]:
+              - button "Đang bán" [ref=e402] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e403]:
+              - generic [ref=e404]:
+                - button "Sửa" [ref=e405] [cursor=pointer]
+                - button "Xóa" [ref=e406] [cursor=pointer]
+          - row "🖼 Bánh cuốn nhân tôm Bánh cuốn Giò lụa Hành phi Trứng chiên 45.000 ₫ Đang bán Sửa Xóa" [ref=e407]:
+            - cell "🖼" [ref=e408]:
+              - generic [ref=e409]: 🖼
+            - cell "Bánh cuốn nhân tôm" [ref=e410]
+            - cell "Bánh cuốn" [ref=e411]
+            - cell "Giò lụa Hành phi Trứng chiên" [ref=e412]:
+              - generic [ref=e413]:
+                - generic [ref=e414]: Giò lụa
+                - generic [ref=e415]: Hành phi
+                - generic [ref=e416]: Trứng chiên
+            - cell "45.000 ₫" [ref=e417]
+            - cell "Đang bán" [ref=e418]:
+              - button "Đang bán" [ref=e419] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e420]:
+              - generic [ref=e421]:
+                - button "Sửa" [ref=e422] [cursor=pointer]
+                - button "Xóa" [ref=e423] [cursor=pointer]
+          - row "🖼 Bánh cuốn nhân tôm Bánh cuốn Giò lụa Hành phi Trứng chiên 45.000 ₫ Đang bán Sửa Xóa" [ref=e424]:
+            - cell "🖼" [ref=e425]:
+              - generic [ref=e426]: 🖼
+            - cell "Bánh cuốn nhân tôm" [ref=e427]
+            - cell "Bánh cuốn" [ref=e428]
+            - cell "Giò lụa Hành phi Trứng chiên" [ref=e429]:
+              - generic [ref=e430]:
+                - generic [ref=e431]: Giò lụa
+                - generic [ref=e432]: Hành phi
+                - generic [ref=e433]: Trứng chiên
+            - cell "45.000 ₫" [ref=e434]
+            - cell "Đang bán" [ref=e435]:
+              - button "Đang bán" [ref=e436] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e437]:
+              - generic [ref=e438]:
+                - button "Sửa" [ref=e439] [cursor=pointer]
+                - button "Xóa" [ref=e440] [cursor=pointer]
+          - row "🖼 Chả lụa thái lát Món thêm — 15.000 ₫ Đang bán Sửa Xóa" [ref=e441]:
+            - cell "🖼" [ref=e442]:
+              - generic [ref=e443]: 🖼
+            - cell "Chả lụa thái lát" [ref=e444]
+            - cell "Món thêm" [ref=e445]
+            - cell "—" [ref=e446]
+            - cell "15.000 ₫" [ref=e447]
+            - cell "Đang bán" [ref=e448]:
+              - button "Đang bán" [ref=e449] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e450]:
+              - generic [ref=e451]:
+                - button "Sửa" [ref=e452] [cursor=pointer]
+                - button "Xóa" [ref=e453] [cursor=pointer]
+          - row "🖼 Chả lụa thái lát Món thêm — 15.000 ₫ Đang bán Sửa Xóa" [ref=e454]:
+            - cell "🖼" [ref=e455]:
+              - generic [ref=e456]: 🖼
+            - cell "Chả lụa thái lát" [ref=e457]
+            - cell "Món thêm" [ref=e458]
+            - cell "—" [ref=e459]
+            - cell "15.000 ₫" [ref=e460]
+            - cell "Đang bán" [ref=e461]:
+              - button "Đang bán" [ref=e462] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e463]:
+              - generic [ref=e464]:
+                - button "Sửa" [ref=e465] [cursor=pointer]
+                - button "Xóa" [ref=e466] [cursor=pointer]
+          - row "🖼 Chả lụa thái lát Món thêm — 15.000 ₫ Đang bán Sửa Xóa" [ref=e467]:
+            - cell "🖼" [ref=e468]:
+              - generic [ref=e469]: 🖼
+            - cell "Chả lụa thái lát" [ref=e470]
+            - cell "Món thêm" [ref=e471]
+            - cell "—" [ref=e472]
+            - cell "15.000 ₫" [ref=e473]
+            - cell "Đang bán" [ref=e474]:
+              - button "Đang bán" [ref=e475] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e476]:
+              - generic [ref=e477]:
+                - button "Sửa" [ref=e478] [cursor=pointer]
+                - button "Xóa" [ref=e479] [cursor=pointer]
+          - row "🖼 Trà đá Đồ uống — 10.000 ₫ Đang bán Sửa Xóa" [ref=e480]:
+            - cell "🖼" [ref=e481]:
+              - generic [ref=e482]: 🖼
+            - cell "Trà đá" [ref=e483]
+            - cell "Đồ uống" [ref=e484]
+            - cell "—" [ref=e485]
+            - cell "10.000 ₫" [ref=e486]
+            - cell "Đang bán" [ref=e487]:
+              - button "Đang bán" [ref=e488] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e489]:
+              - generic [ref=e490]:
+                - button "Sửa" [ref=e491] [cursor=pointer]
+                - button "Xóa" [ref=e492] [cursor=pointer]
+          - row "🖼 Trà đá Đồ uống — 10.000 ₫ Đang bán Sửa Xóa" [ref=e493]:
+            - cell "🖼" [ref=e494]:
+              - generic [ref=e495]: 🖼
+            - cell "Trà đá" [ref=e496]
+            - cell "Đồ uống" [ref=e497]
+            - cell "—" [ref=e498]
+            - cell "10.000 ₫" [ref=e499]
+            - cell "Đang bán" [ref=e500]:
+              - button "Đang bán" [ref=e501] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e502]:
+              - generic [ref=e503]:
+                - button "Sửa" [ref=e504] [cursor=pointer]
+                - button "Xóa" [ref=e505] [cursor=pointer]
+          - row "🖼 Trà đá Đồ uống — 10.000 ₫ Đang bán Sửa Xóa" [ref=e506]:
+            - cell "🖼" [ref=e507]:
+              - generic [ref=e508]: 🖼
+            - cell "Trà đá" [ref=e509]
+            - cell "Đồ uống" [ref=e510]
+            - cell "—" [ref=e511]
+            - cell "10.000 ₫" [ref=e512]
+            - cell "Đang bán" [ref=e513]:
+              - button "Đang bán" [ref=e514] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e515]:
+              - generic [ref=e516]:
+                - button "Sửa" [ref=e517] [cursor=pointer]
+                - button "Xóa" [ref=e518] [cursor=pointer]
+          - row "🖼 Bánh cuốn nhân thịt Bánh cuốn Hành phi Trứng chiên 40.000 ₫ Đang bán Sửa Xóa" [ref=e519]:
+            - cell "🖼" [ref=e520]:
+              - generic [ref=e521]: 🖼
+            - cell "Bánh cuốn nhân thịt" [ref=e522]
+            - cell "Bánh cuốn" [ref=e523]
+            - cell "Hành phi Trứng chiên" [ref=e524]:
+              - generic [ref=e525]:
+                - generic [ref=e526]: Hành phi
+                - generic [ref=e527]: Trứng chiên
+            - cell "40.000 ₫" [ref=e528]
+            - cell "Đang bán" [ref=e529]:
+              - button "Đang bán" [ref=e530] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e531]:
+              - generic [ref=e532]:
+                - button "Sửa" [ref=e533] [cursor=pointer]
+                - button "Xóa" [ref=e534] [cursor=pointer]
+          - row "🖼 Bánh cuốn nhân thịt Bánh cuốn Hành phi Trứng chiên 40.000 ₫ Đang bán Sửa Xóa" [ref=e535]:
+            - cell "🖼" [ref=e536]:
+              - generic [ref=e537]: 🖼
+            - cell "Bánh cuốn nhân thịt" [ref=e538]
+            - cell "Bánh cuốn" [ref=e539]
+            - cell "Hành phi Trứng chiên" [ref=e540]:
+              - generic [ref=e541]:
+                - generic [ref=e542]: Hành phi
+                - generic [ref=e543]: Trứng chiên
+            - cell "40.000 ₫" [ref=e544]
+            - cell "Đang bán" [ref=e545]:
+              - button "Đang bán" [ref=e546] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e547]:
+              - generic [ref=e548]:
+                - button "Sửa" [ref=e549] [cursor=pointer]
+                - button "Xóa" [ref=e550] [cursor=pointer]
+          - row "🖼 Bánh cuốn nhân thịt Bánh cuốn Hành phi Trứng chiên 40.000 ₫ Đang bán Sửa Xóa" [ref=e551]:
+            - cell "🖼" [ref=e552]:
+              - generic [ref=e553]: 🖼
+            - cell "Bánh cuốn nhân thịt" [ref=e554]
+            - cell "Bánh cuốn" [ref=e555]
+            - cell "Hành phi Trứng chiên" [ref=e556]:
+              - generic [ref=e557]:
+                - generic [ref=e558]: Hành phi
+                - generic [ref=e559]: Trứng chiên
+            - cell "40.000 ₫" [ref=e560]
+            - cell "Đang bán" [ref=e561]:
+              - button "Đang bán" [ref=e562] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e563]:
+              - generic [ref=e564]:
+                - button "Sửa" [ref=e565] [cursor=pointer]
+                - button "Xóa" [ref=e566] [cursor=pointer]
+          - row "🖼 Nước cam Đồ uống — 25.000 ₫ Đang bán Sửa Xóa" [ref=e567]:
+            - cell "🖼" [ref=e568]:
+              - generic [ref=e569]: 🖼
+            - cell "Nước cam" [ref=e570]
+            - cell "Đồ uống" [ref=e571]
+            - cell "—" [ref=e572]
+            - cell "25.000 ₫" [ref=e573]
+            - cell "Đang bán" [ref=e574]:
+              - button "Đang bán" [ref=e575] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e576]:
+              - generic [ref=e577]:
+                - button "Sửa" [ref=e578] [cursor=pointer]
+                - button "Xóa" [ref=e579] [cursor=pointer]
+          - row "🖼 Nước cam Đồ uống — 25.000 ₫ Đang bán Sửa Xóa" [ref=e580]:
+            - cell "🖼" [ref=e581]:
+              - generic [ref=e582]: 🖼
+            - cell "Nước cam" [ref=e583]
+            - cell "Đồ uống" [ref=e584]
+            - cell "—" [ref=e585]
+            - cell "25.000 ₫" [ref=e586]
+            - cell "Đang bán" [ref=e587]:
+              - button "Đang bán" [ref=e588] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e589]:
+              - generic [ref=e590]:
+                - button "Sửa" [ref=e591] [cursor=pointer]
+                - button "Xóa" [ref=e592] [cursor=pointer]
+          - row "🖼 Nước cam Đồ uống — 25.000 ₫ Đang bán Sửa Xóa" [ref=e593]:
+            - cell "🖼" [ref=e594]:
+              - generic [ref=e595]: 🖼
+            - cell "Nước cam" [ref=e596]
+            - cell "Đồ uống" [ref=e597]
+            - cell "—" [ref=e598]
+            - cell "25.000 ₫" [ref=e599]
+            - cell "Đang bán" [ref=e600]:
+              - button "Đang bán" [ref=e601] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e602]:
+              - generic [ref=e603]:
+                - button "Sửa" [ref=e604] [cursor=pointer]
+                - button "Xóa" [ref=e605] [cursor=pointer]
+          - row "🖼 Bánh cuốn chay Bánh cuốn Hành phi 30.000 ₫ Đang bán Sửa Xóa" [ref=e606]:
+            - cell "🖼" [ref=e607]:
+              - generic [ref=e608]: 🖼
+            - cell "Bánh cuốn chay" [ref=e609]
+            - cell "Bánh cuốn" [ref=e610]
+            - cell "Hành phi" [ref=e611]:
+              - generic [ref=e613]: Hành phi
+            - cell "30.000 ₫" [ref=e614]
+            - cell "Đang bán" [ref=e615]:
+              - button "Đang bán" [ref=e616] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e617]:
+              - generic [ref=e618]:
+                - button "Sửa" [ref=e619] [cursor=pointer]
+                - button "Xóa" [ref=e620] [cursor=pointer]
+          - row "🖼 Bánh cuốn chay Bánh cuốn Hành phi 30.000 ₫ Đang bán Sửa Xóa" [ref=e621]:
+            - cell "🖼" [ref=e622]:
+              - generic [ref=e623]: 🖼
+            - cell "Bánh cuốn chay" [ref=e624]
+            - cell "Bánh cuốn" [ref=e625]
+            - cell "Hành phi" [ref=e626]:
+              - generic [ref=e628]: Hành phi
+            - cell "30.000 ₫" [ref=e629]
+            - cell "Đang bán" [ref=e630]:
+              - button "Đang bán" [ref=e631] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e632]:
+              - generic [ref=e633]:
+                - button "Sửa" [ref=e634] [cursor=pointer]
+                - button "Xóa" [ref=e635] [cursor=pointer]
+          - row "🖼 Bánh cuốn chay Bánh cuốn Hành phi 30.000 ₫ Đang bán Sửa Xóa" [ref=e636]:
+            - cell "🖼" [ref=e637]:
+              - generic [ref=e638]: 🖼
+            - cell "Bánh cuốn chay" [ref=e639]
+            - cell "Bánh cuốn" [ref=e640]
+            - cell "Hành phi" [ref=e641]:
+              - generic [ref=e643]: Hành phi
+            - cell "30.000 ₫" [ref=e644]
+            - cell "Đang bán" [ref=e645]:
+              - button "Đang bán" [ref=e646] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e647]:
+              - generic [ref=e648]:
+                - button "Sửa" [ref=e649] [cursor=pointer]
+                - button "Xóa" [ref=e650] [cursor=pointer]
+          - row "🖼 Soda chanh Đồ uống — 20.000 ₫ Đang bán Sửa Xóa" [ref=e651]:
+            - cell "🖼" [ref=e652]:
+              - generic [ref=e653]: 🖼
+            - cell "Soda chanh" [ref=e654]
+            - cell "Đồ uống" [ref=e655]
+            - cell "—" [ref=e656]
+            - cell "20.000 ₫" [ref=e657]
+            - cell "Đang bán" [ref=e658]:
+              - button "Đang bán" [ref=e659] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e660]:
+              - generic [ref=e661]:
+                - button "Sửa" [ref=e662] [cursor=pointer]
+                - button "Xóa" [ref=e663] [cursor=pointer]
+          - row "🖼 Soda chanh Đồ uống — 20.000 ₫ Đang bán Sửa Xóa" [ref=e664]:
+            - cell "🖼" [ref=e665]:
+              - generic [ref=e666]: 🖼
+            - cell "Soda chanh" [ref=e667]
+            - cell "Đồ uống" [ref=e668]
+            - cell "—" [ref=e669]
+            - cell "20.000 ₫" [ref=e670]
+            - cell "Đang bán" [ref=e671]:
+              - button "Đang bán" [ref=e672] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e673]:
+              - generic [ref=e674]:
+                - button "Sửa" [ref=e675] [cursor=pointer]
+                - button "Xóa" [ref=e676] [cursor=pointer]
+          - row "🖼 Soda chanh Đồ uống — 20.000 ₫ Đang bán Sửa Xóa" [ref=e677]:
+            - cell "🖼" [ref=e678]:
+              - generic [ref=e679]: 🖼
+            - cell "Soda chanh" [ref=e680]
+            - cell "Đồ uống" [ref=e681]
+            - cell "—" [ref=e682]
+            - cell "20.000 ₫" [ref=e683]
+            - cell "Đang bán" [ref=e684]:
+              - button "Đang bán" [ref=e685] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e686]:
+              - generic [ref=e687]:
+                - button "Sửa" [ref=e688] [cursor=pointer]
+                - button "Xóa" [ref=e689] [cursor=pointer]
+          - row "🖼 test 1 Bánh Cuốn — 30 ₫ Đang bán Sửa Xóa" [ref=e690]:
+            - cell "🖼" [ref=e691]:
+              - generic [ref=e692]: 🖼
+            - cell "test 1" [ref=e693]
+            - cell "Bánh Cuốn" [ref=e694]
+            - cell "—" [ref=e695]
+            - cell "30 ₫" [ref=e696]
+            - cell "Đang bán" [ref=e697]:
+              - button "Đang bán" [ref=e698] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e699]:
+              - generic [ref=e700]:
+                - button "Sửa" [ref=e701] [cursor=pointer]
+                - button "Xóa" [ref=e702] [cursor=pointer]
+          - row "🖼 Bánh cuốn đặc biệt Bánh cuốn Chả quế Giò lụa Hành phi Tôm tươi Trứng chiên 65.000 ₫ Đang bán Sửa Xóa" [ref=e703]:
+            - cell "🖼" [ref=e704]:
+              - generic [ref=e705]: 🖼
+            - cell "Bánh cuốn đặc biệt" [ref=e706]
+            - cell "Bánh cuốn" [ref=e707]
+            - cell "Chả quế Giò lụa Hành phi Tôm tươi Trứng chiên" [ref=e708]:
+              - generic [ref=e709]:
+                - generic [ref=e710]: Chả quế
+                - generic [ref=e711]: Giò lụa
+                - generic [ref=e712]: Hành phi
+                - generic [ref=e713]: Tôm tươi
+                - generic [ref=e714]: Trứng chiên
+            - cell "65.000 ₫" [ref=e715]
+            - cell "Đang bán" [ref=e716]:
+              - button "Đang bán" [ref=e717] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e718]:
+              - generic [ref=e719]:
+                - button "Sửa" [ref=e720] [cursor=pointer]
+                - button "Xóa" [ref=e721] [cursor=pointer]
+          - row "🖼 Bánh cuốn đặc biệt Bánh cuốn Chả quế Giò lụa Hành phi Tôm tươi Trứng chiên 65.000 ₫ Đang bán Sửa Xóa" [ref=e722]:
+            - cell "🖼" [ref=e723]:
+              - generic [ref=e724]: 🖼
+            - cell "Bánh cuốn đặc biệt" [ref=e725]
+            - cell "Bánh cuốn" [ref=e726]
+            - cell "Chả quế Giò lụa Hành phi Tôm tươi Trứng chiên" [ref=e727]:
+              - generic [ref=e728]:
+                - generic [ref=e729]: Chả quế
+                - generic [ref=e730]: Giò lụa
+                - generic [ref=e731]: Hành phi
+                - generic [ref=e732]: Tôm tươi
+                - generic [ref=e733]: Trứng chiên
+            - cell "65.000 ₫" [ref=e734]
+            - cell "Đang bán" [ref=e735]:
+              - button "Đang bán" [ref=e736] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e737]:
+              - generic [ref=e738]:
+                - button "Sửa" [ref=e739] [cursor=pointer]
+                - button "Xóa" [ref=e740] [cursor=pointer]
+          - row "🖼 Bánh cuốn đặc biệt Bánh cuốn Chả quế Giò lụa Hành phi Tôm tươi Trứng chiên 65.000 ₫ Đang bán Sửa Xóa" [ref=e741]:
+            - cell "🖼" [ref=e742]:
+              - generic [ref=e743]: 🖼
+            - cell "Bánh cuốn đặc biệt" [ref=e744]
+            - cell "Bánh cuốn" [ref=e745]
+            - cell "Chả quế Giò lụa Hành phi Tôm tươi Trứng chiên" [ref=e746]:
+              - generic [ref=e747]:
+                - generic [ref=e748]: Chả quế
+                - generic [ref=e749]: Giò lụa
+                - generic [ref=e750]: Hành phi
+                - generic [ref=e751]: Tôm tươi
+                - generic [ref=e752]: Trứng chiên
+            - cell "65.000 ₫" [ref=e753]
+            - cell "Đang bán" [ref=e754]:
+              - button "Đang bán" [ref=e755] [cursor=pointer]
+            - cell "Sửa Xóa" [ref=e756]:
+              - generic [ref=e757]:
+                - button "Sửa" [ref=e758] [cursor=pointer]
+                - button "Xóa" [ref=e759] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e355]
