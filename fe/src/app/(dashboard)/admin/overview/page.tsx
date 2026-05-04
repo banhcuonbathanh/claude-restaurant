@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useAuthStore } from '@/features/auth/auth.store'
 import { listLiveOrders, listTables, updateOrderStatus, type Table } from '@/features/admin/admin.api'
 import type { Order, OrderItem } from '@/types/order'
+import { formatVND } from '@/lib/utils'
 
 // ── Mock data (set USE_MOCK = false to use real API) ──────────────────────────
 
@@ -190,188 +191,14 @@ const ACTIVE = new Set(['pending', 'confirmed', 'preparing', 'ready'])
 
 // ── Order detail section inside a table card ─────────────────────────────────
 
-function OrderDetail({
-  order, now, onAction, loadingIds, onCheck, isChecked,
-}: {
-  order: Order
-  now: number
-  onAction: (orderId: string, status: string) => void
-  loadingIds: Set<string>
-  onCheck: () => void
-  isChecked: boolean
-}) {
-  const mins = elapsedMins(order.created_at, now)
-  const { pending, preparing, done, totalQty, servedQty } = itemCounts(order.items)
-  const pct = totalQty > 0 ? Math.round((servedQty / totalQty) * 100) : 0
-
-  const urgencyText = mins > 20 ? 'text-red-600' : mins >= 10 ? 'text-yellow-600' : 'text-green-600'
-  const urgencyBg   = mins > 20 ? 'bg-red-50'   : mins >= 10 ? 'bg-yellow-50'   : 'bg-green-50'
-
+function EmptyTableCard({ table }: { table: Table }) {
   return (
-    <div className="space-y-3">
-      {/* Order header row */}
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <p className="text-sm font-semibold text-gray-800">{order.order_number}</p>
-          <span className={`inline-block mt-0.5 text-xs font-medium px-2 py-0.5 rounded-full ${statusColors(order.status)}`}>
-            {statusLabel(order.status)}
-          </span>
-        </div>
-        <div className={`shrink-0 text-right px-2 py-1 rounded-lg ${urgencyBg}`}>
-          <p className={`text-sm font-bold ${urgencyText}`}>{mins} phút</p>
-          <p className="text-xs text-gray-400">
-            {new Date(order.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-          </p>
-        </div>
-      </div>
-
-      {/* Progress bar */}
+    <div className="bg-white rounded-xl border border-gray-200 px-4 py-3 flex items-center justify-between">
       <div>
-        <div className="flex justify-between text-xs text-gray-500 mb-1">
-          <span>{servedQty}/{totalQty} phần đã ra</span>
-          <span>{pct}%</span>
-        </div>
-        <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
-          <div
-            className={`h-full rounded-full transition-all duration-500 ${
-              pct === 100 ? 'bg-green-500' : pct >= 50 ? 'bg-yellow-400' : 'bg-orange-400'
-            }`}
-            style={{ width: `${pct}%` }}
-          />
-        </div>
+        <p className="font-semibold text-gray-700 text-sm">{table.name}</p>
+        <p className="text-xs text-gray-400">{table.capacity} chỗ</p>
       </div>
-
-      {/* Mini counters */}
-      <div className="grid grid-cols-3 gap-1.5 text-center text-xs">
-        <div className="bg-gray-50 rounded-md py-1.5">
-          <p className="font-bold text-gray-700 text-base leading-none">{pending}</p>
-          <p className="text-gray-400 mt-0.5">Chờ</p>
-        </div>
-        <div className="bg-yellow-50 rounded-md py-1.5">
-          <p className="font-bold text-yellow-600 text-base leading-none">{preparing}</p>
-          <p className="text-gray-400 mt-0.5">Đang làm</p>
-        </div>
-        <div className="bg-green-50 rounded-md py-1.5">
-          <p className="font-bold text-green-600 text-base leading-none">{done}</p>
-          <p className="text-gray-400 mt-0.5">Đã ra</p>
-        </div>
-      </div>
-
-      {/* Item list */}
-      <div className="space-y-1 border-t border-gray-100 pt-2">
-        {order.items.filter(isKitchenItem).map(it => {
-          const itDone = it.qty_served >= it.quantity
-          const itPrep = it.qty_served > 0 && !itDone
-          return (
-            <div key={it.id} className="flex items-center gap-2 text-sm">
-              {/* dot indicator */}
-              <span className={`w-1.5 h-1.5 shrink-0 rounded-full ${
-                itDone ? 'bg-green-400' : itPrep ? 'bg-yellow-400' : 'bg-gray-300'
-              }`} />
-              <span className={`flex-1 truncate ${itDone ? 'line-through text-gray-400' : 'text-gray-700'}`}>
-                {it.name}
-              </span>
-              <span className={`shrink-0 text-xs font-medium tabular-nums ${
-                itDone ? 'text-green-600' : itPrep ? 'text-yellow-600' : 'text-gray-400'
-              }`}>
-                {it.qty_served}/{it.quantity}
-              </span>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Kiểm tra + action buttons */}
-      <div className="pt-2 border-t border-gray-100 space-y-1.5">
-        <button
-          onClick={onCheck}
-          className={`w-full text-xs font-semibold py-1.5 rounded-lg transition-colors ${
-            isChecked
-              ? 'bg-indigo-500 hover:bg-indigo-600 text-white'
-              : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700'
-          }`}
-        >
-          {isChecked ? '✓ Đang xem' : '🔍 Kiểm tra'}
-        </button>
-        {(order.status === 'confirmed' || order.status === 'preparing' || order.status === 'ready') && (
-          <div className="flex items-center gap-1.5">
-            {order.status === 'ready' && (
-              <button
-                disabled={loadingIds.has(order.id)}
-                onClick={() => onAction(order.id, 'delivered')}
-                className="flex-1 text-xs font-semibold py-1.5 rounded-lg bg-green-500 hover:bg-green-600 text-white disabled:opacity-50 transition-colors"
-              >
-                ✓ Hoàn thành
-              </button>
-            )}
-            <button
-              disabled={loadingIds.has(order.id)}
-              onClick={() => onAction(order.id, 'cancelled')}
-              className="flex-1 text-xs font-semibold py-1.5 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 disabled:opacity-50 transition-colors"
-            >
-              Huỷ
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-// ── Table card ────────────────────────────────────────────────────────────────
-
-function TableCard({
-  table, order, now, onAction, loadingIds, onCheck, isChecked,
-}: {
-  table: Table
-  order: Order | undefined
-  now: number
-  onAction: (orderId: string, status: string) => void
-  loadingIds: Set<string>
-  onCheck: () => void
-  isChecked: boolean
-}) {
-  const occupied = order !== undefined
-  const mins = occupied ? elapsedMins(order.created_at, now) : 0
-  const borderColor = !occupied
-    ? 'border-gray-200'
-    : mins > 20 ? 'border-red-400'
-    : mins >= 10 ? 'border-yellow-400'
-    : 'border-orange-400'
-
-  return (
-    <div className={`bg-white rounded-xl border-2 ${borderColor} shadow-sm flex flex-col`}>
-      {/* Table header */}
-      <div className={`px-4 py-3 rounded-t-xl flex items-center justify-between ${
-        occupied ? 'bg-orange-50' : 'bg-gray-50'
-      }`}>
-        <div>
-          <p className="font-bold text-gray-900">{table.name}</p>
-          <p className="text-xs text-gray-400">{table.capacity} chỗ</p>
-        </div>
-        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-          occupied
-            ? 'bg-orange-100 text-orange-700'
-            : 'bg-gray-100 text-gray-500'
-        }`}>
-          {occupied ? 'Đang phục vụ' : 'Trống'}
-        </span>
-      </div>
-
-      {/* Body */}
-      <div className="p-4 flex-1">
-        {occupied ? (
-          <OrderDetail order={order} now={now} onAction={onAction} loadingIds={loadingIds} onCheck={onCheck} isChecked={isChecked} />
-        ) : (
-          <div className="flex flex-col items-center justify-center py-6 text-gray-300 select-none">
-            <svg className="w-8 h-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                d="M3 10h18M3 14h18M10 4v16M14 4v16" />
-            </svg>
-            <p className="text-xs">Chưa có đơn</p>
-          </div>
-        )}
-      </div>
+      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">Trống</span>
     </div>
   )
 }
@@ -391,7 +218,8 @@ function StatCard({ label, value, sub }: { label: string; value: number | string
 // ── Prep panel — shows per-table dish detail + combined remaining summary ─────
 
 function PrepPanel({ orders, tableMap }: { orders: Order[]; tableMap: Map<string, Table> }) {
-  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
+  const [collapsed,       setCollapsed]       = useState<Set<string>>(new Set())
+  const [summaryVisible,  setSummaryVisible]  = useState(true)
 
   function toggleCollapse(orderId: string) {
     setCollapsed(prev => {
@@ -498,21 +326,33 @@ function PrepPanel({ orders, tableMap }: { orders: Order[]; tableMap: Map<string
       {/* ── Combined remaining summary ────────────────────────────────────── */}
       {summaryRows.length > 0 && (
         <div className="border-t-2 border-indigo-200 bg-indigo-50">
-          <div className="px-4 py-2.5 flex items-center gap-2 border-b border-indigo-100">
+          <button
+            type="button"
+            onClick={() => setSummaryVisible(v => !v)}
+            className="w-full px-4 py-2.5 flex items-center gap-2 hover:bg-indigo-100/60 transition-colors text-left"
+          >
             <span className="text-xs font-bold text-indigo-800 uppercase tracking-wide">Tổng cần làm</span>
             <span className="text-xs text-indigo-600">· {summaryRows.length} loại · {totalRemaining} phần còn lại</span>
-          </div>
-          <div className="px-4 py-3 space-y-1.5">
-            {summaryRows.map(([name, row]) => (
-              <div key={name} className="flex items-center gap-3">
-                <span className="text-sm font-medium text-gray-800 flex-1">{name}</span>
-                <span className="text-xs text-gray-400 shrink-0">{row.tables.join(', ')}</span>
-                <span className="shrink-0 font-bold text-sm bg-indigo-500 text-white px-2.5 py-0.5 rounded-lg min-w-[36px] text-center">
-                  ×{row.remaining}
-                </span>
-              </div>
-            ))}
-          </div>
+            <svg
+              className={`ml-auto w-4 h-4 text-indigo-400 shrink-0 transition-transform ${summaryVisible ? 'rotate-180' : ''}`}
+              fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {summaryVisible && (
+            <div className="px-4 pb-3 space-y-1.5">
+              {summaryRows.map(([name, row]) => (
+                <div key={name} className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-gray-800 flex-1">{name}</span>
+                  <span className="text-xs text-gray-400 shrink-0">{row.tables.join(', ')}</span>
+                  <span className="shrink-0 font-bold text-sm bg-indigo-500 text-white px-2.5 py-0.5 rounded-lg min-w-[36px] text-center">
+                    ×{row.remaining}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -533,7 +373,19 @@ export default function OverviewPage() {
   const [now, setNow] = useState(() => Date.now())
   const [loadingIds, setLoadingIds] = useState<Set<string>>(new Set())
   const [checkedTableIds, setCheckedTableIds] = useState<Set<string>>(new Set())
+  const [waitingCollapsed,   setWaitingCollapsed]   = useState<Set<string>>(new Set())
+  const [waitingStatusMenus, setWaitingStatusMenus] = useState<Set<string>>(new Set())
+  const [waitingFlagged,     setWaitingFlagged]     = useState<Set<string>>(new Set())
+  const [occupiedCollapsed,      setOccupiedCollapsed]      = useState<Set<string>>(new Set())
+  const [occupiedStatusMenus,    setOccupiedStatusMenus]    = useState<Set<string>>(new Set())
+  const [occupiedSummaryVisible, setOccupiedSummaryVisible] = useState(true)
   const fakeOrderIdx = useRef(0)
+
+  function toggleSet(prev: Set<string>, id: string): Set<string> {
+    const next = new Set(prev)
+    next.has(id) ? next.delete(id) : next.add(id)
+    return next
+  }
 
   function addFakeOrder(currentTables: Table[], currentOrders: Order[]) {
     const occupiedIds = new Set(currentOrders.map(o => o.table_id).filter(Boolean))
@@ -741,144 +593,375 @@ export default function OverviewPage() {
         />
       </div>
 
-      {/* ── Waiting tables ────────────────────────────────────────────────── */}
-      {waitingTables.length > 0 && (
-        <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 space-y-3">
-          {/* Section header */}
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-            <p className="text-sm font-bold text-amber-800">
-              {waitingTables.length} bàn chờ xác nhận
-            </p>
-          </div>
+      {/* ── Waiting tables — list style ───────────────────────────────────── */}
+      {waitingTables.length > 0 && (() => {
+        const allKitItems  = waitingTables.flatMap(({ order }) => order.items.filter(isKitchenItem))
+        const dishTypes    = new Set(allKitItems.map(i => i.name)).size
+        const totalRemain  = allKitItems.reduce((s, i) => s + Math.max(0, i.quantity - i.qty_served), 0)
 
-          {/* One card per waiting table */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {waitingTables.map(({ table, order }) => {
-              const mins     = elapsedMins(order.created_at, now)
-              const kitItems = order.items.filter(isKitchenItem)
-              const totalQty = kitItems.reduce((s, i) => s + i.quantity, 0)
-              const loading  = loadingIds.has(order.id)
+        return (
+          <div className="rounded-xl bg-indigo-50 border border-indigo-100 overflow-hidden">
+            {/* Header */}
+            <div className="px-4 py-3 border-b border-indigo-100">
+              <p className="text-sm font-bold text-indigo-800">Danh sách cần chuẩn bị</p>
+              <p className="text-xs text-indigo-500 mt-0.5">
+                {waitingTables.length} bàn · {dishTypes} loại món · {totalRemain} phần còn lại
+              </p>
+            </div>
 
-              return (
-                <div
-                  key={table.id}
-                  className="rounded-xl p-4 space-y-3 border-2 bg-white border-amber-200 transition-colors"
-                >
-                  {/* Card header */}
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="font-bold text-gray-900">{table.name}</p>
-                      <p className="text-xs text-gray-400">{order.order_number} · {table.capacity} chỗ</p>
-                    </div>
-                    <div className="text-right bg-amber-50 px-2 py-1 rounded-lg shrink-0">
-                      <p className="text-sm font-bold text-amber-700">{mins} phút</p>
-                      <p className="text-xs text-gray-400">
-                        {new Date(order.created_at).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </div>
-                  </div>
+            {/* Rows */}
+            <div className="divide-y divide-indigo-100">
+              {waitingTables.map(({ table, order }) => {
+                const mins        = elapsedMins(order.created_at, now)
+                const kitItems    = order.items.filter(isKitchenItem)
+                const totalItems  = kitItems.length
+                const remaining   = kitItems.reduce((s, i) => s + Math.max(0, i.quantity - i.qty_served), 0)
+                const loading     = loadingIds.has(order.id)
+                const isExpanded   = !waitingCollapsed.has(order.id)
+                const isStatusOpen = waitingStatusMenus.has(order.id)
+                const isFlagged    = waitingFlagged.has(order.id)
 
-                  {/* Dish list */}
-                  <div className="space-y-1.5 border-t border-amber-100 pt-2">
-                    {kitItems.map(it => (
-                      <div key={it.id} className="flex items-center justify-between gap-2">
-                        <span className="text-sm text-gray-700 flex-1 truncate">{it.name}</span>
-                        <span className="text-xs font-bold bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md shrink-0">
-                          ×{it.quantity}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                const barColor  = mins > 20 ? 'bg-red-400'   : mins >= 10 ? 'bg-yellow-400' : 'bg-indigo-400'
 
-                  {/* Footer: summary + action buttons */}
-                  <div className="pt-1 border-t border-amber-100 space-y-2">
-                    <p className="text-xs text-gray-400">{kitItems.length} món · {totalQty} phần</p>
+                return (
+                  <div key={table.id} className={isFlagged ? 'bg-amber-50' : ''}>
+                    {/* Row header — click to expand/collapse */}
                     <button
-                      onClick={() => toggleCheck(table.id)}
-                      className={`w-full text-xs font-semibold py-1.5 rounded-lg transition-colors ${
-                        checkedTableIds.has(table.id)
-                          ? 'bg-indigo-500 hover:bg-indigo-600 text-white'
-                          : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700'
-                      }`}
+                      type="button"
+                      onClick={() => setWaitingCollapsed(prev => toggleSet(prev, order.id))}
+                      className="w-full px-4 py-3 flex items-center gap-2 text-left hover:bg-indigo-100/50 transition-colors"
                     >
-                      {checkedTableIds.has(table.id) ? '✓ Đang xem' : '🔍 Kiểm tra'}
+                      <span className={`w-1 h-5 rounded-full shrink-0 ${barColor}`} />
+                      <span className="font-bold text-gray-900 text-sm">{table.name}</span>
+                      <span className="text-xs text-gray-400">{order.order_number}</span>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColors(order.status)}`}>
+                        {statusLabel(order.status)}
+                      </span>
+                      <svg
+                        className={`ml-auto w-4 h-4 text-gray-400 shrink-0 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
                     </button>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      <button
-                        disabled={loading}
-                        onClick={() => handleAction(order.id, 'confirmed')}
-                        className="text-xs font-semibold py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white disabled:opacity-50 transition-colors"
-                      >
-                        ✓ Phục vụ
-                      </button>
-                      <button
-                        disabled={loading}
-                        onClick={() => handleAction(order.id, 'confirmed')}
-                        className="text-xs font-semibold py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white disabled:opacity-50 transition-colors"
-                      >
-                        🥡 Mang đi
-                      </button>
-                      <button
-                        disabled={loading}
-                        onClick={() => handleAction(order.id, 'cancelled')}
-                        className="text-xs font-semibold py-2 rounded-lg bg-red-100 hover:bg-red-200 text-red-700 disabled:opacity-50 transition-colors"
-                      >
-                        Huỷ
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
 
-        </div>
-      )}
+                    {/* Expanded content */}
+                    {isExpanded && (
+                      <div className="px-4 pb-3 space-y-2">
+                        {/* Item list */}
+                        <div className="pl-3 space-y-1">
+                          {kitItems.map(it => {
+                            const rem  = it.quantity - it.qty_served
+                            const done = rem <= 0
+                            return (
+                              <div key={it.id} className="flex items-center gap-2 py-0.5">
+                                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${done ? 'bg-green-400' : 'bg-gray-300'}`} />
+                                <span className={`flex-1 text-sm ${done ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                                  {it.name}
+                                </span>
+                                {done
+                                  ? <span className="text-xs text-green-600 font-medium">✓</span>
+                                  : <span className="text-xs bg-white text-gray-700 px-2 py-0.5 rounded font-medium border border-gray-200">còn ×{rem}</span>
+                                }
+                              </div>
+                            )
+                          })}
+                          <p className="text-xs text-gray-400 pt-0.5">{totalItems} món · {remaining} phần còn lại</p>
+                        </div>
+
+                        {/* Inline status picker */}
+                        {isStatusOpen && (
+                          <div className="flex gap-1.5">
+                            <button
+                              disabled={loading}
+                              onClick={() => handleAction(order.id, 'confirmed')}
+                              className="flex-1 py-1.5 text-xs bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium disabled:opacity-50 transition-colors"
+                            >
+                              ✓ Phục vụ
+                            </button>
+                            <button
+                              disabled={loading}
+                              onClick={() => handleAction(order.id, 'confirmed')}
+                              className="flex-1 py-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium disabled:opacity-50 transition-colors"
+                            >
+                              🥡 Mang đi
+                            </button>
+                            <button
+                              disabled={loading}
+                              onClick={() => handleAction(order.id, 'cancelled')}
+                              className="flex-1 py-1.5 text-xs bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-medium disabled:opacity-50 transition-colors"
+                            >
+                              Huỷ
+                            </button>
+                          </div>
+                        )}
+
+                        {/* 3 action buttons */}
+                        <div className="flex gap-1.5">
+                          <button
+                            onClick={() => {
+                              setWaitingFlagged(prev => toggleSet(prev, order.id))
+                              toggleCheck(table.id)
+                            }}
+                            className={`flex-1 py-1.5 text-xs rounded-lg font-medium transition-colors ${
+                              isFlagged
+                                ? 'bg-amber-100 text-amber-700'
+                                : 'bg-white text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            🔍 Kiểm tra
+                          </button>
+                          <button
+                            onClick={() => setWaitingStatusMenus(prev => toggleSet(prev, order.id))}
+                            className={`flex-1 py-1.5 text-xs rounded-lg font-medium transition-colors ${
+                              isStatusOpen
+                                ? 'bg-indigo-500 text-white'
+                                : 'bg-white text-gray-700 hover:bg-gray-50'
+                            }`}
+                          >
+                            Trạng thái {isStatusOpen ? '▲' : '▼'}
+                          </button>
+                          <button
+                            onClick={() => setWaitingCollapsed(prev => toggleSet(prev, order.id))}
+                            className="px-3 py-1.5 text-xs rounded-lg font-medium bg-white text-gray-700 hover:bg-gray-50 transition-colors"
+                          >
+                            ▲
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* Standalone prep panel — shown when any table has Kiểm tra active */}
       {checkedOrders.length > 0 && (
         <PrepPanel orders={checkedOrders} tableMap={tableMap} />
       )}
 
-      {/* Legend */}
-      <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
-        <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-sm border-2 border-orange-400 inline-block" /> Đang phục vụ (&lt;10 phút)
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-sm border-2 border-yellow-400 inline-block" /> Cảnh báo (10–20 phút)
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-sm border-2 border-red-400 inline-block" /> Khẩn cấp (&gt;20 phút)
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-sm border-2 border-gray-200 inline-block" /> Trống
-        </span>
-      </div>
+      {/* ── Đang phục vụ — list style ─────────────────────────────────────── */}
+      {(() => {
+        const occupiedTables = sortedTables.filter(t => orderByTable.has(t.id))
+        if (occupiedTables.length === 0) return null
 
-      {/* All-tables grid */}
-      {tables.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-gray-300">
-          <p className="text-4xl mb-3">🍽️</p>
-          <p className="text-base font-medium text-gray-400">Chưa có bàn nào trong hệ thống</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {sortedTables.map(table => (
-            <TableCard
-              key={table.id}
-              table={table}
-              order={orderByTable.get(table.id)}
-              now={now}
-              onAction={handleAction}
-              loadingIds={loadingIds}
-              onCheck={() => toggleCheck(table.id)}
-              isChecked={checkedTableIds.has(table.id)}
-            />
-          ))}
-        </div>
-      )}
+        return (
+          <div className="rounded-xl bg-orange-50 border border-orange-100 overflow-hidden">
+            {/* Header */}
+            <div className="px-4 py-3 border-b border-orange-100">
+              <p className="text-sm font-bold text-orange-800">Đang phục vụ</p>
+              <p className="text-xs text-orange-500 mt-0.5">
+                {occupiedTables.length} bàn đang có khách
+              </p>
+            </div>
+
+            <div className="divide-y divide-orange-100">
+              {(() => {
+                const allKit    = occupiedTables.flatMap(t => orderByTable.get(t.id)!.items.filter(isKitchenItem))
+                const remainMap = new Map<string, { remaining: number; tables: string[] }>()
+                for (const t of occupiedTables) {
+                  const o = orderByTable.get(t.id)!
+                  for (const it of o.items.filter(isKitchenItem)) {
+                    const rem = it.quantity - it.qty_served
+                    if (rem <= 0) continue
+                    const row = remainMap.get(it.name) ?? { remaining: 0, tables: [] }
+                    row.remaining += rem
+                    if (!row.tables.includes(t.name)) row.tables.push(t.name)
+                    remainMap.set(it.name, row)
+                  }
+                }
+                const rows         = Array.from(remainMap.entries()).sort((a, b) => b[1].remaining - a[1].remaining)
+                const totalRemain  = rows.reduce((s, [, r]) => s + r.remaining, 0)
+                if (rows.length === 0) return null
+                return (
+                  <div className="border-b border-orange-100 bg-orange-100/40">
+                    <button
+                      type="button"
+                      onClick={() => setOccupiedSummaryVisible(v => !v)}
+                      className="w-full px-4 py-2.5 flex items-center gap-2 hover:bg-orange-100/60 transition-colors text-left"
+                    >
+                      <span className="text-xs font-bold text-orange-800 uppercase tracking-wide">Tổng cần làm</span>
+                      <span className="text-xs text-orange-600">· {rows.length} loại · {totalRemain} phần còn lại</span>
+                      <svg
+                        className={`ml-auto w-4 h-4 text-orange-400 shrink-0 transition-transform ${occupiedSummaryVisible ? 'rotate-180' : ''}`}
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                    {occupiedSummaryVisible && (
+                      <div className="px-4 pb-3 space-y-1">
+                        {rows.map(([name, row]) => (
+                          <div key={name} className="flex items-center gap-2">
+                            <span className="flex-1 text-sm text-gray-700">{name}</span>
+                            <span className="text-xs text-gray-400 shrink-0">{row.tables.join(', ')}</span>
+                            <span className="shrink-0 font-bold text-sm bg-orange-500 text-white px-2 py-0.5 rounded-lg min-w-[36px] text-center">
+                              ×{row.remaining}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })()}
+
+              {occupiedTables.map(table => {
+                const order       = orderByTable.get(table.id)!
+                const mins        = elapsedMins(order.created_at, now)
+                const kitItems    = order.items.filter(isKitchenItem)
+                const { totalQty, servedQty } = itemCounts(order.items)
+                const isExpanded   = !occupiedCollapsed.has(table.id)
+                const isStatusOpen = occupiedStatusMenus.has(table.id)
+                const loading      = loadingIds.has(order.id)
+
+                const barColor  = mins > 20 ? 'bg-red-400' : mins >= 10 ? 'bg-yellow-400' : 'bg-orange-400'
+                const timeColor = mins > 20 ? 'text-red-600' : mins >= 10 ? 'text-yellow-600' : 'text-orange-600'
+
+                function nextActions() {
+                  switch (order.status) {
+                    case 'pending':   return [{ label: '✓ Xác nhận',      status: 'confirmed', cls: 'bg-blue-500 hover:bg-blue-600 text-white' }]
+                    case 'confirmed': return [{ label: '🍳 Bắt đầu làm', status: 'preparing', cls: 'bg-yellow-500 hover:bg-yellow-600 text-white' }]
+                    case 'preparing': return [{ label: '✓ Hoàn thành bếp', status: 'ready',   cls: 'bg-green-500 hover:bg-green-600 text-white' }]
+                    case 'ready':     return [{ label: '🛎 Đã phục vụ',   status: 'delivered', cls: 'bg-green-600 hover:bg-green-700 text-white' }]
+                    default:          return []
+                  }
+                }
+
+                return (
+                  <div key={table.id}>
+                    {/* Row header */}
+                    <button
+                      type="button"
+                      onClick={() => setOccupiedCollapsed(prev => toggleSet(prev, table.id))}
+                      className="w-full px-4 py-3 flex items-center gap-2 text-left hover:bg-orange-100/50 transition-colors"
+                    >
+                      <span className={`w-1 h-5 rounded-full shrink-0 ${barColor}`} />
+                      <span className="font-bold text-gray-900 text-sm">{table.name}</span>
+                      <span className="text-xs text-gray-400">{order.order_number}</span>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColors(order.status)}`}>
+                        {statusLabel(order.status)}
+                      </span>
+                      <span className="ml-auto text-sm font-semibold text-gray-700 shrink-0">{formatVND(order.total_amount)}</span>
+                      <span className={`text-sm font-bold shrink-0 ${timeColor}`}>{mins} phút</span>
+                      <svg
+                        className={`w-4 h-4 text-gray-400 shrink-0 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+
+                    {/* Expanded content */}
+                    {isExpanded && (
+                      <div className="px-4 pb-3 space-y-2">
+                        {/* Dish list with full detail */}
+                        <div className="space-y-1.5">
+                          {kitItems.map(it => {
+                            const rem    = it.quantity - it.qty_served
+                            const done   = rem <= 0
+                            const inProg = it.qty_served > 0 && !done
+                            return (
+                              <div key={it.id} className="flex items-center gap-2">
+                                <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                                  done ? 'bg-green-400' : inProg ? 'bg-yellow-400' : 'bg-gray-300'
+                                }`} />
+                                <span className={`flex-1 text-sm ${done ? 'line-through text-gray-400' : 'text-gray-700'}`}>
+                                  {it.name}
+                                </span>
+                                <div className="flex items-center gap-1 shrink-0">
+                                  <span className="text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-medium">
+                                    tổng ×{it.quantity}
+                                  </span>
+                                  <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
+                                    it.qty_served === 0 ? 'bg-gray-50 text-gray-400'
+                                    : done ? 'bg-green-100 text-green-700'
+                                    : 'bg-yellow-100 text-yellow-700'
+                                  }`}>
+                                    ra ×{it.qty_served}
+                                  </span>
+                                  {!done && (
+                                    <span className="text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded font-medium">
+                                      còn ×{rem}
+                                    </span>
+                                  )}
+                                  {done && (
+                                    <span className="text-xs text-green-600 font-medium">✓</span>
+                                  )}
+                                </div>
+                              </div>
+                            )
+                          })}
+                          <p className="text-xs text-gray-400 pt-0.5">
+                            {servedQty}/{totalQty} phần đã ra
+                          </p>
+                        </div>
+
+                        {/* Inline status picker */}
+                        {isStatusOpen && (
+                          <div className="flex gap-1.5">
+                            {nextActions().map(a => (
+                              <button
+                                key={a.status}
+                                disabled={loading}
+                                onClick={() => {
+                                  handleAction(order.id, a.status)
+                                  setOccupiedStatusMenus(prev => toggleSet(prev, table.id))
+                                }}
+                                className={`flex-1 py-1.5 text-xs rounded-lg font-medium disabled:opacity-50 transition-colors ${a.cls}`}
+                              >
+                                {a.label}
+                              </button>
+                            ))}
+                            <button
+                              disabled={loading}
+                              onClick={() => handleAction(order.id, 'cancelled')}
+                              className="flex-1 py-1.5 text-xs bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-medium disabled:opacity-50 transition-colors"
+                            >
+                              Huỷ
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Trạng thái button only */}
+                        <button
+                          onClick={() => setOccupiedStatusMenus(prev => toggleSet(prev, table.id))}
+                          className={`w-full py-1.5 text-xs rounded-lg font-medium transition-colors ${
+                            isStatusOpen
+                              ? 'bg-orange-500 text-white'
+                              : 'bg-white text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          Trạng thái {isStatusOpen ? '▲' : '▼'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })()}
+
+      {/* ── Bàn trống ─────────────────────────────────────────────────────── */}
+      {(() => {
+        const emptyTables = sortedTables.filter(t => !orderByTable.has(t.id))
+        if (emptyTables.length === 0) return null
+        return (
+          <div>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
+              Bàn trống ({emptyTables.length})
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2">
+              {emptyTables.map(t => <EmptyTableCard key={t.id} table={t} />)}
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }

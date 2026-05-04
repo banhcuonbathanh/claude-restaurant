@@ -78,7 +78,7 @@ git merge feature/p5-2-menu-cart
 
 docker compose up -d --build fe
 
-
+ocker compose up -d --build fe 2>&1 | tail -20
 cd fe && npm run dev
 That runs on port 3000 as well (you'd need to stop the Docker fe container first with docker compose stop fe).
 
