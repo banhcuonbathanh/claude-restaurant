@@ -1,30 +1,33 @@
 'use client'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ShoppingCart } from 'lucide-react'
 import { api } from '@/lib/api-client'
 import { useCartStore } from '@/store/cart'
 import { CategoryTabs } from '@/components/menu/CategoryTabs'
 import { ProductCard } from '@/components/menu/ProductCard'
-import { ToppingModal } from '@/components/menu/ToppingModal'
-import { ComboModal } from '@/components/menu/ComboModal'
+import { ComboCard } from '@/components/menu/ComboCard'
 import { CartDrawer } from '@/components/menu/CartDrawer'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { formatVND } from '@/lib/utils'
-import type { Product, Combo, Category, Topping } from '@/types/product'
-import type { CartItem } from '@/types/cart'
+import type { Product, Combo, ComboRaw, Category } from '@/types/product'
 
 export default function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const [toppingProduct, setToppingProduct]     = useState<Product | null>(null)
-  const [comboTarget, setComboTarget]           = useState<Combo | null>(null)
   const [cartOpen, setCartOpen]                 = useState(false)
 
-  const { addItem, itemCount, total } = useCartStore()
+  const { itemCount, total } = useCartStore()
 
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ['categories'],
     queryFn: () => api.get('/categories').then(r => r.data.data),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  // All products (unfiltered) for combo item name lookup
+  const { data: allProducts = [] } = useQuery<Product[]>({
+    queryKey: ['products-all'],
+    queryFn: () => api.get('/products').then(r => r.data.data),
     staleTime: 5 * 60 * 1000,
   })
 
@@ -40,60 +43,33 @@ export default function MenuPage() {
     staleTime: 5 * 60 * 1000,
   })
 
-  const { data: combos = [] } = useQuery<Combo[]>({
+  const { data: rawCombos = [] } = useQuery<ComboRaw[]>({
     queryKey: ['combos'],
     queryFn: () => api.get('/combos').then(r => r.data.data),
     staleTime: 5 * 60 * 1000,
   })
 
-  const handleAddProduct = (product: Product) => {
-    if (product.toppings.length > 0) {
-      setToppingProduct(product)
-    } else {
-      addProductToCart(product, [])
-    }
-  }
+  // Enrich combos: map combo_items → items with product_name resolved
+  const combos = useMemo<Combo[]>(() => {
+    const productMap = new Map(allProducts.map(p => [p.id, p.name]))
+    return rawCombos.map(raw => ({
+      id:           raw.id,
+      category_id:  raw.category_id,
+      name:         raw.name,
+      description:  raw.description,
+      price:        raw.price,
+      image_path:   raw.image_path,
+      sort_order:   raw.sort_order,
+      is_available: raw.is_available,
+      items: (raw.combo_items ?? []).map(ci => ({
+        product_id:   ci.product_id,
+        product_name: productMap.get(ci.product_id) ?? ci.product_id,
+        quantity:     ci.quantity,
+      })),
+    }))
+  }, [rawCombos, allProducts])
 
-  const addProductToCart = (product: Product, toppings: Topping[]) => {
-    const toppingIds = toppings.map(t => t.id).sort().join('-')
-    const id = `product_${product.id}_${toppingIds}`
-    const toppingPrice = toppings.reduce((s, t) => s + t.price, 0)
-    const item: CartItem = {
-      id,
-      type:       'product',
-      product_id: product.id,
-      name:       product.name,
-      quantity:   1,
-      price:      product.price + toppingPrice,
-      toppings,
-    }
-    addItem(item)
-  }
-
-  const handleToppingConfirm = (toppings: Topping[]) => {
-    if (toppingProduct) {
-      addProductToCart(toppingProduct, toppings)
-      setToppingProduct(null)
-    }
-  }
-
-  const handleComboConfirm = (combo: Combo) => {
-    const item: CartItem = {
-      id:       `combo_${combo.id}`,
-      type:     'combo',
-      combo_id: combo.id,
-      name:     combo.name,
-      quantity: 1,
-      price:    combo.price,
-      toppings: [],
-    }
-    addItem(item)
-    setComboTarget(null)
-  }
-
-  const count = itemCount()
-
-  // Show combos only when "all" or no filter active
+  const count      = itemCount()
   const showCombos = selectedCategory === null && combos.length > 0
 
   return (
@@ -114,6 +90,24 @@ export default function MenuPage() {
         </button>
       </header>
 
+      {/* Restaurant banner */}
+      <div className="relative w-full h-44 overflow-hidden">
+        <img
+          src="/restaurant-banner.jpg"
+          alt="Quán Bánh Cuốn"
+          className="w-full h-full object-cover"
+          onError={e => {
+            const img = e.currentTarget
+            img.style.display = 'none'
+            img.parentElement!.classList.add('bg-gradient-to-br', 'from-primary/30', 'to-background')
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/70 to-transparent" />
+        <div className="absolute bottom-3 left-4">
+          <p className="text-white/90 text-sm font-medium drop-shadow">Bánh cuốn tươi — ngon mỗi ngày</p>
+        </div>
+      </div>
+
       {/* Category tabs */}
       <CategoryTabs
         categories={categories}
@@ -122,59 +116,47 @@ export default function MenuPage() {
       />
 
       {/* Content */}
-      <main className="px-4 py-4">
+      <main className="px-4 py-4 pb-28">
         {loadingProducts ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="bg-card rounded-xl aspect-[3/4] animate-pulse" />
+          <div className="flex flex-col gap-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="bg-card rounded-xl h-24 animate-pulse" />
             ))}
           </div>
         ) : products.length === 0 && !showCombos ? (
           <EmptyState message="Không có món nào trong danh mục này" />
         ) : (
-          <>
+          <div className="flex flex-col gap-3">
             {/* Combos section */}
             {showCombos && (
-              <section className="mb-6">
-                <h2 className="text-foreground font-semibold mb-3">Combo</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {combos.map((combo) => (
-                    <div
-                      key={combo.id}
-                      className="bg-card rounded-xl overflow-hidden cursor-pointer"
-                      onClick={() => setComboTarget(combo)}
-                    >
-                      <div className="relative aspect-square bg-muted flex items-center justify-center text-3xl">
-                        🍱
-                      </div>
-                      <div className="p-3">
-                        <p className="text-foreground text-sm font-semibold line-clamp-1">{combo.name}</p>
-                        <p className="text-primary text-sm font-bold mt-1">{formatVND(combo.price)}</p>
-                      </div>
-                    </div>
+              <section>
+                <h2 className="text-muted-fg font-semibold mb-2 text-sm uppercase tracking-wide">
+                  Combo
+                </h2>
+                <div className="flex flex-col gap-3">
+                  {combos.map(combo => (
+                    <ComboCard key={combo.id} combo={combo} />
                   ))}
                 </div>
               </section>
             )}
 
-            {/* Products grid */}
+            {/* Products section */}
             {products.length > 0 && (
               <section>
                 {showCombos && (
-                  <h2 className="text-foreground font-semibold mb-3">Món lẻ</h2>
+                  <h2 className="text-muted-fg font-semibold mb-2 mt-2 text-sm uppercase tracking-wide">
+                    Món lẻ
+                  </h2>
                 )}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {products.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      onAdd={() => handleAddProduct(product)}
-                    />
+                <div className="flex flex-col gap-3">
+                  {products.map(product => (
+                    <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
               </section>
             )}
-          </>
+          </div>
         )}
       </main>
 
@@ -192,25 +174,6 @@ export default function MenuPage() {
             <span className="font-bold">{formatVND(total())}</span>
           </button>
         </div>
-      )}
-
-      {/* Modals */}
-      {toppingProduct && (
-        <ToppingModal
-          product={toppingProduct}
-          open={true}
-          onClose={() => setToppingProduct(null)}
-          onConfirm={handleToppingConfirm}
-        />
-      )}
-
-      {comboTarget && (
-        <ComboModal
-          combo={comboTarget}
-          open={true}
-          onClose={() => setComboTarget(null)}
-          onConfirm={() => handleComboConfirm(comboTarget)}
-        />
       )}
 
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />

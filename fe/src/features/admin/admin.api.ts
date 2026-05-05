@@ -161,3 +161,84 @@ export const listLiveOrders = (): Promise<import('@/types/order').Order[]> =>
 
 export const updateOrderStatus = (id: string, status: string): Promise<void> =>
   api.patch(`/orders/${id}/status`, { status })
+
+// ── Analytics ────────────────────────────────────────────────────────────────
+
+export type SummaryRange = 'today' | 'week' | 'month'
+
+export interface SummaryData {
+  customers:     number
+  dishes_sold:   number
+  revenue:       number
+  active_tables: number
+}
+
+export interface TopDishRow {
+  name:    string
+  qty:     number
+  revenue: number
+  pct:     number
+}
+
+export interface StaffPerfRow {
+  staff_id:       string
+  full_name:      string
+  role:           string
+  orders_handled: number
+  revenue?:       number
+}
+
+export const getSummary = (range: SummaryRange): Promise<SummaryData> =>
+  api.get(`/admin/summary?range=${range}`).then(r => r.data.data)
+
+export const getTopDishes = (range: SummaryRange, limit = 5): Promise<TopDishRow[]> =>
+  api.get(`/admin/top-dishes?range=${range}&limit=${limit}`).then(r => r.data?.data ?? [])
+
+export const getStaffPerformance = (range: SummaryRange): Promise<StaffPerfRow[]> =>
+  api.get(`/admin/staff-performance?range=${range}`).then(r => r.data?.data ?? [])
+
+// ── Ingredients ───────────────────────────────────────────────────────────────
+
+export interface Ingredient {
+  id:            string
+  name:          string
+  unit:          string
+  current_stock: number
+  min_stock:     number
+  cost_per_unit: number
+  created_at:    string
+  updated_at:    string
+}
+
+export interface CreateIngredientInput {
+  name:          string
+  unit:          string
+  current_stock: number
+  min_stock:     number
+  cost_per_unit: number
+}
+
+export interface StockMovementInput {
+  ingredient_id: string
+  type:          'in' | 'out' | 'adjustment'
+  quantity:      number
+  note?:         string
+}
+
+export const listIngredients = (): Promise<Ingredient[]> =>
+  api.get('/admin/ingredients').then(r => r.data?.data ?? [])
+
+export const getLowStock = (): Promise<Ingredient[]> =>
+  api.get('/admin/ingredients/low-stock').then(r => r.data?.data ?? [])
+
+export const createIngredient = (body: CreateIngredientInput): Promise<Ingredient> =>
+  api.post('/admin/ingredients', body).then(r => r.data.data)
+
+export const updateIngredient = (id: string, body: Partial<Omit<CreateIngredientInput, 'current_stock'>>): Promise<Ingredient> =>
+  api.patch(`/admin/ingredients/${id}`, body).then(r => r.data.data)
+
+export const deleteIngredient = (id: string): Promise<void> =>
+  api.delete(`/admin/ingredients/${id}`)
+
+export const postStockMovement = (body: StockMovementInput): Promise<void> =>
+  api.post('/admin/stock-movements', body).then(r => r.data.data)

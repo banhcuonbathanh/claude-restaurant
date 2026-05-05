@@ -6,13 +6,15 @@ import { RoleGuard } from '@/components/guards/RoleGuard'
 import { Role } from '@/types/auth'
 
 const tabs = [
-  { href: '/admin/overview',   label: 'Tổng quan' },
-  { href: '/admin/products',   label: 'Sản phẩm' },
-  { href: '/admin/combos',     label: 'Combo' },
-  { href: '/admin/categories', label: 'Danh mục' },
-  { href: '/admin/toppings',   label: 'Topping' },
-  { href: '/admin/staff',      label: 'Nhân viên' },
-  { href: '/admin/marketing',  label: 'Marketing' },
+  { href: '/admin/overview',     label: 'Tổng quan' },
+  { href: '/admin/summary',      label: 'Tổng kết' },
+  { href: '/admin/products',     label: 'Sản phẩm' },
+  { href: '/admin/combos',       label: 'Combo' },
+  { href: '/admin/categories',   label: 'Danh mục' },
+  { href: '/admin/toppings',     label: 'Topping' },
+  { href: '/admin/staff',        label: 'Nhân viên' },
+  { href: '/admin/ingredients',  label: 'Kho nguyên liệu' },
+  { href: '/admin/marketing',    label: 'Marketing' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

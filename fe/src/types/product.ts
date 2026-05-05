@@ -30,6 +30,20 @@ export interface ComboItem {
   quantity:     number
 }
 
+// Raw shape from the API (/combos endpoint)
+export interface ComboRaw {
+  id:           string
+  category_id:  string | null
+  name:         string
+  description:  string | null
+  price:        number
+  image_path:   string | null
+  sort_order:   number
+  is_available: boolean
+  combo_items:  { id: string; product_id: string; quantity: number }[]
+}
+
+// Enriched shape used by components (product names resolved)
 export interface Combo {
   id:           string
   category_id:  string | null

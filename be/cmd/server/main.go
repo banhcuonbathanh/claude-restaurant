@@ -68,35 +68,41 @@ func main() {
 	}
 
 	// ── 4. Repos ──────────────────────────────────────────────────────────────
-	authRepo    := repository.NewAuthRepo(sqlDB)
-	productRepo := repository.NewProductRepo(sqlDB)
-	orderRepo   := repository.NewOrderRepo(sqlDB)
-	paymentRepo := repository.NewPaymentRepo(sqlDB)
-	fileRepo    := repository.NewFileRepo(sqlDB)
-	tableRepo   := repository.NewTableRepo(sqlDB)
-	staffRepo   := repository.NewStaffRepo(sqlDB)
+	authRepo       := repository.NewAuthRepo(sqlDB)
+	productRepo    := repository.NewProductRepo(sqlDB)
+	orderRepo      := repository.NewOrderRepo(sqlDB)
+	paymentRepo    := repository.NewPaymentRepo(sqlDB)
+	fileRepo       := repository.NewFileRepo(sqlDB)
+	tableRepo      := repository.NewTableRepo(sqlDB)
+	staffRepo      := repository.NewStaffRepo(sqlDB)
+	analyticsRepo  := repository.NewAnalyticsRepo(sqlDB)
+	ingredientRepo := repository.NewIngredientRepo(sqlDB)
 
 	// ── 5. Services ───────────────────────────────────────────────────────────
-	authSvc    := service.NewAuthService(authRepo, rdb)
-	productSvc := service.NewProductService(productRepo, rdb)
-	orderSvc   := service.NewOrderService(orderRepo, rdb, productSvc)
-	paymentSvc := service.NewPaymentService(paymentRepo, orderSvc, orderSvc, rdb)
-	groupSvc   := service.NewGroupService(orderRepo, rdb)
-	staffSvc   := service.NewStaffService(staffRepo, rdb)
+	authSvc        := service.NewAuthService(authRepo, rdb)
+	productSvc     := service.NewProductService(productRepo, rdb)
+	orderSvc       := service.NewOrderService(orderRepo, rdb, productSvc)
+	paymentSvc     := service.NewPaymentService(paymentRepo, orderSvc, orderSvc, rdb)
+	groupSvc       := service.NewGroupService(orderRepo, rdb)
+	staffSvc       := service.NewStaffService(staffRepo, rdb)
+	analyticsSvc   := service.NewAnalyticsService(analyticsRepo)
+	ingredientSvc  := service.NewIngredientService(ingredientRepo)
 
 	// ── 6. WebSocket Hub ──────────────────────────────────────────────────────
 	hub := ws.NewHub()
 	go hub.Run()
 
 	// ── 7. Handlers ───────────────────────────────────────────────────────────
-	authH    := handler.NewAuthHandler(authSvc)
-	productH := handler.NewProductHandler(productSvc)
-	orderH   := handler.NewOrderHandler(orderSvc)
-	paymentH := handler.NewPaymentHandler(paymentSvc)
-	groupH   := handler.NewGroupHandler(groupSvc)
-	fileH    := handler.NewFileHandler(fileRepo)
-	tableH   := handler.NewTableHandler(tableRepo)
-	staffH   := handler.NewStaffHandler(staffSvc)
+	authH        := handler.NewAuthHandler(authSvc)
+	productH     := handler.NewProductHandler(productSvc)
+	orderH       := handler.NewOrderHandler(orderSvc)
+	paymentH     := handler.NewPaymentHandler(paymentSvc)
+	groupH       := handler.NewGroupHandler(groupSvc)
+	fileH        := handler.NewFileHandler(fileRepo)
+	tableH       := handler.NewTableHandler(tableRepo)
+	staffH       := handler.NewStaffHandler(staffSvc)
+	analyticsH   := handler.NewAnalyticsHandler(analyticsSvc)
+	ingredientH  := handler.NewIngredientHandler(ingredientSvc)
 
 	// ── 8. Router ─────────────────────────────────────────────────────────────
 	r := gin.New()
@@ -264,6 +270,25 @@ func main() {
 		adm := staffR.Group("")
 		adm.Use(middleware.AtLeast("admin"))
 		adm.DELETE("/:id", staffH.DeleteStaff)
+	}
+
+	// ── Admin Analytics + Ingredients ────────────────────────────────────────
+	adminR := v1.Group("/admin")
+	adminR.Use(authMW, middleware.AtLeast("manager"))
+	adminR.GET("/summary", analyticsH.GetSummary)
+	adminR.GET("/top-dishes", analyticsH.GetTopDishes)
+	adminR.GET("/staff-performance", analyticsH.GetStaffPerformance)
+	adminR.GET("/ingredients", ingredientH.ListIngredients)
+	adminR.GET("/ingredients/low-stock", ingredientH.ListLowStock)
+	adminR.POST("/ingredients", ingredientH.CreateIngredient)
+	adminR.GET("/ingredients/:id", ingredientH.GetIngredient)
+	adminR.PATCH("/ingredients/:id", ingredientH.UpdateIngredient)
+	adminR.GET("/ingredients/:id/movements", ingredientH.ListStockMovements)
+	adminR.POST("/stock-movements", ingredientH.CreateStockMovement)
+	{
+		admIngR := adminR.Group("")
+		admIngR.Use(middleware.AtLeast("admin"))
+		admIngR.DELETE("/ingredients/:id", ingredientH.DeleteIngredient)
 	}
 
 	// ── Files ─────────────────────────────────────────────────────────────────

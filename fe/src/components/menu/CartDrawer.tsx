@@ -13,6 +13,21 @@ export function CartDrawer({ open, onClose }: Props) {
   const router = useRouter()
   const { items, updateQty, removeItem, total, itemCount } = useCartStore()
 
+  // Aggregate all dishes across combos (×combo qty) + individual products
+  const dishSummary = (() => {
+    const map = new Map<string, number>()
+    for (const item of items) {
+      if (item.type === 'combo' && item.combo_items) {
+        for (const ci of item.combo_items) {
+          map.set(ci.product_name, (map.get(ci.product_name) ?? 0) + ci.quantity * item.quantity)
+        }
+      } else if (item.type === 'product') {
+        map.set(item.name, (map.get(item.name) ?? 0) + item.quantity)
+      }
+    }
+    return Array.from(map.entries()).sort((a, b) => b[1] - a[1])
+  })()
+
   const handleCheckout = () => {
     onClose()
     router.push('/checkout')
@@ -49,11 +64,28 @@ export function CartDrawer({ open, onClose }: Props) {
                   <p className="text-foreground text-sm font-medium leading-snug truncate">
                     {item.name}
                   </p>
-                  {item.toppings.length > 0 && (
+
+                  {/* Combo constituent dishes */}
+                  {item.type === 'combo' && item.combo_items && item.combo_items.length > 0 && (
+                    <ul className="mt-1 space-y-0.5">
+                      {item.combo_items.map((ci, idx) => (
+                        <li key={idx} className="flex items-center gap-1.5 text-xs text-muted-fg">
+                          <span className="bg-primary/10 text-primary text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none shrink-0">
+                            ×{ci.quantity}
+                          </span>
+                          {ci.product_name}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {/* Product toppings */}
+                  {item.type === 'product' && item.toppings.length > 0 && (
                     <p className="text-muted-fg text-xs mt-0.5">
                       + {item.toppings.map(t => t.name).join(', ')}
                     </p>
                   )}
+
                   <p className="text-primary text-sm font-semibold mt-1">
                     {formatVND(item.price * item.quantity)}
                   </p>
@@ -84,6 +116,23 @@ export function CartDrawer({ open, onClose }: Props) {
             ))
           )}
         </div>
+
+        {/* Dish summary */}
+        {dishSummary.length > 0 && (
+          <div className="px-5 py-3 border-t border-border bg-background/40">
+            <p className="text-xs font-semibold text-muted-fg uppercase tracking-wide mb-2">
+              Tổng số món cần làm
+            </p>
+            <div className="flex flex-col gap-1">
+              {dishSummary.map(([name, qty]) => (
+                <div key={name} className="flex items-center justify-between">
+                  <span className="text-sm text-foreground">{name}</span>
+                  <span className="text-sm font-bold text-primary">×{qty}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="px-5 py-4 border-t border-border space-y-3">

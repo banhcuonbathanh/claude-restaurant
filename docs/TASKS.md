@@ -383,25 +383,25 @@ Step 7: FE page assembly (10-13, 10-14)
 
 | ID | Domain | Task | Status | spec_ref | draw_ref |
 |---|---|---|---|---|---|
-| 10-1 | BE | Migration `009_ingredients.sql` — `ingredients(id,name,unit,current_stock,min_stock,cost_per_unit)` + `product_ingredients(product_id,ingredient_id,qty_used)` + `stock_movements(id,ingredient_id,type ENUM('in','out','adjustment'),quantity,note,created_by)` | ⬜ | `Spec_10 §2.1` | — |
-| 10-2 | BE | `sqlc generate` — write queries for ingredients + stock_movements; regenerate `be/internal/db/` | ⬜ | `Spec_10 §2.1` | — |
-| 10-3 | BE | `analytics_service.go` + `analytics_handler.go` — `GET /api/v1/admin/summary?range=`, `GET /api/v1/admin/top-dishes?limit=&range=`, `GET /api/v1/admin/staff-performance?range=` | ⬜ | `Spec_10 §2.2` | — |
-| 10-4 | BE | `ingredient_handler.go` — CRUD ingredients + `GET /api/v1/admin/ingredients/low-stock` + `POST /api/v1/admin/stock-movements` | ⬜ | `Spec_10 §2.3` | — |
-| 10-5 | BE | Wire new routes in `router.go` — all under `/api/v1/admin/` with Manager+ auth middleware | ⬜ | `Spec_10 §2.4` | — |
+| 10-1 | BE | Migration `009_ingredients.sql` — `ingredients(id,name,unit,current_stock,min_stock,cost_per_unit)` + `product_ingredients(product_id,ingredient_id,qty_used)` + `stock_movements(id,ingredient_id,type ENUM('in','out','adjustment'),quantity,note,created_by)` | ✅ | `Spec_10 §2.1` | — |
+| 10-2 | BE | Raw SQL repos used instead of sqlc (staff_repo pattern) — `analytics_repo.go` + `ingredient_repo.go` | ✅ | `Spec_10 §2.1` | — |
+| 10-3 | BE | `analytics_service.go` + `analytics_handler.go` — `GET /api/v1/admin/summary?range=`, `GET /api/v1/admin/top-dishes?limit=&range=`, `GET /api/v1/admin/staff-performance?range=` | ✅ | `Spec_10 §2.2` | — |
+| 10-4 | BE | `ingredient_service.go` + `ingredient_handler.go` — CRUD ingredients + `GET /api/v1/admin/ingredients/low-stock` + `POST /api/v1/admin/stock-movements` | ✅ | `Spec_10 §2.3` | — |
+| 10-5 | BE | Wired routes in `main.go` — all under `/api/v1/admin/` with Manager+ auth middleware | ✅ | `Spec_10 §2.4` | — |
 
 ### Frontend — Components
 
 | ID | Domain | Task | Status | spec_ref | draw_ref |
 |---|---|---|---|---|---|
-| 10-6 | FE | `admin.api.ts` — add `getSummary`, `getTopDishes`, `getStaffPerformance`, `getLowStock`, `postStockMovement` | ⬜ | `Spec_10 §1.1` | `wireframes/summary.md ZoneA` |
-| 10-7 | FE | `RangeSelector` component + Zustand `summaryRange` atom (today/week/month) shared across ZoneA/B/C queries | ⬜ | `Spec_10 §1.1` | `wireframes/summary.md ZoneA` |
-| 10-8 | FE | `SummaryKPICards` — 4 stat cards (customers, dishes sold, revenue, active tables), skeleton loading, range-aware | ⬜ | `Spec_10 §1.2` | `wireframes/summary.md ZoneA` |
-| 10-9 | FE | `TopDishesList` — ranked list top 5, horizontal % bar (width = qty/total * 100%), revenue per dish | ⬜ | `Spec_10 §1.3` | `wireframes/summary.md ZoneB` |
-| 10-10 | FE | `StaffPerfTable` — table: full_name · role · orders_handled · revenue; chef rows show `—`; sorted by orders_handled DESC | ⬜ | `Spec_10 §1.4` | `wireframes/summary.md ZoneC` |
-| 10-11 | FE | `StockAlertList` — color-coded rows (🔴 critical / 🟡 warning), stock bar, filter: current_stock ≤ min_stock * 1.2 | ⬜ | `Spec_10 §1.5` | `wireframes/summary.md ZoneD` |
-| 10-12 | FE | `StockInModal` — RHF+Zod, ingredient pre-filled readonly, quantity+note fields, POST stock-movement, invalidate query on success | ⬜ | `Spec_10 §1.6` | `wireframes/summary.md ZoneE` |
-| 10-13 | FE | `summary/page.tsx` — assemble all zones, add "Tổng kết" tab to `admin/layout.tsx` | ⬜ | `Spec_10 §1` | `wireframes/summary.md` |
-| 10-14 | FE | `/admin/ingredients/page.tsx` — full ingredient list: name · unit · current stock bar · min stock · cost · edit stock button | ⬜ | `Spec_10 §1.7` | `wireframes/summary.md ZoneD` |
+| 10-6 | FE | `admin.api.ts` — add `getSummary`, `getTopDishes`, `getStaffPerformance`, `getLowStock`, `postStockMovement` | ✅ | `Spec_10 §1.1` | `wireframes/summary.md ZoneA` |
+| 10-7 | FE | `summary.store.ts` — Zustand `summaryRange` atom (today/week/month) + `RangeSelector` toggle button | ✅ | `Spec_10 §1.1` | `wireframes/summary.md ZoneA` |
+| 10-8 | FE | `SummaryKPICards` — 4 stat cards with skeleton loading, range-aware | ✅ | `Spec_10 §1.2` | `wireframes/summary.md ZoneA` |
+| 10-9 | FE | `TopDishesList` — ranked list top 5, horizontal % bar, revenue per dish | ✅ | `Spec_10 §1.3` | `wireframes/summary.md ZoneB` |
+| 10-10 | FE | `StaffPerfTable` — sortable table, chef rows show `—` for revenue | ✅ | `Spec_10 §1.4` | `wireframes/summary.md ZoneC` |
+| 10-11 | FE | `StockAlertList` — 🔴/🟡 rows, stock bar, filter ≤ min_stock * 1.2 | ✅ | `Spec_10 §1.5` | `wireframes/summary.md ZoneD` |
+| 10-12 | FE | `StockInModal` — RHF+Zod, readonly ingredient, POST stock-movement, invalidate on success | ✅ | `Spec_10 §1.6` | `wireframes/summary.md ZoneE` |
+| 10-13 | FE | `summary/page.tsx` assembled + "Tổng kết" + "Kho nguyên liệu" tabs added to `admin/layout.tsx` | ✅ | `Spec_10 §1` | `wireframes/summary.md` |
+| 10-14 | FE | `/admin/ingredients/page.tsx` — full list with stock bar, status badge, Nhập/Xuất + Sửa + Xóa (admin) | ✅ | `Spec_10 §1.7` | `wireframes/summary.md ZoneD` |
 
 ### AC (Acceptance Criteria)
 
