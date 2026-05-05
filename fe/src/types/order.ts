@@ -16,8 +16,8 @@ export interface OrderItem {
   qty_served:       number
   unit_price:       number
   note:             string | null
-  topping_snapshot: object | null
-  flagged:          boolean
+  toppings_snapshot: object | null
+  flagged:           boolean
 }
 
 export type OrderStatus =

@@ -2,17 +2,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { fetchEventSource } from '@microsoft/fetch-event-source'
 import { useAuthStore } from '@/features/auth/auth.store'
+import { api } from '@/lib/api-client'
 import type { Order } from '@/types/order'
 
 const RECONNECT = {
-  maxAttempts:    5,
-  baseDelay:      1000,
-  maxDelay:       30_000,
+  maxAttempts:     5,
+  baseDelay:       1000,
+  maxDelay:        30_000,
   showBannerAfter: 3,
 }
 
 export function useOrderSSE(orderId: string) {
-  const [order, setOrder]               = useState<Order | null>(null)
+  const [order, setOrder]                     = useState<Order | null>(null)
   const [connectionError, setConnectionError] = useState(false)
   const attemptsRef = useRef(0)
   const abortRef    = useRef<AbortController | null>(null)
@@ -21,7 +22,18 @@ export function useOrderSSE(orderId: string) {
   useEffect(() => {
     let stopped = false
 
+    // Fetch current order snapshot via REST, then open SSE for live patches.
+    // The SSE handler only relays Redis pub/sub — it never sends order_init —
+    // so we must seed the state ourselves before listening for deltas.
     async function connect() {
+      try {
+        const { data } = await api.get(`/orders/${orderId}`)
+        if (!stopped) setOrder(data.data)
+      } catch {
+        // If the fetch fails we still open SSE and wait; spinner stays until
+        // SSE also fails, at which point the banner shows.
+      }
+
       while (!stopped && attemptsRef.current < RECONNECT.maxAttempts) {
         const ctrl = new AbortController()
         abortRef.current = ctrl

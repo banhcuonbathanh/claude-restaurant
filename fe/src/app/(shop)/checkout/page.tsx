@@ -1,5 +1,5 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -27,11 +27,12 @@ const PAYMENT_OPTIONS = [
 ] as const
 
 export default function CheckoutPage() {
-  const router = useRouter()
-  const cart   = useCartStore()
+  const router    = useRouter()
+  const cart      = useCartStore()
+  const submitted = useRef(false)
 
   useEffect(() => {
-    if (cart.itemCount() === 0) router.replace('/menu')
+    if (!submitted.current && cart.itemCount() === 0) router.replace('/menu')
   }, [cart, router])
 
   const { register, handleSubmit, formState: { errors } } = useForm<CheckoutForm>({
@@ -64,6 +65,7 @@ export default function CheckoutPage() {
       return data
     },
     onSuccess: (data) => {
+      submitted.current = true
       cart.clearCart()
       router.push(`/order/${data.data.id}`)
     },
