@@ -23,23 +23,53 @@ Next.js 14 App Router · TypeScript strict · Tailwind CSS v3 · Zustand v4 · T
 | Page auth guard | `AuthGuard` component | manual redirect in each page |
 | Prices | `formatVND()` from `lib/utils.ts` | `.toLocaleString()` |
 
-## Your First 3 Tasks (in order)
+## Phase Status (as of 2026-05-06)
 
-> FE cannot start until BE-2 (auth handler) is done. While waiting:
+| Phase | Status |
+|---|---|
+| Phase 5 — Frontend (auth, menu, checkout, KDS, POS) | ✅ COMPLETE |
+| Phase 8 — Admin Dashboard | ✅ COMPLETE |
+| Phase 7 — Testing + Go-Live | ⬜ NEXT |
+| Phase 9 — Live data wiring | ⬜ NEXT |
 
-1. **FE-1a** — Create `fe/src/lib/api-client.ts` — Axios instance with interceptors (attach token, handle 401 refresh)
-2. **FE-1b** — Create Zustand auth store (`useAuthStore`) with `accessToken`, `user`, `setAuth`, `logout`
-3. **FE-2** — Build the login page + `AuthGuard` component
-
-> For FE-1: read `docs/contract/API_CONTRACT_v1.2.md` + `docs/MASTER_v1.2.md §6` (JWT rules) first.
+**Next tasks:** open `docs/TASKS.md` → Phase 7 or Phase 9 → first ⬜ task with all dependencies ✅.
 
 ## What's Already Done (do not recreate)
 
-- `fe/src/app/layout.tsx` — root layout + fonts
-- `fe/src/app/globals.css` — design tokens as CSS vars
-- `fe/tailwind.config.ts` — custom color names
-- `fe/src/components/ui/` — badge, button, card, input, label
-- All page stubs exist but are empty TODOs — you fill them in
+- `fe/src/lib/api-client.ts` — Axios instance with interceptors (attach token, handle 401 refresh)
+- `fe/src/store/auth-store.ts` — Zustand auth store with `accessToken`, `user`, `setAuth`, `logout`
+- `fe/src/app/(auth)/login/` — login page + `AuthGuard`
+- `fe/src/app/menu/` — QR menu + cart + checkout
+- `fe/src/app/kds/` — Kitchen Display System (compact cards, status cycle)
+- `fe/src/app/pos/` — POS + payment flow
+- `fe/src/app/admin/` — Overview, Marketing (QR codes), Staff management
+- `fe/src/app/layout.tsx` + `globals.css` + `tailwind.config.ts` — done
+- `fe/src/components/ui/` — badge, button, card, input, label — done
+
+## FE Pre-Task Phase (mandatory for any new FE feature)
+
+Before creating task rows or writing code for a **new FE page or multi-component feature**, run Step 0:
+
+```
+Step 0a → READ spec end-to-end (mark every screen, component, data source)
+Step 0b → DRAW wireframe (label zones [ComponentName] + data source per zone)
+Step 0c → DECOMPOSE into task rows (1 task per component, spec_ref + draw_ref required)
+Step 0d → ALIGN wireframe with user before writing code
+```
+
+Full rules: **`docs/base/LESSONS_LEARNED_v3.md` Phần 7** (§7.4 FE task checklist · §7.5 split signals)
+
+Visual: `docs/doc_structure/claude_decision_workflow.excalidraw`
+
+**FE task row format:**
+
+```
+| ID  | Domain | Task                     | Status | spec_ref    | draw_ref                      |
+|-----|--------|--------------------------|--------|-------------|-------------------------------|
+| 9-1 | FE     | PrepPanel component      | ⬜     | Spec_9 §3.2 | wireframes/overview.md zone-B |
+```
+
+A task with no `spec_ref` is **not ready to start**. Trace back to spec first.
 
 ## Key Rules
 
@@ -50,6 +80,8 @@ Next.js 14 App Router · TypeScript strict · Tailwind CSS v3 · Zustand v4 · T
 | Access token lives in Zustand only (memory) | Prevents XSS via localStorage |
 | All API calls through `api-client.ts` | Centralized auth headers + error handling |
 | Design tokens from `docs/MASTER_v1.2.md §2` | Single source of truth |
+| All IDs typed as `string`, never `number` | UUIDs are strings |
+| WS token via query param (not Authorization header) | Browser WebSocket API cannot set custom headers |
 
 ## Branch Naming
 

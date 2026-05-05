@@ -300,5 +300,329 @@ Primary: #FF7A1A
 | Polling vs Redis keyspace for timeout job | Spec said "Redis keyspace notification listener" for payment timeout — implemented as polling ticker (1 min interval) instead | Polling is valid and simpler (no Redis `notify-keyspace-events` config required). Document the deviation. If keyspace needed later, it requires `CONFIG SET notify-keyspace-events KEA` on Redis and a separate Subscribe. |
 | Raw SQL for tables when sqlc not configured | `table_repo.go` uses raw `QueryRowContext/ExecContext` because no sqlc query annotations exist for tables table | sqlc only generates code for `.sql` query files in the configured directory. Either add `-- name: ListTables :many` annotations to a `.sql` query file and regenerate, OR keep raw SQL but note it in repo comments. |
 
+---
+
+# 📐  Phần 7 — Spec & Task Creation Workflow (Added 2026-05-05)
+
+> **Mục đích:** Đảm bảo mọi thành viên — BA, PM, Tech Lead, Dev, và Claude — tuân theo cùng một quy trình khi tạo spec và task. Nếu tất cả follow đúng rules này, output luôn traceable, implementable, và verifiable.
+>
+> **Visual diagrams:** `docs/doc_structure/task/spec_task_chain.excalidraw` · `docs/doc_structure/claude_decision_workflow.excalidraw`
+
+---
+
+## 🔗  7.1 — The 4-Level Transformation Chain
+
+Every task must pass through 4 levels. Each level answers a different question and has a gate that must be passed before the next level begins.
+
+```
+╔══════════════════╦══════════════════╦══════════════════╦══════════════════╗
+║   LEVEL 1        ║   LEVEL 2        ║   LEVEL 3        ║   LEVEL 4        ║
+║   BRD            ║   SRS / FSD      ║   Spec 1-9       ║   Task Rows      ║
+╠══════════════════╬══════════════════╬══════════════════╬══════════════════╣
+║ Q: WHY + WHO     ║ Q: WHAT exactly  ║ Q: HOW exactly   ║ Q: WHAT unit     ║
+║    + WHAT scope  ║    (behavior,    ║    (endpoint,    ║    can I verify  ║
+║                  ║     rules, AC)   ║     schema,      ║    alone?        ║
+║                  ║                  ║     side effects) ║                  ║
+╠══════════════════╬══════════════════╬══════════════════╬══════════════════╣
+║ GATE: SCOPE      ║ GATE: RULE       ║ GATE: CONTRACT   ║ GATE: BOUNDARY   ║
+║ Feature in       ║ Business rules   ║ Dev can impl.    ║ 1 task = 1       ║
+║ Phase 1? If not  ║ numbered + AC    ║ with ZERO        ║ independently    ║
+║ → no spec, no    ║ defined? If not  ║ guessing? If not ║ verifiable unit  ║
+║ task. Period.    ║ → no spec yet.   ║ → ❓ CLARIFY.    ║                  ║
+╠══════════════════╬══════════════════╬══════════════════╬══════════════════╣
+║ WHO WRITES:      ║ WHO WRITES:      ║ WHO WRITES:      ║ WHO WRITES:      ║
+║ BA + Owner       ║ BA + Tech Lead   ║ Tech Lead        ║ Tech Lead / Lead ║
+║                  ║                  ║                  ║ Dev              ║
+╠══════════════════╬══════════════════╬══════════════════╬══════════════════╣
+║ WHO READS:       ║ WHO READS:       ║ WHO READS:       ║ WHO READS:       ║
+║ Everyone once    ║ Tech Lead +      ║ Dev + Claude     ║ Dev + Claude     ║
+║ at project start ║ Claude (Step 1)  ║ (Step 1 READ)    ║ (each session)   ║
+╠══════════════════╬══════════════════╬══════════════════╬══════════════════╣
+║ LOCATION:        ║ LOCATION:        ║ LOCATION:        ║ LOCATION:        ║
+║ docs/qui_trinh/  ║ docs/qui_trinh/  ║ docs/spec/       ║ docs/TASKS.md    ║
+║ BanhCuon_BRD_v1  ║ BanhCuon_SRS_v1  ║ Spec_1 thru 9    ║                  ║
+╚══════════════════╩══════════════════╩══════════════════╩══════════════════╝
+         │                   │                   │                   │
+         ▼                   ▼                   ▼                   ▼
+   Role hierarchy      Numbered BRs        Technical          Verified code
+   + Phase scope       + AC + NFR          contract           (go build ✓)
+   → used in every     → become spec       → read-only        → TASKS.md ✅
+     spec endpoint       validations         during coding
+     table (RBAC col)    + test cases
+```
+
+**The traceability rule:** Every task must be traceable backward through all 4 levels.
+```
+Task 4-5  "KDS item status cycle"
+    ↑ came from  Spec_4 §5.2  PATCH /orders/:id/items/:itemId/status · Chef+
+    ↑ came from  SRS §4.3     'Chef cập nhật trạng thái → trigger recalculate total'
+    ↑ came from  BRD §1.2     'KDS: cập nhật trạng thái từng món' (Phase 1 scope)
+```
+Break in chain = wrong thing built. `Cannot trace to spec` → guessing implementation. `Cannot trace to BRD` → feature was never agreed on → 🔴 STOP.
+
+---
+
+## 🗂️  7.2 — Annotated Folder Structure
+
+### Project root structure
+```
+claude restaurant/                    ← project root
+├── CLAUDE.md                         ← TẦNG 1: session state + pointers (max 150 lines)
+│                                        Claude reads this FIRST every session
+│                                        Contains: phase status, current work, branch, commands
+│                                        Does NOT contain: spec, schema, color hex, business rules
+│
+├── be/                               ← Go backend source
+│   ├── cmd/server/                   ← main.go + server bootstrap
+│   ├── internal/
+│   │   ├── db/                       ← sqlc-generated (DO NOT edit manually)
+│   │   ├── handler/                  ← HTTP handlers (gin.Context, bind, call service)
+│   │   ├── service/                  ← business logic (NO gin imports, NO direct DB)
+│   │   ├── repository/               ← sqlc wrappers + transaction helpers
+│   │   ├── middleware/               ← auth, RBAC, rate limit
+│   │   ├── websocket/                ← WS hub + broadcast
+│   │   ├── sse/                      ← SSE stream handlers
+│   │   ├── payment/                  ← payment gateway integrations
+│   │   └── jobs/                     ← background jobs (payment timeout, etc.)
+│   ├── migrations/                   ← goose SQL files (SINGLE SOURCE for DDL)
+│   │   └── 001_auth.sql ... 008_*.sql
+│   ├── pkg/                          ← shared utilities (jwt, bcrypt, redis)
+│   └── query/                        ← sqlc query annotation files (*.sql)
+│
+├── fe/                               ← Next.js 14 frontend
+│   └── src/
+│       ├── app/                      ← Next.js App Router pages
+│       ├── components/ui/            ← shared UI primitives (Button, Card, Badge)
+│       ├── features/                 ← feature-specific components
+│       ├── hooks/                    ← custom React hooks
+│       ├── lib/                      ← api-client.ts, utils.ts (formatVND here)
+│       ├── store/                    ← Zustand stores (auth token lives here ONLY)
+│       └── types/                    ← TypeScript types
+│
+├── docs/                             ← all documentation
+│   ├── TASKS.md                      ← MASTER TASK LIST (single source of task truth)
+│   ├── IMPLEMENTATION_WORKFLOW.md    ← 7-step quality process (Claude's operating manual)
+│   ├── MASTER_v1.2.md                ← TẦNG 2: cross-cutting rules
+│   │                                    §2 design tokens · §3 RBAC · §4 biz rules
+│   │                                    §5 realtime · §6 JWT
+│   │
+│   ├── qui_trinh/                    ← ORIGIN DOCUMENTS (read once at project start)
+│   │   ├── BanhCuon_BRD_v1.md       ← LEVEL 1: WHY + WHO + scope
+│   │   ├── BanhCuon_SRS_v1.md       ← LEVEL 2: WHAT + business rules + AC + NFR
+│   │   ├── BanhCuon_FSD_v1.md       ← LEVEL 2: functional spec detail
+│   │   ├── BanhCuon_UXUI_Design_v1  ← UX flows, color palette (→ MASTER §2)
+│   │   └── BanhCuon_Project_Checklist.md ← AC per task (verification reference)
+│   │   🚫 NEVER read during coding — already distilled into spec/ + MASTER
+│   │
+│   ├── spec/                         ← LEVEL 3: domain implementation contracts
+│   │   ├── Spec1_Auth_Updated_v2.md  ← auth, login, refresh, JWT
+│   │   ├── Spec_2_Products_API_v2_CORRECTED.md ← CRUD products/categories/toppings
+│   │   ├── Spec_3_Menu_Checkout_UI_v2.md       ← customer mobile UI, cart, checkout
+│   │   ├── Spec_4_Orders_API.md      ← order lifecycle, state machine, SSE, WS
+│   │   ├── Spec_5_Payment_Webhooks.md ← gateways, HMAC, idempotency
+│   │   ├── Spec_6_QR_POS.md          ← QR codes, POS cashier flow
+│   │   ├── Spec_7_Staff_Management.md ← staff CRUD, roles
+│   │   └── Spec_9_Admin_Dashboard_Pages.md ← admin pages, overview, marketing
+│   │   ✅ Read only the spec for the current domain — never all at once
+│   │
+│   ├── contract/                     ← TẦNG 2: technical contracts
+│   │   ├── API_CONTRACT_v1.2.md      ← ALL endpoints (method·path·role·shape)
+│   │   └── ERROR_CONTRACT_v1.1.md    ← ALL error codes + respondError pattern
+│   │
+│   ├── task/                         ← DB schema reference
+│   │   └── BanhCuon_DB_SCHEMA_SUMMARY.md ← SINGLE SOURCE for field names + types
+│   │
+│   ├── be/                           ← BE primary guide
+│   │   └── BE_SYSTEM_GUIDE.md        ← TẦNG 3: read FIRST for any BE task
+│   │
+│   ├── fe/                           ← FE primary guide
+│   │   ├── FE_SYSTEM_GUIDE.md        ← TẦNG 3: read FIRST for any FE task
+│   │   └── wireframes/               ← FE page wireframes (zone layout + data sources)
+│   │       ├── _TEMPLATE.md          ← copy this before drawing any new page
+│   │       ├── overview.md           ← admin overview page wireframe
+│   │       └── overview.excalidraw   ← visual version
+│   │
+│   ├── doc_structure/                ← workflow diagrams (for team understanding)
+│   │   ├── doc_structure_map.excalidraw      ← document hierarchy visual
+│   │   ├── claude_decision_workflow.excalidraw ← how Claude makes decisions per session
+│   │   └── task/
+│   │       └── spec_task_chain.excalidraw    ← BRD→SRS→Spec→Task chain visual
+│   │
+│   ├── base/
+│   │   └── LESSONS_LEARNED_v3.md     ← this file — durable knowledge + patterns
+│   │
+│   ├── onboarding/                   ← role-specific onboarding guides
+│   │   ├── BE_DEV.md · FE_DEV.md · DEVOPS.md · LEAD.md
+│   │
+│   └── claude/                       ← per-role Claude context files
+│       ├── CLAUDE_BE.md · CLAUDE_FE.md · CLAUDE_DEVOPS.md · CLAUDE_BA.md
+│
+└── scripts/                          ← operational scripts
+    └── migrate.sh                    ← DB migration helper
+```
+
+### Who reads what (quick reference)
+| Role | Reads at start | Reads per task | Never reads during coding |
+|---|---|---|---|
+| Claude | CLAUDE.md + TASKS.md + IMPL_WORKFLOW | MASTER (relevant §) + Spec (current domain) + DB_SCHEMA + ERROR + API | docs/qui_trinh/ |
+| BE Dev | BE_SYSTEM_GUIDE | Spec for current domain + DB_SCHEMA + API_CONTRACT | All FE specs |
+| FE Dev | FE_SYSTEM_GUIDE + wireframes/ | Spec for current feature + MASTER §2/3/5 | All BE internal specs |
+| Tech Lead | TASKS.md + all specs | Spec being written + BRD + SRS (for rules) | — |
+| BA / PM | BRD + SRS | BRD when writing new features | docs/spec/ (that's dev territory) |
+
+---
+
+## 📋  7.3 — Rules: Creating a Spec Section (Checklist)
+
+Use this checklist before writing any spec section. This mirrors exactly what Claude checks at Step 1 READ.
+
+**Gate 1 — SCOPE CHECK (from BRD)**
+```
+□ Feature appears in docs/qui_trinh/BanhCuon_BRD_v1.md Project Scope table?
+□ Feature is Phase 1 (not Phase 2/3)?
+   → If NO to either: do NOT write a spec. Add to backlog for future phase.
+```
+
+**Gate 2 — RULE CHECK (from SRS)**
+```
+□ SRS has numbered business rules (BR-xxx) for this feature?
+□ SRS has acceptance criteria (given/when/then) for each scenario?
+□ NFR constraints are identified (performance, security thresholds)?
+   → If NO: write the SRS section first. Do NOT write the spec without rules.
+   → Missing rules = developer will guess = production bugs.
+```
+
+**Gate 3 — CONTRACT COMPLETENESS (the spec itself)**
+
+A spec section is complete ONLY when ALL of these exist:
+```
+□ Endpoint table: method · path · role (from BRD RBAC) · description
+□ State machine (if stateful): all transitions + who triggers + conditions
+□ Request shape: every field name (verified in DB_SCHEMA_SUMMARY) + type + nullable
+□ Response shape: every field name + type + status code
+□ Validation rules: one rule per BR-xxx that applies (no orphan rules)
+□ Side effects: ALL listed — WS broadcast, Redis write, recalculate, job trigger
+□ Out-of-scope boundary: explicit sentence ('Payment → Spec_5')
+□ For FE specs: wireframe zone label + data source per zone
+
+COMPLETENESS TEST: Can a developer read ONLY this section + DB_SCHEMA + ERROR_CONTRACT
+and implement with zero questions? If NO → spec is incomplete → ❓ CLARIFY first.
+```
+
+**Gate 4 — SPLIT CHECK (is this one spec or two?)**
+```
+□ Does this section have ONE out-of-scope boundary statement?
+□ Does it cover ONE domain (not orders + payments in same section)?
+□ Does it have ONE owner role (not both customer and chef as primary actors)?
+   → If NO: split into two spec sections.
+```
+
+---
+
+## 📋  7.4 — Rules: Creating Task Rows (Checklist)
+
+Use this before writing any task row into TASKS.md.
+
+**Pre-condition: spec section must pass Gate 3 above first.**
+
+**For ALL tasks (BE + FE + DevOps):**
+```
+□ Task traces to a spec section? (can you write spec_ref = 'Spec_X §Y.Z'?)
+   → If NO: the spec is missing this detail → write the spec section first
+□ All dependency tasks are ✅ in TASKS.md?
+   → If NO: mark this task as 🔴 BLOCKED until deps are done
+□ Task can be independently verified (go build / npm run build proves it works alone)?
+   → If NO: this is a sub-task → merge with parent or resolve the dependency
+□ Task description is specific enough to know when 'done'?
+   Bad:  '4-1 BE  Orders'
+   Good: '4-1 BE  CreateOrder: handler + service + validate (1-table-1-active + combo expand)'
+```
+
+**For FE tasks (extra requirements):**
+```
+□ Step 0 completed before writing any task row?
+   □ 0a: spec section read end-to-end (screens, components, data sources marked)
+   □ 0b: wireframe drawn (zones labeled [ComponentName] + data source per zone)
+   □ 0c: decomposition done (1 task row per component, shared first)
+   □ 0d: wireframe aligned with user
+
+□ spec_ref filled? (e.g. 'Spec_9 §3.2')
+   → If NO: trace back to spec. If spec section doesn't exist → write spec first.
+□ draw_ref filled? (e.g. 'wireframes/overview.md zone-B')
+   → If NO: wireframe not drawn → run Step 0b first.
+
+A FE task row with no spec_ref or no draw_ref is NOT ready to start.
+```
+
+**FE task row format (v1.1):**
+```
+| ID   | Domain | Task                        | Status | spec_ref     | draw_ref                    |
+|------|--------|-----------------------------|--------|--------------|------------------------------|
+| 9-1  | FE     | PrepPanel component         | ⬜     | Spec_9 §3.2  | wireframes/overview.md zone-B |
+```
+
+**BE task row format:**
+```
+| ID   | Domain | Task                                              | Status |
+|------|--------|---------------------------------------------------|--------|
+| 4-5  | BE     | KDS item cycle: PATCH + recalculate + WS broadcast | ⬜     |
+```
+
+---
+
+## ✂️  7.5 — Split Signals: When to Create a New Task Row
+
+| Signal | Example | New task? |
+|---|---|---|
+| Different business rule | CreateOrder (BR-001: 1-table-1-active) vs CancelOrder (BR-002: 30% rule) | ✅ YES — different test case |
+| Different protocol | SSE stream vs WebSocket hub | ✅ YES — different connection lifecycle |
+| Mandatory side effect | KDS item update → recalculateTotalAmount + WS broadcast | ✅ YES — side effect must be verified |
+| FE: different component | [OrderList] vs [PrepPanel] | ✅ YES — different component |
+| FE: page assembly | page.tsx composing all components | ✅ YES — always last task |
+| Just a different file | handler.go + service.go (same endpoint) | ❌ NO — same vertical slice |
+| Just more lines | 50-line handler vs 200-line handler | ❌ NO — size is not a signal |
+| Just a different layer | repository.go (same query, no new logic) | ❌ NO — part of the same task |
+
+**The one rule:** Split by behavior boundary (different rule, different protocol, different component), NOT by file or line count.
+
+---
+
+## 🔴  7.6 — What to Do When the Chain Breaks
+
+| Break point | What it means | Action |
+|---|---|---|
+| Task has no spec_ref | Implementation contract unknown | ❓ CLARIFY — find the spec section or write it |
+| Spec section has no SRS rule | Business rule was never defined | ❓ CLARIFY — write the SRS rule with BA/owner before coding |
+| SRS feature not in BRD scope | Feature was never agreed on | 🔴 STOP — do not build it. Add to future phase backlog. |
+| Spec has conflicting info with API_CONTRACT | Drift between documents | ⚠️ FLAG — update the spec OR the contract, pick one source |
+| Spec says 'TBD' | Section was deferred | 🔴 STOP — do not proceed until TBD is resolved |
+| Two specs both define the same endpoint | Duplicate spec coverage | ⚠️ FLAG — merge or add explicit out-of-scope boundary to one |
+
+---
+
+## 🧭  7.7 — The Rules Claude Follows (Same Rules You Should Follow)
+
+When Claude starts any task, it runs through these in order — and so should any human dev or lead:
+
+```
+1. SCOPE: Is this in BRD Phase 1?                          → If NO: stop.
+2. RULES: Does SRS have numbered rules + AC for this?      → If NO: write rules first.
+3. CONTRACT: Does the spec section have ALL required parts? → If NO: ❓ CLARIFY.
+4. FIELDS: Are all field names verified in DB_SCHEMA_SUMMARY? → If NO: check before coding.
+5. ERRORS: Are error codes verified in ERROR_CONTRACT?      → If NO: check before coding.
+6. ENDPOINTS: Is the endpoint signature in API_CONTRACT?    → If NO: check before coding.
+7. TRACE: Can this task be traced back to a spec section?  → If NO: find or write spec first.
+8. VERIFY: Can this task be verified independently?        → If NO: split or resolve dep.
+```
+
+These 8 checks are not optional. They are the reason bugs do not reach production.
+
+**Visual references for the full workflow:**
+- Session execution flow → `docs/doc_structure/claude_decision_workflow.excalidraw`
+- BRD→SRS→Spec→Task chain → `docs/doc_structure/task/spec_task_chain.excalidraw`
+- Document hierarchy → `docs/doc_structure/doc_structure_map.excalidraw`
+
+---
+
 | 🍜  BanhCuon System · LESSONS_LEARNED.docx · v3.0 · Updated with Claude Workflow Guide · Tháng 4/2026 |
 | --- |
