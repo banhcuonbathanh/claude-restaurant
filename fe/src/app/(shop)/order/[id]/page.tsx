@@ -3,139 +3,90 @@ import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { ChevronDown, ChevronUp, Package, Utensils, AlertTriangle } from 'lucide-react'
+import { AlertTriangle } from 'lucide-react'
 import { useOrderSSE } from '@/hooks/useOrderSSE'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { ConnectionErrorBanner } from '@/components/shared/ConnectionErrorBanner'
 import { api } from '@/lib/api-client'
-import { formatVND, formatDateTime } from '@/lib/utils'
+import { formatVND } from '@/lib/utils'
 import type { OrderItem } from '@/types/order'
 
-interface ComboGroup {
-  comboRefId: string
-  comboName:  string
-  items:      OrderItem[]
-  totalPrice: number
-}
-
 interface CancelTarget {
-  type:           'item' | 'combo-remaining' | 'order'
-  itemId?:        string
-  itemName?:      string
-  comboRefId?:    string
-  comboName?:     string
-  remainingCount?: number
+  type:            'item' | 'combo-remaining' | 'order'
+  itemId?:         string
+  itemName?:       string
+  comboName?:      string
+  remainingItems?: OrderItem[]
 }
 
 export default function OrderPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const { order, progress, connectionError } = useOrderSSE(params.id)
-  const [cancelTarget, setCancelTarget]     = useState<CancelTarget | null>(null)
-  const [expandedCombos, setExpandedCombos] = useState<Set<string>>(new Set())
+  const [cancelTarget, setCancelTarget] = useState<CancelTarget | null>(null)
 
   const cancelOrderMutation = useMutation({
     mutationFn: () => api.delete(`/orders/${params.id}`),
-    onSuccess: () => {
-      toast.success('Đã huỷ đơn hàng')
-      router.push('/menu')
-    },
+    onSuccess: () => { toast.success('Đã huỷ đơn hàng'); router.push('/menu') },
     onError: (err: unknown) => {
-      const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message
-      toast.error(msg ?? 'Không thể huỷ đơn')
+      toast.error(errMsg(err) ?? 'Không thể huỷ đơn')
       setCancelTarget(null)
     },
   })
 
   const cancelItemMutation = useMutation({
     mutationFn: (itemId: string) => api.delete(`/orders/items/${itemId}`),
-    onSuccess: () => {
-      toast.success('Đã huỷ món')
-      setCancelTarget(null)
-    },
+    onSuccess: () => { toast.success('Đã huỷ món'); setCancelTarget(null) },
     onError: (err: unknown) => {
-      const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message
-      toast.error(msg ?? 'Không thể huỷ món này')
+      toast.error(errMsg(err) ?? 'Không thể huỷ món')
       setCancelTarget(null)
     },
   })
 
-  const cancelComboRemainingMutation = useMutation({
-    mutationFn: (itemIds: string[]) =>
-      Promise.all(itemIds.map(id => api.delete(`/orders/items/${id}`))),
-    onSuccess: () => {
-      toast.success('Đã huỷ các món còn lại trong combo')
-      setCancelTarget(null)
-    },
+  const cancelMultiMutation = useMutation({
+    mutationFn: (ids: string[]) => Promise.all(ids.map(id => api.delete(`/orders/items/${id}`))),
+    onSuccess: () => { toast.success('Đã huỷ các món còn lại'); setCancelTarget(null) },
     onError: (err: unknown) => {
-      const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message
-      toast.error(msg ?? 'Không thể huỷ món')
+      toast.error(errMsg(err) ?? 'Không thể huỷ món')
       setCancelTarget(null)
     },
   })
 
-  const { comboGroups, standaloneItems, totalServed, totalRemaining } = useMemo(() => {
-    if (!order) return { comboGroups: [], standaloneItems: [], totalServed: 0, totalRemaining: 0 }
+  const { displayRows, eatenAmount, remainingAmount, totalQty, totalServed } = useMemo(() => {
+    if (!order) return { displayRows: [], eatenAmount: 0, remainingAmount: 0, totalQty: 0, totalServed: 0 }
 
-    const comboParentMap = new Map<string, string>()
-    for (const item of order.items) {
-      if (item.combo_id !== null && item.combo_ref_id === null) {
-        comboParentMap.set(item.id, item.name)
-      }
+    // Build combo name map from parent rows
+    const comboNameMap = new Map<string, string>()
+    for (const i of order.items) {
+      if (i.combo_id !== null && i.combo_ref_id === null) comboNameMap.set(i.id, i.name)
     }
 
-    const comboSubItems  = order.items.filter(i => i.combo_id !== null && i.combo_ref_id !== null)
-    const standalone     = order.items.filter(i => i.combo_id === null)
-    const countableItems = [...comboSubItems, ...standalone]
+    // Only countable rows (no combo parent rows)
+    const rows = order.items.filter(i => !(i.combo_id !== null && i.combo_ref_id === null))
 
-    const groupMap = new Map<string, ComboGroup>()
-    for (const item of comboSubItems) {
-      const refId = item.combo_ref_id!
-      if (!groupMap.has(refId)) {
-        groupMap.set(refId, {
-          comboRefId: refId,
-          comboName:  comboParentMap.get(refId) ?? 'Combo',
-          items:      [],
-          totalPrice: 0,
-        })
-      }
-      const grp = groupMap.get(refId)!
-      grp.items.push(item)
-      grp.totalPrice += item.unit_price * item.quantity
-    }
-
+    let eatenAmount    = 0
+    let remainingAmount = 0
+    let totalQty       = 0
     let totalServed    = 0
-    let totalRemaining = 0
-    for (const item of countableItems) {
-      totalServed    += item.qty_served
-      totalRemaining += item.quantity - item.qty_served
+
+    for (const i of rows) {
+      const remaining = i.quantity - i.qty_served
+      eatenAmount    += i.unit_price * i.qty_served
+      remainingAmount += i.unit_price * remaining
+      totalQty       += i.quantity
+      totalServed    += i.qty_served
     }
 
-    return {
-      comboGroups:     Array.from(groupMap.values()),
-      standaloneItems: standalone,
-      totalServed,
-      totalRemaining,
-    }
+    return { displayRows: rows, eatenAmount, remainingAmount, totalQty, totalServed }
   }, [order])
 
-  const toggleCombo = (id: string) =>
-    setExpandedCombos(prev => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
-
-  const handleConfirmCancel = () => {
+  const handleConfirm = () => {
     if (!cancelTarget) return
     if (cancelTarget.type === 'order') {
       cancelOrderMutation.mutate()
     } else if (cancelTarget.type === 'item' && cancelTarget.itemId) {
       cancelItemMutation.mutate(cancelTarget.itemId)
-    } else if (cancelTarget.type === 'combo-remaining' && cancelTarget.comboRefId) {
-      const group = comboGroups.find(g => g.comboRefId === cancelTarget.comboRefId)
-      if (!group) return
-      const ids = group.items.filter(i => i.qty_served < i.quantity).map(i => i.id)
-      cancelComboRemainingMutation.mutate(ids)
+    } else if (cancelTarget.type === 'combo-remaining' && cancelTarget.remainingItems) {
+      cancelMultiMutation.mutate(cancelTarget.remainingItems.map(i => i.id))
     }
   }
 
@@ -144,7 +95,7 @@ export default function OrderPage({ params }: { params: { id: string } }) {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-3">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-muted-fg text-sm">Đang kết nối đơn hàng...</p>
+          <p className="text-muted-fg text-sm">Đang tải đơn hàng...</p>
         </div>
       </div>
     )
@@ -152,255 +103,228 @@ export default function OrderPage({ params }: { params: { id: string } }) {
 
   const isActive       = order.status !== 'delivered' && order.status !== 'cancelled'
   const canCancelOrder = progress < 30 && isActive
-  const isPending      =
-    cancelOrderMutation.isPending ||
-    cancelItemMutation.isPending  ||
-    cancelComboRemainingMutation.isPending
+  const isPending      = cancelOrderMutation.isPending || cancelItemMutation.isPending || cancelMultiMutation.isPending
+  const elapsed        = minutesElapsed(order.created_at)
+
+  // Group rows by combo_ref_id so we can render combo-level cancel buttons
+  const comboGroups = new Map<string, OrderItem[]>()
+  const standalone: OrderItem[] = []
+  for (const item of displayRows) {
+    if (item.combo_ref_id) {
+      const g = comboGroups.get(item.combo_ref_id) ?? []
+      g.push(item)
+      comboGroups.set(item.combo_ref_id, g)
+    } else {
+      standalone.push(item)
+    }
+  }
+
+  // Build render list: interleave combo groups + standalone in original order
+  type RenderEntry =
+    | { kind: 'item'; item: OrderItem; comboName?: string; isLastInCombo?: boolean }
+    | { kind: 'combo-cancel'; comboRefId: string; comboName: string; remainingItems: OrderItem[] }
+
+  const renderList: RenderEntry[] = []
+  const seenComboRefs = new Set<string>()
+
+  // Build combo name map (from parent rows)
+  const comboNameMap = new Map<string, string>()
+  for (const i of order.items) {
+    if (i.combo_id !== null && i.combo_ref_id === null) comboNameMap.set(i.id, i.name)
+  }
+
+  for (const item of displayRows) {
+    if (item.combo_ref_id) {
+      const refId = item.combo_ref_id
+      if (!seenComboRefs.has(refId)) {
+        seenComboRefs.add(refId)
+        const groupItems = comboGroups.get(refId) ?? []
+        // Emit all items in this combo group
+        groupItems.forEach((gi, idx) => {
+          renderList.push({
+            kind:        'item',
+            item:        gi,
+            comboName:   idx === 0 ? (comboNameMap.get(refId) ?? 'Combo') : undefined,
+            isLastInCombo: idx === groupItems.length - 1,
+          })
+        })
+        // Emit combo-cancel button after last item if any remaining
+        const remaining = groupItems.filter(i => i.qty_served < i.quantity)
+        if (remaining.length > 0 && isActive) {
+          renderList.push({
+            kind:          'combo-cancel',
+            comboRefId:    refId,
+            comboName:     comboNameMap.get(refId) ?? 'Combo',
+            remainingItems: remaining,
+          })
+        }
+      }
+    } else {
+      renderList.push({ kind: 'item', item })
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background pb-10">
       {connectionError && <ConnectionErrorBanner />}
 
-      {/* Sticky header */}
-      <header className="sticky top-0 z-10 bg-card border-b border-border px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="font-bold text-foreground">Đơn {order.order_number}</h1>
-            <p className="text-xs text-muted-fg mt-0.5">
-              {order.table_id ? `Bàn ${order.table_id} · ` : ''}
-              {formatDateTime(order.created_at)}
-            </p>
+      {/* ── Header card ─────────────────────────────────────────────── */}
+      <div className="sticky top-0 z-10 bg-card border-b border-border">
+        <div className="max-w-lg mx-auto px-4 py-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              {order.table_id && (
+                <span className="font-bold text-foreground shrink-0">
+                  Bàn {order.table_id}
+                </span>
+              )}
+              <span className="text-xs text-muted-fg shrink-0">{order.order_number}</span>
+              <StatusBadge status={order.status} />
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <span className="text-sm font-bold text-foreground">{formatVND(order.total_amount)}</span>
+              <span className="text-xs text-primary font-semibold">{elapsed} phút</span>
+            </div>
           </div>
-          <StatusBadge status={order.status} />
-        </div>
-      </header>
-
-      <div className="max-w-lg mx-auto px-4 pt-5 space-y-5">
-
-        {/* Progress section */}
-        <section className="bg-card rounded-xl p-4 space-y-3">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-fg">Tiến độ đơn hàng</span>
-            <span className="font-bold text-success text-base">{progress}%</span>
-          </div>
-          <div className="h-2.5 bg-muted rounded-full overflow-hidden">
+          {/* Progress bar */}
+          <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
             <div
-              className="h-full bg-success rounded-full transition-all duration-500"
+              className="h-full bg-primary rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="flex gap-5 text-xs">
-            <span className="text-muted-fg flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-success inline-block" />
-              Đã ra: <span className="text-foreground font-medium ml-0.5">{totalServed} phần</span>
-            </span>
-            <span className="text-muted-fg flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-warning inline-block" />
-              Đang làm: <span className="text-foreground font-medium ml-0.5">{totalRemaining} phần</span>
-            </span>
-          </div>
-        </section>
+        </div>
+      </div>
 
-        {/* Combos */}
-        {comboGroups.length > 0 && (
-          <section>
-            <SectionLabel icon={<Package size={13} />} label="Combo" />
-            <div className="space-y-3">
-              {comboGroups.map(group => {
-                const isExpanded  = expandedCombos.has(group.comboRefId)
-                const allDone     = group.items.every(i => i.qty_served >= i.quantity)
-                const hasPartial  = group.items.some(i => i.qty_served > 0 && i.qty_served < i.quantity)
-                const hasRemaining = group.items.some(i => i.qty_served < i.quantity)
+      <div className="max-w-lg mx-auto px-4 pt-4 space-y-4">
 
-                return (
-                  <div key={group.comboRefId} className="bg-card rounded-xl overflow-hidden">
-                    {/* Combo header row */}
+        {/* ── Dish list ───────────────────────────────────────────────── */}
+        <div className="bg-card rounded-xl overflow-hidden border-l-4 border-primary">
+          {renderList.map((entry, idx) => {
+            if (entry.kind === 'combo-cancel') {
+              return (
+                <div key={`cc-${entry.comboRefId}`} className="px-4 py-2 bg-background/40 border-t border-border/50">
+                  <button
+                    onClick={() => setCancelTarget({
+                      type:          'combo-remaining',
+                      comboName:     entry.comboName,
+                      remainingItems: entry.remainingItems,
+                    })}
+                    className="w-full text-xs text-urgent border border-urgent/40 py-1.5 rounded-lg hover:bg-red-900/20 transition-colors font-medium"
+                  >
+                    Huỷ {entry.remainingItems.length} món còn lại của {entry.comboName}
+                  </button>
+                </div>
+              )
+            }
+
+            const { item, comboName, isLastInCombo } = entry
+            const remaining  = item.quantity - item.qty_served
+            const isLast     = idx === renderList.length - 1
+            const showDivider = !isLast && renderList[idx + 1]?.kind !== 'combo-cancel'
+
+            return (
+              <div
+                key={item.id}
+                className={`px-4 py-3 ${showDivider ? 'border-b border-border/50' : ''}`}
+              >
+                {/* Combo label above first item in group */}
+                {comboName && (
+                  <p className="text-[11px] font-semibold text-primary uppercase tracking-wide mb-1.5">
+                    {comboName}
+                  </p>
+                )}
+
+                <div className="flex items-center gap-2">
+                  {/* Bullet */}
+                  <span className="w-1.5 h-1.5 rounded-full bg-muted-fg shrink-0 mt-px" />
+
+                  {/* Name */}
+                  <span className="flex-1 text-sm text-foreground font-medium leading-snug min-w-0 truncate">
+                    {item.name}
+                  </span>
+
+                  {/* tổng / ra / còn */}
+                  <div className="flex items-center gap-2 shrink-0 text-xs">
+                    <span className="text-muted-fg">
+                      tổng <span className="text-foreground font-medium">×{item.quantity}</span>
+                    </span>
+                    <span className="text-muted-fg">
+                      ra <span className="text-success font-medium">×{item.qty_served}</span>
+                    </span>
+                    {remaining > 0 ? (
+                      <span className="bg-primary/20 text-primary font-semibold px-1.5 py-0.5 rounded">
+                        còn ×{remaining}
+                      </span>
+                    ) : (
+                      <span className="text-success font-semibold text-xs">✓ xong</span>
+                    )}
+                  </div>
+
+                  {/* Cancel button — only when còn > 0 and order active */}
+                  {remaining > 0 && isActive && (
                     <button
-                      onClick={() => toggleCombo(group.comboRefId)}
-                      className="w-full flex items-center justify-between px-4 py-3 hover:bg-background/40 transition-colors"
+                      onClick={() => setCancelTarget({ type: 'item', itemId: item.id, itemName: item.name })}
+                      className="shrink-0 text-xs text-urgent border border-urgent/50 px-2 py-0.5 rounded-md hover:bg-red-900/20 transition-colors font-medium ml-1"
                     >
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <span className="font-semibold text-sm text-foreground truncate">
-                          {group.comboName}
-                        </span>
-                        <ItemStatusBadge
-                          status={allDone ? 'done' : hasPartial ? 'preparing' : 'pending'}
-                        />
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-sm font-semibold text-primary">
-                          {formatVND(group.totalPrice)}
-                        </span>
-                        {isExpanded
-                          ? <ChevronUp  size={14} className="text-muted-fg" />
-                          : <ChevronDown size={14} className="text-muted-fg" />}
-                      </div>
+                      Huỷ
                     </button>
+                  )}
+                </div>
 
-                    {/* Combo sub-items */}
-                    {isExpanded && (
-                      <div className="border-t border-border">
-                        {group.items.map((item, idx) => {
-                          const remaining  = item.quantity - item.qty_served
-                          const itemStatus = deriveStatus(item.qty_served, item.quantity)
-                          return (
-                            <div
-                              key={item.id}
-                              className={`px-4 py-3 ${idx < group.items.length - 1 ? 'border-b border-border/50' : ''}`}
-                            >
-                              <div className="flex items-start gap-3">
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm text-foreground font-medium">{item.name}</p>
-                                  <div className="flex flex-wrap items-center gap-3 mt-1">
-                                    <span className="text-xs text-muted-fg">
-                                      Đã ra:{' '}
-                                      <span className="text-success font-medium">
-                                        {item.qty_served}/{item.quantity}
-                                      </span>
-                                    </span>
-                                    {remaining > 0 && (
-                                      <span className="text-xs text-muted-fg">
-                                        Còn:{' '}
-                                        <span className="text-warning font-medium">{remaining}</span>
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                                <div className="text-right shrink-0 space-y-1">
-                                  <p className="text-xs text-muted-fg">
-                                    {formatVND(item.unit_price)} × {item.quantity}
-                                  </p>
-                                  <ItemStatusBadge status={itemStatus} />
-                                </div>
-                              </div>
-                              {remaining > 0 && isActive && (
-                                <button
-                                  onClick={() =>
-                                    setCancelTarget({
-                                      type:     'item',
-                                      itemId:   item.id,
-                                      itemName: item.name,
-                                    })
-                                  }
-                                  className="mt-2.5 w-full text-xs text-urgent border border-urgent/40 py-1.5 rounded-lg hover:bg-red-900/20 transition-colors font-medium"
-                                >
-                                  Huỷ món này
-                                </button>
-                              )}
-                            </div>
-                          )
-                        })}
+                {/* Price row */}
+                <div className="flex items-center justify-between mt-1 pl-3.5">
+                  <span className="text-xs text-muted-fg">
+                    {formatVND(item.unit_price)} × {item.quantity}
+                  </span>
+                  <span className="text-xs font-semibold text-foreground">
+                    {formatVND(item.unit_price * item.quantity)}
+                  </span>
+                </div>
+              </div>
+            )
+          })}
 
-                        {/* Cancel all remaining dishes in this combo */}
-                        {hasRemaining && isActive && (
-                          <div className="px-4 py-3 border-t border-border/50 bg-background/30">
-                            <button
-                              onClick={() =>
-                                setCancelTarget({
-                                  type:           'combo-remaining',
-                                  comboRefId:     group.comboRefId,
-                                  comboName:      group.comboName,
-                                  remainingCount: group.items.filter(
-                                    i => i.qty_served < i.quantity,
-                                  ).length,
-                                })
-                              }
-                              className="w-full text-xs text-urgent border border-urgent/40 py-2 rounded-lg hover:bg-red-900/20 transition-colors font-medium"
-                            >
-                              Huỷ tất cả món còn lại trong combo này
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </section>
-        )}
-
-        {/* Standalone products */}
-        {standaloneItems.length > 0 && (
-          <section>
-            <SectionLabel icon={<Utensils size={13} />} label="Món lẻ" />
-            <div className="bg-card rounded-xl divide-y divide-border overflow-hidden">
-              {standaloneItems.map(item => {
-                const remaining  = item.quantity - item.qty_served
-                const itemStatus = deriveStatus(item.qty_served, item.quantity)
-                const toppings   = toppingNames(item.topping_snapshot)
-                return (
-                  <div key={item.id} className="px-4 py-3">
-                    <div className="flex items-start gap-3">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground">{item.name}</p>
-                        {toppings && (
-                          <p className="text-xs text-muted-fg mt-0.5">+ {toppings}</p>
-                        )}
-                        <div className="flex flex-wrap items-center gap-3 mt-1.5">
-                          <span className="text-xs text-muted-fg">
-                            Đã ra:{' '}
-                            <span className="text-success font-medium">
-                              {item.qty_served}/{item.quantity}
-                            </span>
-                          </span>
-                          {remaining > 0 && (
-                            <span className="text-xs text-muted-fg">
-                              Còn:{' '}
-                              <span className="text-warning font-medium">{remaining} phần</span>
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="text-right space-y-1 shrink-0">
-                        <p className="text-sm font-semibold text-primary">
-                          {formatVND(item.unit_price * item.quantity)}
-                        </p>
-                        <p className="text-xs text-muted-fg">
-                          {formatVND(item.unit_price)} × {item.quantity}
-                        </p>
-                        <ItemStatusBadge status={itemStatus} />
-                      </div>
-                    </div>
-                    {remaining > 0 && isActive && (
-                      <button
-                        onClick={() =>
-                          setCancelTarget({
-                            type:     'item',
-                            itemId:   item.id,
-                            itemName: item.name,
-                          })
-                        }
-                        className="mt-2.5 w-full text-xs text-urgent border border-urgent/40 py-1.5 rounded-lg hover:bg-red-900/20 transition-colors font-medium"
-                      >
-                        Huỷ món này
-                      </button>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </section>
-        )}
-
-        {/* Order total */}
-        <div className="flex items-center justify-between bg-card rounded-xl px-4 py-3">
-          <span className="text-muted-fg text-sm">Tổng cộng</span>
-          <span className="text-primary text-xl font-bold">{formatVND(order.total_amount)}</span>
+          {/* Bottom: X/Y phần đã ra */}
+          <div className="px-4 py-2.5 border-t border-border/50 bg-background/30">
+            <p className="text-xs text-muted-fg">
+              <span className="text-foreground font-semibold">{totalServed}/{totalQty}</span> phần đã ra
+            </p>
+          </div>
         </div>
 
-        {/* Cancel whole order */}
+        {/* ── Money summary ────────────────────────────────────────────── */}
+        <div className="bg-card rounded-xl overflow-hidden border-l-4 border-border">
+          <div className="divide-y divide-border/50">
+            <div className="flex items-center justify-between px-4 py-2.5">
+              <span className="text-sm text-muted-fg">Đã dùng</span>
+              <span className="text-sm font-semibold text-success">{formatVND(eatenAmount)}</span>
+            </div>
+            {remainingAmount > 0 && (
+              <div className="flex items-center justify-between px-4 py-2.5">
+                <span className="text-sm text-muted-fg">Còn lại (chưa ra)</span>
+                <span className="text-sm font-semibold text-primary">{formatVND(remainingAmount)}</span>
+              </div>
+            )}
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="text-sm font-semibold text-foreground">Tổng cộng</span>
+              <span className="text-lg font-bold text-foreground">{formatVND(order.total_amount)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Cancel whole order ───────────────────────────────────────── */}
         {canCancelOrder && (
           <button
             onClick={() => setCancelTarget({ type: 'order' })}
-            className="w-full border border-urgent text-urgent py-3 rounded-xl font-medium hover:bg-red-900/20 transition-colors text-sm"
+            className="w-full border border-urgent text-urgent py-3 rounded-xl text-sm font-medium hover:bg-red-900/20 transition-colors"
           >
             Huỷ toàn bộ đơn hàng
           </button>
         )}
       </div>
 
-      {/* Confirm modal */}
+      {/* ── Confirm modal ────────────────────────────────────────────── */}
       {cancelTarget && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4">
           <div className="bg-card rounded-2xl p-6 w-full max-w-sm space-y-4">
@@ -413,14 +337,14 @@ export default function OrderPage({ params }: { params: { id: string } }) {
                   {cancelTarget.type === 'order'
                     ? 'Huỷ đơn hàng?'
                     : cancelTarget.type === 'combo-remaining'
-                    ? 'Huỷ các món còn lại?'
+                    ? `Huỷ món còn lại?`
                     : 'Huỷ món này?'}
                 </h3>
                 <p className="text-muted-fg text-sm mt-1">
                   {cancelTarget.type === 'order'
-                    ? 'Toàn bộ đơn hàng sẽ bị huỷ. Không thể hoàn tác.'
+                    ? 'Toàn bộ đơn sẽ bị huỷ. Không thể hoàn tác.'
                     : cancelTarget.type === 'combo-remaining'
-                    ? `Huỷ ${cancelTarget.remainingCount} món chưa ra của combo "${cancelTarget.comboName}".`
+                    ? `Huỷ ${cancelTarget.remainingItems?.length} món chưa ra của "${cancelTarget.comboName}".`
                     : `"${cancelTarget.itemName}" sẽ bị huỷ. Không thể hoàn tác.`}
                 </p>
               </div>
@@ -434,7 +358,7 @@ export default function OrderPage({ params }: { params: { id: string } }) {
                 Giữ lại
               </button>
               <button
-                onClick={handleConfirmCancel}
+                onClick={handleConfirm}
                 disabled={isPending}
                 className="flex-1 bg-urgent text-white py-2.5 rounded-xl text-sm font-medium disabled:opacity-60"
               >
@@ -448,46 +372,12 @@ export default function OrderPage({ params }: { params: { id: string } }) {
   )
 }
 
-// ─── helpers ───────────────────────────────────────────────────────────────
+// ─── helpers ──────────────────────────────────────────────────────────────────
 
-type ItemStatus = 'pending' | 'preparing' | 'done'
-
-function deriveStatus(qtyServed: number, quantity: number): ItemStatus {
-  if (qtyServed === 0)          return 'pending'
-  if (qtyServed >= quantity)    return 'done'
-  return 'preparing'
+function minutesElapsed(dateStr: string): number {
+  return Math.max(0, Math.floor((Date.now() - new Date(dateStr).getTime()) / 60_000))
 }
 
-function toppingNames(snapshot: object | null): string | null {
-  if (!snapshot) return null
-  const vals = Object.values(snapshot as Record<string, unknown>)
-    .filter((v): v is string => typeof v === 'string')
-  return vals.length > 0 ? vals.join(', ') : null
-}
-
-function SectionLabel({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <div className="flex items-center gap-1.5 mb-2 px-1">
-      <span className="text-muted-fg">{icon}</span>
-      <span className="text-xs font-semibold text-muted-fg uppercase tracking-wide">{label}</span>
-    </div>
-  )
-}
-
-function ItemStatusBadge({ status }: { status: ItemStatus }) {
-  const styles: Record<ItemStatus, string> = {
-    done:      'bg-green-900 text-success',
-    preparing: 'bg-yellow-900 text-warning',
-    pending:   'bg-muted text-muted-fg',
-  }
-  const labels: Record<ItemStatus, string> = {
-    done:      'Xong',
-    preparing: 'Đang làm',
-    pending:   'Chờ',
-  }
-  return (
-    <span className={`inline-block text-xs px-1.5 py-0.5 rounded font-medium ${styles[status]}`}>
-      {labels[status]}
-    </span>
-  )
+function errMsg(err: unknown): string | undefined {
+  return (err as { response?: { data?: { message?: string } } })?.response?.data?.message
 }

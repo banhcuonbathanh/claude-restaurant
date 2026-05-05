@@ -28,7 +28,7 @@ function mockItem(n: number, name: string, qty: number, served: number): OrderIt
   return {
     id: id(100 + n), product_id: id(200 + n), combo_id: null, combo_ref_id: null,
     name, quantity: qty, qty_served: served, unit_price: 45000,
-    note: null, topping_snapshot: null, flagged: false,
+    note: null, toppings_snapshot: null, flagged: false,
   }
 }
 
@@ -118,7 +118,7 @@ function makeFakeOrder(tableId: string, orderIndex: number): Order {
     qty_served:      0,
     unit_price:      d.price,
     note:            null,
-    topping_snapshot: null,
+    toppings_snapshot: null,
     flagged:         false,
   }))
   const total = items.reduce((s, i) => s + i.unit_price * i.quantity, 0)
