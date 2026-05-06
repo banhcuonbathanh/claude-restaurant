@@ -5,6 +5,10 @@ import { useAuthStore } from '@/features/auth/auth.store'
 import { api } from '@/lib/api-client'
 import type { Order } from '@/types/order'
 
+export type OrderNotification =
+  | { kind: 'confirmed'; eta?: number }
+  | { kind: 'ready' }
+
 const RECONNECT = {
   maxAttempts:     5,
   baseDelay:       1000,
@@ -15,6 +19,7 @@ const RECONNECT = {
 export function useOrderSSE(orderId: string) {
   const [order, setOrder]                     = useState<Order | null>(null)
   const [connectionError, setConnectionError] = useState(false)
+  const [notification, setNotification]       = useState<OrderNotification | null>(null)
   const attemptsRef = useRef(0)
   const abortRef    = useRef<AbortController | null>(null)
   const token       = useAuthStore(state => state.accessToken)
@@ -58,7 +63,13 @@ export function useOrderSSE(orderId: string) {
                       setOrder(data)
                       break
                     case 'order_status_changed':
-                      setOrder(prev => prev ? { ...prev, status: data.status } : prev)
+                      if (data.status) {
+                        setOrder(prev => prev ? { ...prev, status: data.status } : prev)
+                        if (data.status === 'confirmed')
+                          setNotification({ kind: 'confirmed', eta: data.eta })
+                        else if (data.status === 'ready')
+                          setNotification({ kind: 'ready' })
+                      }
                       break
                     case 'item_progress':
                       setOrder(prev =>
@@ -115,5 +126,5 @@ export function useOrderSSE(orderId: string) {
     return total === 0 ? 0 : Math.round((served / total) * 100)
   }, [order])
 
-  return { order, progress, connectionError }
+  return { order, progress, connectionError, notification, clearNotification: () => setNotification(null) }
 }

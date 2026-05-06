@@ -58,6 +58,9 @@ func (h *OrderHandler) Create(c *gin.Context) {
 
 	claims := middleware.ClaimsFromContext(c)
 	callerID := claims.Subject
+	if claims.Role == "customer" {
+		callerID = "" // guests have no staff ID — store NULL in created_by
+	}
 
 	items := make([]service.CreateOrderItemInput, 0, len(req.Items))
 	for _, it := range req.Items {
@@ -89,7 +92,11 @@ func (h *OrderHandler) Create(c *gin.Context) {
 // Get handles GET /orders/:id
 func (h *OrderHandler) Get(c *gin.Context) {
 	claims := middleware.ClaimsFromContext(c)
-	o, err := h.svc.GetOrder(c.Request.Context(), c.Param("id"), claims.Subject, claims.Role)
+	callerID := claims.Subject
+	if claims.Role == "customer" {
+		callerID = claims.TableID // guest ownership is by table, not staff ID
+	}
+	o, err := h.svc.GetOrder(c.Request.Context(), c.Param("id"), callerID, claims.Role)
 	if err != nil {
 		handleServiceError(c, err)
 		return
@@ -132,7 +139,11 @@ func (h *OrderHandler) UpdateStatus(c *gin.Context) {
 // Cancel handles DELETE /orders/:id
 func (h *OrderHandler) Cancel(c *gin.Context) {
 	claims := middleware.ClaimsFromContext(c)
-	if err := h.svc.CancelOrder(c.Request.Context(), c.Param("id"), claims.Subject, claims.Role); err != nil {
+	callerID := claims.Subject
+	if claims.Role == "customer" {
+		callerID = claims.TableID // guest ownership is by table, not staff ID
+	}
+	if err := h.svc.CancelOrder(c.Request.Context(), c.Param("id"), callerID, claims.Role); err != nil {
 		handleServiceError(c, err)
 		return
 	}

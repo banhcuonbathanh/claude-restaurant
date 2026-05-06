@@ -105,3 +105,57 @@ Expand POST /api/v1/auth/login → Try it out → body: {"username":"admin","pas
 Copy access_token from response
 Click Authorize (top right padlock) → paste token → Authorize
 Now test every endpoint one by one — Categories, Products, Toppings, Staff all have full CRUD
+
+
+
+
+
+
+Step 2 — Create a table (one-time, if none exist yet)
+
+Log in as manager first to get a token, then:
+
+
+curl -s -X POST http://localhost:8080/api/v1/tables \
+  -H "Authorization: Bearer YOUR_MANAGER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Bàn 01", "capacity": 4}'
+You'll get back {"data": {"id": "...", "qr_token": "abcdef...64chars..."}}.
+
+Step 3 — Get the QR link without curl
+
+Go to http://localhost:3000/admin/marketing — the page now fetches real tables from the API and shows each table's correct QR code. Click the Test button on any card → it opens the QR URL in a new tab.
+
+Step 4 — The QR flow
+
+The URL is: http://localhost:3000/table/{qr_token}
+
+Opening it:
+
+Calls POST /auth/guest { qr_token } → gets a guest JWT + table info
+Saves auth + sets tableId in cart store
+Redirects to /menu
+Browse and add items → cart shows → click Thanh toán
+Fill name + phone + payment method → submit
+Order created → redirect to /order/:id
+Admin overview (/admin/overview) gets the new-order popup immediately
+Root cause of the old bug: The marketing page was hardcoding URLs like /table/1 (just a number) — the BE requires a 64-char hex qr_token. Now it fetches real table data with real tokens.
+
+
+curl -s -X POST http://localhost:8080/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"Admin@123"}'
+Login credentials:
+
+Username: admin · Password: Admin@123
+5 tables created. To test the full QR → menu → order flow, open any of these URLs in an incognito/private window:
+
+
+http://localhost:3000/table/3aec3d0423c6af297bec727d3056c88757e6b05a69e6ca3dd064b388e2985371  ← Ban 01
+http://localhost:3000/table/f9b1f40610c9c6b3950d31e2ecab5a03361885ca660f39312345286181bf8dfc  ← Ban 02
+Flow:
+
+Open a table URL → auto-logs in as guest → redirects to /menu
+Add items → open cart → Thanh toán
+In another tab, log into http://localhost:3000/login as admin → go to /admin/overview → you'll see the new-order popup appear
+To get QR codes visually: go to http://localhost:3000/admin/marketing — all 5 tables now show with real QR codes and a Test button to open each one directly.

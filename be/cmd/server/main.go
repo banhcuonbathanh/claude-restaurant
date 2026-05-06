@@ -296,6 +296,9 @@ func main() {
 	fileR.Use(authMW, middleware.AtLeast("cashier"))
 	fileR.POST("/upload", fileH.Upload)
 
+	// ── Admin SSE ─────────────────────────────────────────────────────────────
+	v1.GET("/sse/admin", authMW, middleware.AtLeast("manager"), sse.StreamAdmin(rdb))
+
 	// ── WebSocket ─────────────────────────────────────────────────────────────
 	wsR := v1.Group("/ws")
 	wsR.GET("/kds", ws.KDSHandler(hub, rdb))

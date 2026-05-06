@@ -1,4 +1,3 @@
-// Package sse provides Server-Sent Events streaming for order tracking.
 package sse
 
 import (
@@ -11,24 +10,10 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-const heartbeatInterval = 15 * time.Second
-
-// StreamOrder subscribes to the Redis pub/sub channel for the given orderID
-// and streams events to the client. Sends a 15s heartbeat to keep the
-// connection alive through proxies.
-//
-// Auth is validated upstream by middleware before this handler is called.
-func StreamOrder(rdb *redis.Client) gin.HandlerFunc {
+// StreamAdmin subscribes to the orders:admin Redis channel and streams
+// new-order events to manager/admin dashboard clients.
+func StreamAdmin(rdb *redis.Client) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		orderID := c.Param("id")
-		if orderID == "" {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"error":   "INVALID_INPUT",
-				"message": "order ID required",
-			})
-			return
-		}
-
 		c.Header("Content-Type", "text/event-stream")
 		c.Header("Cache-Control", "no-cache")
 		c.Header("Connection", "keep-alive")
@@ -38,16 +23,14 @@ func StreamOrder(rdb *redis.Client) gin.HandlerFunc {
 		ctx, cancel := context.WithCancel(c.Request.Context())
 		defer cancel()
 
-		channel := fmt.Sprintf("order:%s", orderID)
-		pubsub := rdb.Subscribe(ctx, channel)
+		pubsub := rdb.Subscribe(ctx, "orders:admin")
 		defer pubsub.Close()
 
 		msgCh := pubsub.Channel()
 		ticker := time.NewTicker(heartbeatInterval)
 		defer ticker.Stop()
 
-		// Flush initial connection confirmation
-		fmt.Fprintf(c.Writer, "event: connected\ndata: {\"order_id\":\"%s\"}\n\n", orderID)
+		fmt.Fprintf(c.Writer, "event: connected\ndata: {}\n\n")
 		c.Writer.Flush()
 
 		for {

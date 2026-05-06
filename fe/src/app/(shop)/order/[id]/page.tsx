@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react'
+import { ChevronDown, ChevronUp, AlertTriangle, CheckCircle, Bell } from 'lucide-react'
 import { useOrderSSE } from '@/hooks/useOrderSSE'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { ConnectionErrorBanner } from '@/components/shared/ConnectionErrorBanner'
@@ -33,7 +33,7 @@ interface SummaryRow {
 
 export default function OrderPage({ params }: { params: { id: string } }) {
   const router = useRouter()
-  const { order, progress, connectionError } = useOrderSSE(params.id)
+  const { order, progress, connectionError, notification, clearNotification } = useOrderSSE(params.id)
   const [cancelTarget, setCancelTarget]       = useState<CancelTarget | null>(null)
   const [collapsed, setCollapsed]             = useState(false)
   const [collapsedCombos, setCollapsedCombos] = useState<Set<string>>(new Set())
@@ -386,6 +386,47 @@ export default function OrderPage({ params }: { params: { id: string } }) {
           </button>
         )}
       </div>
+
+      {/* ── Order notification modal ────────────────────────────────── */}
+      {notification && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4">
+          <div className="bg-card rounded-2xl p-6 w-full max-w-sm space-y-4 text-center">
+            {notification.kind === 'confirmed' ? (
+              <>
+                <div className="w-14 h-14 rounded-full bg-green-900/40 flex items-center justify-center mx-auto">
+                  <CheckCircle size={28} className="text-green-400" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg text-foreground">Nhà hàng đã nhận đơn!</h3>
+                  <p className="text-muted-fg text-sm mt-1">
+                    {notification.eta
+                      ? `Dự kiến phục vụ trong khoảng ${notification.eta} phút.`
+                      : 'Chúng tôi đang chuẩn bị món cho bạn.'}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
+                  <Bell size={28} className="text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg text-foreground">Đến lượt bàn của bạn!</h3>
+                  <p className="text-muted-fg text-sm mt-1">
+                    Món của bạn sắp được mang ra. Hãy chuẩn bị nhé!
+                  </p>
+                </div>
+              </>
+            )}
+            <button
+              onClick={clearNotification}
+              className="w-full bg-primary text-primary-foreground py-2.5 rounded-xl text-sm font-semibold"
+            >
+              Đã hiểu
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Confirm modal ───────────────────────────────────────────── */}
       {cancelTarget && (

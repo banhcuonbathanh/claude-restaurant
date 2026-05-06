@@ -1,14 +1,16 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useAuthStore } from '@/features/auth/auth.store'
 import { listLiveOrders, listTables, updateOrderStatus, type Table } from '@/features/admin/admin.api'
 import type { Order, OrderItem } from '@/types/order'
 import { formatVND } from '@/lib/utils'
+import { useAdminSSE } from '@/hooks/useAdminSSE'
+import { api } from '@/lib/api-client'
 
 // ── Mock data (set USE_MOCK = false to use real API) ──────────────────────────
 
-const USE_MOCK = true
+const USE_MOCK = false
 
 const T = (mins: number) => new Date(Date.now() - mins * 60_000).toISOString()
 const id = (n: number) => `00000000-0000-0000-0000-${String(n).padStart(12, '0')}`
@@ -365,6 +367,77 @@ function PrepPanel({ orders, tableMap }: { orders: Order[]; tableMap: Map<string
   )
 }
 
+// ── New-order popup ───────────────────────────────────────────────────────────
+
+interface NewOrderPopupProps {
+  order:     Order
+  onConfirm: () => void
+  onDismiss: () => void
+  loading:   boolean
+}
+
+function NewOrderPopup({ order, onConfirm, onDismiss, loading }: NewOrderPopupProps) {
+  const kitItems = order.items.filter(i => !(i.combo_id !== null && i.combo_ref_id === null))
+  return (
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-4">
+      <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+        {/* Header */}
+        <div className="bg-indigo-600 px-5 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-white font-bold text-lg">Đơn hàng mới!</p>
+              <p className="text-indigo-200 text-sm">{order.order_number}</p>
+            </div>
+            {order.table_id && (
+              <span className="bg-white/20 text-white font-bold text-sm px-3 py-1.5 rounded-lg">
+                Bàn {order.table_id}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Items list */}
+        <div className="px-5 py-4 max-h-64 overflow-y-auto space-y-2">
+          {kitItems.map(it => (
+            <div key={it.id} className="flex items-center gap-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0" />
+              <span className="flex-1 text-sm text-gray-800">{it.name}</span>
+              <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">
+                ×{it.quantity}
+              </span>
+              <span className="text-xs text-gray-500 w-20 text-right">{formatVND(it.unit_price * it.quantity)}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div className="border-t border-gray-100 px-5 py-3 bg-gray-50 flex items-center justify-between">
+          <div>
+            <p className="text-xs text-gray-500">{kitItems.length} món · Tổng cộng</p>
+            <p className="text-lg font-bold text-gray-900">{formatVND(order.total_amount)}</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={onDismiss}
+              disabled={loading}
+              className="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors disabled:opacity-50"
+            >
+              Bỏ qua
+            </button>
+            <button
+              onClick={onConfirm}
+              disabled={loading}
+              className="px-4 py-2 text-sm font-semibold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors disabled:opacity-60"
+            >
+              {loading ? 'Đang xác nhận...' : '✓ Xác nhận nhận đơn'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function OverviewPage() {
@@ -379,7 +452,34 @@ export default function OverviewPage() {
   const [occupiedCollapsed,      setOccupiedCollapsed]      = useState<Set<string>>(new Set())
   const [occupiedStatusMenus,    setOccupiedStatusMenus]    = useState<Set<string>>(new Set())
   const [occupiedSummaryVisible, setOccupiedSummaryVisible] = useState(true)
+  const [popupOrder,  setPopupOrder]  = useState<Order | null>(null)
+  const [popupLoading, setPopupLoading] = useState(false)
   const fakeOrderIdx = useRef(0)
+
+  const handleNewOrder = useCallback(async (evt: { order_id: string }) => {
+    try {
+      const res = await api.get(`/orders/${evt.order_id}`)
+      const order: Order = res.data?.data ?? res.data
+      if (ACTIVE.has(order.status)) {
+        setOrders(prev => prev.find(o => o.id === order.id) ? prev : [order, ...prev])
+        setPopupOrder(order)
+      }
+    } catch { /* skip */ }
+  }, [])
+
+  useAdminSSE({ token: USE_MOCK ? null : token, onNewOrder: handleNewOrder })
+
+  async function handleConfirmPopup() {
+    if (!popupOrder) return
+    setPopupLoading(true)
+    try {
+      if (!USE_MOCK) await api.patch(`/orders/${popupOrder.id}/status`, { status: 'confirmed' })
+      setOrders(prev => prev.map(o => o.id === popupOrder.id ? { ...o, status: 'confirmed' } : o))
+    } finally {
+      setPopupLoading(false)
+      setPopupOrder(null)
+    }
+  }
 
   function toggleSet(prev: Set<string>, id: string): Set<string> {
     const next = new Set(prev)
@@ -394,6 +494,7 @@ export default function OverviewPage() {
     const table = freeTables[Math.floor(Math.random() * freeTables.length)]
     const order = makeFakeOrder(table.id, ++fakeOrderIdx.current)
     setOrders(prev => [order, ...prev])
+    setPopupOrder(order)
   }
 
   function toggleCheck(tableId: string) {
@@ -558,6 +659,16 @@ export default function OverviewPage() {
 
   return (
     <div className="space-y-5">
+
+      {/* New-order popup */}
+      {popupOrder && (
+        <NewOrderPopup
+          order={popupOrder}
+          loading={popupLoading}
+          onConfirm={handleConfirmPopup}
+          onDismiss={() => setPopupOrder(null)}
+        />
+      )}
 
       {/* Header */}
       <div className="flex items-center justify-between">

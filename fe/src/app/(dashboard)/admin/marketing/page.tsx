@@ -7,21 +7,21 @@ import {
   QrCode, Copy, Check, Printer, ExternalLink, Download,
   Utensils, Tag, Layers, ShoppingBag,
 } from 'lucide-react'
-import { listProducts, listCategories, listToppings } from '@/features/admin/admin.api'
+import { listProducts, listCategories, listToppings, listTables } from '@/features/admin/admin.api'
+import type { Table } from '@/features/admin/admin.api'
 import type { Product, Category, Topping } from '@/types/product'
 
 const BASE_URL = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
-const TABLE_COUNT = 10
 
-function TableQRCard({ tableNo }: { tableNo: number }) {
-  const url = `${BASE_URL}/table/${tableNo}`
+function TableQRCard({ table }: { table: Table & { qr_token: string } }) {
+  const url = `${BASE_URL}/table/${table.qr_token}`
   const svgRef = useRef<HTMLDivElement>(null)
   const [copied, setCopied] = useState(false)
 
   const copyUrl = () => {
     navigator.clipboard.writeText(url)
     setCopied(true)
-    toast.success(`Đã copy URL bàn ${tableNo}`)
+    toast.success(`Đã copy URL ${table.name}`)
     setTimeout(() => setCopied(false), 2000)
   }
 
@@ -31,18 +31,21 @@ function TableQRCard({ tableNo }: { tableNo: number }) {
     const blob = new Blob([svg.outerHTML], { type: 'image/svg+xml' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
-    a.download = `qr-ban-${tableNo}.svg`
+    a.download = `qr-${table.name.replace(/\s+/g, '-').toLowerCase()}.svg`
     a.click()
     URL.revokeObjectURL(a.href)
-  }, [tableNo])
+  }, [table.name])
 
   return (
     <div className="flex flex-col items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-      <p className="text-sm font-semibold text-gray-700">Bàn {tableNo}</p>
+      <div className="text-center">
+        <p className="text-sm font-semibold text-gray-700">{table.name}</p>
+        <p className="text-xs text-gray-400">{table.capacity} chỗ</p>
+      </div>
       <div ref={svgRef} className="rounded-lg bg-white p-2 shadow-inner">
         <QRCode value={url} size={120} />
       </div>
-      <p className="max-w-[140px] truncate text-center text-[10px] text-gray-400">{url}</p>
+      <p className="max-w-[140px] truncate text-center text-[10px] text-gray-400">{table.qr_token.slice(0, 16)}…</p>
       <div className="flex gap-2">
         <button
           onClick={copyUrl}
@@ -58,6 +61,15 @@ function TableQRCard({ tableNo }: { tableNo: number }) {
           <Download className="h-3 w-3" />
           SVG
         </button>
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1 rounded-md border border-gray-200 px-2.5 py-1.5 text-xs text-gray-600 transition hover:bg-gray-50"
+        >
+          <ExternalLink className="h-3 w-3" />
+          Test
+        </a>
       </div>
     </div>
   )
@@ -93,6 +105,11 @@ export default function MarketingPage() {
   const { data: toppings = [] } = useQuery<Topping[]>({
     queryKey: ['admin', 'toppings'],
     queryFn: listToppings,
+  })
+  const { data: tables = [], isLoading: tablesLoading } = useQuery<Table[]>({
+    queryKey: ['tables'],
+    queryFn: listTables,
+    staleTime: 60_000,
   })
 
   const availableProducts = products.filter(p => p.is_available)
@@ -163,22 +180,28 @@ export default function MarketingPage() {
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h3 className="text-base font-semibold text-gray-900">QR Code Bàn</h3>
-            <p className="text-sm text-gray-500">In QR và đặt lên bàn để khách quét đặt món.</p>
+            <p className="text-sm text-gray-500">In QR và đặt lên bàn để khách quét đặt món. Bấm <strong>Test</strong> để mở ngay trong tab mới.</p>
           </div>
           <button
             onClick={printQRs}
-            disabled={printing}
+            disabled={printing || tablesLoading}
             className="flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-700 disabled:opacity-50"
           >
             <Printer className="h-4 w-4" />
             In Tất Cả
           </button>
         </div>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 print:grid-cols-5">
-          {Array.from({ length: TABLE_COUNT }, (_, i) => i + 1).map(n => (
-            <TableQRCard key={n} tableNo={n} />
-          ))}
-        </div>
+        {tablesLoading ? (
+          <p className="py-6 text-center text-sm text-gray-400">Đang tải danh sách bàn…</p>
+        ) : tables.length === 0 ? (
+          <p className="py-6 text-center text-sm text-gray-400">Chưa có bàn nào. Hãy tạo bàn trước trong phần quản lý.</p>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 print:grid-cols-5">
+            {(tables.filter(t => t.qr_token) as (Table & { qr_token: string })[]).map(t => (
+              <TableQRCard key={t.id} table={t} />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ── Top products ── */}

@@ -87,9 +87,9 @@ func (s *OrderService) GetOrder(ctx context.Context, orderID, callerID, callerRo
 		return OrderDetails{}, fmt.Errorf("order: get: %w", err)
 	}
 
-	// Customers may only see their own orders.
+	// Customers may only see orders belonging to their table.
 	if callerRole == "customer" {
-		if !o.CreatedBy.Valid || o.CreatedBy.String != callerID {
+		if !o.TableID.Valid || o.TableID.String != callerID {
 			return OrderDetails{}, ErrForbidden
 		}
 	}
@@ -232,8 +232,8 @@ func (s *OrderService) CreateOrder(ctx context.Context, in CreateOrderInput) (st
 		return "", fmt.Errorf("order: create with items: %w", err)
 	}
 
-	// Publish WS event for KDS
 	s.publishOrderEvent(ctx, "new_order", orderID)
+	s.publishAdminOrderEvent(ctx, orderID, orderNumber, in.TableID)
 
 	return orderID, nil
 }
@@ -334,7 +334,7 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, orderID, newStatus
 		return fmt.Errorf("order: update status: %w", err)
 	}
 
-	s.publishOrderEvent(ctx, "order_status_changed", orderID)
+	s.publishOrderEvent(ctx, "order_status_changed", orderID, orderEvent{Status: string(next)})
 	return nil
 }
 
@@ -348,9 +348,9 @@ func (s *OrderService) CancelOrder(ctx context.Context, orderID, callerID, calle
 		return fmt.Errorf("order: get for cancel: %w", err)
 	}
 
-	// Ownership check for customers
+	// Ownership check for customers — guests identify by table, not staff ID
 	if callerRole == "customer" {
-		if !o.CreatedBy.Valid || o.CreatedBy.String != callerID {
+		if !o.TableID.Valid || o.TableID.String != callerID {
 			return ErrForbidden
 		}
 	}
@@ -423,7 +423,7 @@ func (s *OrderService) maybeAutoReady(ctx context.Context, orderID string) {
 		slog.Warn("order: auto-ready failed", "order_id", orderID, "err", err)
 		return
 	}
-	s.publishOrderEvent(ctx, "order_status_changed", orderID)
+	s.publishOrderEvent(ctx, "order_status_changed", orderID, orderEvent{Status: string(db.OrdersStatusReady)})
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -468,8 +468,11 @@ func (s *OrderService) generateOrderNumber(ctx context.Context) (string, error) 
 
 // orderEvent is the payload published to Redis for SSE/WS consumers.
 type orderEvent struct {
-	Type    string `json:"type"`
-	OrderID string `json:"order_id"`
+	Type        string `json:"type"`
+	OrderID     string `json:"order_id"`
+	Status      string `json:"status,omitempty"`
+	OrderNumber string `json:"order_number,omitempty"`
+	TableID     string `json:"table_id,omitempty"`
 }
 
 type itemEvent struct {
@@ -481,14 +484,29 @@ type itemEvent struct {
 	ItemStatus string `json:"item_status"`
 }
 
-func (s *OrderService) publishOrderEvent(ctx context.Context, eventType, orderID string) {
-	payload, _ := json.Marshal(orderEvent{Type: eventType, OrderID: orderID})
+func (s *OrderService) publishOrderEvent(ctx context.Context, eventType, orderID string, extras ...orderEvent) {
+	evt := orderEvent{Type: eventType, OrderID: orderID}
+	if len(extras) > 0 {
+		evt.Status      = extras[0].Status
+		evt.OrderNumber = extras[0].OrderNumber
+		evt.TableID     = extras[0].TableID
+	}
+	payload, _ := json.Marshal(evt)
 	channel := fmt.Sprintf("order:%s", orderID)
 	if err := s.rdb.Publish(ctx, channel, string(payload)).Err(); err != nil {
 		slog.WarnContext(ctx, "order: publish event failed", "err", err)
 	}
-	// Also publish to global KDS channel
 	s.rdb.Publish(ctx, "orders:kds", string(payload))
+}
+
+func (s *OrderService) publishAdminOrderEvent(ctx context.Context, orderID, orderNumber, tableID string) {
+	payload, _ := json.Marshal(orderEvent{
+		Type:        "new_order",
+		OrderID:     orderID,
+		OrderNumber: orderNumber,
+		TableID:     tableID,
+	})
+	s.rdb.Publish(ctx, "orders:admin", string(payload))
 }
 
 func (s *OrderService) publishItemEvent(ctx context.Context, orderID, itemID string, qtyServed, quantity int32) {

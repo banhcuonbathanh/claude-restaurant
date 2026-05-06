@@ -145,10 +145,11 @@ export const deleteCombo = (id: string): Promise<void> =>
 // ── Tables ────────────────────────────────────────────────────────────────────
 
 export interface Table {
-  id:       string
-  name:     string
-  capacity: number
-  status:   'available' | 'occupied' | 'reserved'
+  id:        string
+  name:      string
+  capacity:  number
+  status:    'available' | 'occupied' | 'reserved'
+  qr_token?: string
 }
 
 export const listTables = (): Promise<Table[]> =>

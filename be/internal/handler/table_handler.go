@@ -34,11 +34,12 @@ func (h *TableHandler) ListTables(c *gin.Context) {
 	data := make([]gin.H, 0, len(tables))
 	for _, t := range tables {
 		data = append(data, gin.H{
-			"id":       t.ID,
-			"name":     t.Name,
-			"capacity": t.Capacity,
-			"status":   t.Status,
+			"id":        t.ID,
+			"name":      t.Name,
+			"capacity":  t.Capacity,
+			"status":    t.Status,
 			"is_active": t.IsActive,
+			"qr_token":  t.QrToken,
 		})
 	}
 	c.JSON(http.StatusOK, gin.H{"data": data})
