@@ -159,3 +159,5 @@ Open a table URL → auto-logs in as guest → redirects to /menu
 Add items → open cart → Thanh toán
 In another tab, log into http://localhost:3000/login as admin → go to /admin/overview → you'll see the new-order popup appear
 To get QR codes visually: go to http://localhost:3000/admin/marketing — all 5 tables now show with real QR codes and a Test button to open each one directly.
+
+From now on — if Redis ever resets and a duplicate collision occurs, the service automatically retries up to 3 times with a fresh sequence number. You'll never see that error again.

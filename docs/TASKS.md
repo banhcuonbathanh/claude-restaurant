@@ -264,7 +264,7 @@ If you cannot fill `draw_ref` → no wireframe exists yet → run Step 0b DRAW f
 | ID | Status | Task |
 |---|---|---|
 | 7-5 | ⬜ | Integration test suite — all API endpoints against test DB, SSE reconnect behavior, WS reconnect exponential backoff |
-| 7-6 | ⬜ | `scripts/seed.sql` — 3+ categories, 10+ products, 5+ toppings, 2+ combos, 4 staff accounts (chef/cashier/manager/admin, bcrypt hashed), 5+ tables with qr_token values |
+| 7-6 | ✅ | `scripts/seed.sql` — 3+ categories, 10+ products, 5+ toppings, 2+ combos, 4 staff accounts (chef/cashier/manager/admin, bcrypt hashed), 5+ tables with qr_token values |
 | 7-7 | ⬜ | Payment sandbox — VNPay + MoMo via ngrok. Test: full QR flow, signature rejection, double-webhook idempotency, amount mismatch rejection |
 
 ### UAT & Compliance
@@ -416,6 +416,18 @@ Step 7: FE page assembly (10-13, 10-14)
 | AC-10-7 | Nhập số lượng + confirm | POST thành công, modal đóng, danh sách stock reload |
 | AC-10-8 | Nguyên liệu đủ hàng | Không hiện trong StockAlertList |
 | AC-10-9 | Non-manager truy cập | RoleGuard chặn, hiện "Không có quyền truy cập" |
+
+---
+
+## Phase UX — Customer Order Flow Improvements
+
+> **Dependency:** Phase 5 ✅ · Ad-hoc fixes requested post-delivery
+
+| ID | Type | Mô Tả | Status | Spec Ref |
+|---|---|---|---|---|
+| UX-1 | FE | `order/[id]/page.tsx` + `cart.ts` — "Thêm món" button: restores `tableId` + saves `activeOrderId`, navigates to /menu | ✅ | — |
+| UX-2 | FE | `CartDrawer.tsx` + `cart.ts` — `activeOrderId` field in cart store; "Xem đơn hàng" button in drawer header when active order exists | ✅ | — |
+| UX-3 | BE+FE | `order_service.go` — inject `tableRepo`, add `table_name` to `OrderDetails`; `order/[id]/page.tsx` — show `Bàn {table_name}` (human-readable) not UUID; "Mang về" for online orders | ✅ | — |
 
 ---
 

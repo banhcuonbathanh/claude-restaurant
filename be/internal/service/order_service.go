@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -17,14 +18,15 @@ import (
 
 // OrderService handles all order lifecycle business logic.
 type OrderService struct {
-	repo        repository.OrderRepository
-	rdb         *redis.Client
+	repo          repository.OrderRepository
+	tableRepo     repository.TableRepository
+	rdb           *redis.Client
 	productLookup ProductLookup
 }
 
 // NewOrderService creates an OrderService.
-func NewOrderService(repo repository.OrderRepository, rdb *redis.Client, products ProductLookup) *OrderService {
-	return &OrderService{repo: repo, rdb: rdb, productLookup: products}
+func NewOrderService(repo repository.OrderRepository, tableRepo repository.TableRepository, rdb *redis.Client, products ProductLookup) *OrderService {
+	return &OrderService{repo: repo, tableRepo: tableRepo, rdb: rdb, productLookup: products}
 }
 
 // ─── OrderReader / OrderWriter interfaces (for PaymentService) ───────────────
@@ -67,7 +69,8 @@ func (s *OrderService) MarkOrderDelivered(ctx context.Context, orderID string) e
 // OrderDetails is the enriched order view for API responses.
 type OrderDetails struct {
 	db.Order
-	Items []OrderItemDetails
+	TableName string             `json:"table_name"`
+	Items     []OrderItemDetails
 }
 
 // OrderItemDetails enriches an order_item with derived status.
@@ -107,7 +110,14 @@ func (s *OrderService) GetOrder(ctx context.Context, orderID, callerID, callerRo
 		})
 	}
 
-	return OrderDetails{Order: o, Items: enriched}, nil
+	var tableName string
+	if o.TableID.Valid {
+		if t, err := s.tableRepo.GetTableByID(ctx, o.TableID.String); err == nil {
+			tableName = t.Name
+		}
+	}
+
+	return OrderDetails{Order: o, TableName: tableName, Items: enriched}, nil
 }
 
 // ListActiveOrders returns all active orders with items (for staff live view).
@@ -127,7 +137,13 @@ func (s *OrderService) ListActiveOrders(ctx context.Context) ([]OrderDetails, er
 				ItemStatus: itemStatus(item.QtyServed, item.Quantity),
 			})
 		}
-		result = append(result, OrderDetails{Order: o, Items: enriched})
+		var tableName string
+		if o.TableID.Valid {
+			if t, err := s.tableRepo.GetTableByID(ctx, o.TableID.String); err == nil {
+				tableName = t.Name
+			}
+		}
+		result = append(result, OrderDetails{Order: o, TableName: tableName, Items: enriched})
 	}
 	return result, nil
 }
@@ -228,7 +244,19 @@ func (s *OrderService) CreateOrder(ctx context.Context, in CreateOrderInput) (st
 		Items:         rows,
 	}
 
-	if err := s.repo.CreateOrderWithItems(ctx, repoInput); err != nil {
+	for attempt := 0; attempt < 3; attempt++ {
+		repoInput.OrderNumber = orderNumber
+		err := s.repo.CreateOrderWithItems(ctx, repoInput)
+		if err == nil {
+			break
+		}
+		if attempt < 2 && strings.Contains(err.Error(), "uq_orders_order_number") {
+			orderNumber, err = s.generateOrderNumber(ctx)
+			if err != nil {
+				return "", fmt.Errorf("order: generate number retry: %w", err)
+			}
+			continue
+		}
 		return "", fmt.Errorf("order: create with items: %w", err)
 	}
 

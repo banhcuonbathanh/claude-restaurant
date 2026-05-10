@@ -81,7 +81,7 @@ func main() {
 	// ── 5. Services ───────────────────────────────────────────────────────────
 	authSvc        := service.NewAuthService(authRepo, rdb)
 	productSvc     := service.NewProductService(productRepo, rdb)
-	orderSvc       := service.NewOrderService(orderRepo, rdb, productSvc)
+	orderSvc       := service.NewOrderService(orderRepo, tableRepo, rdb, productSvc)
 	paymentSvc     := service.NewPaymentService(paymentRepo, orderSvc, orderSvc, rdb)
 	groupSvc       := service.NewGroupService(orderRepo, rdb)
 	staffSvc       := service.NewStaffService(staffRepo, rdb)

@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { X, Minus, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
+import { X, Minus, Plus, Trash2, ChevronDown, ChevronUp, ClipboardList } from 'lucide-react'
 import { useCartStore } from '@/store/cart'
 import { formatVND } from '@/lib/utils'
 
@@ -12,7 +12,7 @@ interface Props {
 
 export function CartDrawer({ open, onClose }: Props) {
   const router = useRouter()
-  const { items, updateQty, removeItem, total, itemCount } = useCartStore()
+  const { items, updateQty, removeItem, total, itemCount, activeOrderId } = useCartStore()
 
   // Track which combos have their dish list expanded
   const [expandedCombos, setExpandedCombos] = useState<Set<string>>(new Set())
@@ -72,9 +72,20 @@ export function CartDrawer({ open, onClose }: Props) {
           <h2 className="font-display text-lg text-foreground font-semibold">
             Giỏ hàng ({itemCount()} món)
           </h2>
-          <button onClick={onClose} className="text-muted-fg hover:text-foreground">
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            {activeOrderId && (
+              <button
+                onClick={() => { onClose(); router.push(`/order/${activeOrderId}`) }}
+                className="flex items-center gap-1.5 text-xs text-primary border border-primary/40 px-2.5 py-1.5 rounded-lg hover:bg-primary/10 transition-colors font-medium"
+              >
+                <ClipboardList size={13} />
+                Xem đơn hàng
+              </button>
+            )}
+            <button onClick={onClose} className="text-muted-fg hover:text-foreground">
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Scrollable body */}

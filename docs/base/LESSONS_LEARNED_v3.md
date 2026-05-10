@@ -96,6 +96,25 @@ These are structural gaps identified after a full audit of the workflow. Each ha
 **Problem:** BE_DOC_INDEX.md and FE_DOC_INDEX.md pointed to the right files but contained no actual content. Every session required opening 4–6 different files just to get context before writing a single line of code. This increased the chance of missing a critical rule.
 **Resolution (2026-04-30):** Created `docs/be/BE_SYSTEM_GUIDE.md` and `docs/fe/FE_SYSTEM_GUIDE.md` — comprehensive system guides that consolidate: epic breakdown · all critical rules · code patterns · DI skeleton · error codes · per-domain reading list. Each guide is the single entry point for its side. Spec files are still the source of domain-specific detail, but the guide tells you exactly which spec to read and when.
 
+### Weakness 7 — Spec skipped during READ phase (2026-05-10)
+
+**Problem:** Claude read existing code first and jumped to planning without opening the domain spec. The plan contradicted spec-defined interaction patterns (e.g. `ToppingModal` triggered by `+ Thêm`, not image click). Caught only after user asked "did you check the spec?"
+**Root cause:** No blocking gate between READ and PLAN — Claude treated code exploration as sufficient context.
+**Rule:** If the task touches a domain with a spec file → open and read that spec **before** forming any plan. This is a hard stop, not a suggestion.
+**Scope (spec required):** Auth · Products · Menu/Checkout · Orders · Payment · QR/POS · Staff · Admin Dashboard
+**Scope (spec NOT required):** infra/DevOps, test setup, pure refactoring with no new behaviour, tooling.
+
+### Weakness 8 — No procedure check before diving into code (2026-05-10)
+
+**Problem:** User requested a "product detail page" — a feature not in any spec and not in TASKS.md. Instead of asking what the user wanted first, Claude immediately opened spec files and source code to "understand context." This is backwards: reading code before understanding requirements wastes context window, produces a plan shaped by implementation details rather than user intent, and signals to the user that Claude is guessing rather than listening.
+**Root cause:** The READ step rule only covered "tasks that touch a domain with a spec." It gave no instruction for tasks with NO spec and NO TASKS.md entry — the gap case.
+**Rule:** Before the READ step, run a **procedure check**:
+1. Is this task in `docs/TASKS.md`? → follow normal 7-step workflow.
+2. Is there a spec for this domain? → read spec first, then plan.
+3. Neither? → **STOP. Ask the user for requirements before reading any file.**
+Reading code before requirements are clear is never the right first move for a spec-less task.
+**Index:** Full procedure-to-task mapping lives in `docs/PROCEDURE_INDEX.md`.
+
 ### Weakness 6 — FE tasks created without a visual model (2026-05-03)
 
 **Problem:** Phase 8 FE tasks (admin overview, PrepPanel, etc.) were created directly from spec text with no wireframe. Components like PrepPanel and the Kiểm tra toggle were discovered mid-coding, not during planning. This caused task rows to be rewritten after implementation started, and some components were built without clear spec traceability.
@@ -161,6 +180,7 @@ These are structural gaps identified after a full audit of the workflow. Each ha
 | HTTP method mismatch giữa BE routes và FE api calls       | FE `admin.api.ts` dùng `api.patch()` cho tất cả update ops. BE `main.go` đăng ký `mgr.PUT("/:id", ...)` cho categories/products/toppings → tất cả edit calls return 404 "route not found"                                                                                                   | Khi viết BE route registration, verify method khớp với FE api.ts. Dùng PATCH (không phải PUT) cho partial updates — khớp với API_CONTRACT. Sau khi fix: `docker compose up -d --build be`.                                                        |
 | `binding:"required"` trên Gin int field reject giá trị 0  | `createToppingRequest` có `Price int64 \`binding:"required,min=0"\``→ user submit form với price=0 (default) → Gin validator fail 400 INVALID_INPUT vì`required` trên numeric type = non-zero trong go-playground/validator                                                                 | Dùng `binding:"min=0"` thay cho `binding:"required,min=0"` với mọi numeric field có thể hợp lệ ở giá trị 0. `required` chỉ dùng cho string (non-empty) hoặc pointer (non-nil).                                                                    |
 | FE admin page gọi wrong endpoint cho product list         | `listProducts` trong admin.api.ts ban đầu gọi `GET /products` (public, chỉ trả available=true). Admin cần thấy tất cả sản phẩm kể cả hết hàng                                                                                                                                               | Admin pages phải gọi `GET /products/all` (Manager+). Public endpoint `/products` filter `is_available=1` — không đủ cho admin CRUD.                                                                                                               |
+| Guest JWT `sub="guest"` vi phạm FK khi insert vào orders  | Handler truyền `claims.Subject` ("guest") trực tiếp vào `created_by`. Schema có `FOREIGN KEY (created_by) REFERENCES staff(id)` → INSERT fail 500. Sau khi fix created_by=NULL, ownership check `o.CreatedBy.String != callerID` lại fail vì created_by NULL → khách không đọc được đơn mình | (1) Khi `role == "customer"`: set `callerID = ""` → service lưu NULL. (2) Ownership check cho guest dùng `order.table_id` (từ JWT claims.TableID), không phải `created_by`. Rule: guest không có staff record — không bao giờ store literal "guest" vào FK column. |
 
 # ✅ Phần 2 — Kiến Trúc Đúng Từ Đầu
 

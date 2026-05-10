@@ -1,6 +1,6 @@
 # BE System Guide — Hệ Thống Quản Lý Quán Bánh Cuốn
 
-> **Version:** v1.0 · 2026-04-30
+> **Version:** v1.1 · 2026-05-10
 > **Purpose:** Single self-contained manual for all Backend work. Every BE session starts here.
 > **Rule:** This file + the spec listed per epic = everything you need. Do NOT read all docs at once.
 
@@ -38,14 +38,14 @@ HTTP → handler → service → repository → db (sqlc-generated)
 
 | Epic | Name | Status | Blocks |
 |---|---|---|---|
-| **BE-1** | Foundation & Infrastructure | 🔄 ~40% | All |
-| **BE-2** | Authentication System | 🔄 ~70% infra, handler missing | BE-3+ · FE-1 |
-| **BE-3** | Product Catalog API | ⬜ 0% | BE-4 · FE-3 |
-| **BE-4** | Order Management + SSE | ⬜ 0% | BE-5 · BE-6 · FE-4 |
-| **BE-5** | Real-time WebSocket Hub | ⬜ 0% | FE-6 |
-| **BE-6** | Payment Processing | ⬜ 0% | FE-7 |
-| **BE-7** | Supporting APIs (QR · Files) | ⬜ 0% | FE-2 · FE-3 |
-| **BE-8** | Testing & Hardening | ⬜ 0% | Go-Live |
+| **BE-1** | Foundation & Infrastructure | ✅ COMPLETE | — |
+| **BE-2** | Authentication System | ✅ COMPLETE | — |
+| **BE-3** | Product Catalog API | ✅ COMPLETE | — |
+| **BE-4** | Order Management + SSE | ✅ COMPLETE | — |
+| **BE-5** | Real-time WebSocket Hub | ✅ COMPLETE | — |
+| **BE-6** | Payment Processing | ✅ COMPLETE | — |
+| **BE-7** | Supporting APIs (QR · Files) | ✅ COMPLETE | — |
+| **BE-8** | Testing & Hardening | ⬜ NOT STARTED | Go-Live |
 
 ---
 
@@ -53,56 +53,22 @@ HTTP → handler → service → repository → db (sqlc-generated)
 
 ### ✅ Done — do not recreate
 
+All backend files are implemented. Key files:
+
 | File | What exists |
 |---|---|
+| `be/cmd/server/main.go` | DI wiring + all routes + graceful shutdown |
 | `be/internal/db/` | sqlc-generated (models.go · querier.go · *.sql.go) |
-| `be/internal/handler/respond.go` | `respondError()` helper |
-| `be/internal/service/errors.go` | All AppError sentinel vars |
-| `be/internal/service/deps.go` | Cross-service interfaces (ProductLookup · OrderReader · OrderWriter) |
-| `be/internal/repository/auth_repo.go` | All sqlc auth query wrappers |
-| `be/internal/service/auth_service.go` | Login · Refresh · Logout · GetMe · GuestLogin · DeactivateStaff |
-| `be/internal/middleware/auth.go` | Bearer parse · JWT validate · context injection |
-| `be/internal/middleware/rbac.go` | RequireRole skeleton |
-| `be/pkg/jwt/jwt.go` | GenerateAccessToken · ParseToken |
-| `be/pkg/bcrypt/bcrypt.go` | HashPassword(cost=12) · ComparePassword |
-| `be/pkg/redis/client.go` | Redis client init |
-| `be/pkg/redis/bloom.go` | Add · Exists (Bloom filter) |
-| `be/pkg/redis/pubsub.go` | Publish · Subscribe · Unsubscribe |
-| `be/migrations/001–007` | DB migrations (008 not needed — see §4.3) |
-
-### ⬜ Not yet created (Phase 4 creates these)
-
-```
-be/cmd/server/main.go              ← DI wiring + all routes (only /health now)
-be/internal/handler/auth_handler.go
-be/internal/handler/product_handler.go
-be/internal/handler/order_handler.go
-be/internal/handler/payment_handler.go
-be/internal/handler/file_handler.go
-be/internal/handler/table_handler.go
-be/internal/handler/group_handler.go
-be/internal/repository/product_repo.go
-be/internal/repository/order_repo.go
-be/internal/repository/payment_repo.go
-be/internal/repository/file_repo.go
-be/internal/repository/table_repo.go
-be/internal/service/product_service.go
-be/internal/service/order_service.go
-be/internal/service/payment_service.go
-be/internal/service/file_service.go
-be/internal/service/table_service.go
-be/internal/service/group_service.go
-be/internal/sse/handler.go
-be/internal/sse/group_handler.go
-be/internal/websocket/hub.go
-be/internal/websocket/client.go
-be/internal/websocket/handler.go
-be/internal/payment/vnpay.go
-be/internal/payment/momo.go
-be/internal/payment/zalopay.go
-be/internal/jobs/payment_timeout.go
-be/internal/jobs/file_cleanup.go
-```
+| `be/internal/handler/` | auth · product · order · payment · file · table · group handlers |
+| `be/internal/service/` | auth · product · order · payment · file · table · group · analytics · ingredient services |
+| `be/internal/repository/` | auth · product · order · payment · file · table · staff · analytics · ingredient repos |
+| `be/internal/middleware/` | auth.go · rbac.go |
+| `be/internal/sse/` | handler.go · group_handler.go |
+| `be/internal/websocket/` | hub.go · client.go · handler.go |
+| `be/internal/payment/` | vnpay.go · momo.go · zalopay.go |
+| `be/internal/jobs/` | payment_timeout.go · file_cleanup.go |
+| `be/pkg/` | jwt · bcrypt · redis (pubsub · bloom · client) |
+| `be/migrations/001–009` | All DB migrations including ingredients (009) |
 
 ---
 
@@ -144,8 +110,10 @@ Cancel path: pending / confirmed / preparing → cancelled  (if < 30% served)
 cancel_allowed = SUM(qty_served) / SUM(quantity) < 0.30
 ```
 
-- Rejected if ≥ 30% already served → `409 CANCEL_THRESHOLD`
+- Rejected if ≥ 30% already served → `422 CANCEL_THRESHOLD` (business rule violation, not resource conflict)
 - Successful cancel → trigger payment refund if already paid
+
+> ⚠️ **Lesson:** Use `422 UnprocessableEntity` not `409 Conflict` for cancel threshold. Semantic: 409 = resource state conflict, 422 = business rule violation. Cancel threshold is a business rule.
 
 ### 4.3 — item_status (DERIVED — no DB column, no migration 008)
 
@@ -404,6 +372,96 @@ token := c.Query("token")  // ?token=<access_token>
 // Must be called inside the same transaction after any INSERT/UPDATE on order_items
 err = repo.RecalculateTotalAmount(ctx, tx, orderID)
 ```
+
+### 8.9 — sqlc generate after every migration ADD/DROP COLUMN
+
+```bash
+# After any migration that adds or removes columns:
+cd be && sqlc generate
+```
+
+Without this, `db.Model` structs miss the new field, `SELECT *` scans fail, compile errors appear. Run it immediately — before writing any code that references the new column.
+
+### 8.10 — binding:"min=0" not "required,min=0" for numeric fields
+
+```go
+// ❌ WRONG — rejects price=0 with 400 INVALID_INPUT
+type createToppingRequest struct {
+    Price int64 `binding:"required,min=0"`
+}
+
+// ✅ CORRECT — allows price=0 (valid free topping)
+type createToppingRequest struct {
+    Price int64 `binding:"min=0"`
+}
+```
+
+`required` on a numeric type in go-playground/validator means non-zero. Use it only for strings (non-empty) or pointers (non-nil).
+
+### 8.11 — Middleware must receive dependencies explicitly
+
+```go
+// ❌ WRONG — is_active check silently skipped because Redis not injected
+func AuthRequired() gin.HandlerFunc { ... }
+
+// ✅ CORRECT — dependency injected, compile-time interface check
+type IsActiveChecker interface {
+    IsStaffActive(ctx context.Context, staffID string) (bool, error)
+}
+func AuthRequired(checker IsActiveChecker) gin.HandlerFunc { ... }
+```
+
+Middleware that needs Redis or a service must receive it as a parameter — never rely on package-level globals.
+
+### 8.12 — Guest JWT: never store "guest" in a FK column
+
+```go
+// ❌ WRONG — "guest" is not a valid staff.id → FK constraint fails → 500
+createdBy := claims.Subject  // = "guest" for customers
+
+// ✅ CORRECT — store NULL for guest orders
+var callerID string
+if claims.Role != "customer" {
+    callerID = claims.Subject
+}
+// pass callerID → service sets created_by = NULL when empty
+```
+
+Ownership check for guest orders uses `order.table_id` (from JWT `claims.TableID`), not `created_by`.
+
+### 8.13 — Payment service must call gateway to get URL
+
+```go
+// Pattern: validate → DB record → call gateway → return URL
+// Step 1: Validate order.status == "ready"
+// Step 2: Create DB payment record (status = "pending")
+// Step 3: Call gateway API → get QR URL / redirect URL
+// Step 4: Return URL to caller
+// If gateway fails: log error + return partial result — do NOT rollback payment record
+```
+
+A payment record with no gateway call means FE receives an empty QR URL. The DB record and the gateway call are both required.
+
+### 8.14 — Webhook verification order (non-negotiable)
+
+```go
+// Step order is mandatory — never reorder:
+// 1. HMAC verify signature
+// 2. Amount verify: if gatewayAmount != dbPayment.Amount → reject AMOUNT_MISMATCH
+// 3. Idempotency check: if payment.Status == "completed" → return 200 no-op
+// 4. Update DB payment status
+```
+
+Amount verification after HMAC catches financial fraud where attacker sends valid HMAC with `amount=1`.
+
+### 8.15 — WS payload: grep BE before writing FE handler
+
+```bash
+# Check what BE actually marshals — spec may be out of sync
+grep -n "json.Marshal\|PublishEvent\|broadcast" be/internal/service/payment_service.go
+```
+
+Spec may declare `payment_id` but BE may only publish `order_id`. Match on what the code marshals, not what the spec says.
 
 ---
 
@@ -818,4 +876,4 @@ cd be && go run ./cmd/server
 
 ---
 
-*BanhCuon System · BE System Guide · v1.0 · 2026-04-30*
+*BanhCuon System · BE System Guide · v1.1 · 2026-05-10*

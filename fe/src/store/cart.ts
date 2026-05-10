@@ -2,22 +2,25 @@ import { create } from 'zustand'
 import type { CartItem } from '@/types/cart'
 
 interface CartState {
-  items:           CartItem[]
-  tableId:         string | null
-  paymentMethod:   string | null
-  addItem:         (item: CartItem) => void
-  removeItem:      (id: string) => void
-  updateQty:       (id: string, qty: number) => void
-  clearCart:       () => void
-  setTableId:      (id: string) => void
-  setPaymentMethod:(method: string) => void
-  total:           () => number
-  itemCount:       () => number
+  items:            CartItem[]
+  tableId:          string | null
+  activeOrderId:    string | null
+  paymentMethod:    string | null
+  addItem:          (item: CartItem) => void
+  removeItem:       (id: string) => void
+  updateQty:        (id: string, qty: number) => void
+  clearCart:        () => void
+  setTableId:       (id: string) => void
+  setActiveOrderId: (id: string | null) => void
+  setPaymentMethod: (method: string) => void
+  total:            () => number
+  itemCount:        () => number
 }
 
 export const useCartStore = create<CartState>((set, get) => ({
   items:         [],
   tableId:       null,
+  activeOrderId: null,
   paymentMethod: null,
 
   addItem: (item) => set((s) => {
@@ -42,9 +45,10 @@ export const useCartStore = create<CartState>((set, get) => ({
         .filter(i => i.quantity > 0),
     })),
 
-  clearCart: () => set({ items: [], tableId: null, paymentMethod: null }),
+  clearCart: () => set({ items: [], tableId: null, activeOrderId: null, paymentMethod: null }),
 
   setTableId:       (id)     => set({ tableId: id }),
+  setActiveOrderId: (id)     => set({ activeOrderId: id }),
   setPaymentMethod: (method) => set({ paymentMethod: method }),
 
   total:     () => get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),

@@ -34,6 +34,7 @@ export interface Order {
   status:         OrderStatus
   source:         'online' | 'qr' | 'pos'
   table_id:       string | null
+  table_name?:    string | null
   customer_name:  string | null
   customer_phone: string | null
   total_amount:   number

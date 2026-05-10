@@ -104,10 +104,17 @@ Before coding, show the wireframe + task breakdown to the user and confirm:
 
 **Goal:** Understand all constraints before touching code.
 
+**Spec gate (blocking):**
+> Does this task touch Auth · Products · Menu/Checkout · Orders · Payment · QR/POS · Staff · Admin Dashboard?
+> **YES → read the domain spec before doing anything else. No plan, no code until spec is read.**
+> Spec doesn't cover the feature? → read `docs/qui_trinh/BanhCuon_SRS_v1.md` then `BanhCuon_FSD_v1.md`.
+> NO (infra, test setup, pure refactor, tooling) → spec read not required.
+> Not sure which doc to open? → see `docs/DOC_MAP.md`.
+
 **What to read (in order):**
 
 1. The task row in `docs/TASKS.md` — confirm ID, dependencies, AC reference
-2. The relevant spec (Spec1–Spec7) for the domain being worked on
+2. **Domain spec** (Spec1–Spec9) — **mandatory if spec gate above is YES**
 3. `docs/MASTER_v1.2.md` sections relevant to the task:
    - §2 design tokens if writing UI
    - §3 RBAC if writing auth/role checks
@@ -195,6 +202,10 @@ edge case does. The signal is ambiguity + security risk, not size.
 - Every DB-mutating operation that spans multiple tables: use a transaction
 - Auth middleware must be applied before RBAC middleware
 - Webhook handlers: HMAC verification is ALWAYS the first operation — before reading any body fields
+- After webhook HMAC: verify `gatewayAmount == dbPayment.Amount` before updating DB (financial fraud prevention)
+- Middleware that needs Redis/service must receive it as a constructor parameter — no global closures
+- `binding:"min=0"` not `binding:"required,min=0"` for numeric fields that can validly be zero
+- Guest JWT: when `role == "customer"`, store `NULL` in `created_by` FK column — never store the literal string `"guest"`
 
 ### Frontend (TypeScript/Next.js)
 - Access token: Zustand in-memory store ONLY — never localStorage, never sessionStorage
@@ -248,6 +259,8 @@ edge case does. The signal is ambiguity + security risk, not size.
 - [ ] No hardcoded color hex values
 - [ ] All IDs typed as `string`, never `number`
 - [ ] SSE/WS token passed via Authorization Bearer header, not query param (except WS which must use query param because browser WebSocket API cannot set custom headers)
+- [ ] Admin API calls use `/products/all` (Manager+) not `/products` (public, filtered) for product management
+- [ ] HTTP method matches between FE api calls and BE route registrations (PATCH for partial updates, not PUT)
 
 ### Acceptance Criteria
 - [ ] Every AC item from the spec for this task can be verified by reading the code
@@ -267,6 +280,8 @@ edge case does. The signal is ambiguity + security risk, not size.
 | FE component | `npm run build` — zero TypeScript errors. Check in browser if dev server available. |
 | FE page | `npm run build` + open in browser, test golden path, check browser console for errors. |
 | DB query | Run `sqlc generate` — no errors. Verify generated types match schema. |
+| DB migration (ADD/DROP COLUMN) | **Run `cd be && sqlc generate` immediately after migration** before writing any code that uses the new column. Without this, structs miss the field and compile errors appear. |
+| New FE page/component (Docker) | Run `docker compose up -d --build fe` — Tailwind JIT scans source at build time; new classes purged if image not rebuilt. |
 | DevOps / Docker | `docker compose up -d --build [service]` — container starts and passes health check. |
 
 **For auth tasks:**
@@ -345,6 +360,15 @@ If you are unsure which doc to update, ask: "Is this about the state of *this* p
 | FE task has no spec traceability | No spec_ref on task row | Step 0c DECOMPOSE |
 | FE page built wrong layout | Task created before drawing | Step 0b DRAW |
 | FE task done but refers to wrong spec section | spec_ref not verified | Step 0c DECOMPOSE |
+| Plan contradicts spec (e.g. wrong trigger for ToppingModal) | Spec not read before planning | Step 1 READ — spec gate |
+| Migration run but new column missing from Go struct | Forgot `sqlc generate` after migration | Step 6 TEST |
+| Admin edit form returns 404 | FE uses `api.patch()` but BE has `router.PUT()` registered | Step 5 SELF-REVIEW + Step 4 method check |
+| Admin product list incomplete (misses unavailable items) | Using `/products` (public) instead of `/products/all` (Manager+) | Step 4 IMPLEMENT FE rules |
+| New Tailwind classes invisible in Docker | Tailwind JIT purges classes not in image at build time; image not rebuilt | Step 6 TEST (rebuild fe image) |
+| Webhook accepts wrong amount without rejecting | Amount verification skipped, only HMAC verified | Step 5 SELF-REVIEW security |
+| Guest order INSERT fails with FK error | "guest" string stored in `created_by` FK column | Step 4 IMPLEMENT BE rules |
+| Middleware skips Redis check silently | Dependency not injected into middleware constructor | Step 2 PLAN (list all constructor deps) |
+| Form with price=0 rejected with 400 | `binding:"required"` on numeric field rejects zero | Step 5 SELF-REVIEW correctness |
 
 ---
 
@@ -361,4 +385,4 @@ When starting a new session, do this before anything else:
 
 ---
 
-*BanhCuon System · Implementation Workflow · v1.0 · 2026-04-29*
+*BanhCuon System · Implementation Workflow · v1.1 · 2026-05-10*

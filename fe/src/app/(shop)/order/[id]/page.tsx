@@ -3,12 +3,13 @@ import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { ChevronDown, ChevronUp, AlertTriangle, CheckCircle, Bell } from 'lucide-react'
+import { ChevronDown, ChevronUp, AlertTriangle, CheckCircle, Bell, XCircle, Plus } from 'lucide-react'
 import { useOrderSSE } from '@/hooks/useOrderSSE'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { ConnectionErrorBanner } from '@/components/shared/ConnectionErrorBanner'
 import { api } from '@/lib/api-client'
 import { formatVND } from '@/lib/utils'
+import { useCartStore } from '@/store/cart'
 import type { OrderItem } from '@/types/order'
 
 interface CancelTarget {
@@ -34,6 +35,8 @@ interface SummaryRow {
 export default function OrderPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const { order, progress, connectionError, notification, clearNotification } = useOrderSSE(params.id)
+  const setTableId       = useCartStore(s => s.setTableId)
+  const setActiveOrderId = useCartStore(s => s.setActiveOrderId)
   const [cancelTarget, setCancelTarget]       = useState<CancelTarget | null>(null)
   const [collapsed, setCollapsed]             = useState(false)
   const [collapsedCombos, setCollapsedCombos] = useState<Set<string>>(new Set())
@@ -181,9 +184,9 @@ export default function OrderPage({ params }: { params: { id: string } }) {
             onClick={() => setCollapsed(v => !v)}
             className="w-full flex items-center gap-2 px-4 py-3 hover:bg-background/30 transition-colors"
           >
-            {order.table_id && (
-              <span className="font-bold text-foreground text-sm shrink-0">Bàn {order.table_id}</span>
-            )}
+            {order.table_name
+              ? <span className="font-bold text-foreground text-sm shrink-0">Bàn {order.table_name}</span>
+              : <span className="font-bold text-foreground text-sm shrink-0">Mang về</span>}
             <span className="text-xs text-muted-fg shrink-0">{order.order_number}</span>
             <StatusBadge status={order.status} />
             <span className="flex-1" />
@@ -376,6 +379,17 @@ export default function OrderPage({ params }: { params: { id: string } }) {
           </div>
         </div>
 
+        {/* ── Completed banner ────────────────────────────────────────── */}
+        {order.status === 'delivered' && (
+          <div className="bg-green-900/20 border border-success/30 rounded-xl px-4 py-3 flex items-center gap-3">
+            <CheckCircle size={18} className="text-success shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-success">Đơn hàng đã hoàn thành</p>
+              <p className="text-xs text-muted-fg mt-0.5">Cảm ơn bạn đã dùng bữa! Bạn có thể đặt thêm bên dưới.</p>
+            </div>
+          </div>
+        )}
+
         {/* ── Cancel whole order ──────────────────────────────────────── */}
         {canCancelOrder && (
           <button
@@ -383,6 +397,21 @@ export default function OrderPage({ params }: { params: { id: string } }) {
             className="w-full border border-urgent text-urgent py-3 rounded-xl text-sm font-medium hover:bg-red-900/20 transition-colors"
           >
             Huỷ toàn bộ đơn hàng
+          </button>
+        )}
+
+        {/* ── Add more dishes ─────────────────────────────────────────── */}
+        {order.table_id && (
+          <button
+            onClick={() => {
+              setTableId(order.table_id!)
+              setActiveOrderId(isActive ? params.id : null)
+              router.push('/menu')
+            }}
+            className="w-full bg-primary text-primary-foreground py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+          >
+            <Plus size={16} />
+            {isActive ? 'Thêm món' : 'Đặt thêm món'}
           </button>
         )}
       </div>
@@ -405,7 +434,7 @@ export default function OrderPage({ params }: { params: { id: string } }) {
                   </p>
                 </div>
               </>
-            ) : (
+            ) : notification.kind === 'ready' ? (
               <>
                 <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
                   <Bell size={28} className="text-primary" />
@@ -414,6 +443,18 @@ export default function OrderPage({ params }: { params: { id: string } }) {
                   <h3 className="font-bold text-lg text-foreground">Đến lượt bàn của bạn!</h3>
                   <p className="text-muted-fg text-sm mt-1">
                     Món của bạn sắp được mang ra. Hãy chuẩn bị nhé!
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="w-14 h-14 rounded-full bg-red-900/40 flex items-center justify-center mx-auto">
+                  <XCircle size={28} className="text-urgent" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg text-foreground">Đơn hàng đã bị huỷ</h3>
+                  <p className="text-muted-fg text-sm mt-1">
+                    Nhà hàng đã huỷ đơn của bạn. Vui lòng liên hệ nhân viên.
                   </p>
                 </div>
               </>

@@ -11,14 +11,27 @@
 
 **Prefixes:** `💡 SUGGESTION` · `⚠️ FLAG` · `🚨 RISK` · `🔴 STOP` · `❓ CLARIFY` · `🔄 REDIRECT`
 
+**Before every task — procedure check (runs before READ):**
+1. Is this task in `docs/TASKS.md`? → proceed to 7 steps.
+2. Is there a spec for this domain? → read spec first, then plan.
+3. Neither? → **STOP. Ask the user for requirements. Do not read any file yet.**
+Full lookup table: [`docs/PROCEDURE_INDEX.md`](docs/PROCEDURE_INDEX.md)
+
 **Every task follows 7 steps — no exceptions:**
 ```
-READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
+PROCEDURE CHECK → READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 ```
+
+**READ step — spec check rule:**
+If the task touches a domain that has a spec file → **read that spec before planning. No exceptions.**
+Spec files: Auth · Products · Menu/Checkout · Orders · Payment · QR/POS · Staff · Admin Dashboard
+Skip spec read only for: infra/DevOps, test setup, refactoring with no new behaviour, tooling.
 
 | File | Purpose |
 |---|---|
+| `docs/DOC_MAP.md` | **Document map** — which doc to read, when, and why. Start here if lost. |
 | `docs/TASKS.md` | **Master task list** — find the next task here. Update status after every task. |
+| `docs/PROCEDURE_INDEX.md` | **Procedure index** — task type → required procedure. Check here before every task. |
 | `docs/IMPLEMENTATION_WORKFLOW.md` | **Quality process** — full detail on each of the 7 steps. Read before starting any task. |
 | `docs/base/LESSONS_LEARNED_v3.md` | Session workflow guide + prefix system detail |
 
@@ -129,15 +142,13 @@ FE state (strict): server → TanStack Query · client → Zustand · forms → 
 
 ## Current Work
 
-- **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 ✅ · Phase 7 ⬜ NEXT · Phase 9 ⬜ NEXT.
-- **Branch:** test — all committed. Run `docker compose up -d --build fe` after any FE change.
+- **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 ✅ · Phase UX ✅ · Phase 7 ⬜ NEXT · Phase 9 ⬜ NEXT.
+- **Branch:** test — uncommitted changes. Run `docker compose up -d --build be fe` after any change.
 - **Done this session:**
-  - KDS (`5.4-1`) — compact list-style cards: `còn ×N` badges, Kiểm tra / Trạng thái dropdown / hide-show buttons
-  - Overview (`8-14`) — "Danh sách cần chuẩn bị" redesigned as collapsible list (no per-row borders)
-  - Overview (`8-14`) — "Đang phục vụ" new list section: `tổng ×N · ra ×M · còn ×K` per dish, total fee per row, Tổng cần làm toggle
-  - Overview (`8-14`) — removed `OrderDetail` + `TableCard`; added `EmptyTableCard` + occupied list inline
+  - **UX-localStorage** — `useOrderSSE` caches order in localStorage; `/order/[id]` persists across checkout + "Đặt thêm món" starts fresh order; new `/order` list page reads all cached orders
+  - **7-6** — `scripts/seed.sql`: 4 staff (bcrypt/12), 6 tables with qr_token, 4 categories, 12 products, 6 toppings, 2 combos + product_toppings links
 - **Next (in order):**
-  1. **Phase 9** — flip `USE_MOCK=false` in overview/page.tsx + wire real WS (`9-1`, `9-8`)
-  2. **Phase 7-6** — `scripts/seed.sql` (3+ categories, 10+ products, 5+ toppings, 4 staff, 5 tables with qr_token)
-  3. **Phase 7-1/7-2/7-3** — BE unit tests (auth/order/payment services)
+  1. **Phase 7-1/7-2/7-3** — BE unit tests (auth/order/payment services)
+  2. **Phase 9 (9-2→9-7)** — extract WS hook + components from overview/page.tsx (code quality)
+  3. **Phase 7-7** — Payment sandbox (VNPay + MoMo via ngrok)
 - **How to pick the next task:** Open `docs/TASKS.md` → find next ⬜ task with all dependencies ✅.

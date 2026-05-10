@@ -5,9 +5,12 @@ import { useAuthStore } from '@/features/auth/auth.store'
 import { api } from '@/lib/api-client'
 import type { Order } from '@/types/order'
 
+const cacheKey = (id: string) => `order_cache_${id}`
+
 export type OrderNotification =
   | { kind: 'confirmed'; eta?: number }
   | { kind: 'ready' }
+  | { kind: 'cancelled' }
 
 const RECONNECT = {
   maxAttempts:     5,
@@ -23,6 +26,22 @@ export function useOrderSSE(orderId: string) {
   const attemptsRef = useRef(0)
   const abortRef    = useRef<AbortController | null>(null)
   const token       = useAuthStore(state => state.accessToken)
+
+  // Load cached order on mount for instant display before SSE connects
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem(cacheKey(orderId))
+      if (cached) setOrder(JSON.parse(cached))
+    } catch {}
+  }, [orderId])
+
+  // Persist order to localStorage whenever it changes
+  useEffect(() => {
+    if (!order) return
+    try {
+      localStorage.setItem(cacheKey(orderId), JSON.stringify(order))
+    } catch {}
+  }, [order, orderId])
 
   useEffect(() => {
     let stopped = false
@@ -69,7 +88,15 @@ export function useOrderSSE(orderId: string) {
                           setNotification({ kind: 'confirmed', eta: data.eta })
                         else if (data.status === 'ready')
                           setNotification({ kind: 'ready' })
+                        else if (data.status === 'cancelled')
+                          setNotification({ kind: 'cancelled' })
                       }
+                      break
+                    case 'order_cancelled':
+                      setOrder(prev => prev ? { ...prev, status: 'cancelled' } : prev)
+                      setNotification({ kind: 'cancelled' })
+                      stopped = true
+                      ctrl.abort()
                       break
                     case 'item_progress':
                       setOrder(prev =>

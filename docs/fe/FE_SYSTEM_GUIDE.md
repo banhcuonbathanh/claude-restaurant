@@ -1,6 +1,6 @@
 # FE System Guide — Hệ Thống Quản Lý Quán Bánh Cuốn
 
-> **Version:** v1.0 · 2026-04-30
+> **Version:** v1.1 · 2026-05-10
 > **Purpose:** Single self-contained manual for all Frontend work. Every FE session starts here.
 > **Rule:** This file + the spec listed per epic = everything you need. Do NOT read all docs at once.
 
@@ -34,74 +34,46 @@
 
 | Epic | Name | Status | Depends on |
 |---|---|---|---|
-| **FE-1** | Foundation & Setup | ⬜ 0% | BE-2 auth handler done |
-| **FE-2** | Authentication UI | ⬜ 0% | FE-1 |
-| **FE-3** | Menu & Product Catalog | ⬜ 0% | FE-1 + BE-3 |
-| **FE-4** | Cart & Checkout | ⬜ 0% | FE-3 + BE-4 |
-| **FE-5** | Order Tracking (SSE) | ⬜ 0% | FE-4 + BE-4 SSE |
-| **FE-6** | Kitchen Display (WebSocket) | ⬜ 0% | FE-1 + BE-5 |
-| **FE-7** | POS & Payment UI | ⬜ 0% | FE-4 + BE-6 |
-| **FE-8** | Testing & Polish | ⬜ 0% | FE-1 through FE-7 |
+| **FE-1** | Foundation & Setup | ✅ COMPLETE | — |
+| **FE-2** | Authentication UI | ✅ COMPLETE | — |
+| **FE-3** | Menu & Product Catalog | ✅ COMPLETE | — |
+| **FE-4** | Cart & Checkout | ✅ COMPLETE | — |
+| **FE-5** | Order Tracking (SSE) | ✅ COMPLETE | — |
+| **FE-6** | Kitchen Display (WebSocket) | ✅ COMPLETE | — |
+| **FE-7** | POS & Payment UI | ✅ COMPLETE | — |
+| **FE-8** | Testing & Polish | ⬜ NOT STARTED | FE-1 through FE-7 |
 
 ---
 
 ## 2 — Current Scaffold State
 
-### ✅ Done — do not recreate
+### ✅ Done — all files implemented
 
-| File | Notes |
+All FE files exist. Key locations:
+
+| Path | What exists |
 |---|---|
-| `fe/src/app/layout.tsx` | Root layout · fonts (Playfair Display + Be Vietnam Pro) · metadata |
-| `fe/src/app/globals.css` | Design tokens as CSS vars · Tailwind base |
-| `fe/tailwind.config.ts` | Custom color names mapped to CSS vars |
-| `fe/src/lib/utils.ts` | `cn()` helper · **`formatVND()` must be added — missing** |
-| `fe/src/components/ui/badge.tsx` | Badge component |
-| `fe/src/components/ui/button.tsx` | Button component |
-| `fe/src/components/ui/card.tsx` | Card component |
-| `fe/src/components/ui/input.tsx` | Input component |
-| `fe/src/components/ui/label.tsx` | Label component |
-| `fe/package.json` | All deps installed: axios · @tanstack/react-query · zustand · react-hook-form · zod · lucide-react |
-
-### ⚠️ Stub — file exists, body is just a TODO placeholder
-
-| File | Create in epic |
-|---|---|
-| `fe/src/app/page.tsx` | FE-1 |
-| `fe/src/app/(auth)/login/page.tsx` | FE-2 |
-| `fe/src/app/(shop)/menu/page.tsx` | FE-3 |
-| `fe/src/app/(shop)/checkout/page.tsx` | FE-4 |
-| `fe/src/app/(shop)/order/[id]/page.tsx` | FE-5 |
-| `fe/src/app/table/[tableId]/page.tsx` | FE-3 |
-| `fe/src/app/(dashboard)/kds/page.tsx` | FE-6 |
-| `fe/src/app/(dashboard)/pos/page.tsx` | FE-7 |
-| `fe/src/app/(dashboard)/orders/live/page.tsx` | FE-6 |
-| `fe/src/app/(dashboard)/cashier/payment/[id]/page.tsx` | FE-7 |
-
-### ⬜ Not yet created (epics will create these)
-
-```
-fe/src/lib/api-client.ts                 ← FE-1 FIRST
-fe/src/lib/providers.tsx                 ← FE-1
-fe/src/features/auth/auth.store.ts       ← FE-1
-fe/src/features/auth/auth.api.ts         ← FE-1
-fe/src/store/cart.ts                     ← FE-3
-fe/src/types/product.ts                  ← FE-3
-fe/src/types/order.ts                    ← FE-4
-fe/src/types/cart.ts                     ← FE-3
-fe/src/types/auth.ts                     ← FE-1
-fe/src/hooks/useOrderSSE.ts              ← FE-5
-fe/src/hooks/useWebSocket.ts             ← FE-6
-fe/src/components/guards/AuthGuard.tsx   ← FE-1
-fe/src/components/guards/RoleGuard.tsx   ← FE-1
-fe/src/components/menu/CategoryTabs.tsx  ← FE-3
-fe/src/components/menu/ProductCard.tsx   ← FE-3
-fe/src/components/menu/ToppingModal.tsx  ← FE-3
-fe/src/components/menu/ComboModal.tsx    ← FE-3
-fe/src/components/menu/CartDrawer.tsx    ← FE-3
-fe/src/components/shared/StatusBadge.tsx         ← FE-5
-fe/src/components/shared/ConnectionErrorBanner.tsx ← FE-5
-fe/src/components/shared/EmptyState.tsx          ← FE-3
-```
+| `fe/src/lib/api-client.ts` | Axios instance · request interceptor (Bearer) · response interceptor (401→refresh→retry) |
+| `fe/src/lib/utils.ts` | `cn()` · `formatVND()` |
+| `fe/src/lib/providers.tsx` | QueryClient + QueryClientProvider wrapper |
+| `fe/src/features/auth/` | auth.store.ts (Zustand) · auth.api.ts |
+| `fe/src/store/cart.ts` | CartStore with activeOrderId field (see §8.5) |
+| `fe/src/types/` | product.ts · order.ts · cart.ts · auth.ts · staff.ts |
+| `fe/src/hooks/useOrderSSE.ts` | SSE hook with exponential backoff + localStorage cache |
+| `fe/src/components/guards/` | AuthGuard.tsx · RoleGuard.tsx |
+| `fe/src/components/menu/` | CategoryTabs · ProductCard · ToppingModal · ComboModal · CartDrawer |
+| `fe/src/components/shared/` | StatusBadge · ConnectionErrorBanner · EmptyState |
+| `fe/src/app/(auth)/login/` | Login page |
+| `fe/src/app/(shop)/menu/` | Menu page |
+| `fe/src/app/(shop)/checkout/` | Checkout page |
+| `fe/src/app/(shop)/order/[id]/` | Order tracking page |
+| `fe/src/app/(shop)/order/` | Order list page (reads localStorage cached orders) |
+| `fe/src/app/table/[tableId]/` | QR entry page |
+| `fe/src/app/(dashboard)/kds/` | KDS full-screen (WebSocket) |
+| `fe/src/app/(dashboard)/pos/` | POS cashier page |
+| `fe/src/app/(dashboard)/cashier/payment/[id]/` | Payment page |
+| `fe/src/app/(dashboard)/admin/` | Admin layout + products/categories/toppings/staff/overview/marketing/summary/ingredients pages |
+| `fe/src/features/admin/admin.api.ts` | All admin CRUD + analytics + stock movement API calls |
 
 ---
 
@@ -430,12 +402,14 @@ interface CartState {
   items: CartItem[]
   tableId: string | null
   paymentMethod: string | null
+  activeOrderId: string | null   // set after checkout, used by "Đặt thêm món" flow
   addItem: (item: CartItem) => void
   removeItem: (itemId: string) => void
   updateQty: (itemId: string, qty: number) => void
   clearCart: () => void
   setTableId: (id: string) => void
   setPaymentMethod: (method: string) => void
+  setActiveOrderId: (id: string | null) => void
   total: () => number
   itemCount: () => number
 }
@@ -444,6 +418,7 @@ export const useCartStore = create<CartState>((set, get) => ({
   items: [],
   tableId: null,
   paymentMethod: null,
+  activeOrderId: null,
   addItem: (item) => set((s) => {
     const existing = s.items.find(i =>
       i.product_id === item.product_id &&
@@ -458,9 +433,10 @@ export const useCartStore = create<CartState>((set, get) => ({
   updateQty: (id, qty) => set((s) => ({
     items: s.items.map(i => i.id === id ? { ...i, quantity: qty } : i).filter(i => i.quantity > 0)
   })),
-  clearCart: () => set({ items: [], tableId: null, paymentMethod: null }),
+  clearCart: () => set({ items: [], tableId: null, paymentMethod: null, activeOrderId: null }),
   setTableId: (id) => set({ tableId: id }),
   setPaymentMethod: (method) => set({ paymentMethod: method }),
+  setActiveOrderId: (id) => set({ activeOrderId: id }),
   total: () => get().items.reduce((sum, i) => {
     const toppingTotal = i.toppings?.reduce((t, tp) => t + tp.price * tp.quantity, 0) ?? 0
     return sum + (i.price + toppingTotal) * i.quantity
@@ -580,6 +556,40 @@ export function useOrderSSE(orderId: string) {
   return { lastEvent, connectionError }
 }
 ```
+
+### 8.10 — Admin product list: use /products/all not /products
+
+```ts
+// ❌ WRONG — public endpoint filters is_available=true, admin sees incomplete list
+const products = await api.get('/products')
+
+// ✅ CORRECT — Manager+ endpoint returns all products including unavailable
+const products = await api.get('/products/all')
+```
+
+Public `GET /products` filters `is_available=1`. Admin CRUD pages need `GET /products/all` (Manager+) to see and manage out-of-stock items.
+
+### 8.11 — Tailwind JIT: rebuild FE image after adding pages/components
+
+```bash
+# After adding any new page or component with new Tailwind classes:
+docker compose up -d --build fe
+```
+
+Tailwind JIT in production scans source files at **build time**, not runtime. Classes that don't exist in the image at build time are purged → invisible text / missing colors. This affects every new admin page added after the initial Docker build.
+
+### 8.12 — PATCH not PUT for partial updates (match API_CONTRACT)
+
+```ts
+// ❌ WRONG — route registered as PUT on BE, but FE sends PATCH → 404
+await api.patch(`/products/${id}`, data)  // if BE has PUT registered
+
+// ✅ CORRECT — both sides use PATCH for partial updates
+// FE: api.patch()
+// BE: router.PATCH("/:id", handler)
+```
+
+Always verify HTTP method matches between `admin.api.ts` calls and BE route registrations. Use PATCH (not PUT) for partial updates per API_CONTRACT.
 
 ---
 
@@ -957,4 +967,4 @@ docker compose logs -f fe
 
 ---
 
-*BanhCuon System · FE System Guide · v1.0 · 2026-04-30*
+*BanhCuon System · FE System Guide · v1.1 · 2026-05-10*
