@@ -130,7 +130,7 @@ Each phase has a specific gate condition. The next phase does not start until ev
 
 - [ ] `sqlc generate` runs without error
 - [ ] `be/internal/db/` directory exists with: `db.go`, `models.go`, `querier.go`, and query files
-- [ ] All generated struct field names verified against `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md`
+- [ ] All generated struct field names verified against `docs/be/DB_SCHEMA_SUMMARY.md`
 - [ ] Specifically confirmed: `price` (not `base_price`), `image_path` (not `image_url`), `created_by` (not `staff_id`), `gateway_data` (not `webhook_payload`), payment status `completed` (not `success`)
 - [ ] `go build ./...` passes from project root
 

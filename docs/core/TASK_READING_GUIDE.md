@@ -16,7 +16,7 @@
 
 **Docs to read before starting:**
 - `docs/task/task1_database/Ver 2/008_order_groups.sql.md` — migration spec (adds `group_id CHAR(36) NULL` + index to `orders`)
-- `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` — verify `orders` table field names before altering
+- `docs/be/DB_SCHEMA_SUMMARY.md` — verify `orders` table field names before altering
 
 **Key concern:** Migration is additive (nullable column + index) — safe to run on existing data. Verify `goose` version tag matches existing migration sequence.
 
@@ -64,7 +64,7 @@
 **Status:** ⬜ — requires 4.1 auth middleware working
 
 **Docs to read before starting:**
-- `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` — product/category/topping/combo field names (`price` not `base_price`, `image_path` not `image_url`)
+- `docs/be/DB_SCHEMA_SUMMARY.md` — product/category/topping/combo field names (`price` not `base_price`, `image_path` not `image_url`)
 - `docs/spec/Spec_2_Products_API_v2_CORRECTED.md` — which sqlc queries are needed
 - `docs/be/BE_SYSTEM_GUIDE.md` — repository layer rules (wrap all sqlc, no business logic here)
 
@@ -79,8 +79,8 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_2_Products_API_v2_CORRECTED.md` — CRUD rules, cache TTL, invalidation triggers
-- `docs/MASTER_v1.2.md §3` — RBAC: which roles can write (Manager+ = role value 4+)
-- `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` — field name verification
+- `docs/core/MASTER_v1.2.md §3` — RBAC: which roles can write (Manager+ = role value 4+)
+- `docs/be/DB_SCHEMA_SUMMARY.md` — field name verification
 - `docs/be/BE_SYSTEM_GUIDE.md` — service layer rules (no gin, no DB calls, use repo)
 
 **Key concerns:**
@@ -97,7 +97,7 @@
 - `docs/spec/Spec_2_Products_API_v2_CORRECTED.md` — all 20+ endpoints + AC
 - `docs/contract/API_CONTRACT_v1.2.md` — endpoint signatures
 - `docs/contract/ERROR_CONTRACT_v1.1.md` — error codes for product domain
-- `docs/MASTER_v1.2.md §3` — RBAC: GET endpoints are public; POST/PATCH/DELETE require `RequireRole(4)` (Manager+)
+- `docs/core/MASTER_v1.2.md §3` — RBAC: GET endpoints are public; POST/PATCH/DELETE require `RequireRole(4)` (Manager+)
 - `docs/be/BE_SYSTEM_GUIDE.md` — handler patterns, DI wiring
 
 **Key concerns:**
@@ -112,7 +112,7 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_2_Products_API_v2_CORRECTED.md` — full AC checklist
-- `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` — field name cross-check
+- `docs/be/DB_SCHEMA_SUMMARY.md` — field name cross-check
 
 **Key concerns:**
 - `price` field present (not `price_delta`) ✓
@@ -129,7 +129,7 @@
 **Status:** ⬜ — requires 4.2 products working
 
 **Docs to read before starting:**
-- `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` — orders/order_items field names (no `order_items.status` column — derive from `qty_served`)
+- `docs/be/DB_SCHEMA_SUMMARY.md` — orders/order_items field names (no `order_items.status` column — derive from `qty_served`)
 - `docs/spec/Spec_4_Orders_API.md` — which queries are needed
 - `docs/be/BE_SYSTEM_GUIDE.md` — repository layer rules
 
@@ -144,9 +144,9 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_4_Orders_API.md` — full order lifecycle, combo expansion, state machine, cancel rule
-- `docs/MASTER_v1.2.md §4` — business rules: 1-table-1-active, 30% cancel threshold, `recalculateTotalAmount()` call requirement
-- `docs/MASTER_v1.2.md §5` — realtime: WS `new_order` on create, SSE on status change
-- `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` — orders + order_items field names
+- `docs/core/MASTER_v1.2.md §4` — business rules: 1-table-1-active, 30% cancel threshold, `recalculateTotalAmount()` call requirement
+- `docs/core/MASTER_v1.2.md §5` — realtime: WS `new_order` on create, SSE on status change
+- `docs/be/DB_SCHEMA_SUMMARY.md` — orders + order_items field names
 - `docs/be/BE_SYSTEM_GUIDE.md` — service patterns, transaction rules
 
 **Key concerns:**
@@ -163,7 +163,7 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_4_Orders_API.md` — SSE event shapes, which events are sent
-- `docs/MASTER_v1.2.md §5` — SSE config: headers, heartbeat interval (15s), backoff settings
+- `docs/core/MASTER_v1.2.md §5` — SSE config: headers, heartbeat interval (15s), backoff settings
 - `docs/contract/API_CONTRACT_v1.2.md §10` — SSE endpoint signature
 
 **Key concerns:**
@@ -195,8 +195,8 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_4_Orders_API.md §12` — full group spec: CreateGroup, AddOrder, RemoveOrder, GetGroup, Disband, combined_status logic
-- `docs/MASTER_v1.2.md §4` — business rules for group payment
-- `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` — `orders.group_id` field (added in migration 008)
+- `docs/core/MASTER_v1.2.md §4` — business rules for group payment
+- `docs/be/DB_SCHEMA_SUMMARY.md` — `orders.group_id` field (added in migration 008)
 
 **Key concerns:**
 - Validate all order_ids are active AND ungrouped before assigning `group_id`
@@ -223,7 +223,7 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_4_Orders_API.md §12.4` — group SSE spec
-- `docs/MASTER_v1.2.md §5` — SSE config
+- `docs/core/MASTER_v1.2.md §5` — SSE config
 
 **Key concerns:**
 - Query all order IDs in group → subscribe ALL Redis channels simultaneously
@@ -236,7 +236,7 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_4_Orders_API.md` — AC checklist (including AC-G1 through AC-G8 for groups)
-- `docs/MASTER_v1.2.md §4` — business rule verification
+- `docs/core/MASTER_v1.2.md §4` — business rule verification
 
 **Key concerns:**
 - Combo expansion creates parent + sub-items ✓
@@ -254,7 +254,7 @@
 **Status:** ⬜ — requires 4.3 orders working
 
 **Docs to read before starting:**
-- `docs/MASTER_v1.2.md §5` — WS config: ping/pong intervals, message types
+- `docs/core/MASTER_v1.2.md §5` — WS config: ping/pong intervals, message types
 - `docs/spec/Spec_4_Orders_API.md` — what events the hub must broadcast
 - `docs/be/BE_SYSTEM_GUIDE.md` — concurrency patterns for hub
 
@@ -269,7 +269,7 @@
 **Status:** ⬜
 
 **Docs to read before starting:**
-- `docs/MASTER_v1.2.md §5` — WS deadlines
+- `docs/core/MASTER_v1.2.md §5` — WS deadlines
 - `docs/be/BE_SYSTEM_GUIDE.md` — client pump patterns
 
 **Key concerns:**
@@ -283,7 +283,7 @@
 **Status:** ⬜
 
 **Docs to read before starting:**
-- `docs/MASTER_v1.2.md §5 + §6` — WS auth via `?token=` query param (browser WS API cannot set headers)
+- `docs/core/MASTER_v1.2.md §5 + §6` — WS auth via `?token=` query param (browser WS API cannot set headers)
 - `docs/contract/API_CONTRACT_v1.2.md` — WS endpoint signatures
 - `docs/be/BE_SYSTEM_GUIDE.md` — upgrade pattern
 
@@ -299,7 +299,7 @@
 
 **Docs to read before starting:**
 - `docs/contract/API_CONTRACT_v1.2.md` — WS endpoint paths
-- `docs/MASTER_v1.2.md §3` — RBAC: `/ws/kds` requires Chef+, `/ws/orders-live` and `/ws/payments` require Cashier+
+- `docs/core/MASTER_v1.2.md §3` — RBAC: `/ws/kds` requires Chef+, `/ws/orders-live` and `/ws/payments` require Cashier+
 
 **Key concerns:**
 - Three WS routes: `WS /api/v1/ws/kds`, `WS /api/v1/ws/orders-live`, `WS /api/v1/ws/payments`
@@ -350,8 +350,8 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_5_Payment_Webhooks.md` — payment lifecycle, idempotency requirement
-- `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` — payments table fields (`gateway_data` not `webhook_payload`, status `completed` not `success`)
-- `docs/MASTER_v1.2.md §4` — business rule: payment only allowed when `order.status = 'ready'`
+- `docs/be/DB_SCHEMA_SUMMARY.md` — payments table fields (`gateway_data` not `webhook_payload`, status `completed` not `success`)
+- `docs/core/MASTER_v1.2.md §4` — business rule: payment only allowed when `order.status = 'ready'`
 
 **Key concerns:**
 - Idempotency check: read `payment.status` before any update
@@ -382,7 +382,7 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_5_Payment_Webhooks.md` — payment timeout rules
-- `docs/MASTER_v1.2.md §5` — Redis keyspace notification config
+- `docs/core/MASTER_v1.2.md §5` — Redis keyspace notification config
 
 **Key concerns:**
 - Listen for Redis keyspace events (`KEA` config required)
@@ -415,7 +415,7 @@
 **Docs to read before starting:**
 - `docs/spec/Spec_6_QR_POS.md` — QR token decode flow, table lookup logic
 - `docs/contract/API_CONTRACT_v1.2.md` — endpoint signature
-- `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` — tables table field names
+- `docs/be/DB_SCHEMA_SUMMARY.md` — tables table field names
 
 **Key concerns:**
 - Query: `WHERE qr_token = ? AND is_active = 1 AND deleted_at IS NULL`
@@ -476,7 +476,7 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec1_Auth_Updated_v2.md` — FE AC: refresh flow, 401 retry, redirect behavior
-- `docs/MASTER_v1.2.md §6` — JWT: access token in memory, refresh via httpOnly cookie
+- `docs/core/MASTER_v1.2.md §6` — JWT: access token in memory, refresh via httpOnly cookie
 - `docs/fe/FE_SYSTEM_GUIDE.md` — api-client patterns, interceptor logic
 
 **Key concerns:**
@@ -519,8 +519,8 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec1_Auth_Updated_v2.md` — login form AC, role-based redirect rules
-- `docs/MASTER_v1.2.md §2` — design tokens: colors, font sizes (use Tailwind classes, no hex)
-- `docs/MASTER_v1.2.md §3` — RBAC role values: chef → `/kds`, cashier → `/pos`, manager/admin → `/dashboard`, customer → `/menu`
+- `docs/core/MASTER_v1.2.md §2` — design tokens: colors, font sizes (use Tailwind classes, no hex)
+- `docs/core/MASTER_v1.2.md §3` — RBAC role values: chef → `/kds`, cashier → `/pos`, manager/admin → `/dashboard`, customer → `/menu`
 - `docs/fe/FE_SYSTEM_GUIDE.md` — RHF + Zod form patterns
 
 **Key concerns:**
@@ -547,7 +547,7 @@
 **Status:** ⬜
 
 **Docs to read before starting:**
-- `docs/MASTER_v1.2.md §3` — role hierarchy and numeric values
+- `docs/core/MASTER_v1.2.md §3` — role hierarchy and numeric values
 - `docs/fe/FE_SYSTEM_GUIDE.md` — guard patterns
 
 **Key concerns:**
@@ -575,7 +575,7 @@
 **Status:** ⬜ — requires 5.1 auth + 4.2 products API
 
 **Docs to read before starting:**
-- `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` — exact field names from DB (single source of truth)
+- `docs/be/DB_SCHEMA_SUMMARY.md` — exact field names from DB (single source of truth)
 - `docs/spec/Spec_3_Menu_Checkout_UI_v2.md` — UI-facing product shape
 - `docs/spec/Spec_2_Products_API_v2_CORRECTED.md` — API response shapes
 
@@ -591,7 +591,7 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_4_Orders_API.md` — order/order_item shapes
-- `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` — field names
+- `docs/be/DB_SCHEMA_SUMMARY.md` — field names
 
 **Key concerns:**
 - `itemStatus` is derived (no `status` column): `qty_served=0` → `pending`, `0<x<qty` → `preparing`, `x=qty` → `done`
@@ -618,7 +618,7 @@
 **Status:** ⬜
 
 **Docs to read before starting:**
-- `docs/MASTER_v1.2.md §2` — design tokens: active tab = `border-b-2 border-orange-500`
+- `docs/core/MASTER_v1.2.md §2` — design tokens: active tab = `border-b-2 border-orange-500`
 - `docs/spec/Spec_3_Menu_Checkout_UI_v2.md` — category tab behavior
 
 **Key concerns:**
@@ -633,8 +633,8 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_3_Menu_Checkout_UI_v2.md` — card layout, badge rules
-- `docs/MASTER_v1.2.md §2` — price color = `text-orange-500`
-- `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` — `image_path` (not `image_url`)
+- `docs/core/MASTER_v1.2.md §2` — price color = `text-orange-500`
+- `docs/be/DB_SCHEMA_SUMMARY.md` — `image_path` (not `image_url`)
 
 **Key concerns:**
 - `image_path` is a relative path — prefix with storage base URL for `<img src>`
@@ -648,7 +648,7 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_3_Menu_Checkout_UI_v2.md` — topping modal behavior + price calculation
-- `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` — topping field: `price` (not `price_delta`)
+- `docs/be/DB_SCHEMA_SUMMARY.md` — topping field: `price` (not `price_delta`)
 
 **Key concerns:**
 - Footer total = `product.price + sum(selected topping prices)`
@@ -675,7 +675,7 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_3_Menu_Checkout_UI_v2.md` — drawer layout, stepper behavior
-- `docs/MASTER_v1.2.md §2` — design tokens
+- `docs/core/MASTER_v1.2.md §2` — design tokens
 
 **Key concerns:**
 - Slide in from right
@@ -735,7 +735,7 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_3_Menu_Checkout_UI_v2.md` — SSE reconnect AC, error banner threshold
-- `docs/MASTER_v1.2.md §5` — SSE config: maxAttempts=5, base=1s, max=30s
+- `docs/core/MASTER_v1.2.md §5` — SSE config: maxAttempts=5, base=1s, max=30s
 - `docs/contract/API_CONTRACT_v1.2.md §10` — SSE endpoint
 
 **Key concerns:**
@@ -751,7 +751,7 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_3_Menu_Checkout_UI_v2.md` — order tracking page AC, progress bar formula
-- `docs/MASTER_v1.2.md §4` — cancel rule: <30% served
+- `docs/core/MASTER_v1.2.md §4` — cancel rule: <30% served
 
 **Key concerns:**
 - Progress bar: `Math.round((totalServed / totalQty) * 100)%`
@@ -766,7 +766,7 @@
 **Status:** ⬜
 
 **Docs to read before starting:**
-- `docs/MASTER_v1.2.md §2` — design tokens: badge colors mapped to Tailwind classes
+- `docs/core/MASTER_v1.2.md §2` — design tokens: badge colors mapped to Tailwind classes
 - `docs/fe/FE_SYSTEM_GUIDE.md` — component patterns
 
 **Key concerns:**
@@ -797,8 +797,8 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_4_Orders_API.md` — KDS FE section: card layout, color thresholds, item click behavior
-- `docs/MASTER_v1.2.md §2` — dark bg token (KDS uses dark theme)
-- `docs/MASTER_v1.2.md §5` — WS config: reconnect behavior, `?token=` query param
+- `docs/core/MASTER_v1.2.md §2` — dark bg token (KDS uses dark theme)
+- `docs/core/MASTER_v1.2.md §5` — WS config: reconnect behavior, `?token=` query param
 - `docs/fe/FE_SYSTEM_GUIDE.md` — WS hook patterns
 
 **Key concerns:**
@@ -815,7 +815,7 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_5_Payment_Webhooks.md` — POS FE section
-- `docs/MASTER_v1.2.md §3` — RBAC: Cashier+ required
+- `docs/core/MASTER_v1.2.md §3` — RBAC: Cashier+ required
 - `docs/fe/FE_SYSTEM_GUIDE.md` — RoleGuard usage
 
 **Key concerns:**
@@ -830,7 +830,7 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_5_Payment_Webhooks.md` — cashier payment page FE AC
-- `docs/MASTER_v1.2.md §5` — WS: subscribe `payment_success` event
+- `docs/core/MASTER_v1.2.md §5` — WS: subscribe `payment_success` event
 - `docs/fe/FE_SYSTEM_GUIDE.md` — WS hook + print patterns
 
 **Key concerns:**
@@ -850,7 +850,7 @@
 **Status:** ⬜ — can run now (parallel with Phase 4)
 
 **Docs to read before starting:**
-- `docs/MASTER_v1.2.md §9` — complete list of all env vars (DB, Redis, JWT, Storage, VNPay, MoMo, ZaloPay, CORS, PORT)
+- `docs/core/MASTER_v1.2.md §9` — complete list of all env vars (DB, Redis, JWT, Storage, VNPay, MoMo, ZaloPay, CORS, PORT)
 - `docs/claude/CLAUDE_DEVOPS.md` — DevOps conventions
 
 **Key concerns:**
@@ -952,7 +952,7 @@
 
 **Docs to read before starting:**
 - `docs/spec/Spec_4_Orders_API.md` — AC that maps to test cases
-- `docs/MASTER_v1.2.md §4` — business rules under test
+- `docs/core/MASTER_v1.2.md §4` — business rules under test
 
 **Test cases required:**
 - `TestCreateOrder_ComboExpand` — combo creates parent + sub-items
@@ -1000,7 +1000,7 @@
 
 **Docs to read before starting:**
 - `docs/contract/API_CONTRACT_v1.2.md` — all endpoints to cover
-- `docs/MASTER_v1.2.md §5` — SSE/WS reconnect behavior to test
+- `docs/core/MASTER_v1.2.md §5` — SSE/WS reconnect behavior to test
 
 **Key concerns:**
 - Run against a real test DB (never mock the DB)
@@ -1013,7 +1013,7 @@
 **Status:** ⬜
 
 **Docs to read before starting:**
-- `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` — table schemas for seed data
+- `docs/be/DB_SCHEMA_SUMMARY.md` — table schemas for seed data
 
 **Key concerns:**
 - 3+ categories, 10+ products, 5+ toppings, 2+ combos
@@ -1041,7 +1041,7 @@
 **Status:** ⬜
 
 **Docs to read before starting:**
-- `docs/qui_trinh/BanhCuon_Project_Checklist.md` — AC per spec (one source for UAT criteria)
+- `docs/requirements/BanhCuon_Project_Checklist.md` — AC per spec (one source for UAT criteria)
 - All 7 Spec files — extract test cases per domain
 
 **Key concerns:**
@@ -1120,7 +1120,7 @@
 | QR + POS | `docs/spec/Spec_6_QR_POS.md` | API_CONTRACT, DB_SCHEMA |
 | Staff Mgmt | `docs/spec/Spec_7_Staff_Management.md` | MASTER §3, BE_SYSTEM_GUIDE |
 | DevOps | `docs/claude/CLAUDE_DEVOPS.md` | MASTER §9 |
-| DB schema | `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` | — |
+| DB schema | `docs/be/DB_SCHEMA_SUMMARY.md` | — |
 | Error codes | `docs/contract/ERROR_CONTRACT_v1.1.md` | — |
 | API signatures | `docs/contract/API_CONTRACT_v1.2.md` | — |
 

@@ -9,7 +9,7 @@
 
 ### 1.1 Color Palette
 
-> **Single source:** `docs/MASTER_v1.2.md §2`. Spec này reference — không định nghĩa lại hex.
+> **Single source:** `docs/core/MASTER_v1.2.md §2`. Spec này reference — không định nghĩa lại hex.
 
 | Token | Dùng Cho |
 |---|---|

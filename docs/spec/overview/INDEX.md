@@ -344,9 +344,9 @@ Full rows with `spec_ref` and `draw_ref`: `docs/TASKS.md §Phase 9`
 | Need | File | Section |
 |---|---|---|
 | Full API shapes | `docs/contract/API_CONTRACT_v1.2.md` | §4 (Orders) · §6 (Tables) · §10 (WS) |
-| WS/SSE reconnect config | `docs/MASTER_v1.2.md` | §5 |
-| RBAC roles | `docs/MASTER_v1.2.md` | §3 |
-| Order business rules (cancel threshold) | `docs/MASTER_v1.2.md` | §4 |
+| WS/SSE reconnect config | `docs/core/MASTER_v1.2.md` | §5 |
+| RBAC roles | `docs/core/MASTER_v1.2.md` | §3 |
+| Order business rules (cancel threshold) | `docs/core/MASTER_v1.2.md` | §4 |
 | Error codes → toast messages | `docs/contract/ERROR_CONTRACT_v1.1.md` | — |
 | Wireframe (ASCII layout) | `docs/fe/wireframes/overview.md` | — |
 | FE patterns (api-client, auth token) | `docs/fe/FE_SYSTEM_GUIDE.md` | — |

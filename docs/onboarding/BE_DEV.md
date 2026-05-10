@@ -52,7 +52,7 @@ Never skip a layer. Handler calls service. Service calls repository. Repository 
 | Handler must NOT contain business logic | Put it in service |
 | Service must NOT import gin | Keeps it testable |
 | Always use `respondError()` from `handler/respond.go` | Error format contract |
-| DB field names from `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` | Single source of truth |
+| DB field names from `docs/be/DB_SCHEMA_SUMMARY.md` | Single source of truth |
 | Error codes from `docs/contract/ERROR_CONTRACT_v1.1.md` | Never invent new codes |
 | All IDs are `string` (UUID CHAR(36)) | Never use `int` for IDs |
 | Redis writes must have TTL | Never store without expiry |

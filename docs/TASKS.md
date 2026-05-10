@@ -80,7 +80,7 @@ If you cannot fill `draw_ref` → no wireframe exists yet → run Step 0b DRAW f
 | ID | Status | Task | Notes |
 |---|---|---|---|
 | P3-1 | ✅ | Install sqlc CLI and run `sqlc generate` → creates `be/internal/db/` (models + querier) | `cd be && sqlc generate` |
-| P3-2 | ✅ | Verify generated struct field names — must match schema: `price` not `base_price`, `image_path` not `image_url`, `created_by` not `staff_id`, `gateway_data` not `webhook_payload`, payment status `completed` not `success` | Read `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` |
+| P3-2 | ✅ | Verify generated struct field names — must match schema: `price` not `base_price`, `image_path` not `image_url`, `created_by` not `staff_id`, `gateway_data` not `webhook_payload`, payment status `completed` not `success` | Read `docs/be/DB_SCHEMA_SUMMARY.md` |
 
 ---
 

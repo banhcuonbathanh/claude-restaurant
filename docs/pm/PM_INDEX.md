@@ -57,7 +57,7 @@ These are too heavily referenced by path in `CLAUDE.md` and `IMPLEMENTATION_WORK
 | [../claude/TEAM_HANDBOOK (1).md](../claude/TEAM_HANDBOOK%20(1).md) | Team structure, ownership matrix, branch naming, PR checklist | Onboarding; resolving ownership disputes |
 | [../claude/CLAUDE_CASESTUDY.md](../claude/CLAUDE_CASESTUDY.md) | Implementation patterns and reference code from case studies | When implementing a complex pattern for the first time |
 
-### Case studies — learning by example (docs/case_study/)
+### Case studies — learning by example (docs/archive/case_study/)
 
 | File | Domain | Read when |
 |---|---|---|
@@ -65,7 +65,7 @@ These are too heavily referenced by path in `CLAUDE.md` and `IMPLEMENTATION_WORK
 | [../case_study/BanhCuon_FE_CaseStudy_v1.0.md](../case_study/BanhCuon_FE_CaseStudy_v1.0.md) | Frontend — component patterns, state management examples | Before implementing Phase 5 tasks |
 | [../case_study/BanhCuon_Products_CaseStudy_v1_1.md](../case_study/BanhCuon_Products_CaseStudy_v1_1.md) | Products — CRUD patterns, Redis caching examples | Before implementing task 4.2 |
 
-### General process reference (docs/qui_trinh/)
+### General process reference (docs/requirements/)
 
 | File | Purpose | When to read |
 |---|---|---|
@@ -81,8 +81,8 @@ These are too heavily referenced by path in `CLAUDE.md` and `IMPLEMENTATION_WORK
 | Feature specs | `docs/spec/` | Spec1_Auth_Updated_v2.md |
 | API / error contracts | `docs/contract/` | API_CONTRACT_v1.2.md |
 | DB schema reference | `docs/task/` | BanhCuon_DB_SCHEMA_SUMMARY.md |
-| Shared business facts (RBAC, rules, tokens) | `docs/MASTER_v1.2.md` | §3 RBAC hierarchy |
-| Business requirements / SRS | `docs/qui_trinh/` | BanhCuon_SRS_v1.md |
+| Shared business facts (RBAC, rules, tokens) | `docs/core/MASTER_v1.2.md` | §3 RBAC hierarchy |
+| Business requirements / SRS | `docs/requirements/` | BanhCuon_SRS_v1.md |
 | Project entry point | repo root | CLAUDE.md |
 
 ---

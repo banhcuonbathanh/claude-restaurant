@@ -107,7 +107,7 @@ Before coding, show the wireframe + task breakdown to the user and confirm:
 **Spec gate (blocking):**
 > Does this task touch Auth · Products · Menu/Checkout · Orders · Payment · QR/POS · Staff · Admin Dashboard?
 > **YES → read the domain spec before doing anything else. No plan, no code until spec is read.**
-> Spec doesn't cover the feature? → read `docs/qui_trinh/BanhCuon_SRS_v1.md` then `BanhCuon_FSD_v1.md`.
+> Spec doesn't cover the feature? → read `docs/requirements/BanhCuon_SRS_v1.md` then `BanhCuon_FSD_v1.md`.
 > NO (infra, test setup, pure refactor, tooling) → spec read not required.
 > Not sure which doc to open? → see `docs/DOC_MAP.md`.
 
@@ -115,13 +115,13 @@ Before coding, show the wireframe + task breakdown to the user and confirm:
 
 1. The task row in `docs/TASKS.md` — confirm ID, dependencies, AC reference
 2. **Domain spec** (Spec1–Spec9) — **mandatory if spec gate above is YES**
-3. `docs/MASTER_v1.2.md` sections relevant to the task:
+3. `docs/core/MASTER_v1.2.md` sections relevant to the task:
    - §2 design tokens if writing UI
    - §3 RBAC if writing auth/role checks
    - §4 business rules if writing orders/payments/cancel logic
    - §5 realtime config if writing SSE/WS
    - §6 JWT config if writing auth
-4. `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` — verify field names before writing any query or struct
+4. `docs/be/DB_SCHEMA_SUMMARY.md` — verify field names before writing any query or struct
 5. `docs/contract/ERROR_CONTRACT_v1.1.md` — verify error codes before writing any error response
 6. `docs/contract/API_CONTRACT_v1.2.md` — verify endpoint signatures before writing handler
 

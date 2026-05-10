@@ -140,7 +140,7 @@ Timer ticks every 30s via `setInterval`.
 | `order_completed` | remove order from list |
 
 WS URL: `GET /ws/orders-live?token={accessToken}`
-Auth: query param (not header) per `docs/MASTER_v1.2.md §5`.
+Auth: query param (not header) per `docs/core/MASTER_v1.2.md §5`.
 
 ---
 

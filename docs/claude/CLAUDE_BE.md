@@ -23,12 +23,12 @@ API shape → API_CONTRACT.docx. Business logic → MASTER.docx §4. DB schema �
 | --- | --- | --- |
 | Request/response shape | `docs/contract/API_CONTRACT_v1.2.md` | §2 Auth, §3 Products, §4 Orders, §5 Payments |
 | Business logic unique của domain | `docs/spec/Spec1_Auth_Updated_v2.md` | B1 Business Logic, B2 sqlc Queries |
-| Go conventions (package, error wrap, ctx) | `docs/MASTER_v1.2.md` | §7.1 — Go Backend Rules |
+| Go conventions (package, error wrap, ctx) | `docs/core/MASTER_v1.2.md` | §7.1 — Go Backend Rules |
 | HTTP error codes cần trả về | `docs/contract/ERROR_CONTRACT_v1.1.md` | §2, §3 |
-| DB columns và types | `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` | — |
-| RBAC check logic | `docs/MASTER_v1.2.md` | §3 — RBAC & Role Hierarchy |
-| JWT payload structure | `docs/MASTER_v1.2.md` | §6 — JWT Config |
-| Business rules (order cancel, payment) | `docs/MASTER_v1.2.md` | §4 — Business Rules |
+| DB columns và types | `docs/be/DB_SCHEMA_SUMMARY.md` | — |
+| RBAC check logic | `docs/core/MASTER_v1.2.md` | §3 — RBAC & Role Hierarchy |
+| JWT payload structure | `docs/core/MASTER_v1.2.md` | §6 — JWT Config |
+| Business rules (order cancel, payment) | `docs/core/MASTER_v1.2.md` | §4 — Business Rules |
 | BE scaffold status + DI wiring | `docs/be/BE_DOC_INDEX.md` | §1 Scaffold · §3 DI Wiring |
 
 **§  ****Section 3 — Package Structure (Rule: MASTER.docx §7.1)**

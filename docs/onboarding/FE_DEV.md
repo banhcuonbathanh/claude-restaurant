@@ -79,7 +79,7 @@ A task with no `spec_ref` is **not ready to start**. Trace back to spec first.
 | `formatVND()` for all prices | Consistent VND formatting |
 | Access token lives in Zustand only (memory) | Prevents XSS via localStorage |
 | All API calls through `api-client.ts` | Centralized auth headers + error handling |
-| Design tokens from `docs/MASTER_v1.2.md §2` | Single source of truth |
+| Design tokens from `docs/core/MASTER_v1.2.md §2` | Single source of truth |
 | All IDs typed as `string`, never `number` | UUIDs are strings |
 | WS token via query param (not Authorization header) | Browser WebSocket API cannot set custom headers |
 

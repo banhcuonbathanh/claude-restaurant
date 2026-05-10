@@ -121,7 +121,7 @@ Full task list → [`docs/TASKS.md`](docs/TASKS.md)
 
 | Doc | Purpose |
 |---|---|
-| [`docs/MASTER_v1.2.md`](docs/MASTER_v1.2.md) | RBAC · business rules · JWT · realtime · design tokens |
+| [`docs/core/MASTER_v1.2.md`](docs/core/MASTER_v1.2.md) | RBAC · business rules · JWT · realtime · design tokens |
 | [`docs/contract/API_CONTRACT_v1.2.md`](docs/contract/API_CONTRACT_v1.2.md) | All API endpoints |
 | [`docs/contract/ERROR_CONTRACT_v1.1.md`](docs/contract/ERROR_CONTRACT_v1.1.md) | Error codes + format |
 | [`docs/be/BE_SYSTEM_GUIDE.md`](docs/be/BE_SYSTEM_GUIDE.md) | Backend developer guide |

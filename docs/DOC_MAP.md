@@ -2,7 +2,7 @@
 
 > **Purpose:** Tell Claude (and developers) exactly WHEN, WHY, and WHAT each doc is for.
 > **Rule:** When in doubt about which doc to open, start here.
-> **Version:** v1.0 · 2026-05-10
+> **Version:** v1.1 · 2026-05-10
 
 ---
 
@@ -21,10 +21,10 @@ Does a Spec file exist for this domain?  (see Tier 2 below)
         NO
         │
         ▼
-Read SRS (BanhCuon_SRS_v1.md)           ← WHAT the system must do
+Read SRS (docs/requirements/BanhCuon_SRS_v1.md)   ← WHAT the system must do
         │
         ▼
-Read FSD (BanhCuon_FSD_v1.md)           ← HOW each feature is designed to work
+Read FSD (docs/requirements/BanhCuon_FSD_v1.md)   ← HOW each feature is designed to work
         │
         ▼
 Still unclear? Read BRD (business context) and flag ❓ CLARIFY with user
@@ -34,14 +34,14 @@ Still unclear? Read BRD (business context) and flag ❓ CLARIFY with user
 
 | Need | Go to |
 |---|---|
-| Business rules (order flow, cancel, payment) | `MASTER_v1.2.md §4` |
-| RBAC roles + hierarchy | `MASTER_v1.2.md §3` |
-| JWT / auth rules | `MASTER_v1.2.md §6` |
-| Realtime (SSE/WS config) | `MASTER_v1.2.md §5` |
-| Design tokens (colors, fonts) | `MASTER_v1.2.md §2` |
-| Error codes + format | `ERROR_CONTRACT_v1.1.md` |
-| API endpoint signatures | `API_CONTRACT_v1.2.md` |
-| DB field names (single source) | `BanhCuon_DB_SCHEMA_SUMMARY.md` |
+| Business rules (order flow, cancel, payment) | `docs/core/MASTER_v1.2.md §4` |
+| RBAC roles + hierarchy | `docs/core/MASTER_v1.2.md §3` |
+| JWT / auth rules | `docs/core/MASTER_v1.2.md §6` |
+| Realtime (SSE/WS config) | `docs/core/MASTER_v1.2.md §5` |
+| Design tokens (colors, fonts) | `docs/core/MASTER_v1.2.md §2` |
+| Error codes + format | `docs/contract/ERROR_CONTRACT_v1.1.md` |
+| API endpoint signatures | `docs/contract/API_CONTRACT_v1.2.md` |
+| DB field names (single source) | `docs/be/DB_SCHEMA_SUMMARY.md` |
 
 ---
 
@@ -59,12 +59,12 @@ Still unclear? Read BRD (business context) and flag ❓ CLARIFY with user
 
 | File | Type | Description | When to use |
 |---|---|---|---|
-| `docs/qui_trinh/BanhCuon_SRS_v1.md` | SRS | WHAT the system must do — functional requirements per IEEE 830. Covers all 6 modules: Customer Portal, QR Ordering, KDS, POS, Dashboard, Infra. | Feature not in any spec → check here for functional requirement |
-| `docs/qui_trinh/BanhCuon_SRS_NFR_v1.1.md` | NFR | Non-functional requirements — performance targets, security constraints, availability, scalability | Performance/security decisions · load estimates |
-| `docs/qui_trinh/BanhCuon_BRD_v1.md` | BRD | WHY the system exists — business problem, project scope, stakeholder goals | Understanding business intent · resolving ambiguous requirements |
-| `docs/qui_trinh/BanhCuon_FSD_v1.md` | FSD | HOW each feature works — data flows, DB structure, API logic, FE components, AC. Bridges SRS → code. | Feature design gap · how a flow was intended to work |
-| `docs/qui_trinh/BanhCuon_UXUI_Design_v1.md` | UX/UI | UX flows, screen layouts, color system, component guidelines | New FE screen with no wireframe · visual design decisions |
-| `docs/SYSTEM_DESCRIPTION_v1.md` | Overview | Full system architecture, project layout, tech stack description for AI/dev onboarding | Onboarding to the project · architecture questions |
+| `docs/requirements/BanhCuon_SRS_v1.md` | SRS | WHAT the system must do — functional requirements per IEEE 830. Covers all 6 modules: Customer Portal, QR Ordering, KDS, POS, Dashboard, Infra. | Feature not in any spec → check here for functional requirement |
+| `docs/requirements/BanhCuon_SRS_NFR_v1.1.md` | NFR | Non-functional requirements — performance targets, security constraints, availability, scalability | Performance/security decisions · load estimates |
+| `docs/requirements/BanhCuon_BRD_v1.md` | BRD | WHY the system exists — business problem, project scope, stakeholder goals | Understanding business intent · resolving ambiguous requirements |
+| `docs/requirements/BanhCuon_FSD_v1.md` | FSD | HOW each feature works — data flows, DB structure, API logic, FE components, AC. Bridges SRS → code. | Feature design gap · how a flow was intended to work |
+| `docs/requirements/BanhCuon_UXUI_Design_v1.md` | UX/UI | UX flows, screen layouts, color system, component guidelines | New FE screen with no wireframe · visual design decisions |
+| `docs/core/SYSTEM_DESCRIPTION_v1.md` | Overview | Full system architecture, project layout, tech stack description for AI/dev onboarding | Onboarding to the project · architecture questions |
 
 ---
 
@@ -90,10 +90,10 @@ Still unclear? Read BRD (business context) and flag ❓ CLARIFY with user
 
 | File | Description | When to use |
 |---|---|---|
-| `docs/MASTER_v1.2.md` | Central rules doc: §2 design tokens · §3 RBAC · §4 business rules · §5 realtime · §6 JWT | Any business rule, role, auth, or realtime question |
+| `docs/core/MASTER_v1.2.md` | Central rules doc: §2 design tokens · §3 RBAC · §4 business rules · §5 realtime · §6 JWT | Any business rule, role, auth, or realtime question |
 | `docs/contract/API_CONTRACT_v1.2.md` | All API endpoints — method, path, request body, response shape | Before writing any FE api call or BE handler |
 | `docs/contract/ERROR_CONTRACT_v1.1.md` | All error codes + `respondError()` pattern | Before writing any error response (BE) or error toast (FE) |
-| `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` | DB field names — single source of truth for column names | Before writing any SQL query, sqlc annotation, or Go struct |
+| `docs/be/DB_SCHEMA_SUMMARY.md` | DB field names — single source of truth for column names | Before writing any SQL query, sqlc annotation, or Go struct |
 | `docs/api/openapi.yaml` | OpenAPI 3.0 spec (live via Swagger UI at :8090) | API shape verification · client code generation |
 
 ---
@@ -115,13 +115,14 @@ Still unclear? Read BRD (business context) and flag ❓ CLARIFY with user
 | Folder / File | Description | When to use |
 |---|---|---|
 | `docs/fe/wireframes/` | ASCII + Excalidraw wireframes per FE page | FE Pre-Task Phase (Step 0b) · visual layout reference |
+| `docs/fe/FE_STATE_MANAGEMENT.md` | FE state management patterns | Deep-dive on Zustand / TanStack Query design decisions |
+| `docs/fe/FE_DEPLOY_GUIDE.md` | FE deployment + technical documentation | FE build/deploy process |
+| `docs/devops/DOCKER_GUIDE.md` | Docker Compose setup and usage | Docker/container questions |
 | `docs/onboarding/` | Role-specific onboarding: BE_DEV · FE_DEV · DEVOPS · LEAD | New team member joining · role-specific setup |
 | `docs/pm/` | PM process: change requests, session guide, slash commands, AI management | Managing project process · change requests |
-| `docs/case_study/` | Deep-dive case studies: Auth · Products · FE | Learning from past implementations · debugging similar issues |
-| `docs/qui_trinh/BanhCuon_Project_Checklist.md` | Acceptance criteria per task | Verifying a task is fully complete |
-| `docs/qui_trinh/BanhCuon_Diagrams_v1.md` | System diagrams (sequence, ER, flow) | Architecture visualization |
-| `docs/doc_structure/` | Doc structure diagrams + decision workflow images | Understanding how the doc system itself is organized |
-| `docs/TASK_READING_GUIDE.md` | Guide for reading and interpreting TASKS.md | Unclear task format · task row conventions |
+| `docs/requirements/BanhCuon_Project_Checklist.md` | Acceptance criteria per task | Verifying a task is fully complete |
+| `docs/requirements/BanhCuon_Diagrams_v1.md` | System diagrams (sequence, ER, flow) | Architecture visualization |
+| `docs/core/TASK_READING_GUIDE.md` | Guide for reading and interpreting TASKS.md | Unclear task format · task row conventions |
 
 ---
 
@@ -132,26 +133,33 @@ docs/
 ├── DOC_MAP.md                  ← YOU ARE HERE — start here when lost
 ├── TASKS.md                    ← master task list (always update after every task)
 ├── IMPLEMENTATION_WORKFLOW.md  ← 7-step build process
-├── MASTER_v1.2.md              ← cross-cutting rules (RBAC, business rules, JWT, realtime, tokens)
-├── SYSTEM_DESCRIPTION_v1.md    ← full system architecture overview
+├── PROCEDURE_INDEX.md          ← task type → required procedure
+│
+├── core/                       ← cross-cutting rules + system overview
+│   ├── MASTER_v1.2.md          ← RBAC, business rules, JWT, realtime, design tokens
+│   ├── SYSTEM_DESCRIPTION_v1.md
+│   └── TASK_READING_GUIDE.md
 │
 ├── spec/                       ← domain specs (Spec1–Spec9) — read BEFORE planning any domain task
 ├── contract/                   ← API_CONTRACT + ERROR_CONTRACT — read when writing handlers or API calls
-├── qui_trinh/                  ← SRS + FSD + BRD + UX + checklists — read when spec is insufficient
-├── task/                       ← DB schema + task-specific deep dives
+├── requirements/               ← SRS + FSD + BRD + UX + checklists — read when spec is insufficient
+├── api/                        ← openapi.yaml
 │
-├── be/                         ← BE_SYSTEM_GUIDE (primary BE entry point)
-├── fe/                         ← FE_SYSTEM_GUIDE (primary FE entry point) + wireframes/
-├── devops/                     ← DEVOPS_SYSTEM_GUIDE
+├── be/                         ← BE_SYSTEM_GUIDE (primary BE entry point) + DB_SCHEMA_SUMMARY
+├── fe/                         ← FE_SYSTEM_GUIDE (primary FE entry point) + FE_STATE_MANAGEMENT + wireframes/
+├── devops/                     ← DEVOPS_SYSTEM_GUIDE + DOCKER_GUIDE
 │
 ├── base/                       ← LESSONS_LEARNED + project history
-├── api/                        ← openapi.yaml
 ├── onboarding/                 ← role-based onboarding guides
 ├── pm/                         ← project management process docs
-├── case_study/                 ← learning case studies
-└── doc_structure/              ← diagrams of the doc system itself
+│
+└── archive/                    ← stale/historical material (do not read unless debugging history)
+    ├── claude/                 ← old role guides (superseded by BE/FE/DEVOPS_SYSTEM_GUIDE)
+    ├── case_study/             ← past implementation case studies
+    ├── task_impl/              ← original task-by-task implementation files
+    └── doc_structure/          ← diagrams of the doc system itself
 ```
 
 ---
 
-*BanhCuon System · DOC_MAP · v1.0 · 2026-05-10*
+*BanhCuon System · DOC_MAP · v1.1 · 2026-05-10*

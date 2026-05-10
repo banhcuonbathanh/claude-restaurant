@@ -10,9 +10,9 @@
 | Cần Gì | File | Section |
 |---|---|---|
 | Full BE dev guide (roles, protocol) | `docs/claude/CLAUDE_BE.md` | tất cả |
-| Business rules (order, payment, cancel) | `docs/MASTER_v1.2.md` | §4 |
-| RBAC + JWT config | `docs/MASTER_v1.2.md` | §3, §6 |
-| DB field names (SINGLE SOURCE) | `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` | — |
+| Business rules (order, payment, cancel) | `docs/core/MASTER_v1.2.md` | §4 |
+| RBAC + JWT config | `docs/core/MASTER_v1.2.md` | §3, §6 |
+| DB field names (SINGLE SOURCE) | `docs/be/DB_SCHEMA_SUMMARY.md` | — |
 | API request/response shape | `docs/contract/API_CONTRACT_v1.2.md` | §2–§10 |
 | Error codes + respondError() | `docs/contract/ERROR_CONTRACT_v1.1.md` | — |
 | Domain logic + sqlc queries | `docs/spec/Spec1_Auth_Updated_v2.md` … | per domain |
@@ -49,10 +49,10 @@ docker compose logs -f be
 
 ## Critical Pointers
 
-- Middleware order → `docs/MASTER_v1.2.md §7.1`
-- Guest JWT (`sub='guest'`) vs staff JWT → `docs/MASTER_v1.2.md §6.4`
+- Middleware order → `docs/core/MASTER_v1.2.md §7.1`
+- Guest JWT (`sub='guest'`) vs staff JWT → `docs/core/MASTER_v1.2.md §6.4`
 - `respondError()` pattern → `docs/contract/ERROR_CONTRACT_v1.1.md`
-- `order_items.status` KHÔNG tồn tại (Issue #5 Approach B) → `docs/MASTER_v1.2.md §4`
+- `order_items.status` KHÔNG tồn tại (Issue #5 Approach B) → `docs/core/MASTER_v1.2.md §4`
 
 ## Root Context
 

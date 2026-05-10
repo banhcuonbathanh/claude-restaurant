@@ -24,13 +24,13 @@ KHÔNG hardcode màu HEX — dùng Tailwind class từ MASTER.docx §1.1. |
 | Code patterns (api-client, Zustand, SSE, TQ hooks) | `docs/fe/FE_DOC_INDEX.md` | §5 Patterns |
 | Per-domain reading guide (5.1–5.5) | `docs/fe/FE_DOC_INDEX.md` | §2 Reading Guide |
 | Scaffold status (what's stub vs missing) | `docs/fe/FE_DOC_INDEX.md` | §1 Scaffold |
-| Auth flow, token storage rules | `docs/MASTER_v1.2.md` | §6 JWT Config |
-| KDS urgency colors + WS/SSE config | `docs/MASTER_v1.2.md` | §2, §5 |
+| Auth flow, token storage rules | `docs/core/MASTER_v1.2.md` | §6 JWT Config |
+| KDS urgency colors + WS/SSE config | `docs/core/MASTER_v1.2.md` | §2, §5 |
 | Zustand store + interceptor pattern | `docs/spec/Spec1_Auth_Updated_v2.md` | F2 State & Token |
-| 3-layer state rule + guard pattern | `docs/FE_STATE_MANAGEMENT.md` | all |
+| 3-layer state rule + guard pattern | `docs/fe/FE_STATE_MANAGEMENT.md` | all |
 | API endpoint URLs + request body | `docs/contract/API_CONTRACT_v1.2.md` | §2–§10 |
 | Error codes → toast messages | `docs/contract/ERROR_CONTRACT_v1.1.md` | §4 FE Integration |
-| Next.js conventions | `docs/MASTER_v1.2.md` | §7.2 |
+| Next.js conventions | `docs/core/MASTER_v1.2.md` | §7.2 |
 
 **§  ****Section 3 — Folder Structure**
 | fe/

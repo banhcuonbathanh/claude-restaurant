@@ -54,8 +54,8 @@ No step is skipped. The first three steps happen **before any code is written.**
 I read all documents that govern this task:
 - The task row in TASKS.md (confirm ID, dependencies, acceptance criteria)
 - The relevant spec file (Spec1–Spec7) for the domain
-- Sections of `docs/MASTER_v1.2.md` that apply (RBAC, business rules, JWT, realtime, design tokens)
-- `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` — to get the exact field names before writing any query
+- Sections of `docs/core/MASTER_v1.2.md` that apply (RBAC, business rules, JWT, realtime, design tokens)
+- `docs/be/DB_SCHEMA_SUMMARY.md` — to get the exact field names before writing any query
 - `docs/contract/ERROR_CONTRACT_v1.1.md` — to get the exact error codes before writing any error response
 - `docs/contract/API_CONTRACT_v1.2.md` — to verify endpoint signatures before writing a handler
 
@@ -149,10 +149,10 @@ Layer 3 — System guides (read at the start of every coding session per role)
   docs/devops/DEVOPS_SYSTEM_GUIDE.md    ← DevOps epics, Dockerfile patterns, compose spec, CI/CD
 
 Layer 4 — Shared facts (read when needed — not all at once)
-  docs/MASTER_v1.2.md                   ← RBAC §3, business rules §4, realtime §5, JWT §6, design tokens §2
+  docs/core/MASTER_v1.2.md                   ← RBAC §3, business rules §4, realtime §5, JWT §6, design tokens §2
   docs/contract/API_CONTRACT_v1.2.md    ← all endpoints
   docs/contract/ERROR_CONTRACT_v1.1.md  ← error codes + respondError pattern
-  docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md ← field names (single source of truth)
+  docs/be/DB_SCHEMA_SUMMARY.md ← field names (single source of truth)
 
 Layer 5 — Domain specs (read only for that domain — listed in system guides)
   docs/spec/Spec1_Auth_Updated_v2.md
@@ -191,13 +191,13 @@ Every important fact in this project lives in exactly one document. When I need 
 
 | Fact | Authoritative source |
 |---|---|
-| DB field names | `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` |
+| DB field names | `docs/be/DB_SCHEMA_SUMMARY.md` |
 | Error codes + format | `docs/contract/ERROR_CONTRACT_v1.1.md` |
-| Business rules (order, payment, cancel) | `docs/MASTER_v1.2.md §4` |
-| RBAC roles + hierarchy | `docs/MASTER_v1.2.md §3` |
-| Design tokens (colors, fonts) | `docs/MASTER_v1.2.md §2` |
-| JWT config + auth rules | `docs/MASTER_v1.2.md §6` |
-| Realtime (SSE/WS config) | `docs/MASTER_v1.2.md §5` + `docs/contract/API_CONTRACT_v1.2.md §10` |
+| Business rules (order, payment, cancel) | `docs/core/MASTER_v1.2.md §4` |
+| RBAC roles + hierarchy | `docs/core/MASTER_v1.2.md §3` |
+| Design tokens (colors, fonts) | `docs/core/MASTER_v1.2.md §2` |
+| JWT config + auth rules | `docs/core/MASTER_v1.2.md §6` |
+| Realtime (SSE/WS config) | `docs/core/MASTER_v1.2.md §5` + `docs/contract/API_CONTRACT_v1.2.md §10` |
 | All endpoints | `docs/contract/API_CONTRACT_v1.2.md` |
 
 If two documents give different answers, I surface it as `⚠️ FLAG` and ask you which is authoritative. I do not pick one silently.

@@ -41,13 +41,13 @@ For each task, Step 1 READ specifies exactly what to read:
 
 What the task touches	Doc to read first
 Any task	The task row in TASKS.md + relevant Spec (Spec1–7)
-DB field names	docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md
+DB field names	docs/be/DB_SCHEMA_SUMMARY.md
 Error codes	docs/contract/ERROR_CONTRACT_v1.1.md
 Endpoint signatures	docs/contract/API_CONTRACT_v1.2.md
-Auth/JWT	docs/MASTER_v1.2.md §3 + §6
-Orders/Payments/Cancel rules	docs/MASTER_v1.2.md §4
-SSE/WebSocket	docs/MASTER_v1.2.md §5
-UI colors/fonts	docs/MASTER_v1.2.md §2
+Auth/JWT	docs/core/MASTER_v1.2.md §3 + §6
+Orders/Payments/Cancel rules	docs/core/MASTER_v1.2.md §4
+SSE/WebSocket	docs/core/MASTER_v1.2.md §5
+UI colors/fonts	docs/core/MASTER_v1.2.md §2
 Backend coding patterns	docs/be/BE_SYSTEM_GUIDE.md
 Frontend coding patterns	docs/fe/FE_SYSTEM_GUIDE.md
 The Next Task Right Now

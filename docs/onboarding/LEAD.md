@@ -7,7 +7,7 @@
 ## Your Entry Points (check in this order each session)
 
 1. **`docs/TASKS.md`** — current phase status + next tasks per role
-2. **`docs/MASTER_v1.2.md`** — single source of truth for all architecture decisions
+2. **`docs/core/MASTER_v1.2.md`** — single source of truth for all architecture decisions
 3. **`docs/contract/API_CONTRACT_v1.2.md`** — all endpoints (review before approving BE PRs)
 4. **`docs/be/BE_SYSTEM_GUIDE.md`** · **`docs/fe/FE_SYSTEM_GUIDE.md`** — epic status per role
 
@@ -30,7 +30,7 @@
 
 | File | Rule |
 |---|---|
-| `docs/MASTER_v1.2.md` | Only Lead commits directly. All arch decisions live here. |
+| `docs/core/MASTER_v1.2.md` | Only Lead commits directly. All arch decisions live here. |
 | `docs/contract/API_CONTRACT_v1.2.md` | BE proposes → Lead confirms before implementation |
 | `docs/TASKS.md` | Update after every task completion |
 | All migrations (`be/migrations/*.sql`) | Review + approve before any dev runs them |
@@ -43,7 +43,7 @@ You do NOT write application code unless it's a pairing session.
 Every spec section must pass all 4 gates before task rows can be created:
 
 **Gate 1 — SCOPE CHECK**
-- [ ] Feature appears in BRD Phase 1 scope (`docs/qui_trinh/BanhCuon_BRD_v1.md`)
+- [ ] Feature appears in BRD Phase 1 scope (`docs/requirements/BanhCuon_BRD_v1.md`)
 - [ ] User roles are defined (maps to RBAC in MASTER §3)
 - [ ] Out-of-scope items explicitly listed in the spec
 
@@ -86,7 +86,7 @@ Split signals (when to split one task into two): **`docs/base/LESSONS_LEARNED_v3
 | Handler layer has no business logic | `be/internal/handler/` |
 | Service layer has no gin imports | `be/internal/service/` |
 | Error codes match contract | `docs/contract/ERROR_CONTRACT_v1.1.md` |
-| DB field names match schema | `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` |
+| DB field names match schema | `docs/be/DB_SCHEMA_SUMMARY.md` |
 | FE state in correct layer | `docs/fe/FE_SYSTEM_GUIDE.md §0` |
 | No `.env` committed | `git diff` |
 | Migration has rollback | `be/migrations/*.sql` — check for `-- +goose Down` |

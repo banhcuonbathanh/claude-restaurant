@@ -83,11 +83,11 @@ be/internal/payment/zalopay.go
 | Request/response shapes | `docs/contract/API_CONTRACT_v1.2.md` | §2 Auth |
 | Login rate limit, max sessions, refresh token flow | `docs/spec/Spec1_Auth_Updated_v2.md` | B1 Business Logic |
 | sqlc queries to wrap | `docs/spec/Spec1_Auth_Updated_v2.md` | B2 sqlc Queries |
-| JWT payload, access/refresh TTL | `docs/MASTER_v1.2.md` | §6 JWT Config |
-| RBAC role values (for RequireRole) | `docs/MASTER_v1.2.md` | §3 RBAC |
-| Middleware order (Logger→Recovery→CORS→RateLimit→Auth→RBAC→Handler) | `docs/MASTER_v1.2.md` | §7.1 |
+| JWT payload, access/refresh TTL | `docs/core/MASTER_v1.2.md` | §6 JWT Config |
+| RBAC role values (for RequireRole) | `docs/core/MASTER_v1.2.md` | §3 RBAC |
+| Middleware order (Logger→Recovery→CORS→RateLimit→Auth→RBAC→Handler) | `docs/core/MASTER_v1.2.md` | §7.1 |
 | Error codes: INVALID_CREDENTIALS, ACCOUNT_DISABLED, etc. | `docs/contract/ERROR_CONTRACT_v1.1.md` | §2, §3 |
-| DB field names for staff table | `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` | staff section |
+| DB field names for staff table | `docs/be/DB_SCHEMA_SUMMARY.md` | staff section |
 
 **Critical rules (do not miss):**
 - Wrong password and wrong username → same error (INVALID_CREDENTIALS) — no enumeration
@@ -101,7 +101,7 @@ be/internal/payment/zalopay.go
 |---|---|---|
 | All product/category/topping/combo endpoints | `docs/contract/API_CONTRACT_v1.2.md` | §3 |
 | Business logic, Redis cache, soft delete | `docs/spec/Spec_2_Products_API_v2_CORRECTED.md` | all |
-| Field names: `price` not `base_price`, `image_path` not `image_url` | `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` | — |
+| Field names: `price` not `base_price`, `image_path` not `image_url` | `docs/be/DB_SCHEMA_SUMMARY.md` | — |
 | Error codes: NOT_FOUND, PRODUCT_IN_USE | `docs/contract/ERROR_CONTRACT_v1.1.md` | §2 |
 | Cross-service: ProductLookup interface | `be/internal/service/deps.go` | ProductLookup |
 
@@ -116,10 +116,10 @@ be/internal/payment/zalopay.go
 |---|---|---|
 | Order endpoints + SSE spec | `docs/contract/API_CONTRACT_v1.2.md` | §4, §10.2 |
 | State machine, combo expansion, 1-table-1-active, 30% cancel rule | `docs/spec/Spec_4_Orders_API.md` | all |
-| Business rules (order, cancel, group) | `docs/MASTER_v1.2.md` | §4 |
-| SSE reconnect config, heartbeat | `docs/MASTER_v1.2.md` | §5.2 |
+| Business rules (order, cancel, group) | `docs/core/MASTER_v1.2.md` | §4 |
+| SSE reconnect config, heartbeat | `docs/core/MASTER_v1.2.md` | §5.2 |
 | Cross-service: ProductLookup, OrderReader, OrderWriter | `be/internal/service/deps.go` | all |
-| Field names: `qty_served`, `combo_ref_id`, `group_id` | `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` | orders section |
+| Field names: `qty_served`, `combo_ref_id`, `group_id` | `docs/be/DB_SCHEMA_SUMMARY.md` | orders section |
 | Error codes: TABLE_HAS_ACTIVE_ORDER, CANCEL_THRESHOLD | `docs/contract/ERROR_CONTRACT_v1.1.md` | §2 |
 
 **Critical rules:**
@@ -134,7 +134,7 @@ be/internal/payment/zalopay.go
 | What | File | Section |
 |---|---|---|
 | WS endpoint specs, event types | `docs/contract/API_CONTRACT_v1.2.md` | §10.1 |
-| Reconnect config (maxAttempts=5, backoff) | `docs/MASTER_v1.2.md` | §5.1 |
+| Reconnect config (maxAttempts=5, backoff) | `docs/core/MASTER_v1.2.md` | §5.1 |
 
 **Critical rules:**
 - WS auth via `?token=` query param (browser WS API cannot set custom headers)
@@ -148,7 +148,7 @@ be/internal/payment/zalopay.go
 |---|---|---|
 | Payment endpoints + webhook signatures | `docs/contract/API_CONTRACT_v1.2.md` | §5 |
 | HMAC verification logic per gateway, idempotency | `docs/spec/Spec_5_Payment_Webhooks.md` | all |
-| Business rules: order must be `ready` before payment | `docs/MASTER_v1.2.md` | §4 |
+| Business rules: order must be `ready` before payment | `docs/core/MASTER_v1.2.md` | §4 |
 | Cross-service: OrderReader, OrderWriter | `be/internal/service/deps.go` | — |
 | Error codes: ORDER_NOT_READY, PAYMENT_ALREADY_EXISTS | `docs/contract/ERROR_CONTRACT_v1.1.md` | §2 |
 
@@ -163,7 +163,7 @@ be/internal/payment/zalopay.go
 |---|---|---|
 | Table endpoints + QR token decode | `docs/contract/API_CONTRACT_v1.2.md` | §6 |
 | Guest JWT flow, table assignment, active-order-on-scan conflict | `docs/spec/Spec_6_QR_POS.md` | all |
-| Guest JWT payload (`sub='guest'`) | `docs/MASTER_v1.2.md` | §6.4 |
+| Guest JWT payload (`sub='guest'`) | `docs/core/MASTER_v1.2.md` | §6.4 |
 | RBAC for table endpoints | `docs/contract/API_CONTRACT_v1.2.md` | §6 Role column |
 
 ### 4.7 File Upload

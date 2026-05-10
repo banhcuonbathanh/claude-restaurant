@@ -80,9 +80,9 @@ fe/src/components/shared/EmptyState.tsx
 | What | File | Section |
 |---|---|---|
 | Auth endpoints (login, refresh, logout, me, guest) | `docs/contract/API_CONTRACT_v1.2.md` | §2 |
-| Zustand store shape, interceptor pattern, guest exception | `docs/FE_STATE_MANAGEMENT.md` | Layer 2, The Glue |
+| Zustand store shape, interceptor pattern, guest exception | `docs/fe/FE_STATE_MANAGEMENT.md` | Layer 2, The Glue |
 | Auth business flow, token storage rules | `docs/spec/Spec1_Auth_Updated_v2.md` | F1 FE Auth Flow · F2 State & Token |
-| JWT TTLs, guest JWT (`sub='guest'`) | `docs/MASTER_v1.2.md` | §6 |
+| JWT TTLs, guest JWT (`sub='guest'`) | `docs/core/MASTER_v1.2.md` | §6 |
 | 401 error codes → redirect behavior | `docs/contract/ERROR_CONTRACT_v1.1.md` | §4 FE Integration |
 | Role values for RoleGuard | **See §4 of this doc** |
 
@@ -109,7 +109,7 @@ fe/src/components/shared/EmptyState.tsx
 | Menu layout, CartStore shape, ToppingModal, ComboModal | `docs/spec/Spec_3_Menu_Checkout_UI_v2.md` | §4 Menu |
 | Guest JWT flow for QR table page | `docs/contract/API_CONTRACT_v1.2.md` | §2 POST /auth/guest |
 | QR page flow (scan → guest JWT → /menu) | `docs/spec/Spec_6_QR_POS.md` | QR Customer Flow |
-| CartStore patterns (cross-page sharing) | `docs/FE_STATE_MANAGEMENT.md` | Layer 2 |
+| CartStore patterns (cross-page sharing) | `docs/fe/FE_STATE_MANAGEMENT.md` | Layer 2 |
 | Design token classes | **See §3 of this doc** |
 
 **Critical rules:**
@@ -126,7 +126,7 @@ fe/src/components/shared/EmptyState.tsx
 | POST /orders request body + response | `docs/contract/API_CONTRACT_v1.2.md` | §4 |
 | SSE endpoint, event types, reconnect config | `docs/contract/API_CONTRACT_v1.2.md` | §4 SSE + §10.2 |
 | Checkout form fields, order tracking layout | `docs/spec/Spec_3_Menu_Checkout_UI_v2.md` | §5 Checkout · §6 Order Tracking |
-| SSE auth method (Bearer header NOT query param) | `docs/MASTER_v1.2.md` | §5.2 |
+| SSE auth method (Bearer header NOT query param) | `docs/core/MASTER_v1.2.md` | §5.2 |
 
 **Critical rules:**
 - POST /orders body does NOT include `payment_method` — it goes in cartStore only for UI, not in the API payload
@@ -144,8 +144,8 @@ fe/src/components/shared/EmptyState.tsx
 |---|---|---|
 | WS event types, reconnect config | `docs/contract/API_CONTRACT_v1.2.md` | §10.1 |
 | KDS layout, urgency color logic, item click behavior | `docs/spec/Spec_4_Orders_API.md` | FE KDS section |
-| WS vs SSE auth method difference | `docs/MASTER_v1.2.md` | §5.1 |
-| KDS color-code (urgency timing) | `docs/MASTER_v1.2.md` | §2 KDS |
+| WS vs SSE auth method difference | `docs/core/MASTER_v1.2.md` | §5.1 |
+| KDS color-code (urgency timing) | `docs/core/MASTER_v1.2.md` | §2 KDS |
 
 **Critical rules:**
 - WS auth: `?token=${accessToken}` query param (browser WS API cannot set custom headers)

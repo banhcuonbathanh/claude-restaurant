@@ -10,10 +10,10 @@
 | Cần Gì | File | Section |
 |---|---|---|
 | Full FE dev guide (roles, protocol) | `docs/claude/CLAUDE_FE.md` | tất cả |
-| Design tokens (màu, font, spacing) | `docs/MASTER_v1.2.md` | §2 |
-| KDS color-code logic (urgency) | `docs/MASTER_v1.2.md` | §2 (KDS) |
-| Auth flow + token storage rules | `docs/MASTER_v1.2.md` | §6 |
-| WS/SSE config + reconnect | `docs/MASTER_v1.2.md` | §5 |
+| Design tokens (màu, font, spacing) | `docs/core/MASTER_v1.2.md` | §2 |
+| KDS color-code logic (urgency) | `docs/core/MASTER_v1.2.md` | §2 (KDS) |
+| Auth flow + token storage rules | `docs/core/MASTER_v1.2.md` | §6 |
+| WS/SSE config + reconnect | `docs/core/MASTER_v1.2.md` | §5 |
 | API endpoint URLs + request body | `docs/contract/API_CONTRACT_v1.2.md` | §2–§10 |
 | Error codes → toast messages | `docs/contract/ERROR_CONTRACT_v1.1.md` | — |
 | Domain UI + store logic | `docs/spec/Spec_3_Menu_Checkout_UI_v2.md` … | per domain |
@@ -57,8 +57,8 @@ docker compose up -d --build fe  # rebuild FE container
 
 - KHÔNG hardcode hex — dùng token từ tailwind.config.ts: `bg-primary`, `text-card`, `text-muted-fg` → `docs/fe/FE_DOC_INDEX.md §3`
 - `formatVND()` cho mọi giá tiền — từ `src/lib/utils.ts` (đã có)
-- Access token: Zustand memory ONLY → `docs/MASTER_v1.2.md §6`
-- SSE auth: `Authorization: Bearer` header · WS auth: `?token=` query param → `docs/MASTER_v1.2.md §5`
+- Access token: Zustand memory ONLY → `docs/core/MASTER_v1.2.md §6`
+- SSE auth: `Authorization: Bearer` header · WS auth: `?token=` query param → `docs/core/MASTER_v1.2.md §5`
 - All IDs: `string` (UUID) — never `number`
 - Scaffold status + patterns → `docs/fe/FE_DOC_INDEX.md`
 

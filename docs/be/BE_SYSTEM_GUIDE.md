@@ -611,7 +611,7 @@ func main() {
 **Read first (in order):**
 1. `docs/contract/API_CONTRACT_v1.2.md` §2 — request/response shapes
 2. `docs/spec/Spec1_Auth_Updated_v2.md` — business logic + sqlc queries
-3. `docs/MASTER_v1.2.md` §6 — JWT config + Guest token rules
+3. `docs/core/MASTER_v1.2.md` §6 — JWT config + Guest token rules
 4. This file §5 — Auth rules summary
 
 **Create:** `be/internal/handler/auth_handler.go`
@@ -692,7 +692,7 @@ func ClearRefreshCookie(c *gin.Context) {
 **Read first:**
 1. `docs/contract/API_CONTRACT_v1.2.md` §3
 2. `docs/spec/Spec_2_Products_API_v2_CORRECTED.md`
-3. `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` — field names section
+3. `docs/be/DB_SCHEMA_SUMMARY.md` — field names section
 
 **Create:**
 - `be/internal/repository/product_repo.go` — wrap sqlc product/category/topping/combo queries
@@ -752,7 +752,7 @@ data: {"type":"item_progress","data":{"order_id":"...","item_id":"...","qty_serv
 
 **Read first:**
 1. `docs/contract/API_CONTRACT_v1.2.md` §10.1
-2. `docs/MASTER_v1.2.md` §5.1 — reconnect config
+2. `docs/core/MASTER_v1.2.md` §5.1 — reconnect config
 
 **Create:**
 - `be/internal/websocket/hub.go` — Hub with `sync.RWMutex`, Run() goroutine
@@ -803,7 +803,7 @@ data: {"type":"item_progress","data":{"order_id":"...","item_id":"...","qty_serv
 **Read first:**
 1. `docs/contract/API_CONTRACT_v1.2.md` §6 + §7
 2. `docs/spec/Spec_6_QR_POS.md` — QR + guest JWT flow
-3. `docs/MASTER_v1.2.md` §6.4 — Guest token rules
+3. `docs/core/MASTER_v1.2.md` §6.4 — Guest token rules
 
 **Create:**
 - `be/internal/repository/table_repo.go`

@@ -232,7 +232,7 @@ jobs:
 
 | Situation | Action |
 |---|---|
-| Add env var | Update `.env.example` + `docs/MASTER_v1.2.md §8` + notify team |
+| Add env var | Update `.env.example` + `docs/core/MASTER_v1.2.md §8` + notify team |
 | Port conflict local | BE=8080 · FE=3000 · MySQL=3306 · Redis=6379 |
 | MySQL data volume | NEVER delete `mysql_data` without backup in production |
 | SSL certs | Caddy manages automatically — check domain DNS first |
@@ -269,8 +269,8 @@ docker compose down -v   # also wipes volumes (CAREFUL in prod)
 
 | Epic | Read Before Starting |
 |---|---|
-| DO-1, DO-2 | This guide §3 · `docs/DOCKER_GUIDE.md` |
-| DO-3 | This guide §2 · `docs/DOCKER_GUIDE.md` |
-| DO-4 | This guide §4 · §5 · `docs/MASTER_v1.2.md §8` |
+| DO-1, DO-2 | This guide §3 · `docs/devops/DOCKER_GUIDE.md` |
+| DO-3 | This guide §2 · `docs/devops/DOCKER_GUIDE.md` |
+| DO-4 | This guide §4 · §5 · `docs/core/MASTER_v1.2.md §8` |
 | DO-5 | This guide §6 |
 | DO-6 | This guide §7 |

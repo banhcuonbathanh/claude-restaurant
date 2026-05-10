@@ -407,7 +407,7 @@ Every task must pass through 4 levels. Each level answers a different question a
 ║ at project start ║ Claude (Step 1)  ║ (Step 1 READ)    ║ (each session)   ║
 ╠══════════════════╬══════════════════╬══════════════════╬══════════════════╣
 ║ LOCATION:        ║ LOCATION:        ║ LOCATION:        ║ LOCATION:        ║
-║ docs/qui_trinh/  ║ docs/qui_trinh/  ║ docs/spec/       ║ docs/TASKS.md    ║
+║ docs/requirements/  ║ docs/requirements/  ║ docs/spec/       ║ docs/TASKS.md    ║
 ║ BanhCuon_BRD_v1  ║ BanhCuon_SRS_v1  ║ Spec_1 thru 9    ║                  ║
 ╚══════════════════╩══════════════════╩══════════════════╩══════════════════╝
          │                   │                   │                   │
@@ -536,7 +536,7 @@ claude restaurant/                    ← project root
 
 | Role      | Reads at start                       | Reads per task                                                        | Never reads during coding         |
 | --------- | ------------------------------------ | --------------------------------------------------------------------- | --------------------------------- |
-| Claude    | CLAUDE.md + TASKS.md + IMPL_WORKFLOW | MASTER (relevant §) + Spec (current domain) + DB_SCHEMA + ERROR + API | docs/qui_trinh/                   |
+| Claude    | CLAUDE.md + TASKS.md + IMPL_WORKFLOW | MASTER (relevant §) + Spec (current domain) + DB_SCHEMA + ERROR + API | docs/requirements/                   |
 | BE Dev    | BE_SYSTEM_GUIDE                      | Spec for current domain + DB_SCHEMA + API_CONTRACT                    | All FE specs                      |
 | FE Dev    | FE_SYSTEM_GUIDE + wireframes/        | Spec for current feature + MASTER §2/3/5                              | All BE internal specs             |
 | Tech Lead | TASKS.md + all specs                 | Spec being written + BRD + SRS (for rules)                            | —                                 |
@@ -551,7 +551,7 @@ Use this checklist before writing any spec section. This mirrors exactly what Cl
 **Gate 1 — SCOPE CHECK (from BRD)**
 
 ```
-□ Feature appears in docs/qui_trinh/BanhCuon_BRD_v1.md Project Scope table?
+□ Feature appears in docs/requirements/BanhCuon_BRD_v1.md Project Scope table?
 □ Feature is Phase 1 (not Phase 2/3)?
    → If NO to either: do NOT write a spec. Add to backlog for future phase.
 ```

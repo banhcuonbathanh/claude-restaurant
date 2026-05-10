@@ -27,7 +27,7 @@ You do NOT touch `be/` or `fe/` source code.
 
 ## Your First 3 Tasks (in order)
 
-1. **DO-4** — Create `.env.example` (all vars from `docs/MASTER_v1.2.md §8`) + `scripts/migrate.sh` (wait-for-mysql → goose up → exec server)
+1. **DO-4** — Create `.env.example` (all vars from `docs/core/MASTER_v1.2.md §8`) + `scripts/migrate.sh` (wait-for-mysql → goose up → exec server)
 2. **DO-5** — Write `Caddyfile` (route `/api/*` → backend:8080, `/*` → frontend:3000, auto TLS)
 3. **DO-6** — Write `.github/workflows/deploy.yml` (build + push image + SSH deploy, only when tests pass)
 

@@ -72,12 +72,12 @@ Skip spec read only for: infra/DevOps, test setup, refactoring with no new behav
 **Tầng 2 — Shared facts (đọc khi cần):**
 
 ```
-docs/MASTER_v1.2.md                          ← RBAC §3 · business rules §4 · realtime §5 · JWT §6 · design tokens §2
-docs/contract/API_CONTRACT_v1.2.md           ← tất cả endpoints (bảng, không prose)
-docs/contract/ERROR_CONTRACT_v1.1.md         ← error codes + respondError pattern
-docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md      ← DB schema overview (SINGLE SOURCE field names)
-docs/qui_trinh/BanhCuon_Project_Checklist.md ← AC per task
-docs/api/openapi.yaml                         ← OpenAPI 3.0 spec — Swagger UI tại :8090 (docker compose swagger service)
+docs/core/MASTER_v1.2.md                          ← RBAC §3 · business rules §4 · realtime §5 · JWT §6 · design tokens §2
+docs/contract/API_CONTRACT_v1.2.md               ← tất cả endpoints (bảng, không prose)
+docs/contract/ERROR_CONTRACT_v1.1.md             ← error codes + respondError pattern
+docs/be/DB_SCHEMA_SUMMARY.md                     ← DB schema overview (SINGLE SOURCE field names)
+docs/requirements/BanhCuon_Project_Checklist.md  ← AC per task
+docs/api/openapi.yaml                             ← OpenAPI 3.0 spec — Swagger UI tại :8090 (docker compose swagger service)
 ```
 
 **Tầng 3 — Development system guides (read these before coding):**
@@ -110,10 +110,10 @@ docs/workflow.excalidraw                  ← Claude workflow diagram v1.1 (FE P
 | Loại | File | Who |
 |---|---|---|
 | Error codes + format | `docs/contract/ERROR_CONTRACT_v1.1.md` | BE + FE |
-| Business rules (order, payment, cancel) | `docs/MASTER_v1.2.md §4` | BE + FE |
-| RBAC roles + hierarchy | `docs/MASTER_v1.2.md §3` | BE + FE |
-| JWT config + auth rules | `docs/MASTER_v1.2.md §6` | BE + FE |
-| Realtime (SSE/WS config) | `docs/MASTER_v1.2.md §5` + `docs/contract/API_CONTRACT_v1.2.md §10` | BE + FE + DevOps |
+| Business rules (order, payment, cancel) | `docs/core/MASTER_v1.2.md §4` | BE + FE |
+| RBAC roles + hierarchy | `docs/core/MASTER_v1.2.md §3` | BE + FE |
+| JWT config + auth rules | `docs/core/MASTER_v1.2.md §6` | BE + FE |
+| Realtime (SSE/WS config) | `docs/core/MASTER_v1.2.md §5` + `docs/contract/API_CONTRACT_v1.2.md §10` | BE + FE + DevOps |
 
 ## Commands
 

@@ -28,7 +28,7 @@ Once be/internal/db/ is populated, you're ready to code. The first task is 4.1-1
 4.1-6 → be/internal/handler/auth_handler.go
 Before writing any of those, follow the workflow:
 
-Read docs/spec/Spec1_Auth_Updated_v2.md + docs/MASTER_v1.2.md §3, §6 + docs/contract/ERROR_CONTRACT_v1.1.md
+Read docs/spec/Spec1_Auth_Updated_v2.md + docs/core/MASTER_v1.2.md §3, §6 + docs/contract/ERROR_CONTRACT_v1.1.md
 Write a plan, confirm with yourself (or ask here)
 Then implement
 TL;DR: Run brew install sqlc → sqlc generate → start task 4.1-1. That one install unblocks the entire backend.

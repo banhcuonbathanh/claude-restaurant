@@ -128,12 +128,12 @@ Every Claude session and every developer reads the same single sources. No re-de
 | Question | Source |
 |---|---|
 | API shapes (request / response) | `docs/contract/API_CONTRACT_v1.2.md` |
-| DB field names | `docs/task/BanhCuon_DB_SCHEMA_SUMMARY.md` |
+| DB field names | `docs/be/DB_SCHEMA_SUMMARY.md` |
 | Error codes → toast messages | `docs/contract/ERROR_CONTRACT_v1.1.md` |
 | Auth store shape + interceptor pattern | `docs/spec/Spec1_Auth_Updated_v2.md` §F2 |
-| Design tokens (colors, fonts) | `docs/MASTER_v1.2.md` §2 |
-| RBAC roles + guards | `docs/MASTER_v1.2.md` §3 |
-| Realtime (SSE / WebSocket) | `docs/MASTER_v1.2.md` §5 |
+| Design tokens (colors, fonts) | `docs/core/MASTER_v1.2.md` §2 |
+| RBAC roles + guards | `docs/core/MASTER_v1.2.md` §3 |
+| Realtime (SSE / WebSocket) | `docs/core/MASTER_v1.2.md` §5 |
 
 ---
 
