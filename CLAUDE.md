@@ -39,7 +39,6 @@ Skip spec read only for: infra/DevOps, test setup, refactoring with no new behav
 1. Read `CLAUDE.md` → Current Work (what's done, what's next)
 2. Open `docs/TASKS.md` → find next ⬜ task with all dependencies ✅
 3. Follow `docs/IMPLEMENTATION_WORKFLOW.md` for that task
-
 ---
 
 ## Project Overview
@@ -53,7 +52,6 @@ Skip spec read only for: infra/DevOps, test setup, refactoring with no new behav
 ## Phase Status (April 2026)
 
 > Quick-glance only. **Single source of truth: [`docs/TASKS.md`](docs/TASKS.md)** — always update there first.
-> Rule: when CLAUDE.md and TASKS.md disagree, TASKS.md wins.
 
 | Phase | Status | Blocking |
 |---|---|---|
@@ -100,6 +98,7 @@ docs/spec/Spec_7_Staff_Management.md
 docs/spec/Spec_9_Admin_Dashboard_Pages.md  ← Overview page (live floor + Kiểm tra) + Marketing (QR codes)
 docs/claude/CLAUDE_BE.md · CLAUDE_FE.md · CLAUDE_DEVOPS.md
 docs/fe/wireframes/_TEMPLATE.md           ← wireframe template — copy before drawing any new FE page (Step 0b)
+docs/fe/wireframes/product-detail.excalidraw  ← product detail page wireframe (PNG: product_detail.png)
 docs/workflow.excalidraw                  ← Claude workflow diagram v1.1 (FE Pre-Task Phase + arrows)
 ```
 
@@ -133,7 +132,6 @@ Ports: **BE=8080 · FE=3000 · MySQL=3306 · Redis=6379 · RedisInsight=8001**
 ## Architecture
 
 BE layers (strict): `handler` → `service` → `repository` → `db` (sqlc generated)
-
 FE state (strict): server → TanStack Query · client → Zustand · forms → RHF+Zod · API → `lib/api-client.ts`
 
 ## Branch Naming
@@ -142,13 +140,11 @@ FE state (strict): server → TanStack Query · client → Zustand · forms → 
 
 ## Current Work
 
-- **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 ✅ · Phase UX ✅ · Phase 7 ⬜ NEXT · Phase 9 ⬜ NEXT.
+- **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 ✅ · Phase 10 ✅ · Phase UX ✅ · Phase 7 ⬜ NEXT · Phase 9 ⬜ NEXT.
 - **Branch:** test — uncommitted changes. Run `docker compose up -d --build be fe` after any change.
 - **Done this session:**
-  - **UX-localStorage** — `useOrderSSE` caches order in localStorage; `/order/[id]` persists across checkout + "Đặt thêm món" starts fresh order; new `/order` list page reads all cached orders
-  - **7-6** — `scripts/seed.sql`: 4 staff (bcrypt/12), 6 tables with qr_token, 4 categories, 12 products, 6 toppings, 2 combos + product_toppings links
+  - **product-detail wireframe** — drew `docs/fe/wireframes/product-detail.excalidraw` (+ PNG export); not yet committed
 - **Next (in order):**
   1. **Phase 7-1/7-2/7-3** — BE unit tests (auth/order/payment services)
-  2. **Phase 9 (9-2→9-7)** — extract WS hook + components from overview/page.tsx (code quality)
+  2. **Phase 9 (9-2→9-7)** — extract WS hook + components from overview/page.tsx
   3. **Phase 7-7** — Payment sandbox (VNPay + MoMo via ngrok)
-- **How to pick the next task:** Open `docs/TASKS.md` → find next ⬜ task with all dependencies ✅.

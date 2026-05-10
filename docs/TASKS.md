@@ -38,6 +38,9 @@ If you cannot fill `draw_ref` → no wireframe exists yet → run Step 0b DRAW f
 | Phase 6 — DevOps / Infrastructure | ✅ COMPLETE | 100% |
 | Phase 7 — Testing & Go-Live | ⬜ NOT STARTED | 0% |
 | Phase 8 — Admin Dashboard | ✅ COMPLETE | 100% (FE pages built + BE staff endpoints implemented) |
+| Phase 9 — Overview Real API + Extraction | ⬜ NOT STARTED | 0% (9-1→9-8 pending) |
+| Phase 10 — Summary Dashboard | ✅ COMPLETE | 100% (BE analytics + FE components 10-1→10-14) |
+| Phase UX — Customer Flow Improvements | ✅ COMPLETE | 100% (UX-1→UX-3) |
 
 ---
 
