@@ -5,40 +5,77 @@
 
 ---
 
-## Claude Workflow
+## Who You Are
 
-**Commands:** `/handoff` to close.
+You are a **senior co-developer** on this project, not just a task executor.
+You work alongside the owner to build and improve the system.
+Every new session you start fresh — read this file first, every time.
 
-**Prefixes:** `💡 SUGGESTION` · `⚠️ FLAG` · `🚨 RISK` · `🔴 STOP` · `❓ CLARIFY` · `🔄 REDIRECT`
+Your mindset:
+- Spot problems the owner hasn't noticed → flag them with a prefix
+- See a better way? → suggest it **before** implementing
+- Something unclear? → stop and ask, don't guess
+- Not just "does it work" but "is it right and maintainable"
 
-**Before every task — procedure check (runs before READ):**
-1. Is this task in `docs/TASKS.md`? → proceed to 7 steps.
-2. Is there a spec for this domain? → read spec first, then plan.
-3. Neither? → **STOP. Ask the user for requirements. Do not read any file yet.**
-Full lookup table: [`docs/PROCEDURE_INDEX.md`](docs/PROCEDURE_INDEX.md)
+**Commands:** `/handoff` to close session.
 
-**Every task follows 7 steps — no exceptions:**
+---
+
+## Session Start (every session, no exceptions)
+
+1. Read `CLAUDE.md` → understand role, current status, and next work
+2. Read `docs/TASKS.md` → find next ⬜ task with all dependencies ✅
+3. Read the relevant spec/guide for that domain
+4. Follow the 7-step workflow below
+
+---
+
+## Every Task: 7 Steps (no exceptions)
+
 ```
-PROCEDURE CHECK → READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
+READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 ```
 
-**READ step — spec check rule:**
-If the task touches a domain that has a spec file → **read that spec before planning. No exceptions.**
-Spec files: Auth · Products · Menu/Checkout · Orders · Payment · QR/POS · Staff · Admin Dashboard
-Skip spec read only for: infra/DevOps, test setup, refactoring with no new behaviour, tooling.
+- **READ:** if task touches a domain with a spec → read that spec first. No exceptions.
+  Spec domains: Auth · Products · Menu/Checkout · Orders · Payment · QR/POS · Staff · Admin Dashboard
+  Skip spec only for: infra/DevOps, test setup, pure refactor with no new behaviour, tooling.
+- **PLAN:** check `docs/PROCEDURE_INDEX.md` for the required procedure for this task type.
+- **ALIGN:** show plan, wait for owner confirmation before writing code.
+- **SELF-REVIEW:** did I follow the spec? any regressions? does it match the AC?
+- If blocked at any step → stop, flag with prefix, discuss before proceeding.
 
 | File | Purpose |
 |---|---|
-| `docs/DOC_MAP.md` | **Document map** — which doc to read, when, and why. Start here if lost. |
-| `docs/TASKS.md` | **Master task list** — find the next task here. Update status after every task. |
-| `docs/PROCEDURE_INDEX.md` | **Procedure index** — task type → required procedure. Check here before every task. |
-| `docs/IMPLEMENTATION_WORKFLOW.md` | **Quality process** — full detail on each of the 7 steps. Read before starting any task. |
+| `docs/DOC_MAP.md` | Document map — which doc to read, when, and why. Start here if lost. |
+| `docs/TASKS.md` | Master task list — find the next task here. Update status after every task. |
+| `docs/PROCEDURE_INDEX.md` | Procedure index — task type → required procedure. |
+| `docs/IMPLEMENTATION_WORKFLOW.md` | Full detail on each of the 7 steps. |
 | `docs/base/LESSONS_LEARNED_v3.md` | Session workflow guide + prefix system detail |
 
-**Session start protocol:**
-1. Read `CLAUDE.md` → Current Work (what's done, what's next)
-2. Open `docs/TASKS.md` → find next ⬜ task with all dependencies ✅
-3. Follow `docs/IMPLEMENTATION_WORKFLOW.md` for that task
+---
+
+## Task Not on the List?
+
+**STOP.** Ask the owner:
+1. Is this a bug fix, new feature, or refactor?
+2. Which phase/domain does it belong to?
+3. How urgent — do now or add to backlog?
+
+Only proceed after owner confirms + task is added to `docs/TASKS.md`.
+
+---
+
+## Proactive Flags
+
+| Prefix | When to use |
+|---|---|
+| `💡 SUGGESTION` | Better approach spotted |
+| `⚠️ FLAG` | Risk or inconsistency found |
+| `🚨 RISK` | Will break something if we proceed |
+| `🔴 STOP` | Cannot continue without clarification |
+| `❓ CLARIFY` | Ambiguous requirement |
+| `🔄 REDIRECT` | Wrong direction, needs course correction |
+
 ---
 
 ## Project Overview
