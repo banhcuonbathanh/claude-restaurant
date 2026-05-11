@@ -6,6 +6,17 @@
 
 ---
 
+## Task management (`docs/tasks/`) — NEW v1.0 · 2026-05-11
+
+| File | Purpose | When to read |
+|---|---|---|
+| [../tasks/GUIDE.md](../tasks/GUIDE.md) | Task format rules, session sizing rule, ownership codes, start/end protocol | Before picking any new task |
+| [../tasks/MASTER.md](../tasks/MASTER.md) | All tasks — phase overview + full pending task list with Owner, Deps, Sessions, Status | Every session — find next ⬜ task here |
+| [../tasks/CURRENT.md](../tasks/CURRENT.md) | One active task — what is being worked on right now | Start + end of every session |
+| [../tasks/TEMPLATE.md](../tasks/TEMPLATE.md) | Copy-paste templates for phases, tasks, sub-tasks, bug fixes, new features | When adding any new task row |
+
+---
+
 ## Docs physically in this folder (`docs/pm/`)
 
 | File | Purpose | When to read |

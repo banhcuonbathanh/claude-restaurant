@@ -24,9 +24,10 @@ Your mindset:
 ## Session Start (every session, no exceptions)
 
 1. Read `CLAUDE.md` → understand role, current status, and next work
-2. Read `docs/TASKS.md` → find next ⬜ task with all dependencies ✅
-3. Read the relevant spec/guide for that domain
-4. Follow the 7-step workflow below
+2. Read `docs/tasks/CURRENT.md` → check if there is an active task in progress
+3. If no active task → read `docs/tasks/MASTER.md` → find next ⬜ task where all Deps are ✅
+4. Read the relevant spec/guide for that domain
+5. Follow the 7-step workflow below
 
 ---
 
@@ -47,7 +48,10 @@ READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 | File | Purpose |
 |---|---|
 | `docs/DOC_MAP.md` | Document map — which doc to read, when, and why. Start here if lost. |
-| `docs/TASKS.md` | Master task list — find the next task here. Update status after every task. |
+| `docs/tasks/CURRENT.md` | Active task — what is being worked on right now. Read first every session. |
+| `docs/tasks/MASTER.md` | Master task list — all tasks with owner, deps, session estimate. Update after every task. |
+| `docs/tasks/GUIDE.md` | Task management rules — format, session sizing, ownership, breakdown rules. |
+| `docs/tasks/TEMPLATE.md` | Copy-paste templates for new tasks, phases, sub-tasks, bug fixes. |
 | `docs/PROCEDURE_INDEX.md` | Procedure index — task type → required procedure. |
 | `docs/IMPLEMENTATION_WORKFLOW.md` | Full detail on each of the 7 steps. |
 | `docs/base/LESSONS_LEARNED_v3.md` | Session workflow guide + prefix system detail |
@@ -61,7 +65,7 @@ READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 2. Which phase/domain does it belong to?
 3. How urgent — do now or add to backlog?
 
-Only proceed after owner confirms + task is added to `docs/TASKS.md`.
+Only proceed after owner confirms + task is added to `docs/tasks/MASTER.md`.
 
 ---
 
@@ -88,7 +92,7 @@ Only proceed after owner confirms + task is added to `docs/TASKS.md`.
 
 ## Phase Status (April 2026)
 
-> Quick-glance only. **Single source of truth: [`docs/TASKS.md`](docs/TASKS.md)** — always update there first.
+> Quick-glance only. **Single source of truth: [`docs/tasks/MASTER.md`](docs/tasks/MASTER.md)** — always update there first.
 
 | Phase | Status | Blocking |
 |---|---|---|
