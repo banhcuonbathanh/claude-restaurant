@@ -10,15 +10,15 @@
 
 | Field | Value |
 |---|---|
-| **Task ID** | P-PD-1 |
+| **Task ID** | P-PD-2 |
 | **Owner** | FE |
-| **Title** | Read Spec_3 §4 + verify API response shape + cart store signature |
-| **Session goal** | Confirm all integration points before writing any code for product detail page |
+| **Title** | Create route file + Zone A (HeroImage) + Zone B (name, badge, price, description) + loading skeleton |
+| **Session goal** | Scaffold product detail page with Zones A & B wired to GET /products/:id |
 | **Branch** | feature/P-PD-product-detail |
 | **Started** | 2026-05-12 |
 | **Blocked by** | — |
-| **Stopped at** | — |
-| **Notes** | Wireframe at docs/fe/wireframes/product-detail.excalidraw · Route: (shop)/menu/product/[id] |
+| **Stopped at** | ✅ DONE — page.tsx created, tsc clean |
+| **Notes** | Route: fe/src/app/(shop)/menu/product/[id]/page.tsx · image prefix env var is NEXT_PUBLIC_STORAGE_URL (matches ProductCard) · CartItem uses `price` not `unit_price` · total/itemCount are functions · Next: P-PD-3 (ToppingSelector) |
 
 ---
 
@@ -42,8 +42,9 @@
 
 | Date | Task ID | Title | Outcome |
 |---|---|---|---|
+| 2026-05-12 | P-PD-2 | Create route + Zone A (HeroImage) + Zone B + skeleton | ✅ page.tsx created, tsc clean |
+| 2026-05-12 | P-PD-1 | Read Spec_3 §4 + verify API shape + cart store signature | ✅ All integration points confirmed — see findings |
 | 2026-05-11 | SETUP | Create docs/tasks/ folder | ✅ GUIDE · MASTER · CURRENT · TEMPLATE created |
-| — | — | — | — |
 | — | — | — | — |
 | — | — | — | — |
 | — | — | — | — |

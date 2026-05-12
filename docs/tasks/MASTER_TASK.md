@@ -185,8 +185,8 @@ The entries below are phase-level summaries only.
 
 | ID | Owner | Task | Deps | Sessions | Status | spec_ref | draw_ref |
 |---|---|---|---|---|---|---|---|
-| P-PD-1 | FE | Read Spec_3 §4 + verify `GET /products/:id` response shape + cart store `addItem` signature | — | 1 | ⬜ | `Spec_3 §4` | — |
-| P-PD-2 | FE | Create route file + Zone A (HeroImage: next/image fill object-cover) + Zone B (name, availability badge, price, description) + loading skeleton (animate-pulse all zones) | P-PD-1 ✅ | 1 | ⬜ | `Spec_3 §4` | `product-detail.excalidraw Zone A·B` |
+| P-PD-1 | FE | Read Spec_3 §4 + verify `GET /products/:id` response shape + cart store `addItem` signature | — | 1 | ✅ | `Spec_3 §4` | — |
+| P-PD-2 | FE | Create route file + Zone A (HeroImage: next/image fill object-cover) + Zone B (name, availability badge, price, description) + loading skeleton (animate-pulse all zones) | P-PD-1 ✅ | 1 | ✅ | `Spec_3 §4` | `product-detail.excalidraw Zone A·B` |
 | P-PD-3 | FE | Zone C — ToppingSelector: multi-select checkboxes, live running total (base + topping prices) | P-PD-2 ✅ | 1 | ⬜ | `Spec_3 §4` | `product-detail.excalidraw Zone C` |
 | P-PD-4 | FE | Zone D — QtyStepper (−/qty/+, min=1) + Zone E — sticky CTA footer ("Thêm vào giỏ hàng · {total} ₫") → add to Zustand cart store | P-PD-3 ✅ | 1 | ⬜ | `Spec_3 §4` | `product-detail.excalidraw Zone D·E` |
 | P-PD-5 | FE | Browser test: golden path (load → select topping → change qty → add to cart) + edge cases (no toppings, unavailable product) + fix regressions | P-PD-4 ✅ | 1 | ⬜ | `Spec_3 §4` | — |

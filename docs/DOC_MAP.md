@@ -71,6 +71,9 @@ Still unclear? Read BRD (business context) and flag ❓ CLARIFY with user
 ## Tier 2 — Domain Specs (read when working in that domain — spec gate)
 
 > These are the most detailed per-feature implementation specs. Read BEFORE planning.
+> **Spec registry (status, versions, gaps):** [`docs/spec/SPEC_INDEX.md`](spec/SPEC_INDEX.md)
+> **Rules for writing/updating specs:** [`docs/spec/SPEC_GUIDE.md`](spec/SPEC_GUIDE.md)
+> **Starter template:** [`docs/spec/SPEC_TEMPLATE.md`](spec/SPEC_TEMPLATE.md)
 
 | File | Domain | What it covers |
 |---|---|---|
