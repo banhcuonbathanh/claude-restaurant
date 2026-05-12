@@ -115,6 +115,36 @@ These are structural gaps identified after a full audit of the workflow. Each ha
 Reading code before requirements are clear is never the right first move for a spec-less task.
 **Index:** Full procedure-to-task mapping lives in `docs/PROCEDURE_INDEX.md`.
 
+### Weakness 9 — Task started without a MASTER.md row (2026-05-12)
+
+**Problem:** Work begins on a task or sub-task that has no row in `docs/tasks/MASTER_TASK.md`. The task is completed but never tracked, so the next session has no record of it, phase status drifts, and follow-up tasks have no dependency anchor.
+**Root cause:** The 7-step workflow assumed the task already existed in MASTER.md. There was no explicit gate enforcing this before step 1 (READ).
+**Rule:** Before any task or sub-task starts — even a sub-task inside an existing phase — a row must exist in `docs/tasks/MASTER_TASK.md`. If it does not → add the row, confirm with owner, then proceed. No exceptions.
+
+### Weakness 10 — Tasks too large to complete in one session (2026-05-12)
+
+**Problem:** A task is estimated to take "a few sessions" but is written as a single row in MASTER.md. Mid-session the context window fills, the task is left half-done, and the next session cannot safely resume without re-reading everything.
+**Root cause:** No explicit token budget per task row. Task granularity was driven by feature scope, not session capacity.
+**Rule:** Every task and sub-task must be completable in **< 100k tokens** (≈ 1 session).
+
+**How to break down a task into sub-tasks (< 100k rule):**
+
+| Signal | Action |
+|---|---|
+| Task touches 3+ files OR 3+ distinct scenarios | Split into sub-tasks — 1 sub-task per scenario or file group |
+| Task spans two service layers (e.g. handler + service + repo) | Keep as 1 task only if all layers are straightforward; split if any layer has complex logic |
+| Task has a mandatory prerequisite that is itself non-trivial | Make the prerequisite a separate sub-task with a dep arrow |
+| FE task: 3+ components + page assembly | 1 sub-task per component + 1 sub-task for page assembly (always last) |
+| Task description needs more than 2 sentences to explain the AC | Too broad — split until each sub-task has a 1-sentence AC |
+| You cannot verify the task independently without the next task being done | Split so each sub-task is independently verifiable |
+
+**Size signal quick-check:**
+- 1–2 files, 1 clear AC → fits in 1 session ✅
+- 3+ files OR 3+ scenarios → break into sub-tasks ⚠️
+- When in doubt → split. A sub-task too small costs nothing. A task too large breaks mid-session and loses context.
+
+**How to apply:** Before writing any code, count the files to touch and the distinct ACs. If > 2 of either → open MASTER.md and write the sub-task rows first. Get owner confirmation on the breakdown before proceeding.
+
 ### Weakness 6 — FE tasks created without a visual model (2026-05-03)
 
 **Problem:** Phase 8 FE tasks (admin overview, PrepPanel, etc.) were created directly from spec text with no wireframe. Components like PrepPanel and the Kiểm tra toggle were discovered mid-coding, not during planning. This caused task rows to be rewritten after implementation started, and some components were built without clear spec traceability.

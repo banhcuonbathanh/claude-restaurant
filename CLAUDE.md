@@ -24,10 +24,28 @@ Your mindset:
 ## Session Start (every session, no exceptions)
 
 1. Read `CLAUDE.md` → understand role, current status, and next work
-2. Read `docs/tasks/CURRENT.md` → check if there is an active task in progress
-3. If no active task → read `docs/tasks/MASTER.md` → find next ⬜ task where all Deps are ✅
+2. Read `docs/tasks/CURRENT_TASK.md` → check if there is an active task in progress
+3. If no active task → read `docs/tasks/MASTER_TASK.md` → find next ⬜ task where all Deps are ✅
 4. Read the relevant spec/guide for that domain
 5. Follow the 7-step workflow below
+
+---
+
+## Before Every Task: MASTER First (no exceptions)
+
+**Before starting ANY task or sub-task — including sub-tasks inside an existing phase:**
+
+1. Check `docs/tasks/MASTER_TASK.md` — does a row for this task exist?
+2. If NO → add the row first, confirm with owner, then proceed.
+3. Each task/sub-task must be sized to complete in **< 100k tokens** (≈ 1 session).
+   If a task will exceed this → break it into sub-tasks in MASTER.md **before** writing any code.
+
+**How to size a task (< 100k token rule):**
+- A task that touches 1–2 files and has 1 clear AC = fits in 1 session ✅
+- A task that spans 3+ files OR has 3+ distinct scenarios → break into sub-tasks ⚠️
+- When in doubt → split. A sub-task that is too small costs nothing. A task too large breaks mid-session.
+
+Only after the MASTER.md row exists → follow the 7 steps below.
 
 ---
 
@@ -48,10 +66,10 @@ READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 | File | Purpose |
 |---|---|
 | `docs/DOC_MAP.md` | Document map — which doc to read, when, and why. Start here if lost. |
-| `docs/tasks/CURRENT.md` | Active task — what is being worked on right now. Read first every session. |
-| `docs/tasks/MASTER.md` | Master task list — all tasks with owner, deps, session estimate. Update after every task. |
-| `docs/tasks/GUIDE.md` | Task management rules — format, session sizing, ownership, breakdown rules. |
-| `docs/tasks/TEMPLATE.md` | Copy-paste templates for new tasks, phases, sub-tasks, bug fixes. |
+| `docs/tasks/CURRENT_TASK.md` | Active task — what is being worked on right now. Read first every session. |
+| `docs/tasks/MASTER_TASK.md` | Master task list — all tasks with owner, deps, session estimate. Update after every task. |
+| `docs/tasks/GUIDE_TASK.md` | Task management rules — format, session sizing, ownership, breakdown rules. |
+| `docs/tasks/TEMPLATE_TASK.md` | Copy-paste templates for new tasks, phases, sub-tasks, bug fixes. |
 | `docs/PROCEDURE_INDEX.md` | Procedure index — task type → required procedure. |
 | `docs/IMPLEMENTATION_WORKFLOW.md` | Full detail on each of the 7 steps. |
 | `docs/base/LESSONS_LEARNED_v3.md` | Session workflow guide + prefix system detail |
@@ -65,7 +83,7 @@ READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 2. Which phase/domain does it belong to?
 3. How urgent — do now or add to backlog?
 
-Only proceed after owner confirms + task is added to `docs/tasks/MASTER.md`.
+Only proceed after owner confirms + task is added to `docs/tasks/MASTER_TASK.md`.
 
 ---
 
@@ -92,7 +110,7 @@ Only proceed after owner confirms + task is added to `docs/tasks/MASTER.md`.
 
 ## Phase Status (April 2026)
 
-> Quick-glance only. **Single source of truth: [`docs/tasks/MASTER.md`](docs/tasks/MASTER.md)** — always update there first.
+> Quick-glance only. **Single source of truth: [`docs/tasks/MASTER_TASK.md`](docs/tasks/MASTER_TASK.md)** — always update there first.
 
 | Phase | Status | Blocking |
 |---|---|---|

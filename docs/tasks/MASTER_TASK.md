@@ -3,7 +3,7 @@
 > **Single source of truth** for all tasks.
 > **Rule:** Update status here after every completed task. Never let this go stale.
 > **Status codes:** ⬜ not started · 🔄 in progress · ✅ done · 🔴 blocked
-> **Active task:** `docs/tasks/CURRENT.md` · **Task rules:** `docs/tasks/GUIDE.md`
+> **Active task:** `docs/tasks/CURRENT_TASK.md` · **Task rules:** `docs/tasks/GUIDE_TASK.md`
 
 ---
 
@@ -23,6 +23,7 @@
 | P9 — Overview Real API | FE | ⬜ NOT STARTED | ~8 | P9-1 |
 | P10 — Summary Dashboard | BE+FE | ✅ COMPLETE | 0 | — |
 | P-UX — Customer Flow | FE | ✅ COMPLETE | 0 | — |
+| P-PD — Product Detail Page | FE | 🔄 IN PROGRESS | ~1 | P-PD-1 |
 
 ---
 
@@ -170,6 +171,25 @@ The entries below are phase-level summaries only.
 | P9-6 | FE | `OrderDetail` — progress bar + 3 mini counters + item list with status dots + Hoàn thành/Huỷ/Kiểm tra buttons | P9-2 ✅ | 1 | ⬜ | `Spec_9 §2.6` | `wireframes/overview.md ZoneE` |
 | P9-7 | FE | `TableCard` + `TableGrid` — urgency border (gray/orange/yellow/red), occupied-first sort vi-VN locale, empty state icon | P9-2 ✅ | 1 | ⬜ | `Spec_9 §2.3 §2.6` | `wireframes/overview.md ZoneD` |
 | P9-8 | FE | `overview/page.tsx` — assemble all zones, flip `USE_MOCK=false`, wire `useOverviewWS`, 30s timer tick for urgency recompute | P9-3 ✅ · P9-4 ✅ · P9-5 ✅ · P9-6 ✅ · P9-7 ✅ | 1 | ⬜ | `Spec_9 §2` | `wireframes/overview.md` |
+
+---
+
+## Phase P-PD — Product Detail Page
+
+> **Owner:** FE
+> **Dependency:** P5 ✅ (menu/cart exists) · P4 ✅ (GET /products/:id live)
+> **Spec:** `docs/spec/Spec_3_Menu_Checkout_UI_v2.md §4`
+> **Wireframe:** `docs/fe/wireframes/product-detail.excalidraw`
+> **Route:** `fe/src/app/(shop)/menu/product/[id]/page.tsx`
+> **Token budget:** each sub-task < 100k tokens
+
+| ID | Owner | Task | Deps | Sessions | Status | spec_ref | draw_ref |
+|---|---|---|---|---|---|---|---|
+| P-PD-1 | FE | Read Spec_3 §4 + verify `GET /products/:id` response shape + cart store `addItem` signature | — | 1 | ⬜ | `Spec_3 §4` | — |
+| P-PD-2 | FE | Create route file + Zone A (HeroImage: next/image fill object-cover) + Zone B (name, availability badge, price, description) + loading skeleton (animate-pulse all zones) | P-PD-1 ✅ | 1 | ⬜ | `Spec_3 §4` | `product-detail.excalidraw Zone A·B` |
+| P-PD-3 | FE | Zone C — ToppingSelector: multi-select checkboxes, live running total (base + topping prices) | P-PD-2 ✅ | 1 | ⬜ | `Spec_3 §4` | `product-detail.excalidraw Zone C` |
+| P-PD-4 | FE | Zone D — QtyStepper (−/qty/+, min=1) + Zone E — sticky CTA footer ("Thêm vào giỏ hàng · {total} ₫") → add to Zustand cart store | P-PD-3 ✅ | 1 | ⬜ | `Spec_3 §4` | `product-detail.excalidraw Zone D·E` |
+| P-PD-5 | FE | Browser test: golden path (load → select topping → change qty → add to cart) + edge cases (no toppings, unavailable product) + fix regressions | P-PD-4 ✅ | 1 | ⬜ | `Spec_3 §4` | — |
 
 ---
 
