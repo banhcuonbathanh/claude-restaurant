@@ -1,0 +1,20 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e352]:
+    - button "Quay lại" [ref=e353] [cursor=pointer]:
+      - img [ref=e354]
+    - img "gio" [ref=e357]
+    - generic [ref=e359]:
+      - heading "gio" [level=1] [ref=e361]
+      - paragraph [ref=e362]: 9.000 ₫
+      - paragraph [ref=e363]: gio
+    - generic [ref=e364]:
+      - generic [ref=e365]: Số lượng
+      - generic [ref=e366]:
+        - button "Giảm số lượng" [disabled] [ref=e367]:
+          - img [ref=e368]
+        - generic [ref=e369]: "1"
+        - button "Tăng số lượng" [ref=e370] [cursor=pointer]:
+          - img [ref=e371]
+    - button "Thêm vào giỏ hàng · 9.000 ₫" [ref=e373] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e141]

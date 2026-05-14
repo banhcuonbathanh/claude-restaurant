@@ -10,15 +10,15 @@
 
 | Field | Value |
 |---|---|
-| **Task ID** | P-PD-2 |
-| **Owner** | FE |
-| **Title** | Create route file + Zone A (HeroImage) + Zone B (name, badge, price, description) + loading skeleton |
-| **Session goal** | Scaffold product detail page with Zones A & B wired to GET /products/:id |
-| **Branch** | feature/P-PD-product-detail |
-| **Started** | 2026-05-12 |
+| **Task ID** | — |
+| **Owner** | — |
+| **Title** | — |
+| **Session goal** | — |
+| **Branch** | — |
+| **Started** | — |
 | **Blocked by** | — |
-| **Stopped at** | ✅ DONE — page.tsx created, tsc clean |
-| **Notes** | Route: fe/src/app/(shop)/menu/product/[id]/page.tsx · image prefix env var is NEXT_PUBLIC_STORAGE_URL (matches ProductCard) · CartItem uses `price` not `unit_price` · total/itemCount are functions · Next: P-PD-3 (ToppingSelector) |
+| **Stopped at** | — |
+| **Notes** | — |
 
 ---
 
@@ -42,6 +42,11 @@
 
 | Date | Task ID | Title | Outcome |
 |---|---|---|---|
+| 2026-05-14 | P7-1.1 | Auth service test scaffolding + TestLogin_WrongPassword + TestLogin_RateLimitAfter5Fails | ✅ Both tests pass; build clean; added redisClient interface to auth_service.go |
+| 2026-05-14 | P-UX2 | Favourites + Combo detail + Settings (P-UX2-1/2/3) | ✅ All 3 tasks complete; build clean |
+| 2026-05-14 | P-PD-5 | Browser test golden path + regressions | ✅ 3 bugs fixed; all tests pass |
+| 2026-05-12 | P-PD-4 | Zone D QtyStepper + Zone E sticky CTA footer | ✅ Zone D+E added, tsc clean |
+| 2026-05-12 | P-PD-3 | Zone C ToppingSelector + live running total + skeleton | ✅ Zone C added, tsc clean |
 | 2026-05-12 | P-PD-2 | Create route + Zone A (HeroImage) + Zone B + skeleton | ✅ page.tsx created, tsc clean |
 | 2026-05-12 | P-PD-1 | Read Spec_3 §4 + verify API shape + cart store signature | ✅ All integration points confirmed — see findings |
 | 2026-05-11 | SETUP | Create docs/tasks/ folder | ✅ GUIDE · MASTER · CURRENT · TEMPLATE created |

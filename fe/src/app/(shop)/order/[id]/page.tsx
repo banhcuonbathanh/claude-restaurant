@@ -73,10 +73,10 @@ export default function OrderPage({ params }: { params: { id: string } }) {
 
     const comboNameMap = new Map<string, string>()
     for (const i of order.items) {
-      if (i.combo_id !== null && i.combo_ref_id === null) comboNameMap.set(i.id, i.name)
+      if (i.combo_id && !i.combo_ref_id) comboNameMap.set(i.id, i.name)
     }
 
-    const rows = order.items.filter(i => !(i.combo_id !== null && i.combo_ref_id === null))
+    const rows = order.items.filter(i => !(i.combo_id && !i.combo_ref_id))
 
     let eatenAmount = 0, remainingAmount = 0, totalQty = 0, totalServed = 0
     for (const i of rows) {
@@ -89,7 +89,7 @@ export default function OrderPage({ params }: { params: { id: string } }) {
     // Build summary: group same products by product_id (fallback: name)
     const summaryMap = new Map<string, SummaryRow>()
     for (const i of rows) {
-      const key = i.product_id ?? i.name
+      const key = i.product_id || i.name
       if (!summaryMap.has(key)) {
         summaryMap.set(key, {
           key, name: i.name, unitPrice: i.unit_price,

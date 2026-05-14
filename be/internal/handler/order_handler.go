@@ -194,15 +194,15 @@ func orderJSON(o service.OrderDetails) gin.H {
 
 	items := make([]gin.H, 0, len(o.Items))
 	for _, item := range o.Items {
-		productID := ""
+		var productID interface{}
 		if item.ProductID.Valid {
 			productID = item.ProductID.String
 		}
-		comboID := ""
+		var comboID interface{}
 		if item.ComboID.Valid {
 			comboID = item.ComboID.String
 		}
-		comboRefID := ""
+		var comboRefID interface{}
 		if item.ComboRefID.Valid {
 			comboRefID = item.ComboRefID.String
 		}

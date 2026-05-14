@@ -1,0 +1,172 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e598]:
+    - banner [ref=e599]:
+      - heading "Quán Bánh Cuốn" [level=1] [ref=e600]
+      - generic [ref=e601]:
+        - button "Đơn hàng" [ref=e602] [cursor=pointer]:
+          - img [ref=e603]
+          - generic [ref=e606]: Đơn hàng
+        - button "3" [ref=e607] [cursor=pointer]:
+          - img [ref=e608]
+          - generic [ref=e612]: "3"
+    - paragraph [ref=e616]: Bánh cuốn tươi — ngon mỗi ngày
+    - generic [ref=e618]:
+      - button "Tất cả" [ref=e619] [cursor=pointer]
+      - button "banh cuon" [ref=e620] [cursor=pointer]
+    - main [ref=e621]:
+      - generic [ref=e622]:
+        - generic [ref=e623]:
+          - heading "Combo" [level=2] [ref=e624]
+          - generic [ref=e626]:
+            - generic [ref=e628]: 🍱
+            - generic [ref=e629]:
+              - generic [ref=e630]:
+                - paragraph [ref=e631]: suat day du
+                - paragraph [ref=e632]: 30.000 ₫
+              - list [ref=e633]:
+                - listitem [ref=e634]:
+                  - generic [ref=e635]: ×1
+                  - generic [ref=e636]: gio
+                - listitem [ref=e637]:
+                  - generic [ref=e638]: ×3
+                  - generic [ref=e639]: banh cuon
+                - listitem [ref=e640]:
+                  - generic [ref=e641]: ×1
+                  - generic [ref=e642]: trung
+              - button [ref=e644] [cursor=pointer]:
+                - img [ref=e645]
+        - generic [ref=e646]:
+          - heading "Món lẻ" [level=2] [ref=e647]
+          - generic [ref=e648]:
+            - generic [ref=e649]:
+              - link "banh cuon" [ref=e650] [cursor=pointer]:
+                - /url: /menu/product/fc13bca2-67df-4927-a4d3-cee1df37ad7d
+                - img "banh cuon" [ref=e651]
+              - generic [ref=e652]:
+                - generic [ref=e653]:
+                  - link "banh cuon" [ref=e654] [cursor=pointer]:
+                    - /url: /menu/product/fc13bca2-67df-4927-a4d3-cee1df37ad7d
+                    - paragraph [ref=e655]: banh cuon
+                  - paragraph [ref=e656]: 4.000 ₫
+                - paragraph [ref=e657]: banh cuon nhan thit
+                - button "topping 2 +1 ₫" [ref=e659] [cursor=pointer]
+                - generic [ref=e660]:
+                  - generic [ref=e661]:
+                    - img [ref=e662]
+                    - img [ref=e664]
+                    - img [ref=e666]
+                    - img [ref=e668]
+                    - img [ref=e670]
+                  - button [ref=e672] [cursor=pointer]:
+                    - img [ref=e673]
+            - generic [ref=e674]:
+              - link "gio" [ref=e675] [cursor=pointer]:
+                - /url: /menu/product/ab7ca380-9ab6-4483-84ab-c03b83128b90
+                - img "gio" [ref=e676]
+              - generic [ref=e677]:
+                - generic [ref=e678]:
+                  - link "gio" [ref=e679] [cursor=pointer]:
+                    - /url: /menu/product/ab7ca380-9ab6-4483-84ab-c03b83128b90
+                    - paragraph [ref=e680]: gio
+                  - paragraph [ref=e681]: 9.000 ₫
+                - paragraph [ref=e682]: gio
+                - generic [ref=e683]:
+                  - generic [ref=e684]:
+                    - img [ref=e685]
+                    - img [ref=e687]
+                    - img [ref=e689]
+                    - img [ref=e691]
+                    - img [ref=e693]
+                  - generic [ref=e695]:
+                    - button [ref=e696] [cursor=pointer]:
+                      - img [ref=e697]
+                    - generic [ref=e698]: "1"
+                    - button [ref=e699] [cursor=pointer]:
+                      - img [ref=e700]
+            - generic [ref=e701]:
+              - link "trung" [ref=e702] [cursor=pointer]:
+                - /url: /menu/product/48675a02-f4a0-4578-869d-4192eb31f9a3
+                - img "trung" [ref=e703]
+              - generic [ref=e704]:
+                - generic [ref=e705]:
+                  - link "trung" [ref=e706] [cursor=pointer]:
+                    - /url: /menu/product/48675a02-f4a0-4578-869d-4192eb31f9a3
+                    - paragraph [ref=e707]: trung
+                  - paragraph [ref=e708]: 9.000 ₫
+                - paragraph [ref=e709]: nhan thit
+                - generic [ref=e710]:
+                  - generic [ref=e711]:
+                    - img [ref=e712]
+                    - img [ref=e714]
+                    - img [ref=e716]
+                    - img [ref=e718]
+                    - img [ref=e720]
+                  - button [ref=e722] [cursor=pointer]:
+                    - img [ref=e723]
+    - button "3 Xem giỏ hàng 17.002 ₫" [ref=e725] [cursor=pointer]:
+      - generic [ref=e726]: "3"
+      - generic [ref=e727]: Xem giỏ hàng
+      - generic [ref=e728]: 17.002 ₫
+    - generic [ref=e729]:
+      - generic [ref=e730]:
+        - heading "Giỏ hàng (3 món)" [level=2] [ref=e731]
+        - button [ref=e733] [cursor=pointer]:
+          - img [ref=e734]
+      - generic [ref=e737]:
+        - generic [ref=e738]:
+          - generic [ref=e739]:
+            - generic [ref=e740]:
+              - paragraph [ref=e742]: banh cuon
+              - paragraph [ref=e743]: + topping 2
+              - paragraph [ref=e744]: 8.002 ₫
+            - generic [ref=e745]:
+              - button [ref=e746] [cursor=pointer]:
+                - img [ref=e747]
+              - generic [ref=e748]: "2"
+              - button [ref=e749] [cursor=pointer]:
+                - img [ref=e750]
+              - button [ref=e751] [cursor=pointer]:
+                - img [ref=e752]
+          - generic [ref=e755]:
+            - generic [ref=e756]:
+              - paragraph [ref=e758]: gio
+              - paragraph [ref=e759]: 9.000 ₫
+            - generic [ref=e760]:
+              - button [ref=e761] [cursor=pointer]:
+                - img [ref=e762]
+              - generic [ref=e763]: "1"
+              - button [ref=e764] [cursor=pointer]:
+                - img [ref=e765]
+              - button [ref=e766] [cursor=pointer]:
+                - img [ref=e767]
+        - generic [ref=e770]:
+          - button "Tổng số món (2 loại)" [ref=e771] [cursor=pointer]:
+            - generic [ref=e772]: Tổng số món (2 loại)
+            - img [ref=e773]
+          - generic [ref=e775]:
+            - generic [ref=e776]:
+              - generic [ref=e777]: Món
+              - generic [ref=e778]: SL
+              - generic [ref=e779]: Đơn giá
+              - generic [ref=e780]: Thành tiền
+            - generic [ref=e781]:
+              - generic [ref=e782]: banh cuon
+              - generic [ref=e783]: ×2
+              - generic [ref=e784]: 4.001 ₫
+              - generic [ref=e785]: 8.002 ₫
+            - generic [ref=e786]:
+              - generic [ref=e787]: gio
+              - generic [ref=e788]: ×1
+              - generic [ref=e789]: 9.000 ₫
+              - generic [ref=e790]: 9.000 ₫
+            - generic [ref=e791]:
+              - generic [ref=e792]: Tổng món lẻ
+              - generic [ref=e793]: 17.002 ₫
+      - generic [ref=e794]:
+        - generic [ref=e795]:
+          - generic [ref=e796]: Tổng cộng
+          - generic [ref=e797]: 17.002 ₫
+        - button "Thanh toán" [ref=e798] [cursor=pointer]
+        - button "Tiếp tục chọn món" [ref=e799] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e141]

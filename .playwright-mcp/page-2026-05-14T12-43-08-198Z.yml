@@ -1,0 +1,27 @@
+- generic [ref=e1]:
+  - generic [ref=e142]:
+    - button "Quay lại" [ref=e143] [cursor=pointer]:
+      - img [ref=e144]
+    - img "banh cuon" [ref=e147]
+    - generic [ref=e149]:
+      - heading "banh cuon" [level=1] [ref=e151]
+      - paragraph [ref=e152]: 4.000 ₫
+      - paragraph [ref=e153]: banh cuon nhan thit
+    - generic [ref=e154]:
+      - heading "Chọn topping (nhiều lựa chọn)" [level=2] [ref=e155]
+      - generic [ref=e157] [cursor=pointer]:
+        - checkbox "topping 2 +1 ₫" [checked] [ref=e158]
+        - generic [ref=e159]: topping 2
+        - generic [ref=e160]: +1 ₫
+      - paragraph [ref=e171]: "Tổng: 4.000 ₫ + 1 ₫ = 4.001 ₫"
+    - generic [ref=e161]:
+      - generic [ref=e162]: Số lượng
+      - generic [ref=e163]:
+        - button "Giảm số lượng" [ref=e164] [cursor=pointer]:
+          - img [ref=e165]
+        - generic [ref=e166]: "2"
+        - button "Tăng số lượng" [active] [ref=e167] [cursor=pointer]:
+          - img [ref=e168]
+    - button "Thêm vào giỏ hàng · 8.002 ₫" [ref=e173] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e141]

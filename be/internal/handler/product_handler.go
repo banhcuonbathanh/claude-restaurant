@@ -406,7 +406,7 @@ func (h *ProductHandler) DeleteCombo(c *gin.Context) {
 func productJSON(p service.ProductDetails) gin.H {
 	toppings := make([]gin.H, 0, len(p.Toppings))
 	for _, t := range p.Toppings {
-		toppings = append(toppings, gin.H{"id": t.ID, "name": t.Name, "price": t.Price})
+		toppings = append(toppings, gin.H{"id": t.ID, "name": t.Name, "price": t.Price, "is_available": t.IsAvailable})
 	}
 	return gin.H{
 		"id":            p.ID,

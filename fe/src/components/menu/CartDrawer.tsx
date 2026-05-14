@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { X, Minus, Plus, Trash2, ChevronDown, ChevronUp, ClipboardList } from 'lucide-react'
 import { useCartStore } from '@/store/cart'
+import { useSettingsStore } from '@/store/settings'
 import { formatVND } from '@/lib/utils'
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 export function CartDrawer({ open, onClose }: Props) {
   const router = useRouter()
   const { items, updateQty, removeItem, total, itemCount, activeOrderId } = useCartStore()
+  const { customerName, tableLabel } = useSettingsStore()
 
   // Track which combos have their dish list expanded
   const [expandedCombos, setExpandedCombos] = useState<Set<string>>(new Set())
@@ -69,13 +71,20 @@ export function CartDrawer({ open, onClose }: Props) {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <h2 className="font-display text-lg text-foreground font-semibold">
-            Giỏ hàng ({itemCount()} món)
-          </h2>
+          <div className="flex flex-col leading-none gap-0.5">
+            <h2 className="font-display text-lg text-foreground font-semibold">
+              Giỏ hàng ({itemCount()} món)
+            </h2>
+            {(customerName || tableLabel) && (
+              <p className="text-xs text-muted-fg">
+                {[customerName, tableLabel].filter(Boolean).join(' · ')}
+              </p>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             {activeOrderId && (
               <button
-                onClick={() => { onClose(); router.push(`/order/${activeOrderId}`) }}
+                onClick={() => { onClose(); router.push('/order') }}
                 className="flex items-center gap-1.5 text-xs text-primary border border-primary/40 px-2.5 py-1.5 rounded-lg hover:bg-primary/10 transition-colors font-medium"
               >
                 <ClipboardList size={13} />

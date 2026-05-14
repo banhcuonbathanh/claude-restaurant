@@ -1,9 +1,9 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { ClipboardList, ChevronRight, Trash2, ShoppingBag } from 'lucide-react'
+import { ClipboardList, Trash2, ShoppingBag, ChevronRight } from 'lucide-react'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { formatVND } from '@/lib/utils'
+import { OrderDetailSheet } from '@/components/order/OrderDetailSheet'
 import type { Order } from '@/types/order'
 
 function loadCachedOrders(): Order[] {
@@ -30,8 +30,8 @@ function timeAgo(dateStr: string): string {
 }
 
 export default function OrderListPage() {
-  const router = useRouter()
-  const [orders, setOrders] = useState<Order[]>([])
+  const [orders, setOrders]               = useState<Order[]>([])
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null)
 
   useEffect(() => {
     setOrders(loadCachedOrders())
@@ -51,7 +51,7 @@ export default function OrderListPage() {
 
   return (
     <div className="min-h-screen bg-background pb-10">
-      <div className="max-w-lg mx-auto px-4 pt-6 space-y-4">
+      <div className="px-4 pt-6 space-y-4">
 
         {/* ── Header ──────────────────────────────────────────────────── */}
         <div className="flex items-center justify-between">
@@ -87,22 +87,19 @@ export default function OrderListPage() {
 
         {/* ── Order cards ─────────────────────────────────────────────── */}
         {orders.map((order) => {
-          // Filter out combo header rows (same logic as order detail page)
-          const displayItems = order.items.filter(
-            i => !(i.combo_id !== null && i.combo_ref_id === null),
-          )
-          const totalQty    = displayItems.reduce((s, i) => s + i.quantity,   0)
-          const totalServed = displayItems.reduce((s, i) => s + i.qty_served, 0)
-          const progress    = totalQty > 0 ? Math.round((totalServed / totalQty) * 100) : 0
-          const isActive    = order.status !== 'delivered' && order.status !== 'cancelled'
+          const displayItems = order.items.filter(i => !(i.combo_id && !i.combo_ref_id))
+          const totalQty     = displayItems.reduce((s, i) => s + i.quantity,   0)
+          const totalServed  = displayItems.reduce((s, i) => s + i.qty_served, 0)
+          const progress     = totalQty > 0 ? Math.round((totalServed / totalQty) * 100) : 0
+          const isActive     = order.status !== 'delivered' && order.status !== 'cancelled'
 
           return (
             <button
               key={order.id}
-              onClick={() => router.push(`/order/${order.id}`)}
-              className="w-full bg-card rounded-xl overflow-hidden border-l-4 border-primary text-left hover:opacity-90 transition-opacity"
+              onClick={() => setSelectedOrderId(order.id)}
+              className="w-full text-left bg-card rounded-xl overflow-hidden border-l-4 border-primary hover:opacity-90 transition-opacity"
             >
-              {/* Name + status + total */}
+              {/* Name + status + total + chevron */}
               <div className="flex items-center gap-2 px-4 py-3">
                 <span className="font-bold text-foreground text-sm shrink-0">
                   {order.table_name ? `Bàn ${order.table_name}` : 'Mang về'}
@@ -148,6 +145,14 @@ export default function OrderListPage() {
           )
         })}
       </div>
+
+      {/* ── Detail sheet ────────────────────────────────────────────────── */}
+      {selectedOrderId && (
+        <OrderDetailSheet
+          orderId={selectedOrderId}
+          onClose={() => setSelectedOrderId(null)}
+        />
+      )}
     </div>
   )
 }

@@ -20,6 +20,16 @@ import (
 	jwtpkg "banhcuon/be/pkg/jwt"
 )
 
+// redisClient covers the subset of *redis.Client methods used by AuthService.
+// The real *redis.Client satisfies this interface; tests inject a mock.
+type redisClient interface {
+	Incr(ctx context.Context, key string) *redis.IntCmd
+	Expire(ctx context.Context, key string, expiration time.Duration) *redis.BoolCmd
+	Get(ctx context.Context, key string) *redis.StringCmd
+	Set(ctx context.Context, key string, value interface{}, expiration time.Duration) *redis.StatusCmd
+	Del(ctx context.Context, keys ...string) *redis.IntCmd
+}
+
 const (
 	maxSessions     = 5
 	rateLimitMax    = 5
@@ -30,7 +40,7 @@ const (
 // AuthService handles authentication business logic.
 type AuthService struct {
 	repo repository.AuthRepository
-	rdb  *redis.Client
+	rdb  redisClient
 }
 
 // NewAuthService creates an AuthService.

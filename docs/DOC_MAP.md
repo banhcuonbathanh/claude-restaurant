@@ -2,46 +2,169 @@
 
 > **Purpose:** Tell Claude (and developers) exactly WHEN, WHY, and WHAT each doc is for.
 > **Rule:** When in doubt about which doc to open, start here.
-> **Version:** v1.1 · 2026-05-10
+> **Version:** v1.2 · 2026-05-12
 
 ---
 
 ## Decision Procedure — Which Doc to Read First?
 
+Use the decision tree below. Match your situation to a branch and follow the reading order exactly.
+
+---
+
+### Branch A — New team member / first session on this project
+
 ```
-START: I need to build / modify a feature
+What is your role?
+        │
+        ├── Backend Dev  ──► docs/onboarding/BE_DEV.md
+        │                        └─► docs/be/BE_SYSTEM_GUIDE.md        (your permanent session entry point)
+        │                                └─► domain Spec (Tier 2)      (before touching any domain)
+        │
+        ├── Frontend Dev ──► docs/onboarding/FE_DEV.md
+        │                        └─► docs/fe/FE_SYSTEM_GUIDE.md        (your permanent session entry point)
+        │                                └─► domain Spec (Tier 2)      (before touching any domain)
+        │
+        ├── DevOps       ──► docs/onboarding/DEVOPS.md
+        │                        └─► docs/devops/DEVOPS_SYSTEM_GUIDE.md (your permanent session entry point)
+        │                                └─► DOCKER_GUIDE.md           (for container/infra detail)
+        │
+        └── Tech Lead    ──► docs/onboarding/LEAD.md
+                                 └─► CLAUDE.md + docs/tasks/MASTER_TASK.md  (phase status + next task)
+                                         └─► API_CONTRACT + BE/FE_SYSTEM_GUIDE (review path)
+```
+
+> After onboarding is complete, **never re-read the onboarding file**. Go directly to the Tier 3 system guide for your role.
+
+---
+
+### Branch B — Returning dev, starting a new session
+
+```
+Every session, without exception:
+
+1. Read CLAUDE.md                      ← phase status · current work · commands
+2. Read docs/tasks/CURRENT_TASK.md     ← is there an active task in progress?
+        │
+        ├── YES → resume that task from where it stopped (follow 7-step workflow)
+        │
+        └── NO  → read docs/tasks/MASTER_TASK.md → find next ⬜ task where all Deps are ✅
+                        │
+                        ├── BE task   → go to Branch C (Backend path)
+                        ├── FE task   → go to Branch D (Frontend path)
+                        └── Infra task → go to Branch E (DevOps path)
+```
+
+---
+
+### Branch C — Backend task (any BE domain)
+
+```
+1. docs/be/BE_SYSTEM_GUIDE.md          ← ALWAYS read first: epics, rules, code patterns, DI skeleton
         │
         ▼
-Does a Spec file exist for this domain?  (see Tier 2 below)
+2. Does this domain have a Spec? (see Tier 2 table below)
         │
-       YES ──────────────────────────────► Read the domain Spec → PLAN
-        │                                   If spec covers it: follow spec exactly.
-        │                                   If spec doesn't cover it → go to NO path.
+       YES ──────────────────────────► Read the domain Spec (Spec1–Spec9)
+        │                               Follow spec AC exactly. If gap → go to NO path.
         │
         NO
         │
         ▼
-Read SRS (docs/requirements/BanhCuon_SRS_v1.md)   ← WHAT the system must do
+3. docs/requirements/BanhCuon_SRS_v1.md    ← WHAT the system must do
         │
         ▼
-Read FSD (docs/requirements/BanhCuon_FSD_v1.md)   ← HOW each feature is designed to work
+4. docs/requirements/BanhCuon_FSD_v1.md    ← HOW the feature works (flows, DB, API logic)
         │
         ▼
-Still unclear? Read BRD (business context) and flag ❓ CLARIFY with user
+5. Still unclear? → flag ❓ CLARIFY with owner before writing any code
+
+Always check before writing:
+  • DB field names    → docs/be/DB_SCHEMA_SUMMARY.md         (SINGLE SOURCE)
+  • API shape         → docs/contract/API_CONTRACT_v1.2.md
+  • Error format      → docs/contract/ERROR_CONTRACT_v1.1.md
+  • Business rules    → docs/core/MASTER_v1.2.md §4
+  • RBAC              → docs/core/MASTER_v1.2.md §3
+  • JWT / auth        → docs/core/MASTER_v1.2.md §6
 ```
 
-**For cross-cutting concerns (always applies):**
+---
 
-| Need | Go to |
+### Branch D — Frontend task (any FE domain)
+
+```
+1. docs/fe/FE_SYSTEM_GUIDE.md          ← ALWAYS read first: epics, state rules, component patterns
+        │
+        ▼
+2. Does this page/domain have a wireframe?  (docs/fe/wireframes/)
+        │
+       YES ──────────────────────────► Open wireframe (Step 0b of FE Pre-Task Phase)
+        │
+        NO
+        │
+        ▼
+   Draw wireframe first              ← copy docs/fe/wireframes/_TEMPLATE.md before coding any new page
+        │
+        ▼
+3. Does this domain have a Spec? (see Tier 2 table below)
+        │
+       YES ──────────────────────────► Read the domain Spec (Spec3, Spec6, Spec9, etc.)
+        │                               Follow spec AC exactly. If gap → go to NO path.
+        │
+        NO
+        │
+        ▼
+4. docs/requirements/BanhCuon_UXUI_Design_v1.md ← visual design / UX flows
+        │
+        ▼
+5. docs/requirements/BanhCuon_FSD_v1.md         ← feature design intent
+        │
+        ▼
+6. Still unclear? → flag ❓ CLARIFY with owner
+
+Always check before writing:
+  • API call shape    → docs/contract/API_CONTRACT_v1.2.md
+  • Error toasts      → docs/contract/ERROR_CONTRACT_v1.1.md
+  • Design tokens     → docs/core/MASTER_v1.2.md §2
+  • Realtime (SSE/WS) → docs/core/MASTER_v1.2.md §5
+  • State ownership   → docs/fe/FE_SYSTEM_GUIDE.md (state rules section)
+  • API client        → fe/src/lib/api-client.ts  (ONLY place for API calls)
+```
+
+---
+
+### Branch E — DevOps / Infra task
+
+```
+1. docs/devops/DEVOPS_SYSTEM_GUIDE.md  ← ALWAYS read first: compose spec, Dockerfile patterns, Caddy, CI/CD
+        │
+        ▼
+2. docs/devops/DOCKER_GUIDE.md         ← Docker Compose setup detail, service wiring
+        │
+        ▼
+3. Cross-check env vars against docs/core/MASTER_v1.2.md §8  ← ALL env vars listed here
+        │
+        ▼
+4. Never touch be/ or fe/ source code  ← DevOps owns: docker-compose.yml, Dockerfiles, Caddyfile,
+                                          .env.example, scripts/migrate.sh, .github/workflows/
+```
+
+---
+
+### Cross-cutting concerns (applies to ALL branches)
+
+| Need | Where to look |
 |---|---|
 | Business rules (order flow, cancel, payment) | `docs/core/MASTER_v1.2.md §4` |
 | RBAC roles + hierarchy | `docs/core/MASTER_v1.2.md §3` |
 | JWT / auth rules | `docs/core/MASTER_v1.2.md §6` |
-| Realtime (SSE/WS config) | `docs/core/MASTER_v1.2.md §5` |
+| Realtime (SSE/WS config) | `docs/core/MASTER_v1.2.md §5` + `docs/contract/API_CONTRACT_v1.2.md §10` |
 | Design tokens (colors, fonts) | `docs/core/MASTER_v1.2.md §2` |
-| Error codes + format | `docs/contract/ERROR_CONTRACT_v1.1.md` |
+| Error codes + response format | `docs/contract/ERROR_CONTRACT_v1.1.md` |
 | API endpoint signatures | `docs/contract/API_CONTRACT_v1.2.md` |
 | DB field names (single source) | `docs/be/DB_SCHEMA_SUMMARY.md` |
+| Acceptance criteria per task | `docs/requirements/BanhCuon_Project_Checklist.md` |
+| Task unclear or not in MASTER? | Stop → ask owner (see CLAUDE.md "Task Not on the List?") |
 
 ---
 
@@ -165,4 +288,4 @@ docs/
 
 ---
 
-*BanhCuon System · DOC_MAP · v1.1 · 2026-05-10*
+*BanhCuon System · DOC_MAP · v1.2 · 2026-05-12*

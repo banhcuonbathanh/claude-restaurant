@@ -23,7 +23,8 @@
 | P9 — Overview Real API | FE | ⬜ NOT STARTED | ~8 | P9-1 |
 | P10 — Summary Dashboard | BE+FE | ✅ COMPLETE | 0 | — |
 | P-UX — Customer Flow | FE | ✅ COMPLETE | 0 | — |
-| P-PD — Product Detail Page | FE | 🔄 IN PROGRESS | ~1 | P-PD-1 |
+| P-PD — Product Detail Page | FE | ✅ COMPLETE | 0 | — |
+| P-UX2 — Customer UX Enhancements | FE | ✅ COMPLETE | 0 | — |
 
 ---
 
@@ -64,7 +65,7 @@ The entries below are phase-level summaries only.
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P7-1.1 | BE | Test scaffolding setup + TestLogin_WrongPassword + TestLogin_RateLimitAfter5Fails | — | 1 | ⬜ | Spec1 §4.1 |
+| P7-1.1 | BE | Test scaffolding setup + TestLogin_WrongPassword + TestLogin_RateLimitAfter5Fails | — | 1 | ✅ | Spec1 §4.1 |
 | P7-1.2 | BE | TestMultiSessionLogin (dual active sessions) + TestLogoutSingleSession | P7-1.1 ✅ | 1 | ⬜ | Spec1 §4.2 |
 | P7-1.3 | BE | TestAccountDisabledImmediate (deactivate → 401) + TestTokenRotation | P7-1.2 ✅ | 1 | ⬜ | Spec1 §4.3 |
 
@@ -187,9 +188,24 @@ The entries below are phase-level summaries only.
 |---|---|---|---|---|---|---|---|
 | P-PD-1 | FE | Read Spec_3 §4 + verify `GET /products/:id` response shape + cart store `addItem` signature | — | 1 | ✅ | `Spec_3 §4` | — |
 | P-PD-2 | FE | Create route file + Zone A (HeroImage: next/image fill object-cover) + Zone B (name, availability badge, price, description) + loading skeleton (animate-pulse all zones) | P-PD-1 ✅ | 1 | ✅ | `Spec_3 §4` | `product-detail.excalidraw Zone A·B` |
-| P-PD-3 | FE | Zone C — ToppingSelector: multi-select checkboxes, live running total (base + topping prices) | P-PD-2 ✅ | 1 | ⬜ | `Spec_3 §4` | `product-detail.excalidraw Zone C` |
-| P-PD-4 | FE | Zone D — QtyStepper (−/qty/+, min=1) + Zone E — sticky CTA footer ("Thêm vào giỏ hàng · {total} ₫") → add to Zustand cart store | P-PD-3 ✅ | 1 | ⬜ | `Spec_3 §4` | `product-detail.excalidraw Zone D·E` |
-| P-PD-5 | FE | Browser test: golden path (load → select topping → change qty → add to cart) + edge cases (no toppings, unavailable product) + fix regressions | P-PD-4 ✅ | 1 | ⬜ | `Spec_3 §4` | — |
+| P-PD-3 | FE | Zone C — ToppingSelector: multi-select checkboxes, live running total (base + topping prices) | P-PD-2 ✅ | 1 | ✅ | `Spec_3 §4` | `product-detail.excalidraw Zone C` |
+| P-PD-4 | FE | Zone D — QtyStepper (−/qty/+, min=1) + Zone E — sticky CTA footer ("Thêm vào giỏ hàng · {total} ₫") → add to Zustand cart store | P-PD-3 ✅ | 1 | ✅ | `Spec_3 §4` | `product-detail.excalidraw Zone D·E` |
+| P-PD-5 | FE | Browser test: golden path (load → select topping → change qty → add to cart) + edge cases (no toppings, unavailable product) + fix regressions | P-PD-4 ✅ | 1 | ✅ | `Spec_3 §4` | — |
+
+---
+
+## Phase P-UX2 — Customer UX Enhancements
+
+> **Owner:** FE
+> **Dependency:** P-PD ✅ · P5 ✅
+> **Spec:** none — UX improvements, no new backend needed
+> **Order:** P-UX2-1 → P-UX2-2 → P-UX2-3 (each independent, but do in order)
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P-UX2-1 | FE | Favourites feature: `useFavouritesStore` (Zustand + localStorage persist) + heart toggle button on `ProductCard` + `ComboCard` | — | 1 | ✅ | Heart icon fills red when toggled; state survives page refresh; no backend call |
+| P-UX2-2 | FE | Combo detail page `/menu/combo/[id]` (fetch via `GET /combos` list + filter by id) + explicit "Detail" link button on `ComboCard` + deduplicate detail affordance on `ProductCard` | P-UX2-1 ✅ | 1 | ✅ | Tapping detail on ComboCard navigates to combo detail; shows image, name, price, items list, qty stepper, add-to-cart CTA |
+| P-UX2-3 | FE | Customer settings page `/menu/settings` accessible from menu header settings icon: customer display name + table label stored in localStorage; displayed in header/cart | P-UX2-2 ✅ | 1 | ✅ | Settings page renders; name/table persists across refresh; accessible from menu header |
 
 ---
 

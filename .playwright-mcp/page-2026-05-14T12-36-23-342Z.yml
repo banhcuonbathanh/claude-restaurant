@@ -1,0 +1,102 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - heading "Quán Bánh Cuốn" [level=1] [ref=e4]
+      - generic [ref=e5]:
+        - button "Đơn hàng" [ref=e6] [cursor=pointer]:
+          - img [ref=e7]
+          - generic [ref=e10]: Đơn hàng
+        - button [ref=e11] [cursor=pointer]:
+          - img [ref=e12]
+    - paragraph [ref=e19]: Bánh cuốn tươi — ngon mỗi ngày
+    - generic [ref=e21]:
+      - button "Tất cả" [ref=e22] [cursor=pointer]
+      - button "banh cuon" [ref=e23] [cursor=pointer]
+    - main [ref=e24]:
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - heading "Combo" [level=2] [ref=e27]
+          - generic [ref=e29]:
+            - generic [ref=e31]: 🍱
+            - generic [ref=e32]:
+              - generic [ref=e33]:
+                - paragraph [ref=e34]: suat day du
+                - paragraph [ref=e35]: 30.000 ₫
+              - list [ref=e36]:
+                - listitem [ref=e37]:
+                  - generic [ref=e38]: ×1
+                  - generic [ref=e39]: gio
+                - listitem [ref=e40]:
+                  - generic [ref=e41]: ×3
+                  - generic [ref=e42]: banh cuon
+                - listitem [ref=e43]:
+                  - generic [ref=e44]: ×1
+                  - generic [ref=e45]: trung
+              - button [ref=e47] [cursor=pointer]:
+                - img [ref=e48]
+        - generic [ref=e49]:
+          - heading "Món lẻ" [level=2] [ref=e50]
+          - generic [ref=e51]:
+            - generic [ref=e52]:
+              - img "banh cuon" [ref=e54]
+              - generic [ref=e55]:
+                - generic [ref=e56]:
+                  - paragraph [ref=e57]: banh cuon
+                  - paragraph [ref=e58]: 4.000 ₫
+                - paragraph [ref=e59]: banh cuon nhan thit
+                - button "topping 2 +1 ₫" [ref=e61] [cursor=pointer]
+                - generic [ref=e62]:
+                  - generic [ref=e63]:
+                    - img [ref=e64]
+                    - img [ref=e66]
+                    - img [ref=e68]
+                    - img [ref=e70]
+                    - img [ref=e72]
+                  - button [ref=e74] [cursor=pointer]:
+                    - img [ref=e75]
+            - generic [ref=e76]:
+              - img "gio" [ref=e78]
+              - generic [ref=e79]:
+                - generic [ref=e80]:
+                  - paragraph [ref=e81]: gio
+                  - paragraph [ref=e82]: 9.000 ₫
+                - paragraph [ref=e83]: gio
+                - generic [ref=e84]:
+                  - generic [ref=e85]:
+                    - img [ref=e86]
+                    - img [ref=e88]
+                    - img [ref=e90]
+                    - img [ref=e92]
+                    - img [ref=e94]
+                  - button [ref=e96] [cursor=pointer]:
+                    - img [ref=e97]
+            - generic [ref=e98]:
+              - img "trung" [ref=e100]
+              - generic [ref=e101]:
+                - generic [ref=e102]:
+                  - paragraph [ref=e103]: trung
+                  - paragraph [ref=e104]: 9.000 ₫
+                - paragraph [ref=e105]: nhan thit
+                - generic [ref=e106]:
+                  - generic [ref=e107]:
+                    - img [ref=e108]
+                    - img [ref=e110]
+                    - img [ref=e112]
+                    - img [ref=e114]
+                    - img [ref=e116]
+                  - button [ref=e118] [cursor=pointer]:
+                    - img [ref=e119]
+    - generic [ref=e120]:
+      - generic [ref=e121]:
+        - heading "Giỏ hàng (0 món)" [level=2] [ref=e122]
+        - button [ref=e124] [cursor=pointer]:
+          - img [ref=e125]
+      - paragraph [ref=e130]: Giỏ hàng trống
+      - generic [ref=e131]:
+        - generic [ref=e132]:
+          - generic [ref=e133]: Tổng cộng
+          - generic [ref=e134]: 0 ₫
+        - button "Thanh toán" [disabled] [ref=e135]
+        - button "Tiếp tục chọn món" [ref=e136] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e137]

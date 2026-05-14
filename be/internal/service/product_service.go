@@ -44,9 +44,10 @@ type ProductDetails struct {
 
 // ToppingItem is the topping view embedded in product responses.
 type ToppingItem struct {
-	ID    string
-	Name  string
-	Price int64
+	ID          string
+	Name        string
+	Price       int64
+	IsAvailable bool
 }
 
 // ComboDetails is the enriched combo view for API responses.
@@ -555,9 +556,10 @@ func (s *ProductService) enrichProduct(p db.Product, cats map[string]db.Category
 	items := make([]ToppingItem, 0, len(toppings))
 	for _, t := range toppings {
 		items = append(items, ToppingItem{
-			ID:    t.ID,
-			Name:  t.Name,
-			Price: parsePrice(t.Price),
+			ID:          t.ID,
+			Name:        t.Name,
+			Price:       parsePrice(t.Price),
+			IsAvailable: t.IsAvailable,
 		})
 	}
 	return ProductDetails{

@@ -1,7 +1,10 @@
 'use client'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { ShoppingCart } from 'lucide-react'
+import { ShoppingCart, ClipboardList, Settings } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { useSettingsStore } from '@/store/settings'
 import { api } from '@/lib/api-client'
 import { useCartStore } from '@/store/cart'
 import { CategoryTabs } from '@/components/menu/CategoryTabs'
@@ -13,10 +16,18 @@ import { formatVND } from '@/lib/utils'
 import type { Product, Combo, ComboRaw, Category } from '@/types/product'
 
 export default function MenuPage() {
+  const router = useRouter()
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [cartOpen, setCartOpen]                 = useState(false)
+  const [hasOrders, setHasOrders]               = useState(false)
+
+  useEffect(() => {
+    const found = Object.keys(localStorage).some(k => k.startsWith('order_cache_'))
+    setHasOrders(found)
+  }, [])
 
   const { itemCount, total } = useCartStore()
+  const { tableLabel } = useSettingsStore()
 
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ['categories'],
@@ -76,18 +87,42 @@ export default function MenuPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-20 bg-background border-b border-border px-4 py-3 flex items-center justify-between">
-        <h1 className="font-display text-xl text-foreground font-semibold">Quán Bánh Cuốn</h1>
-        <button
-          onClick={() => setCartOpen(true)}
-          className="relative flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium"
-        >
-          <ShoppingCart size={16} />
-          {count > 0 && (
-            <span className="absolute -top-1 -right-1 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-              {count}
-            </span>
+        <div className="flex flex-col leading-none">
+          <h1 className="font-display text-xl text-foreground font-semibold">Quán Bánh Cuốn</h1>
+          {tableLabel && (
+            <span className="text-xs text-muted-fg mt-0.5">{tableLabel}</span>
           )}
-        </button>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/menu/settings"
+            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-muted transition-colors"
+            aria-label="Cài đặt"
+          >
+            <Settings size={18} className="text-muted-fg" />
+          </Link>
+          <button
+            onClick={() => router.push('/order')}
+            className="relative flex items-center gap-1.5 bg-muted text-foreground px-3 py-1.5 rounded-full text-sm font-medium"
+          >
+            <ClipboardList size={16} />
+            <span>Đơn hàng</span>
+            {hasOrders && (
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-primary rounded-full" />
+            )}
+          </button>
+          <button
+            onClick={() => setCartOpen(true)}
+            className="relative flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium"
+          >
+            <ShoppingCart size={16} />
+            {count > 0 && (
+              <span className="absolute -top-1 -right-1 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                {count}
+              </span>
+            )}
+          </button>
+        </div>
       </header>
 
       {/* Restaurant banner */}

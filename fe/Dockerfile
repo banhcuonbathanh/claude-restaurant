@@ -12,6 +12,9 @@ COPY . .
 ARG NEXT_PUBLIC_API_URL=http://localhost:8080
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
+# Docker build has no internet — skip Google Fonts fetch
+ENV NEXT_FONT_GOOGLE_MOCKED=1
+
 RUN npm run build
 
 # --- runtime ---

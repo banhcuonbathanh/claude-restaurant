@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { ArrowLeft, Minus, Plus } from 'lucide-react'
@@ -7,50 +7,64 @@ import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/api-client'
 import { formatVND } from '@/lib/utils'
 import { useCartStore } from '@/store/cart'
-import type { Product } from '@/types/product'
+import type { ComboRaw, Combo, Product } from '@/types/product'
 
-export default function ProductDetailPage() {
+export default function ComboDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router  = useRouter()
-  const [selectedToppingIds, setSelectedToppingIds] = useState<Set<string>>(new Set())
   const [qty, setQty] = useState(1)
   const addItem = useCartStore(s => s.addItem)
 
-  function toggleTopping(toppingId: string) {
-    setSelectedToppingIds(prev => {
-      const next = new Set(prev)
-      next.has(toppingId) ? next.delete(toppingId) : next.add(toppingId)
-      return next
-    })
-  }
-
-  const { data: product, isLoading, isError } = useQuery<Product>({
-    queryKey: ['product', id],
-    queryFn:  () => api.get(`/products/${id}`).then(r => r.data.data),
+  const { data: rawCombos = [], isLoading, isError } = useQuery<ComboRaw[]>({
+    queryKey: ['combos'],
+    queryFn: () => api.get('/combos').then(r => r.data.data),
     staleTime: 5 * 60 * 1000,
   })
 
-  const selectedToppings = product?.toppings.filter(t => selectedToppingIds.has(t.id)) ?? []
-  const toppingSum       = selectedToppings.reduce((s, t) => s + t.price, 0)
+  const { data: allProducts = [] } = useQuery<Product[]>({
+    queryKey: ['products-all'],
+    queryFn: () => api.get('/products').then(r => r.data.data),
+    staleTime: 5 * 60 * 1000,
+  })
 
-  const imageUrl = product?.image_path
-    ? `${process.env.NEXT_PUBLIC_STORAGE_URL ?? ''}/${product.image_path}`
+  const combo = useMemo<Combo | undefined>(() => {
+    const raw = rawCombos.find(c => c.id === id)
+    if (!raw) return undefined
+    const productMap = new Map(allProducts.map(p => [p.id, p.name]))
+    return {
+      id:           raw.id,
+      category_id:  raw.category_id,
+      name:         raw.name,
+      description:  raw.description,
+      price:        raw.price,
+      image_path:   raw.image_path,
+      sort_order:   raw.sort_order,
+      is_available: raw.is_available,
+      items: (raw.combo_items ?? []).map(ci => ({
+        product_id:   ci.product_id,
+        product_name: productMap.get(ci.product_id) ?? ci.product_id,
+        quantity:     ci.quantity,
+      })),
+    }
+  }, [rawCombos, allProducts, id])
+
+  const imageUrl = combo?.image_path
+    ? `${process.env.NEXT_PUBLIC_STORAGE_URL ?? ''}/${combo.image_path}`
     : null
 
-  const unitPrice = (product?.price ?? 0) + toppingSum
-  const total     = unitPrice * qty
+  const total = (combo?.price ?? 0) * qty
 
   function handleAddToCart() {
-    if (!product) return
-    const toppingKey = Array.from(selectedToppingIds).sort().join('-')
+    if (!combo) return
     addItem({
-      id:         `product_${product.id}_${toppingKey}`,
-      type:       'product',
-      product_id: product.id,
-      name:       product.name,
-      quantity:   qty,
-      price:      unitPrice,
-      toppings:   selectedToppings,
+      id:          `combo_${combo.id}`,
+      type:        'combo',
+      combo_id:    combo.id,
+      name:        combo.name,
+      quantity:    qty,
+      price:       combo.price,
+      toppings:    [],
+      combo_items: combo.items.map(i => ({ product_name: i.product_name, quantity: i.quantity })),
     })
     router.back()
   }
@@ -66,28 +80,25 @@ export default function ProductDetailPage() {
         <ArrowLeft size={20} className="text-foreground" />
       </button>
 
-      {isLoading && <ProductDetailSkeleton />}
+      {isLoading && <ComboDetailSkeleton />}
 
-      {isError && (
+      {(isError || (!isLoading && !combo)) && (
         <div className="flex flex-col items-center justify-center min-h-screen gap-4 px-6">
-          <p className="text-muted-fg text-center">Không tìm thấy sản phẩm.</p>
-          <button
-            onClick={() => router.back()}
-            className="text-primary text-sm underline"
-          >
+          <p className="text-muted-fg text-center">Không tìm thấy combo.</p>
+          <button onClick={() => router.back()} className="text-primary text-sm underline">
             Quay lại menu
           </button>
         </div>
       )}
 
-      {product && (
+      {combo && (
         <>
           {/* Zone A — Hero image */}
           <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
             {imageUrl ? (
               <Image
                 src={imageUrl}
-                alt={product.name}
+                alt={combo.name}
                 fill
                 className="object-cover"
                 sizes="100vw"
@@ -95,75 +106,51 @@ export default function ProductDetailPage() {
               />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center text-6xl bg-muted">
-                🍜
+                🍱
               </div>
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
           </div>
 
-          {/* Zone B — Name, badge, price, description */}
+          {/* Zone B — Name, availability, price, description */}
           <div className="px-4 pt-4 pb-4 flex flex-col gap-3">
             <div className="flex items-start gap-2">
               <h1 className="text-xl font-bold text-foreground flex-1 leading-snug">
-                {product.name}
+                {combo.name}
               </h1>
-              {!product.is_available && (
+              {!combo.is_available && (
                 <span className="flex-shrink-0 text-xs font-semibold px-2 py-1 rounded-full bg-red-100 text-red-600">
                   Hết hàng
                 </span>
               )}
             </div>
 
-            <p className="text-2xl font-bold text-primary">
-              {formatVND(product.price)}
-            </p>
+            <p className="text-2xl font-bold text-primary">{formatVND(combo.price)}</p>
 
-            {product.description && (
-              <p className="text-sm text-muted-fg leading-relaxed">
-                {product.description}
-              </p>
+            {combo.description && (
+              <p className="text-sm text-muted-fg leading-relaxed">{combo.description}</p>
             )}
           </div>
 
-          {/* Zone C — ToppingSelector (only when product has toppings) */}
-          {product.toppings.length > 0 ? (
-            <div className="px-4 pt-4 flex flex-col gap-3 border-t border-border">
-              <h2 className="text-sm font-semibold text-foreground">
-                Chọn topping (nhiều lựa chọn)
-              </h2>
-              <div className="flex flex-col gap-2">
-                {product.toppings.map(topping => (
-                  <label
-                    key={topping.id}
-                    className={`flex items-center gap-3 cursor-pointer${!topping.is_available ? ' opacity-50' : ''}`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedToppingIds.has(topping.id)}
-                      onChange={() => toggleTopping(topping.id)}
-                      disabled={!topping.is_available}
-                      className="w-4 h-4 accent-primary"
-                    />
-                    <span className="flex-1 text-sm text-foreground">{topping.name}</span>
-                    <span className="text-sm text-primary font-medium">
-                      +{formatVND(topping.price)}
+          {/* Zone C — Items list */}
+          {combo.items.length > 0 && (
+            <div className="px-4 pt-4 pb-4 flex flex-col gap-3 border-t border-border">
+              <h2 className="text-sm font-semibold text-foreground">Gồm có</h2>
+              <ul className="flex flex-col gap-2">
+                {combo.items.map(item => (
+                  <li key={item.product_id} className="flex items-center gap-3">
+                    <span className="bg-primary/10 text-primary text-xs font-bold px-2 py-0.5 rounded-full">
+                      ×{item.quantity}
                     </span>
-                  </label>
+                    <span className="text-sm text-foreground">{item.product_name}</span>
+                  </li>
                 ))}
-              </div>
-              {selectedToppingIds.size > 0 && (
-                <p className="text-xs text-muted-fg">
-                  Tổng: {formatVND(product.price)} + {formatVND(toppingSum)} ={' '}
-                  <span className="text-primary font-semibold">
-                    {formatVND(unitPrice)}
-                  </span>
-                </p>
-              )}
+              </ul>
             </div>
-          ) : null}
+          )}
 
           {/* Zone D — QtyStepper */}
-          <div className="px-4 pt-4 pb-32 flex items-center gap-4">
+          <div className="px-4 pt-4 pb-32 flex items-center gap-4 border-t border-border">
             <span className="text-sm font-semibold text-foreground">Số lượng</span>
             <div className="flex items-center gap-3 ml-auto">
               <button
@@ -174,9 +161,7 @@ export default function ProductDetailPage() {
               >
                 <Minus size={14} />
               </button>
-              <span className="w-6 text-center text-base font-semibold tabular-nums">
-                {qty}
-              </span>
+              <span className="w-6 text-center text-base font-semibold tabular-nums">{qty}</span>
               <button
                 onClick={() => setQty(q => q + 1)}
                 className="w-8 h-8 rounded-full border border-border flex items-center justify-center"
@@ -191,12 +176,12 @@ export default function ProductDetailPage() {
           <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 pt-3 pb-safe-4">
             <button
               onClick={handleAddToCart}
-              disabled={!product.is_available}
+              disabled={!combo.is_available}
               className="w-full bg-primary text-primary-fg font-semibold text-sm rounded-xl py-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[.98] transition-transform"
             >
-              {product.is_available
+              {combo.is_available
                 ? `Thêm vào giỏ hàng · ${formatVND(total)}`
-                : 'Sản phẩm tạm hết'}
+                : 'Combo tạm hết'}
             </button>
           </div>
         </>
@@ -205,31 +190,24 @@ export default function ProductDetailPage() {
   )
 }
 
-function ProductDetailSkeleton() {
+function ComboDetailSkeleton() {
   return (
     <div className="animate-pulse">
-      {/* Zone A skeleton */}
       <div className="w-full aspect-[4/3] bg-muted" />
-
-      {/* Zone B skeleton */}
       <div className="px-4 pt-4 pb-4 flex flex-col gap-3">
         <div className="h-7 bg-muted rounded w-3/4" />
         <div className="h-8 bg-muted rounded w-1/3" />
         <div className="space-y-2">
           <div className="h-4 bg-muted rounded w-full" />
           <div className="h-4 bg-muted rounded w-5/6" />
-          <div className="h-4 bg-muted rounded w-4/6" />
         </div>
       </div>
-
-      {/* Zone C skeleton */}
       <div className="px-4 pt-4 pb-32 flex flex-col gap-3 border-t border-border">
-        <div className="h-4 bg-muted rounded w-2/5" />
+        <div className="h-4 bg-muted rounded w-1/4" />
         {[0, 1, 2].map(i => (
           <div key={i} className="flex items-center gap-3">
-            <div className="w-4 h-4 bg-muted rounded" />
+            <div className="w-8 h-5 bg-muted rounded-full" />
             <div className="flex-1 h-4 bg-muted rounded" />
-            <div className="w-16 h-4 bg-muted rounded" />
           </div>
         ))}
       </div>

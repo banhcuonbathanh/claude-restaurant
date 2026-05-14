@@ -13,6 +13,8 @@
 | `/handoff` | End of every session | Reads task statuses, edits stale docs, outputs handoff summary |
 | `/doc-check` | Mid-session or before starting a task | Scans docs for staleness, flags issues — read-only, no edits |
 | `/doc-check [task-id]` | Before starting a specific task | Scopes the scan to one domain (e.g. `/doc-check 4.1`) |
+| `/quality-check` | After completing a task or end of session | Audits last 5 sessions: commit hygiene, code rules, skipped steps, CSS safety, skeleton coverage |
+| `/quality-check [N]` | When reviewing a specific number of sessions | Same audit scoped to last N sessions (e.g. `/quality-check 3`) |
 
 ---
 
@@ -89,8 +91,12 @@ Claude will scan:
 └── skills/
     ├── handoff/
     │   └── SKILL.md      ← /handoff command source
-    └── doc-check/
-        └── SKILL.md      ← /doc-check command source
+    ├── doc-check/
+    │   └── SKILL.md      ← /doc-check command source
+    ├── excalidraw/
+    │   └── SKILL.md      ← /excalidraw command source
+    └── quality-check/
+        └── SKILL.md      ← /quality-check command source
 ```
 
 To add a new command: create a new folder under `.claude/skills/<name>/` containing a `SKILL.md` file.

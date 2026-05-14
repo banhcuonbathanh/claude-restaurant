@@ -1,7 +1,9 @@
 'use client'
 import Image from 'next/image'
-import { Plus, Minus } from 'lucide-react'
+import { Plus, Minus, Heart } from 'lucide-react'
+import Link from 'next/link'
 import { useCartStore } from '@/store/cart'
+import { useFavouritesStore } from '@/store/favourites'
 import type { Combo } from '@/types/product'
 import { formatVND } from '@/lib/utils'
 
@@ -11,6 +13,8 @@ interface Props {
 
 export function ComboCard({ combo }: Props) {
   const { items, addItem, updateQty } = useCartStore()
+  const { toggle: toggleFav, isFavourite } = useFavouritesStore()
+  const fav = isFavourite(`combo_${combo.id}`)
 
   const cartId   = `combo_${combo.id}`
   const cartItem = items.find(i => i.id === cartId)
@@ -42,17 +46,26 @@ export function ComboCard({ combo }: Props) {
   return (
     <div className="bg-card rounded-xl flex gap-3 p-3 shadow-sm">
       {/* Image */}
-      <div className="relative w-20 flex-shrink-0 rounded-lg overflow-hidden bg-muted" style={{ minHeight: '80px' }}>
-        {imageUrl ? (
-          <Image src={imageUrl} alt={combo.name} fill className="object-cover" sizes="80px" />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-2xl">🍱</div>
-        )}
-        {!combo.is_available && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <span className="text-white text-xs font-semibold">Hết</span>
-          </div>
-        )}
+      <div className="relative w-20 flex-shrink-0" style={{ minHeight: '80px' }}>
+        <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted">
+          {imageUrl ? (
+            <Image src={imageUrl} alt={combo.name} fill className="object-cover" sizes="80px" />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center text-2xl">🍱</div>
+          )}
+          {!combo.is_available && (
+            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+              <span className="text-white text-xs font-semibold">Hết</span>
+            </div>
+          )}
+        </div>
+        <button
+          onClick={() => toggleFav(`combo_${combo.id}`)}
+          className="absolute top-1 right-1 bg-white/80 rounded-full p-0.5"
+          aria-label={fav ? 'Bỏ yêu thích' : 'Yêu thích'}
+        >
+          <Heart size={12} className={fav ? 'fill-red-500 text-red-500' : 'text-muted-fg'} />
+        </button>
       </div>
 
       {/* Content */}
@@ -77,8 +90,14 @@ export function ComboCard({ combo }: Props) {
           </ul>
         )}
 
-        {/* Qty control */}
-        <div className="flex items-center justify-end mt-2">
+        {/* Detail link + qty control */}
+        <div className="flex items-center justify-between mt-2">
+          <Link
+            href={`/menu/combo/${combo.id}`}
+            className="text-xs text-primary underline underline-offset-2"
+          >
+            Chi tiết
+          </Link>
           {qty === 0 ? (
             <button
               onClick={handleAdd}

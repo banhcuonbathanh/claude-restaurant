@@ -1,0 +1,101 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - heading "Quán Bánh Cuốn" [level=1] [ref=e4]
+      - generic [ref=e5]:
+        - button "Đơn hàng" [ref=e6] [cursor=pointer]:
+          - img [ref=e7]
+          - generic [ref=e10]: Đơn hàng
+        - button [ref=e11] [cursor=pointer]:
+          - img [ref=e12]
+    - paragraph [ref=e19]: Bánh cuốn tươi — ngon mỗi ngày
+    - generic [ref=e21]:
+      - button "Tất cả" [ref=e22] [cursor=pointer]
+      - button "banh cuon" [ref=e23] [cursor=pointer]
+    - main [ref=e24]:
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - heading "Combo" [level=2] [ref=e27]
+          - generic [ref=e29]:
+            - generic [ref=e31]: 🍱
+            - generic [ref=e32]:
+              - generic [ref=e33]:
+                - paragraph [ref=e34]: suat day du
+                - paragraph [ref=e35]: 30.000 ₫
+              - list [ref=e36]:
+                - listitem [ref=e37]:
+                  - generic [ref=e38]: ×1
+                  - generic [ref=e39]: gio
+                - listitem [ref=e40]:
+                  - generic [ref=e41]: ×3
+                  - generic [ref=e42]: banh cuon
+                - listitem [ref=e43]:
+                  - generic [ref=e44]: ×1
+                  - generic [ref=e45]: trung
+              - button [ref=e47] [cursor=pointer]:
+                - img [ref=e48]
+        - generic [ref=e49]:
+          - heading "Món lẻ" [level=2] [ref=e50]
+          - generic [ref=e51]:
+            - generic [ref=e52]:
+              - img "banh cuon" [ref=e54]
+              - generic [ref=e55]:
+                - generic [ref=e56]:
+                  - paragraph [ref=e57]: banh cuon
+                  - paragraph [ref=e58]: 4.000 ₫
+                - paragraph [ref=e59]: banh cuon nhan thit
+                - generic [ref=e60]:
+                  - generic [ref=e61]:
+                    - img [ref=e62]
+                    - img [ref=e64]
+                    - img [ref=e66]
+                    - img [ref=e68]
+                    - img [ref=e70]
+                  - button [ref=e72] [cursor=pointer]:
+                    - img [ref=e73]
+            - generic [ref=e74]:
+              - img "gio" [ref=e76]
+              - generic [ref=e77]:
+                - generic [ref=e78]:
+                  - paragraph [ref=e79]: gio
+                  - paragraph [ref=e80]: 9.000 ₫
+                - paragraph [ref=e81]: gio
+                - generic [ref=e82]:
+                  - generic [ref=e83]:
+                    - img [ref=e84]
+                    - img [ref=e86]
+                    - img [ref=e88]
+                    - img [ref=e90]
+                    - img [ref=e92]
+                  - button [ref=e94] [cursor=pointer]:
+                    - img [ref=e95]
+            - generic [ref=e96]:
+              - img "trung" [ref=e98]
+              - generic [ref=e99]:
+                - generic [ref=e100]:
+                  - paragraph [ref=e101]: trung
+                  - paragraph [ref=e102]: 9.000 ₫
+                - paragraph [ref=e103]: nhan thit
+                - generic [ref=e104]:
+                  - generic [ref=e105]:
+                    - img [ref=e106]
+                    - img [ref=e108]
+                    - img [ref=e110]
+                    - img [ref=e112]
+                    - img [ref=e114]
+                  - button [ref=e116] [cursor=pointer]:
+                    - img [ref=e117]
+    - generic [ref=e118]:
+      - generic [ref=e119]:
+        - heading "Giỏ hàng (0 món)" [level=2] [ref=e120]
+        - button [ref=e122] [cursor=pointer]:
+          - img [ref=e123]
+      - paragraph [ref=e128]: Giỏ hàng trống
+      - generic [ref=e129]:
+        - generic [ref=e130]:
+          - generic [ref=e131]: Tổng cộng
+          - generic [ref=e132]: 0 ₫
+        - button "Thanh toán" [disabled] [ref=e133]
+        - button "Tiếp tục chọn món" [ref=e134] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e135]
