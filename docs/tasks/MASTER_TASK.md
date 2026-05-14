@@ -66,18 +66,32 @@ The entries below are phase-level summaries only.
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
 | P7-1.1 | BE | Test scaffolding setup + TestLogin_WrongPassword + TestLogin_RateLimitAfter5Fails | — | 1 | ✅ | Spec1 §4.1 |
-| P7-1.2 | BE | TestMultiSessionLogin (dual active sessions) + TestLogoutSingleSession | P7-1.1 ✅ | 1 | ⬜ | Spec1 §4.2 |
+| P7-1.2 | BE | TestMultiSessionLogin (dual active sessions) + TestLogoutSingleSession | P7-1.1 ✅ | 1 | ✅ | Spec1 §4.2 |
 | P7-1.3 | BE | TestAccountDisabledImmediate (deactivate → 401) + TestTokenRotation | P7-1.2 ✅ | 1 | ⬜ | Spec1 §4.3 |
+
+### P7-1.5 — Spec4 Gap Fix (prerequisite for P7-2)
+
+> **File:** `docs/spec/Spec_4_Orders_API.md`
+> **Deps:** P7-1 ✅
+> **Why:** Audit found 3 gaps that will cause guesswork when writing P7-2.x tests. Must fix spec before writing tests.
+> **Gaps to fix:**
+> - §7 SSE: missing JSON payload schemas for `order_init`, `order_status_changed`, `item_progress`, `order_completed` events
+> - §8 WS: missing JSON payload schemas for `new_order`, `item_updated`, `order_cancelled` events; `low_stock` uses `reorder_point` — align to `min_alert_level` per MASTER
+> - §3 Combo expand: clarify whether FE should filter parent combo rows from display (`combo_ref_id` behavior)
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P7-1.5 | BA | Fix Spec4 §7 SSE payloads + §8 WS payloads + §3 combo display + align reorder_point→min_alert_level | P7-1 ✅ | 1 | ⬜ | Spec4 §3/§7/§8 updated; field name consistent with MASTER |
 
 ### P7-2 — Order Service Unit Tests
 
 > **File:** `be/internal/service/order_service_test.go`
-> **Deps:** P7-1 ✅ (test patterns established)
+> **Deps:** P7-1 ✅ · P7-1.5 ✅ (Spec4 gaps resolved)
 > **Why sub-tasks:** 6 test scenarios across different order lifecycles — 3 sessions total
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P7-2.1 | BE | TestCreateOrder_ComboExpand (parent+sub-items in TX) + TestCreateOrder_DuplicateTable (409) | P7-1 ✅ | 1 | ⬜ | Spec4 §5 |
+| P7-2.1 | BE | TestCreateOrder_ComboExpand (parent+sub-items in TX) + TestCreateOrder_DuplicateTable (409) | P7-1.5 ✅ | 1 | ⬜ | Spec4 §5 |
 | P7-2.2 | BE | TestCancelOrder_Under30Percent (success) + TestCancelOrder_Over30Percent (422) | P7-2.1 ✅ | 1 | ⬜ | Spec4 §7 |
 | P7-2.3 | BE | TestItemStatusCycle (qty_served progression) + TestAutoReadyWhenAllItemsDone | P7-2.2 ✅ | 1 | ⬜ | Spec4 §8 |
 

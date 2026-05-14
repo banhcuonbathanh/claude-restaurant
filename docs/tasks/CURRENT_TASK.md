@@ -42,6 +42,7 @@
 
 | Date | Task ID | Title | Outcome |
 |---|---|---|---|
+| 2026-05-14 | P7-1.2 | TestMultiSessionLogin + TestLogoutSingleSession | ✅ Both tests pass; build clean; added tokenStore helper + 4 fn fields to mockAuthRepo |
 | 2026-05-14 | P7-1.1 | Auth service test scaffolding + TestLogin_WrongPassword + TestLogin_RateLimitAfter5Fails | ✅ Both tests pass; build clean; added redisClient interface to auth_service.go |
 | 2026-05-14 | P-UX2 | Favourites + Combo detail + Settings (P-UX2-1/2/3) | ✅ All 3 tasks complete; build clean |
 | 2026-05-14 | P-PD-5 | Browser test golden path + regressions | ✅ 3 bugs fixed; all tests pass |
