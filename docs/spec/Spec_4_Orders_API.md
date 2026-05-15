@@ -144,6 +144,13 @@ Xây dựng Orders API đầy đủ: tạo đơn, cập nhật trạng thái, th
 | // 2. Tạo 1 order_item row cho combo (combo_id set, product_id null) |
 | // 3. Tạo N sub-item rows (product_id của mỗi món, combo_ref_id = combo_item.id) |
 | // 4. Kitchen sẽ thấy sub-items; customer tracking thấy cả 2 |
+| //    |
+| // FE display rules for combo rows: |
+| //   - KDS (/kitchen): chỉ hiển thị sub-items (combo_ref_id IS NOT NULL). Ẩn header rows. |
+| //   - Customer tracking (/order/[id]): hiển thị header row làm label nhóm (e.g. "Combo Gia Đình"), |
+| //     sub-items indented bên dưới. |
+| //   Phân biệt: header row = (combo_id IS NOT NULL AND combo_ref_id IS NULL) |
+| //              sub-item  = (combo_ref_id IS NOT NULL) |
 
 **GET /orders/:id**
 | // Response 200 |
@@ -223,30 +230,109 @@ Xây dựng Orders API đầy đủ: tạo đơn, cập nhật trạng thái, th
 | } |
 | } |
 |  |
-| // Event types published to Redis: |
-| // order_status_changed: { order_id, status } |
-| // item_progress: { order_id, item_id, qty_served, status } |
-| // order_completed: { order_id } |
+| // Event types published to Redis channel "order:{orderID}": |
+| // |
+| // order_init — gửi ngay khi client kết nối (full order snapshot): |
+| // { |
+| //   "event": "order_init", |
+| //   "data": { |
+| //     "id": "uuid", "order_number": "ORD-20260509-001", |
+| //     "status": "pending", "table_id": "uuid", |
+| //     "customer_name": "Nguyễn Văn A", "total_amount": 290000, |
+| //     "items": [ |
+| //       { "id": "uuid", "name": "Bánh Cuốn Thịt", "quantity": 2, |
+| //         "qty_served": 0, "unit_price": 55000, |
+| //         "derived_status": "pending",   // derived: 0=pending, 0<x<qty=preparing, x=qty=done |
+| //         "combo_id": null, "combo_ref_id": null, |
+| //         "toppings_snapshot": [{"name": "Chả lụa", "price": 10000}] } |
+| //     ] |
+| //   } |
+| // } |
+| // |
+| // order_status_changed — khi order.status thay đổi: |
+| // { "event": "order_status_changed", "data": { "order_id": "uuid", "status": "preparing" } } |
+| // |
+| // item_progress — khi Chef cập nhật qty_served: |
+| // { |
+| //   "event": "item_progress", |
+| //   "data": { |
+| //     "order_id": "uuid", "item_id": "uuid", |
+| //     "qty_served": 1, "quantity": 2, |
+| //     "derived_status": "preparing" |
+| //   } |
+| // } |
+| // |
+| // order_completed — khi tất cả items done → order auto-ready: |
+| // { "event": "order_completed", "data": { "order_id": "uuid" } } |
 
 **8. WebSocket (Go)**
 | // WS /api/v1/ws/kitchen |
 | --- |
 | // Hub pattern: 1 goroutine per connection |
-| // Events pushed to kitchen: |
-| // - new_order: khi order mới tạo |
-| // - item_updated: khi item status thay đổi |
-| // - order_cancelled: khi order bị huỷ |
+| // |
+| // new_order — khi order mới được tạo (Chef/KDS nhận ngay): |
+| // { |
+| //   "event": "new_order", |
+| //   "data": { |
+| //     "order_id": "uuid", "order_number": "ORD-20260509-001", |
+| //     "table_id": "uuid", "source": "qr", |
+| //     "items": [  // chỉ sub-items (combo header rows bị lọc) |
+| //       { "id": "uuid", "name": "Bánh Cuốn Thịt", "quantity": 2, |
+| //         "qty_served": 0, "unit_price": 55000, |
+| //         "note": null, "toppings_snapshot": [...] } |
+| //     ], |
+| //     "created_at": "2026-05-09T10:00:00Z" |
+| //   } |
+| // } |
+| // |
+| // item_updated — khi Chef cập nhật qty_served qua KDS click: |
+| // { |
+| //   "event": "item_updated", |
+| //   "data": { |
+| //     "order_id": "uuid", "item_id": "uuid", |
+| //     "qty_served": 1, "quantity": 2, |
+| //     "derived_status": "preparing" |
+| //   } |
+| // } |
+| // |
+| // order_cancelled — khi order bị huỷ: |
+| // { |
+| //   "event": "order_cancelled", |
+| //   "data": { "order_id": "uuid", "order_number": "ORD-20260509-001", "table_id": "uuid" } |
+| // } |
 |  |
 | // WS /api/v1/ws/orders-live |
-| // Events: |
-| // - order_created: { order summary } |
-| // - order_status_changed: { order_id, status } |
-| // - item_progress: { order_id, item_id, qty_served } |
+| // |
+| // order_created — summary khi order mới tạo: |
+| // { |
+| //   "event": "order_created", |
+| //   "data": { |
+| //     "id": "uuid", "order_number": "ORD-20260509-001", |
+| //     "table_id": "uuid", "status": "pending", |
+| //     "source": "qr", "total_amount": 290000, |
+| //     "created_at": "2026-05-09T10:00:00Z" |
+| //   } |
+| // } |
+| // |
+| // order_status_changed — khi order.status thay đổi: |
+| // { "event": "order_status_changed", "data": { "order_id": "uuid", "status": "preparing" } } |
+| // |
+| // item_progress — khi qty_served thay đổi: |
+| // { |
+| //   "event": "item_progress", |
+| //   "data": { "order_id": "uuid", "item_id": "uuid", "qty_served": 1, "quantity": 2 } |
+| // } |
 |  |
 | // Low-stock broadcast (Manager/Admin only): |
 | // Chỉ gửi tới client có role manager hoặc admin |
-| // Event: low_stock { item_id, item_name, current_qty, reorder_point }
-// ⚠️  Field là reorder_point (nguồn: MASTER §4) — không dùng min_alert_level |
+| // { |
+| //   "event": "low_stock", |
+| //   "data": { |
+| //     "item_id": "uuid", "item_name": "Bột gạo", |
+| //     "current_stock": 0.5, "min_stock": 2.0, "unit": "kg" |
+| //   }                                                          |
+| // }                                                            |
+| // ⚠️  Field là min_stock — match DB column ingredients.min_stock (009_ingredients.sql) |
 
 **9. Business Rules Quan Trọng**
 | Rule | Xử lý |

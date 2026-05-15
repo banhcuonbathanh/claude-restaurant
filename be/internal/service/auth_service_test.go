@@ -100,6 +100,7 @@ type mockAuthRepo struct {
 	getRefreshTokenFn     func(ctx context.Context, tokenHash string) (db.RefreshToken, error)
 	deleteRefreshTokenFn  func(ctx context.Context, tokenHash string) error
 	countActiveSessionsFn func(ctx context.Context, staffID string) (int64, error)
+	setStaffActiveFn      func(ctx context.Context, active bool, staffID string) error
 }
 
 func (m *mockAuthRepo) GetStaffByUsername(ctx context.Context, username string) (db.Staff, error) {
@@ -135,7 +136,12 @@ func (m *mockAuthRepo) DeleteRefreshToken(ctx context.Context, tokenHash string)
 	return nil
 }
 func (m *mockAuthRepo) DeleteRefreshTokensByStaff(_ context.Context, _ string) error { return nil }
-func (m *mockAuthRepo) SetStaffActive(_ context.Context, _ bool, _ string) error    { return nil }
+func (m *mockAuthRepo) SetStaffActive(ctx context.Context, active bool, staffID string) error {
+	if m.setStaffActiveFn != nil {
+		return m.setStaffActiveFn(ctx, active, staffID)
+	}
+	return nil
+}
 func (m *mockAuthRepo) ListActiveSessionsByStaff(_ context.Context, _ string) ([]db.RefreshToken, error) {
 	return nil, nil
 }
@@ -307,6 +313,43 @@ func TestMultiSessionLogin(t *testing.T) {
 	}
 }
 
+// TestAccountDisabledImmediate verifies that DeactivateStaff clears the Redis cache so the
+// very next IsStaffActive call hits the DB and returns false — no 5-min TTL lag (Spec1 §4.3 AC-10).
+func TestAccountDisabledImmediate(t *testing.T) {
+	isActive := true
+	staffID := "staff-uuid-da"
+	repo := &mockAuthRepo{
+		getByIDFn: func(_ context.Context, _ string) (db.Staff, error) {
+			return db.Staff{ID: staffID, IsActive: isActive}, nil
+		},
+		setStaffActiveFn: func(_ context.Context, active bool, _ string) error {
+			isActive = active
+			return nil
+		},
+	}
+	rdb := newMockRedis()
+	svc := newTestAuthService(repo, rdb)
+	ctx := context.Background()
+
+	// Seed the cache as "active" (simulates state after a successful login).
+	cacheKey := fmt.Sprintf("auth:staff:%s", staffID)
+	rdb.Set(ctx, cacheKey, "active", isActiveTTL)
+
+	// DeactivateStaff: sets is_active=false in repo AND deletes the Redis cache key.
+	if err := svc.DeactivateStaff(ctx, staffID); err != nil {
+		t.Fatalf("DeactivateStaff failed: %v", err)
+	}
+
+	// Cache is cleared → IsStaffActive falls through to DB (isActive=false now).
+	active, err := svc.IsStaffActive(ctx, staffID)
+	if err != nil {
+		t.Fatalf("IsStaffActive returned unexpected error: %v", err)
+	}
+	if active {
+		t.Fatal("expected IsStaffActive=false immediately after DeactivateStaff, got true")
+	}
+}
+
 // TestLogoutSingleSession verifies that logging out one session revokes only that token
 // while the other session's refresh token remains valid (Spec1 §4.2).
 func TestLogoutSingleSession(t *testing.T) {
@@ -353,5 +396,49 @@ func TestLogoutSingleSession(t *testing.T) {
 	}
 	if at2 == "" {
 		t.Fatal("expected non-empty access token from session 2 after session 1 logout")
+	}
+}
+
+// TestTokenRotation verifies that refresh tokens are multi-use (non-rotating per Spec1 §9.1):
+// the same token can be presented to /auth/refresh multiple times and each call succeeds.
+func TestTokenRotation(t *testing.T) {
+	store := newTokenStore()
+	staff := db.Staff{
+		ID:           "staff-uuid-tr",
+		Username:     "chef",
+		PasswordHash: mustHashPassword("chefpass"),
+		Role:         db.StaffRoleChef,
+		IsActive:     true,
+	}
+	repo := &mockAuthRepo{
+		getByUsernameFn:      func(_ context.Context, _ string) (db.Staff, error) { return staff, nil },
+		getByIDFn:            func(_ context.Context, _ string) (db.Staff, error) { return staff, nil },
+		createRefreshTokenFn: store.create,
+		getRefreshTokenFn:    store.get,
+	}
+	svc := newTestAuthService(repo, newMockRedis())
+	ctx := context.Background()
+
+	r, err := svc.Login(ctx, "chef", "chefpass", "10.0.0.1", "client-Z")
+	if err != nil {
+		t.Fatalf("login failed: %v", err)
+	}
+
+	// First refresh — must succeed.
+	at1, err := svc.Refresh(ctx, r.RefreshToken)
+	if err != nil {
+		t.Fatalf("first Refresh failed: %v", err)
+	}
+	if at1 == "" {
+		t.Fatal("first Refresh returned empty access token")
+	}
+
+	// Second refresh with the SAME token — must still succeed (token is not consumed).
+	at2, err := svc.Refresh(ctx, r.RefreshToken)
+	if err != nil {
+		t.Fatalf("second Refresh failed (expected non-rotating refresh token): %v", err)
+	}
+	if at2 == "" {
+		t.Fatal("second Refresh returned empty access token")
 	}
 }

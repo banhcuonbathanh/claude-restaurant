@@ -42,6 +42,11 @@
 
 | Date | Task ID | Title | Outcome |
 |---|---|---|---|
+| 2026-05-15 | P7-2.3 | TestItemStatusCycle + TestAutoReadyWhenAllItemsDone | ✅ Both tests pass; mockOrderRepo extended with 3 fn fields (getOrderItemByIDFn, updateQtyServedFn, updateOrderStatusFn); all 12 service tests green |
+| 2026-05-15 | P7-2.2 | TestCancelOrder_Under30Percent + TestCancelOrder_Over30Percent | ✅ Both tests pass; mockOrderRepo extended with 3 fn fields; all 10 service tests green |
+| 2026-05-15 | P7-2.1 | TestCreateOrder_ComboExpand + TestCreateOrder_DuplicateTable | ✅ Both tests pass; orderRedisClient interface added; all 8 service tests green |
+| 2026-05-15 | P7-1.5 | Fix Spec4 §5/§7/§8 gaps — SSE+WS payload schemas + combo display rules + low_stock=min_stock | ✅ All 3 gaps fixed; Spec4 updated |
+| 2026-05-15 | P7-1.3 | TestAccountDisabledImmediate + TestTokenRotation | ✅ Both tests pass; all 6 auth tests green; added setStaffActiveFn to mockAuthRepo |
 | 2026-05-14 | P7-1.2 | TestMultiSessionLogin + TestLogoutSingleSession | ✅ Both tests pass; build clean; added tokenStore helper + 4 fn fields to mockAuthRepo |
 | 2026-05-14 | P7-1.1 | Auth service test scaffolding + TestLogin_WrongPassword + TestLogin_RateLimitAfter5Fails | ✅ Both tests pass; build clean; added redisClient interface to auth_service.go |
 | 2026-05-14 | P-UX2 | Favourites + Combo detail + Settings (P-UX2-1/2/3) | ✅ All 3 tasks complete; build clean |

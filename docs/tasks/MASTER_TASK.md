@@ -25,6 +25,7 @@
 | P-UX — Customer Flow | FE | ✅ COMPLETE | 0 | — |
 | P-PD — Product Detail Page | FE | ✅ COMPLETE | 0 | — |
 | P-UX2 — Customer UX Enhancements | FE | ✅ COMPLETE | 0 | — |
+| P11 — Add Items to Existing Order | Full | ⬜ NOT STARTED | ~6 | P11-1 |
 
 ---
 
@@ -67,7 +68,7 @@ The entries below are phase-level summaries only.
 |---|---|---|---|---|---|---|
 | P7-1.1 | BE | Test scaffolding setup + TestLogin_WrongPassword + TestLogin_RateLimitAfter5Fails | — | 1 | ✅ | Spec1 §4.1 |
 | P7-1.2 | BE | TestMultiSessionLogin (dual active sessions) + TestLogoutSingleSession | P7-1.1 ✅ | 1 | ✅ | Spec1 §4.2 |
-| P7-1.3 | BE | TestAccountDisabledImmediate (deactivate → 401) + TestTokenRotation | P7-1.2 ✅ | 1 | ⬜ | Spec1 §4.3 |
+| P7-1.3 | BE | TestAccountDisabledImmediate (deactivate → 401) + TestTokenRotation | P7-1.2 ✅ | 1 | ✅ | Spec1 §4.3 |
 
 ### P7-1.5 — Spec4 Gap Fix (prerequisite for P7-2)
 
@@ -81,7 +82,7 @@ The entries below are phase-level summaries only.
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P7-1.5 | BA | Fix Spec4 §7 SSE payloads + §8 WS payloads + §3 combo display + align reorder_point→min_alert_level | P7-1 ✅ | 1 | ⬜ | Spec4 §3/§7/§8 updated; field name consistent with MASTER |
+| P7-1.5 | BA | Fix Spec4 §7 SSE payloads + §8 WS payloads + §3 combo display + align reorder_point→min_alert_level | P7-1 ✅ | 1 | ✅ | Spec4 §5/§7/§8 updated; low_stock uses min_stock (DB column) |
 
 ### P7-2 — Order Service Unit Tests
 
@@ -91,13 +92,13 @@ The entries below are phase-level summaries only.
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P7-2.1 | BE | TestCreateOrder_ComboExpand (parent+sub-items in TX) + TestCreateOrder_DuplicateTable (409) | P7-1.5 ✅ | 1 | ⬜ | Spec4 §5 |
-| P7-2.2 | BE | TestCancelOrder_Under30Percent (success) + TestCancelOrder_Over30Percent (422) | P7-2.1 ✅ | 1 | ⬜ | Spec4 §7 |
-| P7-2.3 | BE | TestItemStatusCycle (qty_served progression) + TestAutoReadyWhenAllItemsDone | P7-2.2 ✅ | 1 | ⬜ | Spec4 §8 |
+| P7-2.1 | BE | TestCreateOrder_ComboExpand (parent+sub-items in TX) + TestCreateOrder_DuplicateTable (409) | P7-1.5 ✅ | 1 | ✅ | Spec4 §5 |
+| P7-2.2 | BE | TestCancelOrder_Under30Percent (success) + TestCancelOrder_Over30Percent (422) | P7-2.1 ✅ | 1 | ✅ | Spec4 §7 |
+| P7-2.3 | BE | TestItemStatusCycle (qty_served progression) + TestAutoReadyWhenAllItemsDone | P7-2.2 ✅ | 1 | ✅ | Spec4 §8 |
 
-### P7-3 — Payment Handler Tests
+### P7-3 — Payment Service Tests
 
-> **File:** `be/internal/handler/payment_handler_test.go`
+> **File:** `be/internal/service/payment_service_test.go`
 > **Deps:** P7-1 ✅
 > **Note:** 4 test cases, all webhook-related — fits in 1 session
 
@@ -220,6 +221,77 @@ The entries below are phase-level summaries only.
 | P-UX2-1 | FE | Favourites feature: `useFavouritesStore` (Zustand + localStorage persist) + heart toggle button on `ProductCard` + `ComboCard` | — | 1 | ✅ | Heart icon fills red when toggled; state survives page refresh; no backend call |
 | P-UX2-2 | FE | Combo detail page `/menu/combo/[id]` (fetch via `GET /combos` list + filter by id) + explicit "Detail" link button on `ComboCard` + deduplicate detail affordance on `ProductCard` | P-UX2-1 ✅ | 1 | ✅ | Tapping detail on ComboCard navigates to combo detail; shows image, name, price, items list, qty stepper, add-to-cart CTA |
 | P-UX2-3 | FE | Customer settings page `/menu/settings` accessible from menu header settings icon: customer display name + table label stored in localStorage; displayed in header/cart | P-UX2-2 ✅ | 1 | ✅ | Settings page renders; name/table persists across refresh; accessible from menu header |
+
+---
+
+## Phase P11 — Add Items to Existing Order
+
+> **Owner:** Full (BE + FE)
+> **Dependency:** P4 ✅ · P5 ✅
+> **Spec:** `docs/spec/Spec_4_Orders_API.md §5.2` (new section — added by P11-1)
+> **Goal:** Allow customer or cashier to append new items to an active order via `POST /api/v1/orders/:id/items`. Keeps 1-table-1-active-order rule intact — no second order created.
+> **Order:** P11-1 → P11-2 → P11-3 → P11-4 → P11-5 → P11-6 (strict, each builds on previous)
+> **Added:** 2026-05-15 · **Requested by:** owner (design discussion)
+
+### P11-1 — Spec Update
+
+> **File:** `docs/spec/Spec_4_Orders_API.md`
+> **Deps:** —
+> **Why:** All subsequent tasks reference AC from this spec section. Must exist before code.
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P11-1 | BA | Add `POST /api/v1/orders/:id/items` to Spec4 §5.2: request body shape, validation rules (status guard: pending/confirmed/preparing only; ownership; items non-empty), response shape `{ order_id, added_items_count, new_total_amount }`, error codes (403 FORBIDDEN / 409 ORDER_NOT_EDITABLE), business rules (recalc total_amount, combo expand, publish items_added SSE + KDS WS), AC checklist | — | 1 | ⬜ | Spec4 §5.2 (new) |
+
+### P11-2 — sqlc Queries + Repository Layer
+
+> **Files:** `be/internal/repository/queries/order_items.sql` · `be/internal/repository/order_repository.go`
+> **Deps:** P11-1 ✅
+> **Why:** DB layer must exist before service can call it. sqlc generate step is a prerequisite for service code.
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P11-2 | BE | Write `AppendOrderItems` SQL (batch INSERT into order_items) + `UpdateOrderTotalAmount` SQL (UPDATE orders SET total_amount); run `sqlc generate`; add both methods to `OrderRepository` interface + `orderRepo` struct impl | P11-1 ✅ | 1 | ⬜ | Spec4 §5.2 |
+
+### P11-3 — Service Method
+
+> **File:** `be/internal/service/order_service.go`
+> **Deps:** P11-2 ✅
+> **Why:** Core business logic — status guard, ownership check, combo expand (reuse `expandCombo`), total_amount recalc, Redis publish. Meaty enough to deserve its own session.
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P11-3 | BE | Add `AddItemsToOrder(ctx, orderID, callerID, callerRole string, items []CreateOrderItemInput) error`: (1) fetch order → 404 if missing; (2) ownership check for customer role → 403; (3) status guard — reject if status `ready`/`delivered`/`cancelled` → 409 ORDER_NOT_EDITABLE; (4) expand combo items (reuse `expandCombo`); (5) call repo `AppendOrderItems`; (6) recalc total_amount via `SUM(unit_price*quantity)` + call `UpdateOrderTotalAmount`; (7) publish `items_added` event to `order:{id}` SSE channel + `orders:kds` WS channel | P11-2 ✅ | 1 | ⬜ | Spec4 §5.2 |
+
+### P11-4 — Handler + Route Registration
+
+> **Files:** `be/internal/handler/order_handler.go` · `be/cmd/server/main.go` (or router file)
+> **Deps:** P11-3 ✅
+> **Why:** HTTP binding and route wiring are separate from business logic; keeps handler thin.
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P11-4 | BE | Add `AddItemsToOrder` handler: bind + validate request body (items non-empty, each item has product_id or combo_id, quantity > 0); call `service.AddItemsToOrder`; return 200 `{ "order_id": "...", "added_items_count": N, "new_total_amount": 290000 }`; map AppError codes to HTTP; register `POST /api/v1/orders/:id/items` in router with `AuthRequired` middleware (allow customer + cashier+) | P11-3 ✅ | 1 | ⬜ | Spec4 §5.2 |
+
+### P11-5 — Unit Tests
+
+> **File:** `be/internal/service/order_service_test.go`
+> **Deps:** P11-4 ✅
+> **Why:** 3 distinct test scenarios for the new service method — fits in 1 session.
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P11-5 | BE | `TestAddItems_Success` (pending order → items appended, total recalculated, events published) + `TestAddItems_StatusReady_Blocked` (order.status=ready → 409 ORDER_NOT_EDITABLE) + `TestAddItems_WrongOwner` (customer callerID ≠ order table_id → 403 FORBIDDEN) | P11-4 ✅ | 1 | ⬜ | Spec4 §5.2 |
+
+### P11-6 — FE "Thêm món" Flow
+
+> **Files:** `fe/src/app/(shop)/order/[id]/page.tsx` · `fe/src/app/(shop)/menu/page.tsx` · `fe/src/lib/api-client.ts`
+> **Deps:** P11-4 ✅
+> **Why:** FE needs the endpoint live. Flow: "Thêm món" button → back to menu preserving order context → submit calls `POST /orders/:id/items` not `POST /orders`.
+
+| ID | Owner | Task | Deps | Sessions | Status | spec_ref | draw_ref |
+|---|---|---|---|---|---|---|---|
+| P11-6 | FE | (1) Add `addItemsToOrder(orderId, items)` to `api-client.ts`; (2) add "Thêm món" button to customer order tracking page (`order/[id]/page.tsx`) — visible only when order status ∈ {pending, confirmed, preparing}; (3) on click → push to `/menu?add_to_order={orderId}`; (4) in menu `page.tsx` detect `add_to_order` query param → on cart submit call `addItemsToOrder` instead of `createOrder`; (5) on success redirect back to `/order/{orderId}`; show toast "Đã thêm món thành công" | P11-4 ✅ | 1 | `Spec4 §5.2` | — |
 
 ---
 

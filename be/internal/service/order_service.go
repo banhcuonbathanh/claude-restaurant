@@ -16,16 +16,24 @@ import (
 	"banhcuon/be/internal/repository"
 )
 
+// orderRedisClient covers the subset of *redis.Client methods used by OrderService.
+// Defined here so tests can inject a stub without a real Redis server.
+type orderRedisClient interface {
+	Incr(ctx context.Context, key string) *redis.IntCmd
+	Expire(ctx context.Context, key string, expiration time.Duration) *redis.BoolCmd
+	Publish(ctx context.Context, channel string, message interface{}) *redis.IntCmd
+}
+
 // OrderService handles all order lifecycle business logic.
 type OrderService struct {
 	repo          repository.OrderRepository
 	tableRepo     repository.TableRepository
-	rdb           *redis.Client
+	rdb           orderRedisClient
 	productLookup ProductLookup
 }
 
 // NewOrderService creates an OrderService.
-func NewOrderService(repo repository.OrderRepository, tableRepo repository.TableRepository, rdb *redis.Client, products ProductLookup) *OrderService {
+func NewOrderService(repo repository.OrderRepository, tableRepo repository.TableRepository, rdb orderRedisClient, products ProductLookup) *OrderService {
 	return &OrderService{repo: repo, tableRepo: tableRepo, rdb: rdb, productLookup: products}
 }
 
