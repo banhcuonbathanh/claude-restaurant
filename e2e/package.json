@@ -1,0 +1,17 @@
+{
+  "name": "banhcuon-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:guest": "playwright test tests/guest-order.spec.ts",
+    "test:kds": "playwright test tests/kds.spec.ts",
+    "test:admin": "playwright test tests/admin.spec.ts",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0"
+  }
+}

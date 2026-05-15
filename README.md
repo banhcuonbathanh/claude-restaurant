@@ -127,3 +127,6 @@ Full task list → [`docs/TASKS.md`](docs/TASKS.md)
 | [`docs/be/BE_SYSTEM_GUIDE.md`](docs/be/BE_SYSTEM_GUIDE.md) | Backend developer guide |
 | [`docs/fe/FE_SYSTEM_GUIDE.md`](docs/fe/FE_SYSTEM_GUIDE.md) | Frontend developer guide |
 | [`docs/TASKS.md`](docs/TASKS.md) | Master task list |
+
+
+ npx playwright show-report

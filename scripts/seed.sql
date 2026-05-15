@@ -8,7 +8,7 @@
 -- Staff credentials (bcrypt cost=12):
 --   admin     / admin123
 --   manager1  / manager123
---   chef1     / chef123
+--   chef1     / chef1234
 --   cashier1  / cashier123
 --
 -- Idempotent: safe to re-run (ON DUPLICATE KEY UPDATE is a no-op on match).
@@ -27,7 +27,7 @@ VALUES
    'Trần Quản Lý',  'manager', '0901000002', 'manager@banhcuon.vn', 1, NOW(), NOW()),
 
   ('11111111-1111-1111-1111-000000000003',
-   'chef1',    '$2a$12$er5IPH7W0Uc2tj9psYbTeeKlrOr9u/npQa364lRUzZx5Cal0YkQv2',
+   'chef1',    '$2b$12$PF0unHx9h/mVo4bfEdGS8.7rAijTY5xx9BnOKjxQ//GDbkYhWbypS',
    'Lê Đầu Bếp',    'chef',    '0901000003', NULL,                  1, NOW(), NOW()),
 
   ('11111111-1111-1111-1111-000000000004',

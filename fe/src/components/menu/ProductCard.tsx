@@ -138,6 +138,7 @@ export function ProductCard({ product }: Props) {
             <button
               onClick={handleAdd}
               disabled={!product.is_available}
+              aria-label="Thêm vào giỏ hàng"
               className="bg-primary text-white w-7 h-7 rounded-full flex items-center justify-center
                          hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >

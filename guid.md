@@ -161,3 +161,16 @@ In another tab, log into http://localhost:3000/login as admin → go to /admin/o
 To get QR codes visually: go to http://localhost:3000/admin/marketing — all 5 tables now show with real QR codes and a Test button to open each one directly.
 
 From now on — if Redis ever resets and a duplicate collision occurs, the service automatically retries up to 3 times with a fresh sequence number. You'll never see that error again.
+
+
+# Stack must be running with seed applied
+docker compose up -d
+
+cd e2e
+
+npm run test:guest    # Flow 1 — 4 tests
+npm run test:kds      # Flow 2 — 2 tests (needs WS, so stack must be fully up)
+npm run test:admin    # Flow 3 — 3 tests
+
+npm test              # All 9 at once
+npm run report        # Open HTML report after run

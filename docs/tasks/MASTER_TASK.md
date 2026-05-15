@@ -18,7 +18,7 @@
 | P4 — Backend | BE | ✅ COMPLETE | 0 | — |
 | P5 — Frontend | FE | ✅ COMPLETE | 0 | — |
 | P6 — DevOps | DevOps | ✅ COMPLETE | 0 | — |
-| P7 — Testing & Go-Live | BE+FE+QA | ⬜ NOT STARTED | ~14 | P7-1.1 |
+| P7 — Testing & Go-Live | BE+FE+QA | 🔄 IN PROGRESS | ~11 | P7-3 (payment handler) |
 | P8 — Admin Dashboard | BE+FE | ✅ COMPLETE | 0 | — |
 | P9 — Overview Real API | FE | ⬜ NOT STARTED | ~8 | P9-1 |
 | P10 — Summary Dashboard | BE+FE | ✅ COMPLETE | 0 | — |
@@ -121,15 +121,26 @@ The entries below are phase-level summaries only.
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P7-5.1 | BE | Test setup (test DB, seed, teardown helpers) + all auth API endpoints against test DB | P7-1 ✅ | 1 | ⬜ | — |
+| P7-5.1 | BE | Test setup (test DB, seed, teardown helpers) + all auth API endpoints against test DB | P7-1 ✅ | 1 | ✅ | `be/internal/testhelper/` + `be/integration/auth_test.go`; run: `go test -tags integration ./be/integration/...` |
 | P7-5.2 | BE | Order + payment API endpoints integration tests | P7-5.1 ✅ | 1 | ⬜ | — |
 | P7-5.3 | BE | SSE reconnect behavior (exponential backoff) + WS reconnect exponential backoff | P7-5.2 ✅ | 1 | ⬜ | — |
+| P7-5.4 | FE+QA | Playwright E2E — full browser flows: QR scan→menu→checkout→KDS→payment for each role (guest/cashier/chef/manager) | P7-5.1 ✅ · P7-3 ✅ | 2 | ⬜ | Needs docker compose up (full stack); set BASE_URL=http://localhost:3000 |
 
 ### P7-6 — Seed Data
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
 | P7-6 | DevOps | `scripts/seed.sql` — 3+ categories, 10+ products, 5+ toppings, 2+ combos, 4 staff accounts (bcrypt), 5+ tables with qr_token | — | 1 | ✅ | — |
+
+### P7-E2E — Playwright E2E Fixes
+
+> **Context:** 9/9 e2e tests fail. Root cause: dev DB was seeded with stale/different data — admin password hash wrong, chef1/cashier1/manager1 missing, QR tokens mismatch. Fix: patch DB + re-run.
+> **Order:** P7-E2E-0 must complete before P7-E2E-1.
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P7-E2E-0 | DevOps | Fix dev DB seed: UPDATE admin password_hash to match admin123; INSERT chef1/cashier1/manager1; INSERT Bàn 01–06 rows with correct QR tokens from seed.sql | P7-6 ✅ | 1 | 🔄 | `loginAs('admin')` + `loginAs('chef')` + `loginAsGuest()` all resolve; curl admin login returns 200 |
+| P7-E2E-1 | QA | Re-run full Playwright suite (`cd e2e && npm test`) after P7-E2E-0; fix any remaining selector/flow failures until all 9 tests green | P7-E2E-0 ✅ | 1 | ⬜ | `npm test` exits 0; all 9 tests pass |
 
 ### P7-7 — Payment Sandbox
 

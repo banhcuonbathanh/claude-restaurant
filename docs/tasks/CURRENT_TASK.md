@@ -10,15 +10,15 @@
 
 | Field | Value |
 |---|---|
-| **Task ID** | — |
-| **Owner** | — |
-| **Title** | — |
-| **Session goal** | — |
-| **Branch** | — |
-| **Started** | — |
+| **Task ID** | P7-E2E-0 |
+| **Owner** | DevOps |
+| **Title** | Fix dev DB seed so e2e tests can authenticate |
+| **Session goal** | Patch DB: fix admin password, insert chef1/cashier1/manager1, insert tables with correct QR tokens → verify curl login works → run e2e |
+| **Branch** | chore/improve-claude-md |
+| **Started** | 2026-05-15 |
 | **Blocked by** | — |
 | **Stopped at** | — |
-| **Notes** | — |
+| **Notes** | All 9 e2e tests fail; 2 root causes: (1) admin password wrong (2) QR token a1b2c3d4... not in DB |
 
 ---
 
