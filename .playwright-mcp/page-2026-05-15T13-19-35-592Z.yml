@@ -1,0 +1,12 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e497]:
+    - generic [ref=e499]:
+      - img [ref=e500]
+      - heading "Đơn hàng của bạn" [level=1] [ref=e503]
+    - generic [ref=e504]:
+      - img [ref=e506]
+      - generic [ref=e509]:
+        - paragraph [ref=e510]: Chưa có đơn hàng nào
+        - paragraph [ref=e511]: Quét mã QR tại bàn để bắt đầu đặt món
+  - region "Notifications alt+T"
+  - alert [ref=e408]

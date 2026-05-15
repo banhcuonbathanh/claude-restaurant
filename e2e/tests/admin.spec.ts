@@ -6,11 +6,9 @@ import { loginAs } from '../fixtures/auth'
  * Uses a timestamp-based username to avoid collisions across test runs.
  * Requires: docker compose up -d + seed data applied.
  */
-test.describe('Admin — Staff management', () => {
-  // Unique username for each test run to avoid conflicts
-  const ts       = Date.now()
-  const username = `e2e_chef_${ts}`
+test.describe.configure({ mode: 'serial' })
 
+test.describe('Admin — Staff management', () => {
   test.beforeEach(async ({ page }) => {
     await loginAs(page, 'admin')
     await page.goto('/admin/staff')
@@ -18,6 +16,7 @@ test.describe('Admin — Staff management', () => {
   })
 
   test('create a new staff member', async ({ page }) => {
+    const username = `e2e_chef_${Date.now()}`
     // Open modal
     await page.getByRole('button', { name: '+ Thêm nhân viên' }).click()
     await expect(page.getByRole('heading', { name: 'Thêm nhân viên' })).toBeVisible()
@@ -41,6 +40,7 @@ test.describe('Admin — Staff management', () => {
   })
 
   test('edit an existing staff member full name', async ({ page }) => {
+    const username = `e2e_chef_${Date.now()}`
     // Create first, then edit
     await page.getByRole('button', { name: '+ Thêm nhân viên' }).click()
     await page.getByPlaceholder('chef_an').fill(username)
@@ -57,7 +57,9 @@ test.describe('Admin — Staff management', () => {
 
     // Edit modal heading includes the username
     await expect(page.getByText(`Sửa nhân viên — ${username}`)).toBeVisible()
-    const nameInput = page.getByPlaceholder('Nguyễn Văn An')
+    // Edit modal's full_name input has no placeholder; scope to the form via the "Lưu" button's ancestor
+    const editForm = page.getByRole('button', { name: 'Lưu' }).locator('xpath=ancestor::form')
+    const nameInput = editForm.getByRole('textbox').first()
     await nameInput.clear()
     await nameInput.fill('Updated Name')
     await page.getByRole('button', { name: 'Lưu' }).click()
@@ -66,10 +68,11 @@ test.describe('Admin — Staff management', () => {
     await expect(page.getByText('Đã cập nhật nhân viên')).toBeVisible({ timeout: 8_000 })
 
     // Updated name in table
-    await expect(page.getByText('Updated Name')).toBeVisible()
+    await expect(page.getByText('Updated Name').first()).toBeVisible()
   })
 
   test('toggle staff active status', async ({ page }) => {
+    const username = `e2e_chef_${Date.now()}`
     // Create a staff member to toggle
     await page.getByRole('button', { name: '+ Thêm nhân viên' }).click()
     await page.getByPlaceholder('chef_an').fill(username)

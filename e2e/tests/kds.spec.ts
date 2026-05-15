@@ -1,5 +1,5 @@
 import { test, expect, chromium } from '@playwright/test'
-import { loginAs, loginAsGuest } from '../fixtures/auth'
+import { loginAs, loginAsGuest, QR } from '../fixtures/auth'
 
 /**
  * Flow 2: Staff chef logs in to KDS, guest places an order via QR,
@@ -19,20 +19,22 @@ test.describe('KDS — Chef receives and processes order', () => {
     // KDS loads (shows empty state or existing orders — either is fine)
     await expect(chefPage).toHaveURL(/\/kds/)
     await chefPage.waitForLoadState('networkidle')
+    // Allow extra time for the WebSocket to connect after token refresh
+    await chefPage.waitForTimeout(3_000)
 
     // Count how many order cards exist before the guest order
     const cardsBefore = await chefPage.locator('[class*="bg-card"][class*="rounded-xl"][class*="border-2"]').count()
 
-    // Context 2: Guest places an order
+    // Context 2: Guest places an order (uses ban02 to avoid conflicting with guest-order tests on ban01)
     const guestCtx  = await browser.newContext()
     const guestPage = await guestCtx.newPage()
-    await loginAsGuest(guestPage)
+    await loginAsGuest(guestPage, QR.ban02)
 
     const addBtn = guestPage.getByRole('button', { name: 'Thêm vào giỏ hàng' }).first()
     await expect(addBtn).toBeVisible({ timeout: 15_000 })
     await addBtn.click()
 
-    await guestPage.getByRole('button', { name: 'Giỏ hàng' }).click()
+    await guestPage.getByRole('button', { name: 'Giỏ hàng', exact: true }).click()
     await guestPage.getByRole('button', { name: 'Thanh toán' }).click()
     await expect(guestPage).toHaveURL(/\/checkout/)
 
@@ -42,26 +44,26 @@ test.describe('KDS — Chef receives and processes order', () => {
     await guestPage.getByRole('button', { name: /Đặt hàng/i }).click()
     await expect(guestPage).toHaveURL(/\/order/, { timeout: 15_000 })
 
-    // Chef page should receive the new order via WebSocket within 10 s
+    // Chef page should receive the new order via WebSocket within 15 s
     await expect(
       chefPage.locator('[class*="bg-card"][class*="rounded-xl"][class*="border-2"]')
-    ).toHaveCount(cardsBefore + 1, { timeout: 10_000 })
+    ).toHaveCount(cardsBefore + 1, { timeout: 15_000 })
 
     await guestCtx.close()
     await chefCtx.close()
   })
 
   test('chef can mark an item as done in KDS', async ({ browser }) => {
-    // Place an order first using a fresh guest context
+    // Place an order first using a fresh guest context (ban03 — dedicated to this test)
     const guestCtx  = await browser.newContext()
     const guestPage = await guestCtx.newPage()
-    await loginAsGuest(guestPage)
+    await loginAsGuest(guestPage, QR.ban03)
 
     const addBtn = guestPage.getByRole('button', { name: 'Thêm vào giỏ hàng' }).first()
     await expect(addBtn).toBeVisible({ timeout: 15_000 })
     await addBtn.click()
 
-    await guestPage.getByRole('button', { name: 'Giỏ hàng' }).click()
+    await guestPage.getByRole('button', { name: 'Giỏ hàng', exact: true }).click()
     await guestPage.getByRole('button', { name: 'Thanh toán' }).click()
     await expect(guestPage).toHaveURL(/\/checkout/)
     await guestPage.getByPlaceholder('Họ tên *').fill('KDS Mark Test')

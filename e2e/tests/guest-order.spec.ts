@@ -22,18 +22,21 @@ test.describe('Guest QR → Order flow', () => {
     await addBtn.click()
 
     // Cart badge should now show "1"
-    const cartBtn = page.getByRole('button', { name: 'Giỏ hàng' })
+    const cartBtn = page.getByRole('button', { name: 'Giỏ hàng', exact: true })
     await expect(cartBtn.locator('span').filter({ hasText: '1' })).toBeVisible()
   })
 
   test('full checkout flow: QR → cart → form → order page', async ({ page }) => {
+    const logs: string[] = []
+    page.on('console', msg => logs.push(`[${msg.type()}] ${msg.text()}`))
+
     // Add first available product
     const addBtn = page.getByRole('button', { name: 'Thêm vào giỏ hàng' }).first()
     await expect(addBtn).toBeVisible({ timeout: 15_000 })
     await addBtn.click()
 
     // Open cart drawer
-    await page.getByRole('button', { name: 'Giỏ hàng' }).click()
+    await page.getByRole('button', { name: 'Giỏ hàng', exact: true }).click()
 
     // Click "Thanh toán" inside the drawer
     const checkoutBtn = page.getByRole('button', { name: 'Thanh toán' })
@@ -56,7 +59,12 @@ test.describe('Guest QR → Order flow', () => {
     await submitBtn.click()
 
     // Should redirect to /order after successful submission
-    await expect(page).toHaveURL(/\/order/, { timeout: 15_000 })
+    try {
+      await expect(page).toHaveURL(/\/order/, { timeout: 15_000 })
+    } catch (e) {
+      console.log('CAPTURED CONSOLE LOGS:', logs.join('\n'))
+      throw e
+    }
   })
 
   test('checkout form validates required fields', async ({ page }) => {
@@ -65,7 +73,7 @@ test.describe('Guest QR → Order flow', () => {
     await expect(addBtn).toBeVisible({ timeout: 15_000 })
     await addBtn.click()
 
-    await page.getByRole('button', { name: 'Giỏ hàng' }).click()
+    await page.getByRole('button', { name: 'Giỏ hàng', exact: true }).click()
     await page.getByRole('button', { name: 'Thanh toán' }).click()
     await expect(page).toHaveURL(/\/checkout/)
 

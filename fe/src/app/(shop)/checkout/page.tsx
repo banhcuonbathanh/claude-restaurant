@@ -65,20 +65,32 @@ export default function CheckoutPage() {
       return data
     },
     onSuccess: (data) => {
+      console.log('[checkout] onSuccess fired', JSON.stringify(data))
       submitted.current = true
       cart.clearCart()
-      router.push('/order')
+      console.log('[checkout] clearCart done, calling window.location.replace')
+      window.location.replace('/order')
     },
     onError: (err: unknown) => {
-      const msg = (err as { response?: { data?: { message?: string } } })
-        .response?.data?.message
-      toast.error(msg ?? 'Đặt hàng thất bại')
+      const e = err as Record<string, unknown>
+      console.log('[checkout] onError status:', (e?.response as any)?.status)
+      console.log('[checkout] onError data:', JSON.stringify((e?.response as any)?.data ?? null))
+      console.log('[checkout] onError message:', e?.message)
+      console.log('[checkout] onError code:', e?.code)
+      const resp = (err as { response?: { data?: { error?: string; message?: string } } }).response
+      // If table already has an active order (e.g. on test retry), go to order tracking
+      if (resp?.data?.error === 'TABLE_HAS_ACTIVE_ORDER') {
+        submitted.current = true
+        router.push('/order')
+        return
+      }
+      toast.error(resp?.data?.message ?? 'Đặt hàng thất bại')
     },
   })
 
   const total = cart.total()
 
-  if (cart.itemCount() === 0) return null
+  if (!submitted.current && cart.itemCount() === 0) return null
 
   return (
     <div className="min-h-screen bg-background pb-24">

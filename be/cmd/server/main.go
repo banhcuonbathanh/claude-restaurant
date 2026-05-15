@@ -217,6 +217,7 @@ func main() {
 	orderR := v1.Group("/orders")
 	orderR.Use(authMW)
 	orderR.POST("", orderH.Create)
+	orderR.GET("", middleware.AtLeast("chef"), orderH.ListLive)
 	orderR.GET("/live", middleware.AtLeast("cashier"), orderH.ListLive)
 	orderR.GET("/:id", orderH.Get)
 	orderR.PATCH("/:id/status", middleware.AtLeast("chef"), orderH.UpdateStatus)

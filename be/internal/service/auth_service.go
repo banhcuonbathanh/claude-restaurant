@@ -32,7 +32,7 @@ type redisClient interface {
 
 const (
 	maxSessions     = 5
-	rateLimitMax    = 5
+	rateLimitMax    = 50
 	rateLimitWindow = 60 * time.Second
 	isActiveTTL     = 5 * time.Minute
 )

@@ -15,7 +15,7 @@ COPY be/ ./be/
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o server ./be/cmd/server/
 
 # --- runtime ---
-FROM alpine:3.20
+FROM golang:1.25-alpine
 RUN apk add --no-cache ca-certificates tzdata
 WORKDIR /app
 

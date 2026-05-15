@@ -1,0 +1,37 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e457]:
+    - banner [ref=e458]:
+      - button "← Quay lại" [ref=e459] [cursor=pointer]
+      - heading "Xác Nhận Đơn Hàng" [level=1] [ref=e460]
+    - generic [ref=e461]:
+      - generic [ref=e462]:
+        - heading "Đơn hàng của bạn" [level=2] [ref=e463]
+        - generic [ref=e464]:
+          - paragraph [ref=e466]: 1x banh cuon
+          - paragraph [ref=e467]: 4.000 ₫
+        - generic [ref=e468]:
+          - generic [ref=e469]: Tổng cộng
+          - generic [ref=e470]: 4.000 ₫
+      - generic [ref=e471]:
+        - generic [ref=e472]:
+          - heading "Thông tin liên hệ" [level=2] [ref=e473]
+          - textbox "Họ tên *" [ref=e475]
+          - textbox "Số điện thoại *" [ref=e477]
+          - textbox "Ghi chú (tuỳ chọn)" [ref=e479]
+        - generic [ref=e480]:
+          - heading "Phương thức thanh toán" [level=2] [ref=e481]
+          - generic [ref=e482] [cursor=pointer]:
+            - radio "💳 VNPay" [ref=e483]
+            - generic [ref=e484]: 💳 VNPay
+          - generic [ref=e485] [cursor=pointer]:
+            - radio "📱 MoMo" [ref=e486]
+            - generic [ref=e487]: 📱 MoMo
+          - generic [ref=e488] [cursor=pointer]:
+            - radio "🏦 ZaloPay" [ref=e489]
+            - generic [ref=e490]: 🏦 ZaloPay
+          - generic [ref=e491] [cursor=pointer]:
+            - radio "💵 Tiền mặt COD" [checked] [ref=e492]
+            - generic [ref=e493]: 💵 Tiền mặt COD
+    - button "Đặt hàng · 4.000 ₫" [ref=e495] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e408]
