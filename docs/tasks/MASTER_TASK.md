@@ -306,6 +306,21 @@ The entries below are phase-level summaries only.
 
 ---
 
+## Phase P-FIX — Modal Wiring (Spec Compliance Fix)
+
+> **Owner:** FE
+> **Dependency:** P5 ✅ · P-UX2 ✅ (ToppingModal + ComboModal components already built)
+> **Spec:** `docs/spec/Spec_3_Menu_Checkout_UI_v2.md §4.3 §4.4 §4.5`
+> **Root cause:** `ToppingModal.tsx` and `ComboModal.tsx` were written but never imported — `ProductCard` and `ComboCard` bypassed them with inline chips / direct-add respectively.
+> **Size:** Each task touches exactly 1 file → both fit in 1 session.
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P-FIX-1 | FE | Wire `ToppingModal` into `ProductCard`: remove inline topping chips; `+` on product with toppings → opens modal; confirm → `addItem` with selected toppings; products with no toppings keep existing stepper | P-UX2 ✅ | 1 | ✅ | Spec3 §4.3 §4.4 |
+| P-FIX-2 | FE | Wire `ComboModal` into `ComboCard`: first `+` click → opens modal showing combo items; confirm → `addItem`; subsequent `+/-` stepper works directly without re-opening modal | P-UX2 ✅ | 1 | ✅ | Spec3 §4.5 |
+
+---
+
 ## Critical Rules (Never Forget)
 
 | Rule | Detail |

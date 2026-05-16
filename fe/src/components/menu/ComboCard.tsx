@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 import Image from 'next/image'
 import { Plus, Minus, Heart } from 'lucide-react'
 import Link from 'next/link'
@@ -6,19 +7,22 @@ import { useCartStore } from '@/store/cart'
 import { useFavouritesStore } from '@/store/favourites'
 import type { Combo } from '@/types/product'
 import { formatVND } from '@/lib/utils'
+import { ComboModal } from './ComboModal'
 
 interface Props {
   combo: Combo
 }
 
 export function ComboCard({ combo }: Props) {
+  const [modalOpen, setModalOpen] = useState(false)
   const { items, addItem, updateQty } = useCartStore()
   const { toggle: toggleFav, isFavourite } = useFavouritesStore()
   const fav = isFavourite(`combo_${combo.id}`)
 
-  const cartId   = `combo_${combo.id}`
-  const cartItem = items.find(i => i.id === cartId)
-  const qty      = cartItem?.quantity ?? 0
+  const comboItems = combo.items ?? []
+  const cartId     = `combo_${combo.id}`
+  const cartItem   = items.find(i => i.id === cartId)
+  const qty        = cartItem?.quantity ?? 0
 
   const imageUrl = combo.image_path
     ? `${process.env.NEXT_PUBLIC_STORAGE_URL ?? ''}/${combo.image_path}`
@@ -41,7 +45,10 @@ export function ComboCard({ combo }: Props) {
     }
   }
 
-  const comboItems = combo.items ?? []
+  const handleModalConfirm = () => {
+    handleAdd()
+    setModalOpen(false)
+  }
 
   return (
     <div className="bg-card rounded-xl flex gap-3 p-3 shadow-sm">
@@ -100,7 +107,7 @@ export function ComboCard({ combo }: Props) {
           </Link>
           {qty === 0 ? (
             <button
-              onClick={handleAdd}
+              onClick={() => setModalOpen(true)}
               disabled={!combo.is_available}
               className="bg-primary text-white w-7 h-7 rounded-full flex items-center justify-center
                          hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
@@ -126,6 +133,13 @@ export function ComboCard({ combo }: Props) {
           )}
         </div>
       </div>
+
+      <ComboModal
+        combo={combo}
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onConfirm={handleModalConfirm}
+      />
     </div>
   )
 }
