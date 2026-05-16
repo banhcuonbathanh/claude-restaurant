@@ -25,7 +25,7 @@
 | P-UX — Customer Flow | FE | ✅ COMPLETE | 0 | — |
 | P-PD — Product Detail Page | FE | ✅ COMPLETE | 0 | — |
 | P-UX2 — Customer UX Enhancements | FE | ✅ COMPLETE | 0 | — |
-| P11 — Add Items to Existing Order | Full | ⬜ NOT STARTED | ~6 | P11-1 |
+| P11 — Add Items to Existing Order | Full | 🔄 IN PROGRESS | ~5 | P11-2 |
 
 ---
 
@@ -123,7 +123,7 @@ The entries below are phase-level summaries only.
 |---|---|---|---|---|---|---|
 | P7-5.1 | BE | Test setup (test DB, seed, teardown helpers) + all auth API endpoints against test DB | P7-1 ✅ | 1 | ✅ | `be/internal/testhelper/` + `be/integration/auth_test.go`; run: `go test -tags integration ./be/integration/...` |
 | P7-5.2 | BE | Order + payment API endpoints integration tests | P7-5.1 ✅ | 1 | ✅ | 21/21 pass; 3 bonus bug fixes: (1) `gateway_data` NULL scan error in `GetPaymentByID`/`GetPaymentByOrderID` (`*json.RawMessage` → `[]byte` intermediary); (2) `SetRefreshCookie` Secure=true blocked HTTP test server — now derives from TLS/X-Forwarded-Proto; (3) expanded `buildRouter` to wire all order+payment routes |
-| P7-5.3 | BE | SSE reconnect behavior (exponential backoff) + WS reconnect exponential backoff | P7-5.2 ✅ | 1 | ⬜ | — |
+| P7-5.3 | BE | SSE reconnect behavior (exponential backoff) + WS reconnect exponential backoff | P7-5.2 ✅ | 1 | ✅ | 8/8 pass: TestSSE_RequiresAuth + ConnectedEvent + Reconnect(x3) + EventDelivery; TestWS_RequiresToken + ConnectAndClose + Reconnect(x3) + MessageDelivery; added SSE+WS routes to testhelper buildRouter |
 | P7-5.4 | FE+QA | Playwright E2E — full browser flows: QR scan→menu→checkout→KDS→payment for each role (guest/cashier/chef/manager) | P7-5.1 ✅ · P7-3 ✅ | 2 | ⬜ | Needs docker compose up (full stack); set BASE_URL=http://localhost:3000 |
 
 ### P7-6 — Seed Data
@@ -252,7 +252,7 @@ The entries below are phase-level summaries only.
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P11-1 | BA | Add `POST /api/v1/orders/:id/items` to Spec4 §5.2: request body shape, validation rules (status guard: pending/confirmed/preparing only; ownership; items non-empty), response shape `{ order_id, added_items_count, new_total_amount }`, error codes (403 FORBIDDEN / 409 ORDER_NOT_EDITABLE), business rules (recalc total_amount, combo expand, publish items_added SSE + KDS WS), AC checklist | — | 1 | ⬜ | Spec4 §5.2 (new) |
+| P11-1 | BA | Add `POST /api/v1/orders/:id/items` to Spec4 §5.2: request body shape, validation rules (status guard: pending/confirmed/preparing only; ownership; items non-empty), response shape `{ order_id, added_items_count, new_total_amount }`, error codes (403 FORBIDDEN / 409 ORDER_NOT_EDITABLE), business rules (recalc total_amount, combo expand, publish items_added SSE + KDS WS), AC checklist | — | 1 | ✅ | Spec4 §5.2.1 (new section) |
 
 ### P11-2 — sqlc Queries + Repository Layer
 
@@ -262,7 +262,7 @@ The entries below are phase-level summaries only.
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P11-2 | BE | Write `AppendOrderItems` SQL (batch INSERT into order_items) + `UpdateOrderTotalAmount` SQL (UPDATE orders SET total_amount); run `sqlc generate`; add both methods to `OrderRepository` interface + `orderRepo` struct impl | P11-1 ✅ | 1 | ⬜ | Spec4 §5.2 |
+| P11-2 | BE | Write `AppendOrderItems` SQL (batch INSERT into order_items) + `UpdateOrderTotalAmount` SQL (UPDATE orders SET total_amount); run `sqlc generate`; add both methods to `OrderRepository` interface + `orderRepo` struct impl | P11-1 ✅ | 1 | ✅ | Spec4 §5.2 |
 
 ### P11-3 — Service Method
 

@@ -10,15 +10,15 @@
 
 | Field | Value |
 |---|---|
-| **Task ID** | P7-5.3 |
-| **Owner** | BE |
-| **Title** | SSE reconnect behavior + WS reconnect integration tests |
-| **Session goal** | Write `be/integration/realtime_test.go` — 4 SSE tests + 4 WS tests; add SSE+WS routes to `buildRouter` in testhelper.go |
-| **Branch** | chore/improve-claude-md |
-| **Started** | 2026-05-16 |
+| **Task ID** | — |
+| **Owner** | — |
+| **Title** | — |
+| **Session goal** | — |
+| **Branch** | — |
+| **Started** | — |
 | **Blocked by** | — |
 | **Stopped at** | — |
-| **Notes** | Deps: P7-5.2 ✅ |
+| **Notes** | — |
 
 ---
 
@@ -42,6 +42,8 @@
 
 | Date | Task ID | Title | Outcome |
 |---|---|---|---|
+| 2026-05-16 | P11-1 | Add Items spec — POST /api/v1/orders/:id/items to Spec4 §5.2.1 | ✅ New section §5.2.1 written: request body, validation (status guard + ownership), response shape, 4 error codes, 8-step business rules (combo expand + recalc + SSE + KDS WS + orders-live WS events with full JSON schemas), 10-item AC checklist |
+| 2026-05-16 | P7-5.3 | SSE reconnect + WS reconnect integration tests | ✅ 8/8 pass; new file: `realtime_test.go` (TestSSE x4 + TestWS x4); added SSE+WS routes to `testhelper.go buildRouter`; verified reconnect x3 + event delivery via Redis publish for both SSE and WS |
 | 2026-05-16 | P7-5.2 | Order + Payment API integration tests | ✅ 21/21 pass; new files: `helpers_test.go` (doPatch/doDelete/createOrder/advanceToReady), `order_test.go` (10 tests); 3 production bugs fixed: NULL gateway_data scan, Secure cookie over HTTP, expanded buildRouter |
 | 2026-05-16 | P7-9 | Compliance pages — /privacy-policy + /terms + cookie consent banner | ✅ 3 files created: privacy-policy/page.tsx + terms/page.tsx (server components, Vietnamese, ArrowLeft back link) + CookieConsent.tsx (localStorage `cookie_consent_accepted`, orange Đồng ý button); wired to root layout.tsx; tsc clean; PCI-DSS verified (no card data anywhere in FE) |
 | 2026-05-16 | P9-8 | overview/page.tsx final assembly | ✅ Replaced 1079-line inline page with clean 200-line assembly; removed all mock data + USE_MOCK flag + inline PrepPanel/StatCard/EmptyTableCard/WS useEffect; wired useOverviewWS + StatCards + WaitingSection + PrepPanel + TableGrid; kept NewOrderPopup inline + SSE popup; 30s timer retained; tsc clean |

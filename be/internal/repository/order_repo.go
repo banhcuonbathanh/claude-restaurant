@@ -38,6 +38,9 @@ type CreateOrderWithItemsInput struct {
 type OrderRepository interface {
 	// CreateOrderWithItems runs an atomic transaction: insert order + items + recalculate total.
 	CreateOrderWithItems(ctx context.Context, in CreateOrderWithItemsInput) error
+	// AppendOrderItems inserts items into an existing order and recalculates total_amount atomically.
+	// Returns the new total_amount after recalculation.
+	AppendOrderItems(ctx context.Context, orderID string, items []OrderItemRow) (string, error)
 	GetOrderByID(ctx context.Context, id string) (db.Order, error)
 	GetOrderItemsByOrderID(ctx context.Context, orderID string) ([]db.OrderItem, error)
 	GetOrderItemByID(ctx context.Context, id string) (db.OrderItem, error)
@@ -108,6 +111,48 @@ func (r *orderRepo) CreateOrderWithItems(ctx context.Context, in CreateOrderWith
 	}
 
 	return tx.Commit()
+}
+
+func (r *orderRepo) AppendOrderItems(ctx context.Context, orderID string, items []OrderItemRow) (string, error) {
+	tx, err := r.sqlDB.BeginTx(ctx, nil)
+	if err != nil {
+		return "", fmt.Errorf("appendOrderItems: begin tx: %w", err)
+	}
+	defer tx.Rollback()
+
+	qtx := db.New(tx)
+
+	for _, item := range items {
+		if err := qtx.CreateOrderItem(ctx, db.CreateOrderItemParams{
+			ID:               item.ID,
+			OrderID:          orderID,
+			ProductID:        item.ProductID,
+			ComboID:          item.ComboID,
+			ComboRefID:       item.ComboRefID,
+			Name:             item.Name,
+			UnitPrice:        item.UnitPrice,
+			Quantity:         item.Quantity,
+			ToppingsSnapshot: item.ToppingsSnapshot,
+			Note:             item.Note,
+		}); err != nil {
+			return "", fmt.Errorf("appendOrderItems: insert item: %w", err)
+		}
+	}
+
+	if err := qtx.RecalculateTotalAmount(ctx, orderID); err != nil {
+		return "", fmt.Errorf("appendOrderItems: recalculate total: %w", err)
+	}
+
+	order, err := qtx.GetOrderByID(ctx, orderID)
+	if err != nil {
+		return "", fmt.Errorf("appendOrderItems: fetch total: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return "", fmt.Errorf("appendOrderItems: commit: %w", err)
+	}
+
+	return order.TotalAmount, nil
 }
 
 func (r *orderRepo) GetOrderByID(ctx context.Context, id string) (db.Order, error) {

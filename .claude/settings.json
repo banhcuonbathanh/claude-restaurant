@@ -9,7 +9,11 @@
       "Skill(excalidraw)",
       "Skill(excalidraw:*)",
       "Bash(TEST_DB_DSN=\"\" go test -tags integration -run TestSSE_)",
-      "Bash(TestWS_ ./be/integration/...)"
+      "Bash(TestWS_ ./be/integration/...)",
+      "Bash(mysql -h 127.0.0.1 -P 3306 -u root -prootpass -e \"CREATE DATABASE IF NOT EXISTS banhcuon_test CHARACTER SET utf8mb4;\")",
+      "Bash(export TEST_DB_DSN=\"root:rootpass@tcp\\(127.0.0.1:3306\\)/banhcuon_test?parseTime=true&charset=utf8mb4\")",
+      "Bash(export TEST_REDIS_ADDR=\"127.0.0.1:6379\")",
+      "Bash(export JWT_SECRET=\"integration-test-secret-key-must-be-32chars!\")"
     ]
   }
 }

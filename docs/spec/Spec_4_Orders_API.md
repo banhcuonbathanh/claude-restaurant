@@ -83,8 +83,154 @@ Xây dựng Orders API đầy đủ: tạo đơn, cập nhật trạng thái, th
 **5.2 Order Items**
 | Method | Path | Role | Mô tả |
 | --- | --- | --- | --- |
+| POST | /api/v1/orders/:id/items | Customer/Cashier+ | Thêm món vào đơn đang active |
 | PATCH | /api/v1/orders/:id/items/:itemId/status | Chef+ | Cycle status (KDS click) |
 | PATCH | /api/v1/orders/:id/items/:itemId/flag | Chef+ | Toggle flag 🚩 |
+
+**5.2.1 POST /api/v1/orders/:id/items — Thêm Món Vào Đơn Active**
+
+**Auth:** Customer (chỉ đơn của mình) · Cashier/Staff/Manager (bất kỳ đơn active)
+**Mô tả:** Thêm 1 hoặc nhiều món/combo vào đơn đang trong trạng thái `pending`, `confirmed`, hoặc `preparing`. Không tạo đơn mới — giữ nguyên 1-table-1-active-order rule.
+
+**Request Body:**
+```json
+{
+  "items": [
+    {
+      "product_id": "uuid",
+      "combo_id": null,
+      "quantity": 2,
+      "unit_price": 55000,
+      "topping_snapshot": [
+        { "id": "uuid", "name": "Chả lụa", "price_delta": 10000 }
+      ]
+    },
+    {
+      "product_id": null,
+      "combo_id": "uuid",
+      "quantity": 1,
+      "unit_price": 180000,
+      "topping_snapshot": null
+    }
+  ]
+}
+```
+
+**Validation:**
+- `items` không được rỗng
+- Mỗi item: `product_id` hoặc `combo_id` phải có 1 (không được cả 2 null, không được cả 2 set)
+- `quantity > 0`
+- `unit_price > 0`
+
+**Status Guard (kiểm tra trước khi insert):**
+- Chỉ cho phép thêm khi `order.status ∈ {pending, confirmed, preparing}`
+- Nếu `order.status ∈ {ready, delivered, cancelled}` → trả **409** `ORDER_NOT_EDITABLE`
+
+**Ownership Check:**
+- Role `customer`: JWT `sub` phải match `order.guest_token` → **403** `FORBIDDEN` nếu không match
+- Role `cashier`/`staff`/`manager`/`admin`: không cần kiểm tra ownership
+
+**Response 200:**
+```json
+{
+  "order_id": "uuid",
+  "added_items_count": 3,
+  "new_total_amount": 345000
+}
+```
+> `added_items_count` = tổng số order_item rows được INSERT (combo expand ra N sub-items + 1 header → đếm tất cả)
+
+**Error Codes:**
+| HTTP | Code | Khi nào |
+| --- | --- | --- |
+| 404 | `ORDER_NOT_FOUND` | Order `:id` không tồn tại |
+| 403 | `FORBIDDEN` | Customer thêm vào đơn của người khác |
+| 409 | `ORDER_NOT_EDITABLE` | Order status ∈ {ready, delivered, cancelled} |
+| 400 | validation error | items rỗng, hoặc item thiếu product_id/combo_id, quantity/unit_price ≤ 0 |
+
+**Business Rules (theo thứ tự, trong 1 DB transaction):**
+1. Fetch order → 404 `ORDER_NOT_FOUND` nếu không có
+2. Ownership check (chỉ với role customer) → 403 `FORBIDDEN`
+3. Status guard → 409 `ORDER_NOT_EDITABLE`
+4. Với mỗi item có `combo_id`: expand combo (giống §6 Combo expand logic — tạo 1 header row + N sub-item rows với `combo_ref_id`)
+5. INSERT tất cả order_item rows trong cùng 1 transaction — rollback nếu bất kỳ fail
+6. Recalculate `total_amount = SUM(unit_price × quantity)` trên toàn bộ order_items → `UPDATE orders SET total_amount = ...`
+7. Publish SSE event `items_added` lên Redis channel `order:{id}` (customer tracking page nhận realtime)
+8. Broadcast WS event `items_added` lên `/ws/kitchen` (KDS nhận ngay — chỉ sub-items, ẩn combo header)
+9. Broadcast WS event `items_added` lên `/ws/orders-live` (cashier live grid cập nhật total)
+
+**SSE Event — Customer Tracking (`order:{id}` channel):**
+```json
+{
+  "event": "items_added",
+  "data": {
+    "order_id": "uuid",
+    "added_items": [
+      {
+        "id": "uuid",
+        "name": "Bánh Cuốn Tôm",
+        "quantity": 2,
+        "qty_served": 0,
+        "unit_price": 55000,
+        "derived_status": "pending",
+        "combo_id": null,
+        "combo_ref_id": null,
+        "topping_snapshot": [{ "name": "Chả lụa", "price_delta": 10000 }]
+      }
+    ],
+    "new_total_amount": 345000
+  }
+}
+```
+> Gửi tất cả rows (kể cả combo header) — FE tự lọc theo display rules (§6 combo display)
+
+**WS Event — KDS (`/ws/kitchen`):**
+```json
+{
+  "event": "items_added",
+  "data": {
+    "order_id": "uuid",
+    "order_number": "ORD-20260509-001",
+    "table_id": "uuid",
+    "added_items": [
+      {
+        "id": "uuid",
+        "name": "Bánh Cuốn Tôm",
+        "quantity": 2,
+        "qty_served": 0,
+        "note": null,
+        "topping_snapshot": []
+      }
+    ]
+  }
+}
+```
+> KDS chỉ nhận sub-items (combo header rows bị lọc — `combo_ref_id IS NOT NULL` hoặc không phải combo). Giữ nhất quán với `new_order` event.
+
+**WS Event — Orders Live (`/ws/orders-live`):**
+```json
+{
+  "event": "items_added",
+  "data": {
+    "order_id": "uuid",
+    "order_number": "ORD-20260509-001",
+    "added_items_count": 3,
+    "new_total_amount": 345000
+  }
+}
+```
+
+**Acceptance Criteria:**
+- [ ] POST /orders/:id/items với đơn `pending/confirmed/preparing` → 200 + items inserted vào DB
+- [ ] Combo trong request → expand thành header + sub-items (giống POST /orders logic)
+- [ ] `total_amount` được recalculate đúng sau khi append
+- [ ] Order status `ready/delivered/cancelled` → 409 `ORDER_NOT_EDITABLE`
+- [ ] Customer gọi với order của người khác → 403 `FORBIDDEN`
+- [ ] `items` rỗng → 400 validation error
+- [ ] SSE event `items_added` được push tới customer tracking page ngay sau insert
+- [ ] WS event `items_added` được broadcast tới KDS (sub-items only, không có combo header)
+- [ ] WS event `items_added` được broadcast tới orders-live (summary: count + new_total)
+- [ ] 1-table-1-active-order rule không thay đổi — endpoint chỉ append, không tạo order mới
 
 **5.3 Real-time**
 | Method | Path | Role | Mô tả |
