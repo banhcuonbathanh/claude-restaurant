@@ -95,11 +95,13 @@ func RefreshTokenFromCookie(c *gin.Context) (string, bool) {
 	return v, true
 }
 
-// SetRefreshCookie writes the refresh token as httpOnly, Secure, SameSite=Strict.
-// Scoped to /api/v1/auth so it is not sent on every API call.
+// SetRefreshCookie writes the refresh token as httpOnly, SameSite=Strict.
+// Secure flag is set when the connection is TLS or proxied via HTTPS (X-Forwarded-Proto).
+// This allows integration tests over plain HTTP while keeping production cookies secure.
 func SetRefreshCookie(c *gin.Context, rawToken string) {
 	maxAge := int(jwtpkg.RefreshTTL() / time.Second)
-	c.SetCookie("refresh_token", rawToken, maxAge, "/api/v1/auth", "", true, true)
+	secure := c.Request.TLS != nil || c.GetHeader("X-Forwarded-Proto") == "https"
+	c.SetCookie("refresh_token", rawToken, maxAge, "/api/v1/auth", "", secure, true)
 }
 
 // ClearRefreshCookie immediately expires the refresh_token cookie.

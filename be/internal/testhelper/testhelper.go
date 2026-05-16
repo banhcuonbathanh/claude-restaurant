@@ -37,6 +37,10 @@ const (
 	TestAdminID       = "aaaaaaaa-aaaa-aaaa-aaaa-000000000001"
 	// TestTableQRToken is exactly 64 hex chars, matching the tables.qr_token CHAR(64) column.
 	TestTableQRToken = "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+	TestTableID      = "bbbbbbbb-bbbb-bbbb-bbbb-000000000001"
+	TestCategoryID   = "cccccccc-cccc-cccc-cccc-000000000001"
+	TestProductID    = "dddddddd-dddd-dddd-dddd-000000000001"
+	TestProductPrice = int64(45000)
 )
 
 var (
@@ -184,15 +188,29 @@ func TruncateAll(t *testing.T, sqlDB *sql.DB) {
 	}
 }
 
-// buildRouter wires auth routes only — sufficient for P7-5.1.
+// buildRouter wires auth + order + payment routes for integration tests.
 func buildRouter(sqlDB *sql.DB, rdb *redis.Client) *gin.Engine {
-	authRepo := repository.NewAuthRepo(sqlDB)
-	authSvc := service.NewAuthService(authRepo, rdb)
-	authH := handler.NewAuthHandler(authSvc)
+	authRepo    := repository.NewAuthRepo(sqlDB)
+	productRepo := repository.NewProductRepo(sqlDB)
+	orderRepo   := repository.NewOrderRepo(sqlDB)
+	paymentRepo := repository.NewPaymentRepo(sqlDB)
+	tableRepo   := repository.NewTableRepo(sqlDB)
+
+	authSvc    := service.NewAuthService(authRepo, rdb)
+	productSvc := service.NewProductService(productRepo, rdb)
+	orderSvc   := service.NewOrderService(orderRepo, tableRepo, rdb, productSvc)
+	paymentSvc := service.NewPaymentService(paymentRepo, orderSvc, orderSvc, rdb)
+
+	authH    := handler.NewAuthHandler(authSvc)
+	orderH   := handler.NewOrderHandler(orderSvc)
+	paymentH := handler.NewPaymentHandler(paymentSvc)
+
 	authMW := middleware.AuthRequired(authSvc)
 
 	r := gin.New()
 	v1 := r.Group("/api/v1")
+
+	// Auth
 	auth := v1.Group("/auth")
 	auth.POST("/login", authH.Login)
 	auth.POST("/refresh", authH.Refresh)
@@ -203,7 +221,47 @@ func buildRouter(sqlDB *sql.DB, rdb *redis.Client) *gin.Engine {
 		protected.POST("/logout", authH.Logout)
 		protected.GET("/me", authH.Me)
 	}
+
+	// Orders
+	orderR := v1.Group("/orders")
+	orderR.Use(authMW)
+	orderR.POST("", orderH.Create)
+	orderR.GET("/live", middleware.AtLeast("cashier"), orderH.ListLive)
+	orderR.GET("/:id", orderH.Get)
+	orderR.PATCH("/:id/status", middleware.AtLeast("chef"), orderH.UpdateStatus)
+	orderR.DELETE("/:id", orderH.Cancel)
+
+	// Payments
+	payR := v1.Group("/payments")
+	payR.Use(authMW, middleware.AtLeast("cashier"))
+	payR.POST("", paymentH.Create)
+	payR.GET("/:id", paymentH.GetPayment)
+
 	return r
+}
+
+// SeedCategory inserts a test category (idempotent).
+func SeedCategory(t *testing.T, sqlDB *sql.DB) {
+	t.Helper()
+	_, err := sqlDB.Exec(
+		"INSERT INTO categories (id, name, is_active) VALUES (?, 'Test Category', 1) ON DUPLICATE KEY UPDATE is_active=1",
+		TestCategoryID)
+	if err != nil {
+		t.Fatalf("testhelper: seed category: %v", err)
+	}
+}
+
+// SeedProduct inserts a test category + product (idempotent). Callers get a product
+// with TestProductID at TestProductPrice (45,000 VND).
+func SeedProduct(t *testing.T, sqlDB *sql.DB) {
+	t.Helper()
+	SeedCategory(t, sqlDB)
+	_, err := sqlDB.Exec(
+		"INSERT INTO products (id, category_id, name, price, is_available) VALUES (?, ?, 'Test Banh Cuon', ?, 1) ON DUPLICATE KEY UPDATE is_available=1",
+		TestProductID, TestCategoryID, TestProductPrice)
+	if err != nil {
+		t.Fatalf("testhelper: seed product: %v", err)
+	}
 }
 
 // migrationsDir resolves the path to be/migrations/ relative to this source file.

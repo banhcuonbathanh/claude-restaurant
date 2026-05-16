@@ -1,0 +1,203 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - img [ref=e7]
+          - generic [ref=e10]: Bánh Cuốn POS
+        - generic [ref=e11]:
+          - link "Tính Năng" [ref=e12] [cursor=pointer]:
+            - /url: "#features"
+          - link "Cách Dùng" [ref=e13] [cursor=pointer]:
+            - /url: "#how-it-works"
+          - link "Vào Dashboard" [ref=e14] [cursor=pointer]:
+            - /url: /admin
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - img [ref=e18]
+        - text: Hệ thống POS + QR + KDS cho quán ăn Việt
+      - heading "Quản Lý Quán Thông Minh Không Cần Cài App" [level=1] [ref=e20]:
+        - text: Quản Lý Quán Thông Minh
+        - text: Không Cần Cài App
+      - paragraph [ref=e21]: Khách quét QR → đặt món → bếp nhận ngay → thu ngân thanh toán. Toàn bộ luồng trong một hệ thống, thời gian thực.
+      - generic [ref=e22]:
+        - link "Vào Admin Dashboard" [ref=e23] [cursor=pointer]:
+          - /url: /admin
+          - img
+          - text: Vào Admin Dashboard
+        - link "Thử Menu Khách" [ref=e24] [cursor=pointer]:
+          - /url: /table/1
+          - img
+          - text: Thử Menu Khách
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - img [ref=e27]
+          - generic [ref=e29]:
+            - paragraph [ref=e30]: < 1s
+            - paragraph [ref=e31]: Đơn đến bếp
+        - generic [ref=e32]:
+          - img [ref=e33]
+          - generic [ref=e36]:
+            - paragraph [ref=e37]: 8–15 phút
+            - paragraph [ref=e38]: Thời gian phục vụ
+        - generic [ref=e39]:
+          - img [ref=e40]
+          - generic [ref=e42]:
+            - paragraph [ref=e43]: 99.9%
+            - paragraph [ref=e44]: Uptime
+        - generic [ref=e45]:
+          - img [ref=e46]
+          - generic [ref=e49]:
+            - paragraph [ref=e50]: 0 app
+            - paragraph [ref=e51]: Cài đặt cho khách
+    - generic [ref=e52]:
+      - generic [ref=e53]:
+        - generic [ref=e54]: Tính Năng
+        - heading "Mọi Thứ Bạn Cần" [level=2] [ref=e55]
+        - paragraph [ref=e56]: Từ bếp đến quầy thu ngân, tất cả kết nối liền mạch.
+      - generic [ref=e57]:
+        - generic [ref=e58]:
+          - generic [ref=e59]:
+            - img [ref=e61]
+            - heading "QR Đặt Bàn" [level=3] [ref=e67]
+          - paragraph [ref=e69]: Khách quét QR, xem menu, và đặt món không cần app — trực tiếp trên trình duyệt.
+        - generic [ref=e70]:
+          - generic [ref=e71]:
+            - img [ref=e73]
+            - heading "KDS Bếp Thời Gian Thực" [level=3] [ref=e75]
+          - paragraph [ref=e77]: Màn hình bếp cập nhật tức thì qua WebSocket. Màu sắc cảnh báo theo mức độ khẩn cấp.
+        - generic [ref=e78]:
+          - generic [ref=e79]:
+            - img [ref=e81]
+            - heading "POS & Thanh Toán" [level=3] [ref=e83]
+          - paragraph [ref=e85]: Thu ngân xử lý đơn, nhận thanh toán tiền mặt hoặc chuyển khoản, in hoá đơn nhanh.
+        - generic [ref=e86]:
+          - generic [ref=e87]:
+            - img [ref=e89]
+            - heading "Admin Dashboard" [level=3] [ref=e94]
+          - paragraph [ref=e96]: Quản lý sản phẩm, danh mục, topping, nhân viên và bàn — toàn bộ trong một giao diện.
+        - generic [ref=e97]:
+          - generic [ref=e98]:
+            - img [ref=e100]
+            - heading "Báo Cáo & Thống Kê" [level=3] [ref=e102]
+          - paragraph [ref=e104]: Theo dõi doanh thu, món bán chạy, và hiệu suất ca làm việc theo ngày/tuần/tháng.
+        - generic [ref=e105]:
+          - generic [ref=e106]:
+            - img [ref=e108]
+            - heading "Phân Quyền Vai Trò" [level=3] [ref=e110]
+          - paragraph [ref=e112]: "Phân quyền rõ ràng: Admin · Manager · Cashier · Chef. Mỗi vai trò chỉ thấy chức năng của mình."
+    - generic [ref=e114]:
+      - generic [ref=e115]:
+        - generic [ref=e116]: Cách Dùng
+        - heading "Bắt Đầu Trong 4 Bước" [level=2] [ref=e117]
+        - paragraph [ref=e118]: Triển khai nhanh, không cần kiến thức kỹ thuật.
+      - generic [ref=e119]:
+        - generic [ref=e120]:
+          - generic [ref=e121]: "01"
+          - heading "Tạo Menu" [level=3] [ref=e122]
+          - paragraph [ref=e123]: Thêm danh mục, món ăn, và topping tùy chọn từ Admin Dashboard.
+        - generic [ref=e124]:
+          - generic [ref=e125]: "02"
+          - heading "In QR Bàn" [level=3] [ref=e126]
+          - paragraph [ref=e127]: Hệ thống tạo QR code cho từng bàn. In ra và dán lên bàn là xong.
+        - generic [ref=e128]:
+          - generic [ref=e129]: "03"
+          - heading "Khách Tự Đặt" [level=3] [ref=e130]
+          - paragraph [ref=e131]: Khách quét QR → xem menu → đặt món → đơn tự động đẩy lên bếp.
+        - generic [ref=e132]:
+          - generic [ref=e133]: "04"
+          - heading "Bếp & Thanh Toán" [level=3] [ref=e134]
+          - paragraph [ref=e135]: Bếp nhận đơn trên KDS. Thu ngân thanh toán và đóng bàn trên POS.
+    - generic [ref=e136]:
+      - generic [ref=e137]:
+        - generic [ref=e138]: Vai Trò
+        - heading "Đúng Người, Đúng Chức Năng" [level=2] [ref=e139]
+        - paragraph [ref=e140]: Mỗi vai trò có giao diện riêng, phân quyền rõ ràng.
+      - generic [ref=e141]:
+        - generic [ref=e142]:
+          - heading "Admin" [level=3] [ref=e146]
+          - list [ref=e148]:
+            - listitem [ref=e149]:
+              - img [ref=e150]
+              - text: Quản lý sản phẩm & menu
+            - listitem [ref=e153]:
+              - img [ref=e154]
+              - text: Quản lý nhân viên
+            - listitem [ref=e157]:
+              - img [ref=e158]
+              - text: Cấu hình hệ thống
+            - listitem [ref=e161]:
+              - img [ref=e162]
+              - text: Xem báo cáo tổng
+        - generic [ref=e165]:
+          - heading "Manager" [level=3] [ref=e169]
+          - list [ref=e171]:
+            - listitem [ref=e172]:
+              - img [ref=e173]
+              - text: Xem báo cáo doanh thu
+            - listitem [ref=e176]:
+              - img [ref=e177]
+              - text: Quản lý ca làm
+            - listitem [ref=e180]:
+              - img [ref=e181]
+              - text: Xem đơn đang chạy
+            - listitem [ref=e184]:
+              - img [ref=e185]
+              - text: Điều phối bàn
+        - generic [ref=e188]:
+          - heading "Cashier" [level=3] [ref=e192]
+          - list [ref=e194]:
+            - listitem [ref=e195]:
+              - img [ref=e196]
+              - text: Giao diện POS
+            - listitem [ref=e199]:
+              - img [ref=e200]
+              - text: Nhận thanh toán
+            - listitem [ref=e203]:
+              - img [ref=e204]
+              - text: In hoá đơn
+            - listitem [ref=e207]:
+              - img [ref=e208]
+              - text: Đóng bàn
+        - generic [ref=e211]:
+          - heading "Chef" [level=3] [ref=e215]
+          - list [ref=e217]:
+            - listitem [ref=e218]:
+              - img [ref=e219]
+              - text: Màn hình KDS bếp
+            - listitem [ref=e222]:
+              - img [ref=e223]
+              - text: Xác nhận hoàn thành
+            - listitem [ref=e226]:
+              - img [ref=e227]
+              - text: Cảnh báo khẩn cấp
+            - listitem [ref=e230]:
+              - img [ref=e231]
+              - text: Lịch sử đơn
+    - generic [ref=e235]:
+      - heading "Sẵn Sàng Chạy?" [level=2] [ref=e236]
+      - paragraph [ref=e237]: Hệ thống đã được triển khai đầy đủ. Đăng nhập vào dashboard để bắt đầu quản lý quán.
+      - generic [ref=e238]:
+        - link "Vào Admin Dashboard" [ref=e239] [cursor=pointer]:
+          - /url: /admin
+          - img
+          - text: Vào Admin Dashboard
+        - link "Xem Demo Khách" [ref=e240] [cursor=pointer]:
+          - /url: /table/1
+          - img
+          - text: Xem Demo Khách
+    - contentinfo [ref=e241]:
+      - generic [ref=e242]:
+        - generic [ref=e243]:
+          - img [ref=e245]
+          - generic [ref=e248]: Bánh Cuốn POS
+        - paragraph [ref=e249]: © 2026 · Hệ thống QR Ordering + POS + KDS
+        - generic [ref=e250]:
+          - link "Admin" [ref=e251] [cursor=pointer]:
+            - /url: /admin
+          - link "Demo Khách" [ref=e252] [cursor=pointer]:
+            - /url: /table/1
+          - link "Đăng Nhập" [ref=e253] [cursor=pointer]:
+            - /url: /auth/login
+  - region "Notifications alt+T"
+  - alert [ref=e254]

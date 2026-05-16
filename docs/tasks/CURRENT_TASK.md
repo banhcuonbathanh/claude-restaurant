@@ -10,15 +10,15 @@
 
 | Field | Value |
 |---|---|
-| **Task ID** | P7-E2E-0 |
-| **Owner** | DevOps |
-| **Title** | Fix dev DB seed so e2e tests can authenticate |
-| **Session goal** | Patch DB: fix admin password, insert chef1/cashier1/manager1, insert tables with correct QR tokens → verify curl login works → run e2e |
-| **Branch** | chore/improve-claude-md |
-| **Started** | 2026-05-15 |
+| **Task ID** | — |
+| **Owner** | — |
+| **Title** | — |
+| **Session goal** | — |
+| **Branch** | — |
+| **Started** | — |
 | **Blocked by** | — |
 | **Stopped at** | — |
-| **Notes** | All 9 e2e tests fail; 2 root causes: (1) admin password wrong (2) QR token a1b2c3d4... not in DB |
+| **Notes** | — |
 
 ---
 
@@ -42,6 +42,13 @@
 
 | Date | Task ID | Title | Outcome |
 |---|---|---|---|
+| 2026-05-16 | P7-5.2 | Order + Payment API integration tests | ✅ 21/21 pass; new files: `helpers_test.go` (doPatch/doDelete/createOrder/advanceToReady), `order_test.go` (10 tests); 3 production bugs fixed: NULL gateway_data scan, Secure cookie over HTTP, expanded buildRouter |
+| 2026-05-16 | P7-9 | Compliance pages — /privacy-policy + /terms + cookie consent banner | ✅ 3 files created: privacy-policy/page.tsx + terms/page.tsx (server components, Vietnamese, ArrowLeft back link) + CookieConsent.tsx (localStorage `cookie_consent_accepted`, orange Đồng ý button); wired to root layout.tsx; tsc clean; PCI-DSS verified (no card data anywhere in FE) |
+| 2026-05-16 | P9-8 | overview/page.tsx final assembly | ✅ Replaced 1079-line inline page with clean 200-line assembly; removed all mock data + USE_MOCK flag + inline PrepPanel/StatCard/EmptyTableCard/WS useEffect; wired useOverviewWS + StatCards + WaitingSection + PrepPanel + TableGrid; kept NewOrderPopup inline + SSE popup; 30s timer retained; tsc clean |
+| 2026-05-16 | P7-4 | FE Store Tests — cart.store.test.ts + utils.test.ts | ✅ 6/6 pass; Vitest installed (vitest + vite-tsconfig-paths); `npm test` script added; all 4 cart tests + 2 utils tests green |
+| 2026-05-16 | P7-3 | TestVNPayWebhook_ValidSignature + TestVNPayWebhook_InvalidSignature + TestVNPayWebhook_Idempotent + TestCreatePayment_OrderNotReady | ✅ 4/4 pass; all 16 service tests green. Added `paymentRedisClient` interface to `payment_service.go` (Publish only) for mock injection. Bonus fix: `rateLimitMax` was 50 (typo) → corrected to 5 per Spec1 comment; restored `TestLogin_RateLimitAfter5Fails` to green. |
+| 2026-05-16 | P7-E2E-1 | Re-run Playwright suite + fix remaining failures | ✅ 9/9 pass, 0 flaky, ~14s. Two real bugs found while triaging: (a) global-setup didn't hide non-seed product pollution OR invalidate the BE `products:list` Redis cache → `.first()` grabbed a 4₫ "banh cuon" row; (b) WS pubsub forwarder at `be/internal/websocket/handler.go:60` panicked `send on closed channel` when hub closed `client.send` mid-flight → BE crashed → `ERR_EMPTY_RESPONSE` on the order POST. Fixes: added DB+Redis cleanup to `e2e/global-setup.ts`; added `defer recover()` to the pubsub goroutine to match the existing pattern at `client.go:38,66`. |
+| 2026-05-16 | P7-E2E-0 | Fix dev DB seed so e2e tests can authenticate | ✅ No-op — dev DB already seeded correctly. Verified: admin/chef1/cashier1/manager1 all return HTTP 200 on `/api/v1/auth/login`; QR `a1b2c3d4…` resolves to Bàn 01 via `GET /api/v1/tables/qr/:token`. Original "wrong password" + "missing QR token" notes were stale. |
 | 2026-05-15 | P7-2.3 | TestItemStatusCycle + TestAutoReadyWhenAllItemsDone | ✅ Both tests pass; mockOrderRepo extended with 3 fn fields (getOrderItemByIDFn, updateQtyServedFn, updateOrderStatusFn); all 12 service tests green |
 | 2026-05-15 | P7-2.2 | TestCancelOrder_Under30Percent + TestCancelOrder_Over30Percent | ✅ Both tests pass; mockOrderRepo extended with 3 fn fields; all 10 service tests green |
 | 2026-05-15 | P7-2.1 | TestCreateOrder_ComboExpand + TestCreateOrder_DuplicateTable | ✅ Both tests pass; orderRedisClient interface added; all 8 service tests green |

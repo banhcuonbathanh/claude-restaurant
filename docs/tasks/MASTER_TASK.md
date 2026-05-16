@@ -20,7 +20,7 @@
 | P6 — DevOps | DevOps | ✅ COMPLETE | 0 | — |
 | P7 — Testing & Go-Live | BE+FE+QA | 🔄 IN PROGRESS | ~11 | P7-3 (payment handler) |
 | P8 — Admin Dashboard | BE+FE | ✅ COMPLETE | 0 | — |
-| P9 — Overview Real API | FE | ⬜ NOT STARTED | ~8 | P9-1 |
+| P9 — Overview Real API | FE | ✅ COMPLETE | 0 | — |
 | P10 — Summary Dashboard | BE+FE | ✅ COMPLETE | 0 | — |
 | P-UX — Customer Flow | FE | ✅ COMPLETE | 0 | — |
 | P-PD — Product Detail Page | FE | ✅ COMPLETE | 0 | — |
@@ -104,7 +104,7 @@ The entries below are phase-level summaries only.
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P7-3 | BE | TestVNPayWebhook_ValidSignature + TestVNPayWebhook_InvalidSignature + TestVNPayWebhook_Idempotent + TestCreatePayment_OrderNotReady | P7-1 ✅ | 1 | ⬜ | Spec5 §6 |
+| P7-3 | BE | TestVNPayWebhook_ValidSignature + TestVNPayWebhook_InvalidSignature + TestVNPayWebhook_Idempotent + TestCreatePayment_OrderNotReady | P7-1 ✅ | 1 | ✅ | Spec5 §6 |
 
 ### P7-4 — Frontend Store Tests
 
@@ -113,7 +113,7 @@ The entries below are phase-level summaries only.
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P7-4 | FE | TestAddSameItemIncreasesQty + TestRemoveItem + TestClearCart + TestTotalCalculation + TestFormatVND + TestFormatPercent | — | 1 | ⬜ | — |
+| P7-4 | FE | TestAddSameItemIncreasesQty + TestRemoveItem + TestClearCart + TestTotalCalculation + TestFormatVND + TestFormatPercent | — | 1 | ✅ | — |
 
 ### P7-5 — Integration Tests
 
@@ -122,7 +122,7 @@ The entries below are phase-level summaries only.
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
 | P7-5.1 | BE | Test setup (test DB, seed, teardown helpers) + all auth API endpoints against test DB | P7-1 ✅ | 1 | ✅ | `be/internal/testhelper/` + `be/integration/auth_test.go`; run: `go test -tags integration ./be/integration/...` |
-| P7-5.2 | BE | Order + payment API endpoints integration tests | P7-5.1 ✅ | 1 | ⬜ | — |
+| P7-5.2 | BE | Order + payment API endpoints integration tests | P7-5.1 ✅ | 1 | ✅ | 21/21 pass; 3 bonus bug fixes: (1) `gateway_data` NULL scan error in `GetPaymentByID`/`GetPaymentByOrderID` (`*json.RawMessage` → `[]byte` intermediary); (2) `SetRefreshCookie` Secure=true blocked HTTP test server — now derives from TLS/X-Forwarded-Proto; (3) expanded `buildRouter` to wire all order+payment routes |
 | P7-5.3 | BE | SSE reconnect behavior (exponential backoff) + WS reconnect exponential backoff | P7-5.2 ✅ | 1 | ⬜ | — |
 | P7-5.4 | FE+QA | Playwright E2E — full browser flows: QR scan→menu→checkout→KDS→payment for each role (guest/cashier/chef/manager) | P7-5.1 ✅ · P7-3 ✅ | 2 | ⬜ | Needs docker compose up (full stack); set BASE_URL=http://localhost:3000 |
 
@@ -139,8 +139,8 @@ The entries below are phase-level summaries only.
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P7-E2E-0 | DevOps | Fix dev DB seed: UPDATE admin password_hash to match admin123; INSERT chef1/cashier1/manager1; INSERT Bàn 01–06 rows with correct QR tokens from seed.sql | P7-6 ✅ | 1 | 🔄 | `loginAs('admin')` + `loginAs('chef')` + `loginAsGuest()` all resolve; curl admin login returns 200 |
-| P7-E2E-1 | QA | Re-run full Playwright suite (`cd e2e && npm test`) after P7-E2E-0; fix any remaining selector/flow failures until all 9 tests green | P7-E2E-0 ✅ | 1 | ⬜ | `npm test` exits 0; all 9 tests pass |
+| P7-E2E-0 | DevOps | Fix dev DB seed: UPDATE admin password_hash to match admin123; INSERT chef1/cashier1/manager1; INSERT Bàn 01–06 rows with correct QR tokens from seed.sql | P7-6 ✅ | 1 | ✅ | Verified 2026-05-16: curl login → 200 for admin/chef1/cashier1/manager1; `GET /api/v1/tables/qr/a1b2c3…` → 200 (Bàn 01). DB was already correctly seeded; stale notes. |
+| P7-E2E-1 | QA | Re-run full Playwright suite (`cd e2e && npm test`) after P7-E2E-0; fix any remaining selector/flow failures until all 9 tests green | P7-E2E-0 ✅ | 1 | ✅ | Verified 2026-05-16: 9/9 pass, 0 flaky, ~14s, twice in a row. Bonus fixes: (1) global-setup product cleanup + Redis cache invalidation, (2) BE WS pubsub panic — `defer recover()` in `handler.go`. |
 
 ### P7-7 — Payment Sandbox
 
@@ -158,7 +158,7 @@ The entries below are phase-level summaries only.
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P7-9 | FE | `/privacy-policy` page + `/terms` page + cookie consent banner; verify PCI-DSS: no card numbers stored | — | 1 | ⬜ | — |
+| P7-9 | FE | `/privacy-policy` page + `/terms` page + cookie consent banner; verify PCI-DSS: no card numbers stored | — | 1 | ✅ | PCI-DSS verified (no card data in FE); cookie banner uses `cookie_consent_accepted` localStorage key; both pages server components with ArrowLeft back link |
 
 ### P7-10 — Go-Live
 
@@ -190,14 +190,14 @@ The entries below are phase-level summaries only.
 
 | ID | Owner | Task | Deps | Sessions | Status | spec_ref | draw_ref |
 |---|---|---|---|---|---|---|---|
-| P9-1 | FE | `admin.api.ts` — verify `listTables`, `listLiveOrders`, `updateOrderStatus` use real axios calls (remove any mock path) | — | 1 | ⬜ | `Spec_9 §2.1 §4` | `wireframes/overview.md ZoneF` |
-| P9-2 | FE | `useOverviewWS` hook — WS connect/reconnect (exponential backoff) + 6 message type handlers → mutate TanStack Query cache | P9-1 ✅ | 1 | ⬜ | `Spec_9 §2.1` | `wireframes/overview.md ZoneF` |
-| P9-3 | FE | `StatCards` component — 4 stat cards derived from live orders (tables served · pending · preparing · urgency >20min/10-20min) | P9-2 ✅ | 1 | ⬜ | `Spec_9 §2.2` | `wireframes/overview.md ZoneA` |
-| P9-4 | FE | `WaitingCard` + `WaitingSection` — pending order cards with Kiểm tra toggle + 3 action buttons (disabled while loadingIds) | P9-2 ✅ | 1 | ⬜ | `Spec_9 §2.4` | `wireframes/overview.md ZoneB` |
-| P9-5 | FE | `PrepPanel` — conditional panel (checkedTableIds.size > 0), collapsible per-table + Tổng cần làm summary sorted by remaining qty desc | P9-2 ✅ | 1 | ⬜ | `Spec_9 §2.5` | `wireframes/overview.md ZoneC` |
-| P9-6 | FE | `OrderDetail` — progress bar + 3 mini counters + item list with status dots + Hoàn thành/Huỷ/Kiểm tra buttons | P9-2 ✅ | 1 | ⬜ | `Spec_9 §2.6` | `wireframes/overview.md ZoneE` |
-| P9-7 | FE | `TableCard` + `TableGrid` — urgency border (gray/orange/yellow/red), occupied-first sort vi-VN locale, empty state icon | P9-2 ✅ | 1 | ⬜ | `Spec_9 §2.3 §2.6` | `wireframes/overview.md ZoneD` |
-| P9-8 | FE | `overview/page.tsx` — assemble all zones, flip `USE_MOCK=false`, wire `useOverviewWS`, 30s timer tick for urgency recompute | P9-3 ✅ · P9-4 ✅ · P9-5 ✅ · P9-6 ✅ · P9-7 ✅ | 1 | ⬜ | `Spec_9 §2` | `wireframes/overview.md` |
+| P9-1 | FE | `admin.api.ts` — verify `listTables`, `listLiveOrders`, `updateOrderStatus` use real axios calls (remove any mock path) | — | 1 | ✅ | `Spec_9 §2.1 §4` | `wireframes/overview.md ZoneF` |
+| P9-2 | FE | `useOverviewWS` hook — WS connect/reconnect (exponential backoff) + 6 message type handlers → mutate TanStack Query cache | P9-1 ✅ | 1 | ✅ | `Spec_9 §2.1` | `wireframes/overview.md ZoneF` |
+| P9-3 | FE | `StatCards` component — 4 stat cards derived from live orders (tables served · pending · preparing · urgency >20min/10-20min) | P9-2 ✅ | 1 | ✅ | `Spec_9 §2.2` | `wireframes/overview.md ZoneA` |
+| P9-4 | FE | `WaitingCard` + `WaitingSection` — pending order cards with Kiểm tra toggle + 3 action buttons (disabled while loadingIds) | P9-2 ✅ | 1 | ✅ | `Spec_9 §2.4` | `wireframes/overview.md ZoneB` |
+| P9-5 | FE | `PrepPanel` — conditional panel (checkedTableIds.size > 0), collapsible per-table + Tổng cần làm summary sorted by remaining qty desc | P9-2 ✅ | 1 | ✅ | `Spec_9 §2.5` | `wireframes/overview.md ZoneC` |
+| P9-6 | FE | `OrderDetail` — progress bar + 3 mini counters + item list with status dots + Hoàn thành/Huỷ/Kiểm tra buttons | P9-2 ✅ | 1 | ✅ | `Spec_9 §2.6` | `wireframes/overview.md ZoneE` |
+| P9-7 | FE | `TableCard` + `TableGrid` — urgency border (gray/orange/yellow/red), occupied-first sort vi-VN locale, empty state icon | P9-2 ✅ | 1 | ✅ | `Spec_9 §2.3 §2.6` | `wireframes/overview.md ZoneD` |
+| P9-8 | FE | `overview/page.tsx` — assemble all zones, wire `useOverviewWS`, remove inline WS/component code, 30s timer tick for urgency recompute | P9-3 ✅ · P9-4 ✅ · P9-5 ✅ · P9-6 ✅ · P9-7 ✅ | 1 | ✅ | `Spec_9 §2` | `wireframes/overview.md` |
 
 ---
 

@@ -58,6 +58,11 @@ func wsHandler(hub *Hub, rdb *redis.Client, channel string) gin.HandlerFunc {
 		// Subscribe to Redis channel and forward to this client.
 		ctx, cancel := context.WithCancel(c.Request.Context())
 		go func() {
+			// client.send is closed by Hub.Run when the client unregisters
+			// (hub.go:42, hub.go:53); a pubsub message arriving in the same
+			// window panics on send-to-closed. recover() matches the existing
+			// convention in client.go:38 + client.go:66.
+			defer func() { _ = recover() }()
 			defer cancel()
 			pubsub := rdb.Subscribe(ctx, channel)
 			defer pubsub.Close()

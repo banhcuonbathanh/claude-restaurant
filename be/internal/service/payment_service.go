@@ -18,12 +18,17 @@ import (
 	"banhcuon/be/internal/repository"
 )
 
+// paymentRedisClient is the minimal Redis interface required by PaymentService.
+type paymentRedisClient interface {
+	Publish(ctx context.Context, channel string, message interface{}) *redis.IntCmd
+}
+
 // PaymentService handles payment creation and webhook processing.
 type PaymentService struct {
 	repo        repository.PaymentRepository
 	orderReader OrderReader
 	orderWriter OrderWriter
-	rdb         *redis.Client
+	rdb         paymentRedisClient
 }
 
 // NewPaymentService creates a PaymentService.
@@ -31,7 +36,7 @@ func NewPaymentService(
 	repo repository.PaymentRepository,
 	orderReader OrderReader,
 	orderWriter OrderWriter,
-	rdb *redis.Client,
+	rdb paymentRedisClient,
 ) *PaymentService {
 	return &PaymentService{
 		repo:        repo,

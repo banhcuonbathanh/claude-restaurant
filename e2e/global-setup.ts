@@ -54,6 +54,26 @@ export default async function globalSetup() {
     ")"
   )
 
+  // 2b. Hide non-seed products + combos. Prior dev/API tests left rows like
+  //     'banh cuon' @ 4₫ at sort_order=0, which made the menu's first card a
+  //     non-seed product and broke tests that use .first() to add to cart.
+  //     Seed UUIDs start with 44444444- (products) and 66666666- (combos).
+  mysql("UPDATE products SET is_available = 0 WHERE id NOT LIKE '44444444-%'")
+  mysql("UPDATE combos   SET is_available = 0 WHERE id NOT LIKE '66666666-%'")
+  // Ensure seed rows are visible (idempotent — handles a previous run flipping them off).
+  mysql("UPDATE products SET is_available = 1 WHERE id LIKE '44444444-%'")
+  mysql("UPDATE combos   SET is_available = 1 WHERE id LIKE '66666666-%'")
+
+  // 2c. Invalidate BE catalog caches. ProductService caches the public list in
+  //     Redis (products:list, categories:list, combos:list, toppings:list), so
+  //     the DB flip above is invisible to /api/v1/products until we delete
+  //     these keys — which is the cause of the "1× banh cuon @ 4₫" flake.
+  try {
+    redis('del products:list categories:list combos:list toppings:list')
+  } catch {
+    // Non-fatal: cache may not exist on first run
+  }
+
   // 3. Clear login rate-limit keys so parallel admin beforeEach hooks don't hit 429
   try {
     const keys = redis('keys "ratelimit:*"').toString().trim()

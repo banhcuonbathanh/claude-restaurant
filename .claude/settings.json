@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(sqlc generate *)"
+      "Bash(sqlc generate *)",
+      "Bash(git stash *)",
+      "Bash(TEST_DB_DSN=\"banhcuon:banhcuonpass@tcp\\(localhost:3306\\)/banhcuon_test?parseTime=true&charset=utf8mb4\" TEST_REDIS_ADDR=\"localhost:6379\" go test -tags integration -v -count=1 ./be/integration/...)",
+      "Bash(TEST_DB_DSN=\"banhcuon:banhcuonpass@tcp\\(localhost:3306\\)/banhcuon_test?parseTime=true&charset=utf8mb4\" TEST_REDIS_ADDR=\"localhost:6379\" go test -tags integration -v -count=1 -run TestIntegration_Payment_Get ./be/integration/...)",
+      "Bash(TEST_DB_DSN=\"banhcuon:banhcuonpass@tcp\\(localhost:3306\\)/banhcuon_test?parseTime=true&charset=utf8mb4\" TEST_REDIS_ADDR=\"localhost:6379\" go test -tags integration -v -count=1 -run \"TestIntegration_Refresh_ValidCookie|TestIntegration_Payment_Get\" ./be/integration/...)",
+      "Skill(excalidraw)",
+      "Skill(excalidraw:*)"
     ]
   }
 }

@@ -44,6 +44,8 @@ LIMIT 1
 func (q *Queries) GetPaymentByID(ctx context.Context, id string) (Payment, error) {
 	row := q.db.QueryRowContext(ctx, getPaymentByID, id)
 	var i Payment
+	// database/sql cannot scan NULL into *json.RawMessage; use []byte intermediary.
+	var gatewayData []byte
 	err := row.Scan(
 		&i.ID,
 		&i.OrderID,
@@ -52,7 +54,7 @@ func (q *Queries) GetPaymentByID(ctx context.Context, id string) (Payment, error
 		&i.Amount,
 		&i.AttemptCount,
 		&i.GatewayRef,
-		&i.GatewayData,
+		&gatewayData,
 		&i.RefundedAmount,
 		&i.ExpiresAt,
 		&i.PaidAt,
@@ -60,6 +62,7 @@ func (q *Queries) GetPaymentByID(ctx context.Context, id string) (Payment, error
 		&i.UpdatedAt,
 		&i.DeletedAt,
 	)
+	i.GatewayData = json.RawMessage(gatewayData)
 	return i, err
 }
 
@@ -72,6 +75,8 @@ LIMIT 1
 func (q *Queries) GetPaymentByOrderID(ctx context.Context, orderID string) (Payment, error) {
 	row := q.db.QueryRowContext(ctx, getPaymentByOrderID, orderID)
 	var i Payment
+	// database/sql cannot scan NULL into *json.RawMessage; use []byte intermediary.
+	var gatewayData []byte
 	err := row.Scan(
 		&i.ID,
 		&i.OrderID,
@@ -80,7 +85,7 @@ func (q *Queries) GetPaymentByOrderID(ctx context.Context, orderID string) (Paym
 		&i.Amount,
 		&i.AttemptCount,
 		&i.GatewayRef,
-		&i.GatewayData,
+		&gatewayData,
 		&i.RefundedAmount,
 		&i.ExpiresAt,
 		&i.PaidAt,
@@ -88,6 +93,7 @@ func (q *Queries) GetPaymentByOrderID(ctx context.Context, orderID string) (Paym
 		&i.UpdatedAt,
 		&i.DeletedAt,
 	)
+	i.GatewayData = json.RawMessage(gatewayData)
 	return i, err
 }
 
