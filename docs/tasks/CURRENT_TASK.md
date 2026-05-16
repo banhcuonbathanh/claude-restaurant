@@ -10,15 +10,15 @@
 
 | Field | Value |
 |---|---|
-| **Task ID** | — |
-| **Owner** | — |
-| **Title** | — |
-| **Session goal** | — |
-| **Branch** | — |
-| **Started** | — |
+| **Task ID** | P7-5.3 |
+| **Owner** | BE |
+| **Title** | SSE reconnect behavior + WS reconnect integration tests |
+| **Session goal** | Write `be/integration/realtime_test.go` — 4 SSE tests + 4 WS tests; add SSE+WS routes to `buildRouter` in testhelper.go |
+| **Branch** | chore/improve-claude-md |
+| **Started** | 2026-05-16 |
 | **Blocked by** | — |
 | **Stopped at** | — |
-| **Notes** | — |
+| **Notes** | Deps: P7-5.2 ✅ |
 
 ---
 

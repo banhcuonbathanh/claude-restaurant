@@ -28,6 +28,8 @@ import (
 	"banhcuon/be/internal/middleware"
 	"banhcuon/be/internal/repository"
 	"banhcuon/be/internal/service"
+	"banhcuon/be/internal/sse"
+	ws "banhcuon/be/internal/websocket"
 	bcryptpkg "banhcuon/be/pkg/bcrypt"
 )
 
@@ -230,6 +232,13 @@ func buildRouter(sqlDB *sql.DB, rdb *redis.Client) *gin.Engine {
 	orderR.GET("/:id", orderH.Get)
 	orderR.PATCH("/:id/status", middleware.AtLeast("chef"), orderH.UpdateStatus)
 	orderR.DELETE("/:id", orderH.Cancel)
+	orderR.GET("/:id/events", sse.StreamOrder(rdb))
+
+	// WebSocket (hub runs for the lifetime of the test server)
+	hub := ws.NewHub()
+	go hub.Run()
+	wsR := v1.Group("/ws")
+	wsR.GET("/kds", ws.KDSHandler(hub, rdb))
 
 	// Payments
 	payR := v1.Group("/payments")
