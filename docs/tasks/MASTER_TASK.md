@@ -25,6 +25,7 @@
 | P-UX — Customer Flow | FE | ✅ COMPLETE | 0 | — |
 | P-PD — Product Detail Page | FE | ✅ COMPLETE | 0 | — |
 | P-UX2 — Customer UX Enhancements | FE | ✅ COMPLETE | 0 | — |
+| P-DIAGRAM — Full System Interaction Map | Docs | ✅ COMPLETE | 0 | — |
 | P11 — Add Items to Existing Order | Full | 🔄 IN PROGRESS | ~5 | P11-2 |
 
 ---
@@ -303,6 +304,20 @@ The entries below are phase-level summaries only.
 | ID | Owner | Task | Deps | Sessions | Status | spec_ref | draw_ref |
 |---|---|---|---|---|---|---|---|
 | P11-6 | FE | (1) Add `addItemsToOrder(orderId, items)` to `api-client.ts`; (2) add "Thêm món" button to customer order tracking page (`order/[id]/page.tsx`) — visible only when order status ∈ {pending, confirmed, preparing}; (3) on click → push to `/menu?add_to_order={orderId}`; (4) in menu `page.tsx` detect `add_to_order` query param → on cart submit call `addItemsToOrder` instead of `createOrder`; (5) on success redirect back to `/order/{orderId}`; show toast "Đã thêm món thành công" | P11-4 ✅ | 1 | `Spec4 §5.2` | — |
+
+---
+
+## Phase P-DIAGRAM — Full System Interaction Map (All Actors)
+
+> **Owner:** Docs / BA
+> **Dependency:** P5 ✅ · P8 ✅ · P9 ✅ · P10 ✅ (all phases complete — diagram documents final system)
+> **Spec:** `docs/CLIENT_FLOW_DIAGRAMS.md` · `docs/core/MASTER_v1.2.md §3 §4 §5`
+> **Goal:** One Excalidraw swimlane diagram showing ALL 4 actor lanes (Customer · Chef · Cashier · Manager/Admin), all phases (Auth → Browse → Kitchen → Payment → Admin → Done), and all 6 cross-actor realtime interactions (SSE + WS events).
+> **Added:** 2026-05-17 · **Requested by:** owner
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P-DIAGRAM-1 | Docs | Draw `docs/fe/wireframes/flow-full-system-journey.excalidraw` — 4-lane swimlane: Customer (Guest) · Chef (KDS) · Cashier (POS) · Manager/Admin; 6 phase columns: Auth · Browse & Order · Kitchen · Payment · Admin Manage · Done; all intra-actor flows; 6 cross-actor realtime arrows (WS/SSE labelled and colour-coded) | P5 ✅ · P8 ✅ | 1 | ✅ | All actors visible; SSE events purple-dashed; WS events cyan-dashed; legend included |
 
 ---
 
