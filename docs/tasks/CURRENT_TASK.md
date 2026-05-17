@@ -42,6 +42,7 @@
 
 | Date | Task ID | Title | Outcome |
 |---|---|---|---|
+| 2026-05-16 | P11-2 | sqlc Queries + Repository Layer — AppendOrderItems | ✅ Added `AppendOrderItems(ctx, orderID, items) (string, error)` to `OrderRepository` interface + `orderRepo` impl; TX: loop CreateOrderItem → RecalculateTotalAmount → GetOrderByID → commit → return TotalAmount; no new SQL queries (existing queries sufficient); `go build ./...` clean |
 | 2026-05-16 | P11-1 | Add Items spec — POST /api/v1/orders/:id/items to Spec4 §5.2.1 | ✅ New section §5.2.1 written: request body, validation (status guard + ownership), response shape, 4 error codes, 8-step business rules (combo expand + recalc + SSE + KDS WS + orders-live WS events with full JSON schemas), 10-item AC checklist |
 | 2026-05-16 | P7-5.3 | SSE reconnect + WS reconnect integration tests | ✅ 8/8 pass; new file: `realtime_test.go` (TestSSE x4 + TestWS x4); added SSE+WS routes to `testhelper.go buildRouter`; verified reconnect x3 + event delivery via Redis publish for both SSE and WS |
 | 2026-05-16 | P7-5.2 | Order + Payment API integration tests | ✅ 21/21 pass; new files: `helpers_test.go` (doPatch/doDelete/createOrder/advanceToReady), `order_test.go` (10 tests); 3 production bugs fixed: NULL gateway_data scan, Secure cookie over HTTP, expanded buildRouter |
