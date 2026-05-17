@@ -26,6 +26,7 @@
 | P-PD — Product Detail Page | FE | ✅ COMPLETE | 0 | — |
 | P-UX2 — Customer UX Enhancements | FE | ✅ COMPLETE | 0 | — |
 | P-DIAGRAM — Full System Interaction Map | Docs | ✅ COMPLETE | 0 | — |
+| P-MENU — Menu Page Wireframe + Grid Redesign | FE | 🔄 IN PROGRESS | ~1 | P-MENU-2 |
 | P11 — Add Items to Existing Order | Full | 🔄 IN PROGRESS | ~5 | P11-2 |
 
 ---
@@ -304,6 +305,22 @@ The entries below are phase-level summaries only.
 | ID | Owner | Task | Deps | Sessions | Status | spec_ref | draw_ref |
 |---|---|---|---|---|---|---|---|
 | P11-6 | FE | (1) Add `addItemsToOrder(orderId, items)` to `api-client.ts`; (2) add "Thêm món" button to customer order tracking page (`order/[id]/page.tsx`) — visible only when order status ∈ {pending, confirmed, preparing}; (3) on click → push to `/menu?add_to_order={orderId}`; (4) in menu `page.tsx` detect `add_to_order` query param → on cart submit call `addItemsToOrder` instead of `createOrder`; (5) on success redirect back to `/order/{orderId}`; show toast "Đã thêm món thành công" | P11-4 ✅ | 1 | `Spec4 §5.2` | — |
+
+---
+
+## Phase P-MENU — Menu Page Wireframe + Grid Redesign
+
+> **Owner:** FE
+> **Dependency:** P5 ✅ · Spec_3 §4 verified
+> **Spec:** `docs/spec/Spec_3_Menu_Checkout_UI_v2.md §4`
+> **Wireframe:** `docs/fe/wireframes/menu.excalidraw` · `docs/fe/wireframes/menu.md`
+> **Gap fixed:** Previous impl used list layout; spec §4.1 requires 2-col product grid
+> **Added:** 2026-05-17
+
+| ID | Owner | Task | Deps | Sessions | Status | spec_ref | draw_ref |
+|---|---|---|---|---|---|---|---|
+| P-MENU-1 | FE | Wireframe + zone table (menu.excalidraw + menu.md) | — | 1 | ✅ | `Spec_3 §4` | `wireframes/menu.excalidraw` |
+| P-MENU-2 | FE | `ProductGridCard` component + update menu/page.tsx to 2-col grid | P-MENU-1 ✅ | 1 | ⬜ | `Spec_3 §4.1 §4.3` | `wireframes/menu.md Zone E` |
 
 ---
 
