@@ -1,0 +1,272 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Tổng quan" [ref=e6] [cursor=pointer]:
+          - /url: /admin/overview
+        - link "Tổng kết" [ref=e7] [cursor=pointer]:
+          - /url: /admin/summary
+        - link "Sản phẩm" [ref=e8] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Combo" [ref=e9] [cursor=pointer]:
+          - /url: /admin/combos
+        - link "Danh mục" [ref=e10] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e11] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e12] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Kho nguyên liệu" [ref=e13] [cursor=pointer]:
+          - /url: /admin/ingredients
+        - link "Marketing" [ref=e14] [cursor=pointer]:
+          - /url: /admin/marketing
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - heading "Tổng quan sàn" [level=2] [ref=e19]
+          - paragraph [ref=e20]: Tất cả bàn — cập nhật theo thời gian thực
+        - generic [ref=e24]: Live
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - paragraph [ref=e27]: Bàn đang phục vụ
+          - paragraph [ref=e28]: "4"
+          - paragraph [ref=e29]: / 11 bàn
+        - generic [ref=e30]:
+          - paragraph [ref=e31]: Món chờ làm
+          - paragraph [ref=e32]: "89"
+          - paragraph [ref=e33]: Chưa bắt đầu
+        - generic [ref=e34]:
+          - paragraph [ref=e35]: Món đang làm
+          - paragraph [ref=e36]: "0"
+          - paragraph [ref=e37]: Đang chế biến
+        - generic [ref=e38]:
+          - paragraph [ref=e39]: Khẩn cấp / Cảnh báo
+          - paragraph [ref=e40]: 24 / 0
+          - paragraph [ref=e41]: ">20 phút / 10–20 phút"
+      - generic [ref=e42]:
+        - generic [ref=e43]:
+          - paragraph [ref=e44]: Danh sách cần chuẩn bị
+          - paragraph [ref=e45]: 4 bàn · 4 loại món · 13 phần còn lại
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - button "BÃ n 01 ORD-20260515-0068 Chờ xác nhận" [ref=e48] [cursor=pointer]:
+              - generic [ref=e50]: BÃ n 01
+              - generic [ref=e51]: ORD-20260515-0068
+              - generic [ref=e52]: Chờ xác nhận
+              - img [ref=e53]
+            - generic [ref=e55]:
+              - generic [ref=e56]:
+                - generic [ref=e57]:
+                  - generic [ref=e59]: BÃ¡nh Cuá»‘n Thá»‹t
+                  - generic [ref=e60]: còn ×1
+                - paragraph [ref=e61]: 1 món · 1 phần còn lại
+              - generic [ref=e62]:
+                - button "🔍 Kiểm tra" [ref=e63] [cursor=pointer]
+                - button "Trạng thái ▼" [ref=e64] [cursor=pointer]
+                - button "▲" [ref=e65] [cursor=pointer]
+          - generic [ref=e66]:
+            - button "BÃ n 02 ORD-20260515-0069 Chờ xác nhận" [ref=e67] [cursor=pointer]:
+              - generic [ref=e69]: BÃ n 02
+              - generic [ref=e70]: ORD-20260515-0069
+              - generic [ref=e71]: Chờ xác nhận
+              - img [ref=e72]
+            - generic [ref=e74]:
+              - generic [ref=e75]:
+                - generic [ref=e76]:
+                  - generic [ref=e78]: BÃ¡nh Cuá»‘n Thá»‹t
+                  - generic [ref=e79]: còn ×1
+                - paragraph [ref=e80]: 1 món · 1 phần còn lại
+              - generic [ref=e81]:
+                - button "🔍 Kiểm tra" [ref=e82] [cursor=pointer]
+                - button "Trạng thái ▼" [ref=e83] [cursor=pointer]
+                - button "▲" [ref=e84] [cursor=pointer]
+          - generic [ref=e85]:
+            - button "BÃ n 03 ORD-20260515-0070 Chờ xác nhận" [ref=e86] [cursor=pointer]:
+              - generic [ref=e88]: BÃ n 03
+              - generic [ref=e89]: ORD-20260515-0070
+              - generic [ref=e90]: Chờ xác nhận
+              - img [ref=e91]
+            - generic [ref=e93]:
+              - generic [ref=e94]:
+                - generic [ref=e95]:
+                  - generic [ref=e97]: BÃ¡nh Cuá»‘n Thá»‹t
+                  - generic [ref=e98]: còn ×1
+                - paragraph [ref=e99]: 1 món · 1 phần còn lại
+              - generic [ref=e100]:
+                - button "🔍 Kiểm tra" [ref=e101] [cursor=pointer]
+                - button "Trạng thái ▼" [ref=e102] [cursor=pointer]
+                - button "▲" [ref=e103] [cursor=pointer]
+          - generic [ref=e104]:
+            - button "Ban 01 ORD-20260515-0001 Chờ xác nhận" [ref=e105] [cursor=pointer]:
+              - generic [ref=e107]: Ban 01
+              - generic [ref=e108]: ORD-20260515-0001
+              - generic [ref=e109]: Chờ xác nhận
+              - img [ref=e110]
+            - generic [ref=e112]:
+              - generic [ref=e113]:
+                - generic [ref=e114]:
+                  - generic [ref=e116]: gio
+                  - generic [ref=e117]: còn ×2
+                - generic [ref=e118]:
+                  - generic [ref=e120]: trung
+                  - generic [ref=e121]: còn ×2
+                - generic [ref=e122]:
+                  - generic [ref=e124]: banh cuon
+                  - generic [ref=e125]: còn ×6
+                - paragraph [ref=e126]: 3 món · 10 phần còn lại
+              - generic [ref=e127]:
+                - button "🔍 Kiểm tra" [ref=e128] [cursor=pointer]
+                - button "Trạng thái ▼" [ref=e129] [cursor=pointer]
+                - button "▲" [ref=e130] [cursor=pointer]
+      - generic [ref=e131]:
+        - generic [ref=e132]:
+          - paragraph [ref=e133]: Đang phục vụ
+          - paragraph [ref=e134]: 4 bàn đang có khách
+        - generic [ref=e135]:
+          - generic [ref=e136]:
+            - button "Tổng cần làm · 4 loại · 13 phần còn lại" [ref=e137] [cursor=pointer]:
+              - generic [ref=e138]: Tổng cần làm
+              - generic [ref=e139]: · 4 loại · 13 phần còn lại
+              - img [ref=e140]
+            - generic [ref=e142]:
+              - generic [ref=e143]:
+                - generic [ref=e144]: banh cuon
+                - generic [ref=e145]: Ban 01
+                - generic [ref=e146]: ×6
+              - generic [ref=e147]:
+                - generic [ref=e148]: BÃ¡nh Cuá»‘n Thá»‹t
+                - generic [ref=e149]: BÃ n 01, BÃ n 02, BÃ n 03
+                - generic [ref=e150]: ×3
+              - generic [ref=e151]:
+                - generic [ref=e152]: gio
+                - generic [ref=e153]: Ban 01
+                - generic [ref=e154]: ×2
+              - generic [ref=e155]:
+                - generic [ref=e156]: trung
+                - generic [ref=e157]: Ban 01
+                - generic [ref=e158]: ×2
+          - generic [ref=e159]:
+            - button "BÃ n 01 ORD-20260515-0068 Chờ xác nhận 45.000 ₫ 3755 phút" [ref=e160] [cursor=pointer]:
+              - generic [ref=e162]: BÃ n 01
+              - generic [ref=e163]: ORD-20260515-0068
+              - generic [ref=e164]: Chờ xác nhận
+              - generic [ref=e165]: 45.000 ₫
+              - generic [ref=e166]: 3755 phút
+              - img [ref=e167]
+            - generic [ref=e169]:
+              - generic [ref=e170]:
+                - generic [ref=e171]:
+                  - generic [ref=e173]: BÃ¡nh Cuá»‘n Thá»‹t
+                  - generic [ref=e174]:
+                    - generic [ref=e175]: tổng ×1
+                    - generic [ref=e176]: ra ×0
+                    - generic [ref=e177]: còn ×1
+                - paragraph [ref=e178]: 0/1 phần đã ra
+              - button "Trạng thái ▼" [ref=e179] [cursor=pointer]
+          - generic [ref=e180]:
+            - button "BÃ n 02 ORD-20260515-0069 Chờ xác nhận 45.000 ₫ 3755 phút" [ref=e181] [cursor=pointer]:
+              - generic [ref=e183]: BÃ n 02
+              - generic [ref=e184]: ORD-20260515-0069
+              - generic [ref=e185]: Chờ xác nhận
+              - generic [ref=e186]: 45.000 ₫
+              - generic [ref=e187]: 3755 phút
+              - img [ref=e188]
+            - generic [ref=e190]:
+              - generic [ref=e191]:
+                - generic [ref=e192]:
+                  - generic [ref=e194]: BÃ¡nh Cuá»‘n Thá»‹t
+                  - generic [ref=e195]:
+                    - generic [ref=e196]: tổng ×1
+                    - generic [ref=e197]: ra ×0
+                    - generic [ref=e198]: còn ×1
+                - paragraph [ref=e199]: 0/1 phần đã ra
+              - button "Trạng thái ▼" [ref=e200] [cursor=pointer]
+          - generic [ref=e201]:
+            - button "BÃ n 03 ORD-20260515-0070 Chờ xác nhận 45.000 ₫ 3755 phút" [ref=e202] [cursor=pointer]:
+              - generic [ref=e204]: BÃ n 03
+              - generic [ref=e205]: ORD-20260515-0070
+              - generic [ref=e206]: Chờ xác nhận
+              - generic [ref=e207]: 45.000 ₫
+              - generic [ref=e208]: 3755 phút
+              - img [ref=e209]
+            - generic [ref=e211]:
+              - generic [ref=e212]:
+                - generic [ref=e213]:
+                  - generic [ref=e215]: BÃ¡nh Cuá»‘n Thá»‹t
+                  - generic [ref=e216]:
+                    - generic [ref=e217]: tổng ×1
+                    - generic [ref=e218]: ra ×0
+                    - generic [ref=e219]: còn ×1
+                - paragraph [ref=e220]: 0/1 phần đã ra
+              - button "Trạng thái ▼" [ref=e221] [cursor=pointer]
+          - generic [ref=e222]:
+            - button "Ban 01 ORD-20260515-0001 Chờ xác nhận 120.000 ₫ 4777 phút" [ref=e223] [cursor=pointer]:
+              - generic [ref=e225]: Ban 01
+              - generic [ref=e226]: ORD-20260515-0001
+              - generic [ref=e227]: Chờ xác nhận
+              - generic [ref=e228]: 120.000 ₫
+              - generic [ref=e229]: 4777 phút
+              - img [ref=e230]
+            - generic [ref=e232]:
+              - generic [ref=e233]:
+                - generic [ref=e234]:
+                  - generic [ref=e236]: gio
+                  - generic [ref=e237]:
+                    - generic [ref=e238]: tổng ×2
+                    - generic [ref=e239]: ra ×0
+                    - generic [ref=e240]: còn ×2
+                - generic [ref=e241]:
+                  - generic [ref=e243]: trung
+                  - generic [ref=e244]:
+                    - generic [ref=e245]: tổng ×2
+                    - generic [ref=e246]: ra ×0
+                    - generic [ref=e247]: còn ×2
+                - generic [ref=e248]:
+                  - generic [ref=e250]: banh cuon
+                  - generic [ref=e251]:
+                    - generic [ref=e252]: tổng ×6
+                    - generic [ref=e253]: ra ×0
+                    - generic [ref=e254]: còn ×6
+                - paragraph [ref=e255]: 0/10 phần đã ra
+              - button "Trạng thái ▼" [ref=e256] [cursor=pointer]
+      - generic [ref=e257]:
+        - paragraph [ref=e258]: Bàn trống (7)
+        - generic [ref=e259]:
+          - generic [ref=e260]:
+            - generic [ref=e261]:
+              - paragraph [ref=e262]: BÃ n 04
+              - paragraph [ref=e263]: 2 chỗ
+            - generic [ref=e264]: Trống
+          - generic [ref=e265]:
+            - generic [ref=e266]:
+              - paragraph [ref=e267]: BÃ n 05
+              - paragraph [ref=e268]: 4 chỗ
+            - generic [ref=e269]: Trống
+          - generic [ref=e270]:
+            - generic [ref=e271]:
+              - paragraph [ref=e272]: BÃ n VIP
+              - paragraph [ref=e273]: 8 chỗ
+            - generic [ref=e274]: Trống
+          - generic [ref=e275]:
+            - generic [ref=e276]:
+              - paragraph [ref=e277]: Ban 02
+              - paragraph [ref=e278]: 4 chỗ
+            - generic [ref=e279]: Trống
+          - generic [ref=e280]:
+            - generic [ref=e281]:
+              - paragraph [ref=e282]: Ban 03
+              - paragraph [ref=e283]: 4 chỗ
+            - generic [ref=e284]: Trống
+          - generic [ref=e285]:
+            - generic [ref=e286]:
+              - paragraph [ref=e287]: Ban 04
+              - paragraph [ref=e288]: 4 chỗ
+            - generic [ref=e289]: Trống
+          - generic [ref=e290]:
+            - generic [ref=e291]:
+              - paragraph [ref=e292]: Ban 05
+              - paragraph [ref=e293]: 4 chỗ
+            - generic [ref=e294]: Trống
+  - region "Notifications alt+T"
+  - alert [ref=e295]
