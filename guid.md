@@ -174,3 +174,12 @@ npm run test:admin    # Flow 3 — 3 tests
 
 npm test              # All 9 at once
 npm run report        # Open HTML report after run
+
+
+Login works. The seed uses admin123, not Admin@123. All 4 accounts are now available:
+
+Username	Password	Role
+admin	admin123	admin
+manager1	manager123	manager
+chef1	chef1234	chef
+cashier1	cashier123	cashier
