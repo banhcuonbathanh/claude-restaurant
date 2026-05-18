@@ -1,0 +1,44 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - button "Quay lại" [ref=e3] [cursor=pointer]:
+      - img [ref=e4]
+    - generic [ref=e7]: 🍜
+    - generic [ref=e9]:
+      - heading "BÃ¡nh Cuá»‘n Tháºp Cáº©m" [level=1] [ref=e11]
+      - paragraph [ref=e12]: 55.000 ₫
+      - paragraph [ref=e13]: NhÃ¢n thá»‹t + tÃ´m + náº¥m mÃ¨o
+    - generic [ref=e14]:
+      - heading "Chọn topping (nhiều lựa chọn)" [level=2] [ref=e15]
+      - generic [ref=e16]:
+        - generic [ref=e17] [cursor=pointer]:
+          - checkbox "HÃ nh phi +5.000 ₫" [checked] [ref=e18]
+          - generic [ref=e19]: HÃ nh phi
+          - generic [ref=e20]: +5.000 ₫
+        - generic [ref=e21] [cursor=pointer]:
+          - checkbox "Ruá»‘c tÃ´m +10.000 ₫" [checked] [ref=e22]
+          - generic [ref=e23]: Ruá»‘c tÃ´m
+          - generic [ref=e24]: +10.000 ₫
+        - generic [ref=e25] [cursor=pointer]:
+          - checkbox "ThÃªm tÃ´m +25.000 ₫" [ref=e26]
+          - generic [ref=e27]: ThÃªm tÃ´m
+          - generic [ref=e28]: +25.000 ₫
+        - generic [ref=e29] [cursor=pointer]:
+          - checkbox "ThÃªm thá»‹t +20.000 ₫" [ref=e30]
+          - generic [ref=e31]: ThÃªm thá»‹t
+          - generic [ref=e32]: +20.000 ₫
+        - generic [ref=e33] [cursor=pointer]:
+          - checkbox "Trá»©ng chiÃªn +15.000 ₫" [checked] [active] [ref=e34]
+          - generic [ref=e35]: Trá»©ng chiÃªn
+          - generic [ref=e36]: +15.000 ₫
+      - paragraph [ref=e48]: "Tổng: 55.000 ₫ + 30.000 ₫ = 85.000 ₫"
+    - generic [ref=e37]:
+      - generic [ref=e38]: Số lượng
+      - generic [ref=e39]:
+        - button "Giảm số lượng" [disabled] [ref=e40]:
+          - img [ref=e41]
+        - generic [ref=e42]: "1"
+        - button "Tăng số lượng" [ref=e43] [cursor=pointer]:
+          - img [ref=e44]
+    - button "Thêm vào giỏ hàng · 85.000 ₫" [ref=e51] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e47]

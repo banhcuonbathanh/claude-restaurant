@@ -1,0 +1,32 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - button "Quay lại" [ref=e3] [cursor=pointer]:
+      - img [ref=e4]
+    - generic [ref=e7]: 🍱
+    - generic [ref=e9]:
+      - 'heading "Combo Gia ÄÃ¬nh" [level=1] [ref=e11]'
+      - paragraph [ref=e12]: 160.000 ₫
+      - paragraph [ref=e13]: "BÃ¡nh Cuá»‘n Thá»‹t Ã—2 + Nem RÃ¡n Ã—2 + TrÃ Ä\x90Ã¡ Ã—2 â€” tiáº¿t kiá»‡m 20k"
+    - generic [ref=e14]:
+      - heading "Gồm có" [level=2] [ref=e15]
+      - list [ref=e16]:
+        - listitem [ref=e17]:
+          - generic [ref=e18]: ×2
+          - generic [ref=e19]: BÃ¡nh Cuá»‘n Thá»‹t
+        - listitem [ref=e20]:
+          - generic [ref=e21]: ×2
+          - generic [ref=e22]: Nem RÃ¡n
+        - listitem [ref=e23]:
+          - generic [ref=e24]: ×2
+          - generic [ref=e25]: "TrÃ Ä\x90Ã¡"
+    - generic [ref=e26]:
+      - generic [ref=e27]: Số lượng
+      - generic [ref=e28]:
+        - button "Giảm số lượng" [disabled] [ref=e29]:
+          - img [ref=e30]
+        - generic [ref=e31]: "1"
+        - button "Tăng số lượng" [ref=e32] [cursor=pointer]:
+          - img [ref=e33]
+    - button "Thêm vào giỏ hàng · 160.000 ₫" [ref=e35] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e36]
