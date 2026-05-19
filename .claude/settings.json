@@ -17,7 +17,8 @@
       "Bash(python3 -c ' *)",
       "Bash(python3)",
       "mcp__playwright__browser_resize",
-      "Bash(git diff *)"
+      "Bash(git diff *)",
+      "Bash(git checkout *)"
     ]
   }
 }
