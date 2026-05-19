@@ -10,7 +10,7 @@ import { ConnectionErrorBanner } from '@/components/shared/ConnectionErrorBanner
 import { api } from '@/lib/api-client'
 import { formatVND } from '@/lib/utils'
 import { useCartStore } from '@/store/cart'
-import type { OrderItem } from '@/types/order'
+import type { OrderItem, ToppingSnapshotEntry } from '@/types/order'
 
 interface CancelTarget {
   type:            'item' | 'combo-remaining' | 'order'
@@ -523,45 +523,67 @@ function DishRow({
   onCancel: () => void
 }) {
   const remaining = item.quantity - item.qty_served
+  const toppings  = (item.toppings_snapshot ?? []).filter(
+    (t: ToppingSnapshotEntry) => t.name && t.name.trim() !== ''
+  )
 
   return (
-    <div className={`flex items-center gap-2 px-4 py-2.5 border-t border-border/40 ${indent ? 'pl-6' : ''}`}>
-      {/* Bullet */}
-      <span className="w-1.5 h-1.5 rounded-full bg-muted-fg shrink-0" />
+    <div className={`border-t border-border/40 ${indent ? 'pl-6' : ''}`}>
+      <div className="flex items-center gap-2 px-4 py-2.5">
+        {/* Bullet */}
+        <span className="w-1.5 h-1.5 rounded-full bg-muted-fg shrink-0 mt-0.5" />
 
-      {/* Dish name */}
-      <span className="flex-1 text-sm text-foreground leading-snug min-w-0 truncate">
-        {item.name}
-      </span>
-
-      {/* tổng / ra / còn — inline */}
-      <div className="flex items-center gap-2 shrink-0 text-xs whitespace-nowrap">
-        <span className="text-muted-fg">
-          tổng <span className="text-foreground font-medium">×{item.quantity}</span>
-        </span>
-        <span className="text-muted-fg">
-          ra <span className="text-success font-medium">×{item.qty_served}</span>
-        </span>
-        {remaining > 0 ? (
-          <span className="bg-primary/20 text-primary font-semibold px-1.5 py-0.5 rounded">
-            còn ×{remaining}
+        {/* Dish name + toppings */}
+        <div className="flex-1 min-w-0">
+          <span className="text-sm text-foreground leading-snug block truncate">
+            {item.name}
           </span>
+          {toppings.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1">
+              {toppings.map((t: ToppingSnapshotEntry) => (
+                <span
+                  key={t.id}
+                  className="inline-flex items-center text-[10px] text-muted-fg bg-muted/60 px-1.5 py-0.5 rounded"
+                >
+                  + {t.name}
+                  {t.price > 0 && (
+                    <span className="ml-0.5 text-primary">&nbsp;{formatVND(t.price)}</span>
+                  )}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* tổng / ra / còn — inline */}
+        <div className="flex items-center gap-2 shrink-0 text-xs whitespace-nowrap">
+          <span className="text-muted-fg">
+            tổng <span className="text-foreground font-medium">×{item.quantity}</span>
+          </span>
+          <span className="text-muted-fg">
+            ra <span className="text-success font-medium">×{item.qty_served}</span>
+          </span>
+          {remaining > 0 ? (
+            <span className="bg-primary/20 text-primary font-semibold px-1.5 py-0.5 rounded">
+              còn ×{remaining}
+            </span>
+          ) : (
+            <span className="text-success font-medium">✓ xong</span>
+          )}
+        </div>
+
+        {/* Cancel button — same row, only when còn > 0 */}
+        {remaining > 0 && isActive ? (
+          <button
+            onClick={onCancel}
+            className="shrink-0 text-xs text-urgent border border-urgent/50 px-2 py-0.5 rounded-md hover:bg-red-900/20 transition-colors font-medium"
+          >
+            Huỷ
+          </button>
         ) : (
-          <span className="text-success font-medium">✓ xong</span>
+          <span className="w-[38px] shrink-0" />
         )}
       </div>
-
-      {/* Cancel button — same row, only when còn > 0 */}
-      {remaining > 0 && isActive ? (
-        <button
-          onClick={onCancel}
-          className="shrink-0 text-xs text-urgent border border-urgent/50 px-2 py-0.5 rounded-md hover:bg-red-900/20 transition-colors font-medium"
-        >
-          Huỷ
-        </button>
-      ) : (
-        <span className="w-[38px] shrink-0" /> // spacer to keep alignment
-      )}
     </div>
   )
 }

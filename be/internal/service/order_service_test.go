@@ -48,6 +48,7 @@ type mockOrderRepo struct {
 	getOrderItemByIDFn         func(ctx context.Context, id string) (db.OrderItem, error)
 	updateQtyServedFn          func(ctx context.Context, qty int32, itemID string) error
 	updateOrderStatusFn        func(ctx context.Context, status db.OrdersStatus, orderID string) error
+	appendOrderItemsFn         func(ctx context.Context, orderID string, items []repository.OrderItemRow) (string, error)
 }
 
 func (m *mockOrderRepo) CreateOrderWithItems(ctx context.Context, in repository.CreateOrderWithItemsInput) error {
@@ -108,6 +109,12 @@ func (m *mockOrderRepo) SumQtyServedAndQuantity(ctx context.Context, orderID str
 	}
 	return 0, 0, nil
 }
+func (m *mockOrderRepo) AppendOrderItems(ctx context.Context, orderID string, items []repository.OrderItemRow) (string, error) {
+	if m.appendOrderItemsFn != nil {
+		return m.appendOrderItemsFn(ctx, orderID, items)
+	}
+	return "0.00", nil
+}
 func (m *mockOrderRepo) SetOrderGroupID(_ context.Context, _, _ string) error  { return nil }
 func (m *mockOrderRepo) ClearOrderGroupID(_ context.Context, _ string) error   { return nil }
 func (m *mockOrderRepo) ListOrdersByGroupID(_ context.Context, _ string) ([]db.Order, error) {
@@ -139,6 +146,7 @@ var _ repository.TableRepository = (*mockTableRepo)(nil)
 type mockProductLookup struct {
 	getProductSnapshotFn func(ctx context.Context, productID string) (ProductSnapshot, error)
 	getComboSnapshotFn   func(ctx context.Context, comboID string) (ComboSnapshot, error)
+	getToppingSnapshotFn func(ctx context.Context, toppingID string) (ToppingSnapshot, error)
 }
 
 func (m *mockProductLookup) GetProductSnapshot(ctx context.Context, productID string) (ProductSnapshot, error) {
@@ -153,6 +161,13 @@ func (m *mockProductLookup) GetComboSnapshot(ctx context.Context, comboID string
 		return m.getComboSnapshotFn(ctx, comboID)
 	}
 	return ComboSnapshot{}, ErrNotFound
+}
+
+func (m *mockProductLookup) GetToppingSnapshot(ctx context.Context, toppingID string) (ToppingSnapshot, error) {
+	if m.getToppingSnapshotFn != nil {
+		return m.getToppingSnapshotFn(ctx, toppingID)
+	}
+	return ToppingSnapshot{ID: toppingID, Name: "Topping", Price: 5000}, nil
 }
 
 var _ ProductLookup = (*mockProductLookup)(nil)
@@ -420,6 +435,118 @@ func TestItemStatusCycle(t *testing.T) {
 	}
 	if !errors.Is(err, ErrInvalidInput) {
 		t.Fatalf("expected ErrInvalidInput, got %T: %v", err, err)
+	}
+}
+
+// TestAddItems_Success verifies that AddItemsToOrder appends items to a pending order,
+// returns the recalculated total from the repo, and reports the correct added count.
+func TestAddItems_Success(t *testing.T) {
+	const (
+		orderID = "order-add-ok"
+		tableID = "table-uuid-add"
+	)
+
+	appendCalled := false
+	repo := &mockOrderRepo{
+		getOrderByIDFn: func(_ context.Context, _ string) (db.Order, error) {
+			return db.Order{
+				ID:      orderID,
+				Status:  db.OrdersStatusPending,
+				TableID: sql.NullString{String: tableID, Valid: true},
+			}, nil
+		},
+		appendOrderItemsFn: func(_ context.Context, _ string, _ []repository.OrderItemRow) (string, error) {
+			appendCalled = true
+			return "130000.00", nil
+		},
+	}
+	svc := newTestOrderService(repo, &mockProductLookup{})
+
+	items := []CreateOrderItemInput{
+		{ProductID: "prod-1", Quantity: 1},
+		{ProductID: "prod-2", Quantity: 2},
+	}
+	result, err := svc.AddItemsToOrder(context.Background(), orderID, tableID, "customer", items)
+	if err != nil {
+		t.Fatalf("expected no error, got: %v", err)
+	}
+	if !appendCalled {
+		t.Fatal("expected AppendOrderItems to be called")
+	}
+	if result.AddedCount != len(items) {
+		t.Fatalf("AddedCount = %d, want %d", result.AddedCount, len(items))
+	}
+	if result.NewTotalAmount != "130000.00" {
+		t.Fatalf("NewTotalAmount = %q, want %q", result.NewTotalAmount, "130000.00")
+	}
+}
+
+// TestAddItems_StatusReady_Blocked verifies that AddItemsToOrder rejects with 409
+// ORDER_NOT_EDITABLE when the order status is 'ready' (Spec4 §5.2).
+func TestAddItems_StatusReady_Blocked(t *testing.T) {
+	const orderID = "order-add-blocked"
+
+	repo := &mockOrderRepo{
+		getOrderByIDFn: func(_ context.Context, _ string) (db.Order, error) {
+			return db.Order{
+				ID:     orderID,
+				Status: db.OrdersStatusReady,
+			}, nil
+		},
+	}
+	svc := newTestOrderService(repo, &mockProductLookup{})
+
+	_, err := svc.AddItemsToOrder(context.Background(), orderID, "staff-id", "cashier", []CreateOrderItemInput{
+		{ProductID: "prod-1", Quantity: 1},
+	})
+	if err == nil {
+		t.Fatal("expected ORDER_NOT_EDITABLE error, got nil")
+	}
+
+	var appErr *AppError
+	if !errors.As(err, &appErr) {
+		t.Fatalf("expected *AppError, got %T: %v", err, err)
+	}
+	if appErr.Code != "ORDER_NOT_EDITABLE" {
+		t.Fatalf("expected code ORDER_NOT_EDITABLE, got %q", appErr.Code)
+	}
+	if appErr.Status != 409 {
+		t.Fatalf("expected HTTP 409, got %d", appErr.Status)
+	}
+}
+
+// TestAddItems_WrongOwner verifies that a customer whose callerID does not match
+// the order's table_id receives a 403 FORBIDDEN error (Spec4 §5.2).
+func TestAddItems_WrongOwner(t *testing.T) {
+	const orderID = "order-add-forbidden"
+
+	repo := &mockOrderRepo{
+		getOrderByIDFn: func(_ context.Context, _ string) (db.Order, error) {
+			return db.Order{
+				ID:      orderID,
+				Status:  db.OrdersStatusPending,
+				TableID: sql.NullString{String: "table-A", Valid: true},
+			}, nil
+		},
+	}
+	svc := newTestOrderService(repo, &mockProductLookup{})
+
+	_, err := svc.AddItemsToOrder(context.Background(), orderID, "table-B", "customer", []CreateOrderItemInput{
+		{ProductID: "prod-1", Quantity: 1},
+	})
+	if err == nil {
+		t.Fatal("expected FORBIDDEN error, got nil")
+	}
+
+	var appErr *AppError
+	if !errors.As(err, &appErr) {
+		t.Fatalf("expected *AppError, got %T: %v", err, err)
+	}
+	if appErr.Code != "FORBIDDEN" {
+		t.Fatalf("expected code FORBIDDEN, got %q", appErr.Code)
+	}
+	if appErr.Status != 403 {
+		t.Fatalf("expected HTTP 403, got %d", appErr.Status)
 	}
 }
 

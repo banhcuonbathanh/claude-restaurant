@@ -280,14 +280,16 @@ func (s *OrderService) buildProductRow(ctx context.Context, item CreateOrderItem
 		return repository.OrderItemRow{}, fmt.Errorf("order: product %s: %w", item.ProductID, err)
 	}
 
-	// Build toppings snapshot
+	// Build toppings snapshot with name+price for display on the order page.
 	toppingsJSON, _ := json.Marshal([]toppingSnapshotEntry{})
 	if len(item.ToppingIDs) > 0 {
-		// We only have IDs here; the snapshot is stored for record-keeping.
-		// In a real implementation, fetch topping details. For now store IDs.
 		entries := make([]toppingSnapshotEntry, 0, len(item.ToppingIDs))
 		for _, tid := range item.ToppingIDs {
-			entries = append(entries, toppingSnapshotEntry{ID: tid})
+			snap, err := s.productLookup.GetToppingSnapshot(ctx, tid)
+			if err != nil {
+				continue // skip unknown/unavailable toppings gracefully
+			}
+			entries = append(entries, toppingSnapshotEntry{ID: snap.ID, Name: snap.Name, Price: snap.Price})
 		}
 		toppingsJSON, _ = json.Marshal(entries)
 	}
@@ -338,6 +340,70 @@ func (s *OrderService) expandCombo(ctx context.Context, orderID string, item Cre
 		})
 	}
 	return rows, nil
+}
+
+// ─── AddItemsToOrder ─────────────────────────────────────────────────────────
+
+// AddItemsToOrderResult carries the service response for P11-4 handler use.
+type AddItemsToOrderResult struct {
+	AddedCount     int
+	NewTotalAmount string
+}
+
+// AddItemsToOrder appends new items to an existing active order (Spec4 §5.2).
+func (s *OrderService) AddItemsToOrder(ctx context.Context, orderID, callerID, callerRole string, items []CreateOrderItemInput) (AddItemsToOrderResult, error) {
+	// 1. Fetch order
+	o, err := s.repo.GetOrderByID(ctx, orderID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return AddItemsToOrderResult{}, ErrNotFound
+		}
+		return AddItemsToOrderResult{}, fmt.Errorf("addItems: get order: %w", err)
+	}
+
+	// 2. Ownership check — customers identify by table_id, not staff id
+	if callerRole == "customer" {
+		if !o.TableID.Valid || o.TableID.String != callerID {
+			return AddItemsToOrderResult{}, ErrForbidden
+		}
+	}
+
+	// 3. Status guard — only editable before kitchen finishes
+	switch o.Status {
+	case db.OrdersStatusPending, db.OrdersStatusConfirmed, db.OrdersStatusPreparing:
+		// allowed
+	default:
+		return AddItemsToOrderResult{}, NewAppError(409, "ORDER_NOT_EDITABLE", "Đơn hàng không thể thêm món ở trạng thái hiện tại")
+	}
+
+	// 4. Build item rows (with combo expansion)
+	var rows []repository.OrderItemRow
+	for _, item := range items {
+		if item.ComboID != "" {
+			comboRows, err := s.expandCombo(ctx, orderID, item)
+			if err != nil {
+				return AddItemsToOrderResult{}, err
+			}
+			rows = append(rows, comboRows...)
+		} else {
+			row, err := s.buildProductRow(ctx, item)
+			if err != nil {
+				return AddItemsToOrderResult{}, err
+			}
+			rows = append(rows, row)
+		}
+	}
+
+	// 5+6. Insert items + recalculate total atomically
+	newTotal, err := s.repo.AppendOrderItems(ctx, orderID, rows)
+	if err != nil {
+		return AddItemsToOrderResult{}, fmt.Errorf("addItems: append: %w", err)
+	}
+
+	// 7. Publish events to SSE + KDS WS channels
+	s.publishOrderEvent(ctx, "items_added", orderID)
+
+	return AddItemsToOrderResult{AddedCount: len(items), NewTotalAmount: newTotal}, nil
 }
 
 // ─── Status / Cancel / Item ───────────────────────────────────────────────────

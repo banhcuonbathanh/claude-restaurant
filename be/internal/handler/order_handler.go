@@ -168,6 +168,64 @@ func (h *OrderHandler) UpdateItemServed(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Cập nhật qty_served thành công"})
 }
 
+type addItemsReqItem struct {
+	ProductID  string   `json:"product_id"`
+	ComboID    string   `json:"combo_id"`
+	Quantity   int32    `json:"quantity" binding:"required,min=1"`
+	ToppingIDs []string `json:"topping_ids"`
+}
+
+type addItemsReq struct {
+	Items []addItemsReqItem `json:"items" binding:"required,min=1"`
+}
+
+// AddItemsToOrder handles POST /orders/:id/items (Customer/Cashier+)
+func (h *OrderHandler) AddItemsToOrder(c *gin.Context) {
+	var req addItemsReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		respondError(c, http.StatusBadRequest, "INVALID_INPUT", "Dữ liệu đầu vào không hợp lệ")
+		return
+	}
+
+	for _, item := range req.Items {
+		if item.ProductID == "" && item.ComboID == "" {
+			respondError(c, http.StatusBadRequest, "INVALID_INPUT", "Mỗi món phải có product_id hoặc combo_id")
+			return
+		}
+		if item.ProductID != "" && item.ComboID != "" {
+			respondError(c, http.StatusBadRequest, "INVALID_INPUT", "Không thể có cả product_id và combo_id")
+			return
+		}
+	}
+
+	claims := middleware.ClaimsFromContext(c)
+	callerID := claims.Subject
+	if claims.Role == "customer" {
+		callerID = claims.TableID
+	}
+
+	items := make([]service.CreateOrderItemInput, 0, len(req.Items))
+	for _, it := range req.Items {
+		items = append(items, service.CreateOrderItemInput{
+			ProductID:  it.ProductID,
+			ComboID:    it.ComboID,
+			Quantity:   it.Quantity,
+			ToppingIDs: it.ToppingIDs,
+		})
+	}
+
+	result, err := h.svc.AddItemsToOrder(c.Request.Context(), c.Param("id"), callerID, claims.Role, items)
+	if err != nil {
+		handleServiceError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"order_id":          c.Param("id"),
+		"added_items_count": result.AddedCount,
+		"new_total_amount":  service.ParsePrice(result.NewTotalAmount),
+	})
+}
+
 // ─── response builder ─────────────────────────────────────────────────────────
 
 func orderJSON(o service.OrderDetails) gin.H {

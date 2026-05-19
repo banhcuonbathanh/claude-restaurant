@@ -27,7 +27,9 @@
 | P-UX2 — Customer UX Enhancements | FE | ✅ COMPLETE | 0 | — |
 | P-DIAGRAM — Full System Interaction Map | Docs | ✅ COMPLETE | 0 | — |
 | P-MENU — Menu Page Wireframe + Grid Redesign | FE | 🔄 IN PROGRESS | ~1 | P-MENU-2 |
-| P11 — Add Items to Existing Order | Full | 🔄 IN PROGRESS | ~5 | P11-2 |
+| P11 — Add Items to Existing Order | Full | 🔄 IN PROGRESS | ~2 | P11-5 |
+| P-ORDER-TOPPING — Order Page Topping Display | FE+BE | ✅ COMPLETE | 0 | — |
+| P-FIX-MOCK — Fix order_service_test mockOrderRepo | BE | ✅ COMPLETE | 0 | — |
 
 ---
 
@@ -274,7 +276,7 @@ The entries below are phase-level summaries only.
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P11-3 | BE | Add `AddItemsToOrder(ctx, orderID, callerID, callerRole string, items []CreateOrderItemInput) error`: (1) fetch order → 404 if missing; (2) ownership check for customer role → 403; (3) status guard — reject if status `ready`/`delivered`/`cancelled` → 409 ORDER_NOT_EDITABLE; (4) expand combo items (reuse `expandCombo`); (5) call repo `AppendOrderItems`; (6) recalc total_amount via `SUM(unit_price*quantity)` + call `UpdateOrderTotalAmount`; (7) publish `items_added` event to `order:{id}` SSE channel + `orders:kds` WS channel | P11-2 ✅ | 1 | ⬜ | Spec4 §5.2 |
+| P11-3 | BE | Add `AddItemsToOrder(ctx, orderID, callerID, callerRole string, items []CreateOrderItemInput) (AddItemsToOrderResult, error)`: (1) fetch order → 404 if missing; (2) ownership check for customer role → 403; (3) status guard — reject if status `ready`/`delivered`/`cancelled` → 409 ORDER_NOT_EDITABLE; (4) expand combo items (reuse `expandCombo`); (5) call repo `AppendOrderItems` (handles recalc+TX internally); (6) publish `items_added` event to `order:{id}` SSE channel + `orders:kds` WS channel; returns `{AddedCount, NewTotalAmount}` | P11-2 ✅ | 1 | ✅ | Spec4 §5.2 |
 
 ### P11-4 — Handler + Route Registration
 
@@ -284,7 +286,7 @@ The entries below are phase-level summaries only.
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P11-4 | BE | Add `AddItemsToOrder` handler: bind + validate request body (items non-empty, each item has product_id or combo_id, quantity > 0); call `service.AddItemsToOrder`; return 200 `{ "order_id": "...", "added_items_count": N, "new_total_amount": 290000 }`; map AppError codes to HTTP; register `POST /api/v1/orders/:id/items` in router with `AuthRequired` middleware (allow customer + cashier+) | P11-3 ✅ | 1 | ⬜ | Spec4 §5.2 |
+| P11-4 | BE | Add `AddItemsToOrder` handler: bind + validate request body (items non-empty, each item has product_id or combo_id, quantity > 0); call `service.AddItemsToOrder`; return 200 `{ "order_id": "...", "added_items_count": N, "new_total_amount": 290000 }`; map AppError codes to HTTP; register `POST /api/v1/orders/:id/items` in router with `AuthRequired` middleware (allow customer + cashier+) | P11-3 ✅ | 1 | ✅ | Spec4 §5.2 |
 
 ### P11-5 — Unit Tests
 
@@ -350,6 +352,36 @@ The entries below are phase-level summaries only.
 |---|---|---|---|---|---|---|
 | P-FIX-1 | FE | Wire `ToppingModal` into `ProductCard`: remove inline topping chips; `+` on product with toppings → opens modal; confirm → `addItem` with selected toppings; products with no toppings keep existing stepper | P-UX2 ✅ | 1 | ✅ | Spec3 §4.3 §4.4 |
 | P-FIX-2 | FE | Wire `ComboModal` into `ComboCard`: first `+` click → opens modal showing combo items; confirm → `addItem`; subsequent `+/-` stepper works directly without re-opening modal | P-UX2 ✅ | 1 | ✅ | Spec3 §4.5 |
+
+---
+
+## Phase P-ORDER-TOPPING — Order Page Topping Display
+
+> **Owner:** FE + BE
+> **Dependency:** P5 ✅ · P4 ✅
+> **Spec:** `docs/spec/Spec_3_Menu_Checkout_UI_v2.md §7`
+> **Problem:** `order_items.toppings_snapshot` stored only `{ id }` — name and price were empty. FE had no topping data to display under each dish row.
+> **Fix:** BE enriches snapshot at creation time; FE renders topping chips in `DishRow`.
+> **Added:** 2026-05-19
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P-ORDER-TOPPING-1 | BE | Add `GetToppingSnapshot` to `ProductLookup` interface + `ToppingSnapshot` type in `deps.go`; implement in `ProductService`; fix `buildProductRow` to call it per topping ID; add stub to `mockProductLookup` in test | — | 1 | ✅ | `deps.go` · `product_service.go` · `order_service.go` · `order_service_test.go`; `go build ./be/...` clean |
+| P-ORDER-TOPPING-2 | FE | Add `ToppingSnapshotEntry` type to `types/order.ts`; type `OrderItem.toppings_snapshot`; render topping chips (name + price) in `DishRow` on order tracking page | P-ORDER-TOPPING-1 ✅ | 1 | ✅ | `types/order.ts` · `order/[id]/page.tsx`; `tsc --noEmit` clean |
+
+---
+
+## Phase P-FIX-MOCK — Fix order_service_test mockOrderRepo
+
+> **Owner:** BE
+> **Dependency:** P11-2 ✅ (AppendOrderItems added to `OrderRepository` interface)
+> **Problem:** `order_service_test.go` `mockOrderRepo` is missing `AppendOrderItems` → entire test file fails to compile → blocks P11-5 and all future order service tests.
+> **Root cause:** P11-2 added `AppendOrderItems` to the interface but the mock in the test file was not updated.
+> **Added:** 2026-05-19
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P-FIX-MOCK-1 | BE | Add `appendOrderItemsFn` field + `AppendOrderItems` method stub to `mockOrderRepo` in `order_service_test.go` | P11-2 ✅ | 1 | ✅ | `go test ./be/internal/service/...` compiles and all existing tests pass |
 
 ---
 

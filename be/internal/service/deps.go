@@ -25,6 +25,10 @@ type ProductLookup interface {
 	// GetComboSnapshot returns the combo header and its static item template.
 	// Returns ErrNotFound if the combo does not exist or is unavailable.
 	GetComboSnapshot(ctx context.Context, comboID string) (ComboSnapshot, error)
+
+	// GetToppingSnapshot returns a pricing snapshot for a single topping.
+	// Returns ErrNotFound if the topping does not exist or is unavailable.
+	GetToppingSnapshot(ctx context.Context, toppingID string) (ToppingSnapshot, error)
 }
 
 // ─── PaymentService depends on ───────────────────────────────────────────────
@@ -62,6 +66,14 @@ type ComboItemTemplate struct {
 	Name      string
 	UnitPrice int64
 	Quantity  int
+}
+
+// ToppingSnapshot is captured at order time; stored inside
+// order_items.toppings_snapshot as part of the price record.
+type ToppingSnapshot struct {
+	ID    string
+	Name  string
+	Price int64 // VND
 }
 
 // ComboSnapshot is captured at order time. OrderService expands this into:

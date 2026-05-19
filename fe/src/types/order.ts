@@ -1,3 +1,9 @@
+export interface ToppingSnapshotEntry {
+  id:    string
+  name:  string
+  price: number
+}
+
 export type ItemStatus = 'pending' | 'preparing' | 'done'
 
 export function deriveItemStatus(qty_served: number, quantity: number): ItemStatus {
@@ -16,7 +22,7 @@ export interface OrderItem {
   qty_served:       number
   unit_price:       number
   note:             string | null
-  toppings_snapshot: object | null
+  toppings_snapshot: ToppingSnapshotEntry[] | null
   flagged:           boolean
 }
 

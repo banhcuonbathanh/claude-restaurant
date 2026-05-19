@@ -103,6 +103,19 @@ func (s *ProductService) GetProductSnapshot(ctx context.Context, productID strin
 	}, nil
 }
 
+// GetToppingSnapshot returns a pricing snapshot for a single topping.
+// Implements service.ProductLookup.
+func (s *ProductService) GetToppingSnapshot(ctx context.Context, toppingID string) (ToppingSnapshot, error) {
+	t, err := s.repo.GetToppingByID(ctx, toppingID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ToppingSnapshot{}, ErrNotFound
+		}
+		return ToppingSnapshot{}, fmt.Errorf("product: get topping: %w", err)
+	}
+	return ToppingSnapshot{ID: t.ID, Name: t.Name, Price: parsePrice(t.Price)}, nil
+}
+
 // GetComboSnapshot returns a combo snapshot for order-item creation.
 // Implements service.ProductLookup.
 func (s *ProductService) GetComboSnapshot(ctx context.Context, comboID string) (ComboSnapshot, error) {

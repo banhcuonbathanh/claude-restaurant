@@ -223,6 +223,7 @@ func main() {
 	orderR.PATCH("/:id/status", middleware.AtLeast("chef"), orderH.UpdateStatus)
 	orderR.DELETE("/:id", orderH.Cancel)
 	orderR.GET("/:id/events", sse.StreamOrder(rdb))
+	orderR.POST("/:id/items", orderH.AddItemsToOrder)
 	orderR.POST("/group", middleware.AtLeast("cashier"), groupH.CreateGroup)
 	orderR.GET("/group/:id", groupH.GetGroup)
 	orderR.POST("/group/:id/orders", middleware.AtLeast("cashier"), groupH.AddToGroup)

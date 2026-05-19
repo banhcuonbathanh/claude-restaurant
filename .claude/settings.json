@@ -16,7 +16,8 @@
       "Bash(export JWT_SECRET=\"integration-test-secret-key-must-be-32chars!\")",
       "Bash(python3 -c ' *)",
       "Bash(python3)",
-      "mcp__playwright__browser_resize"
+      "mcp__playwright__browser_resize",
+      "Bash(git diff *)"
     ]
   }
 }
