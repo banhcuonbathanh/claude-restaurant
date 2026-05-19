@@ -1,24 +1,53 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useMutation } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { X, Minus, Plus, Trash2, ChevronDown, ChevronUp, ClipboardList } from 'lucide-react'
 import { useCartStore } from '@/store/cart'
 import { useSettingsStore } from '@/store/settings'
 import { formatVND } from '@/lib/utils'
+import { addItemsToOrder } from '@/lib/api-client'
 
 interface Props {
-  open:    boolean
-  onClose: () => void
+  open:          boolean
+  onClose:       () => void
+  addToOrderId?: string
 }
 
-export function CartDrawer({ open, onClose }: Props) {
+export function CartDrawer({ open, onClose, addToOrderId }: Props) {
   const router = useRouter()
-  const { items, updateQty, removeItem, total, itemCount, activeOrderId } = useCartStore()
+  const { items, updateQty, removeItem, total, itemCount, activeOrderId, clearCart } = useCartStore()
   const { customerName, tableLabel } = useSettingsStore()
 
   // Track which combos have their dish list expanded
   const [expandedCombos, setExpandedCombos] = useState<Set<string>>(new Set())
   const [summaryOpen, setSummaryOpen]       = useState(true)
+
+  const addItemsMutation = useMutation({
+    mutationFn: () => addItemsToOrder(
+      addToOrderId!,
+      items.map(item => ({
+        product_id:       item.product_id ?? null,
+        combo_id:         item.combo_id   ?? null,
+        quantity:         item.quantity,
+        unit_price:       item.price,
+        topping_snapshot: item.toppings.length > 0
+          ? item.toppings.map(t => ({ id: t.id, name: t.name, price_delta: t.price }))
+          : null,
+      })),
+    ),
+    onSuccess: () => {
+      toast.success('Đã thêm món thành công')
+      clearCart()
+      onClose()
+      router.push(`/order/${addToOrderId}`)
+    },
+    onError: (err: unknown) => {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      toast.error(msg ?? 'Không thể thêm món')
+    },
+  })
 
   const toggleCombo = (id: string) =>
     setExpandedCombos(prev => {
@@ -247,13 +276,23 @@ export function CartDrawer({ open, onClose }: Props) {
             <span className="text-muted-fg text-sm">Tổng cộng</span>
             <span className="text-primary text-xl font-bold">{formatVND(total())}</span>
           </div>
-          <button
-            onClick={handleCheckout}
-            disabled={items.length === 0}
-            className="w-full py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-40"
-          >
-            Thanh toán
-          </button>
+          {addToOrderId ? (
+            <button
+              onClick={() => addItemsMutation.mutate()}
+              disabled={items.length === 0 || addItemsMutation.isPending}
+              className="w-full py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-40"
+            >
+              {addItemsMutation.isPending ? 'Đang thêm...' : 'Thêm vào đơn hàng'}
+            </button>
+          ) : (
+            <button
+              onClick={handleCheckout}
+              disabled={items.length === 0}
+              className="w-full py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-40"
+            >
+              Thanh toán
+            </button>
+          )}
           <button
             onClick={onClose}
             className="w-full py-2 text-muted-fg text-sm hover:text-foreground transition-colors"

@@ -1,8 +1,8 @@
 'use client'
 import { useMemo, useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { ShoppingCart, ClipboardList, Settings } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { ShoppingCart, ClipboardList, Settings, PlusCircle } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useSettingsStore } from '@/store/settings'
 import { api } from '@/lib/api-client'
@@ -16,7 +16,9 @@ import { formatVND } from '@/lib/utils'
 import type { Product, Combo, ComboRaw, Category } from '@/types/product'
 
 export default function MenuPage() {
-  const router = useRouter()
+  const router        = useRouter()
+  const searchParams  = useSearchParams()
+  const addToOrderId  = searchParams.get('add_to_order') ?? undefined
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [cartOpen, setCartOpen]                 = useState(false)
   const [hasOrders, setHasOrders]               = useState(false)
@@ -144,6 +146,22 @@ export default function MenuPage() {
         </div>
       </div>
 
+      {/* Add-to-order mode banner */}
+      {addToOrderId && (
+        <div className="mx-4 mt-3 flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-xl px-4 py-2.5">
+          <PlusCircle size={16} className="text-primary shrink-0" />
+          <p className="text-sm text-primary font-medium flex-1">
+            Chọn món để thêm vào đơn hàng hiện tại
+          </p>
+          <button
+            onClick={() => router.push(`/order/${addToOrderId}`)}
+            className="text-xs text-primary underline underline-offset-2 shrink-0"
+          >
+            Xem đơn
+          </button>
+        </div>
+      )}
+
       {/* Category tabs */}
       <CategoryTabs
         categories={categories}
@@ -212,7 +230,7 @@ export default function MenuPage() {
         </div>
       )}
 
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} addToOrderId={addToOrderId} />
     </div>
   )
 }

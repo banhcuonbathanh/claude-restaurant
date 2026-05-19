@@ -406,7 +406,7 @@ export default function OrderPage({ params }: { params: { id: string } }) {
             onClick={() => {
               setTableId(order.table_id!)
               setActiveOrderId(isActive ? params.id : null)
-              router.push('/menu')
+              router.push(isActive ? `/menu?add_to_order=${params.id}` : '/menu')
             }}
             className="w-full bg-primary text-primary-foreground py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
           >

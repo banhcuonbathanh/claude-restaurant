@@ -27,7 +27,7 @@
 | P-UX2 — Customer UX Enhancements | FE | ✅ COMPLETE | 0 | — |
 | P-DIAGRAM — Full System Interaction Map | Docs | ✅ COMPLETE | 0 | — |
 | P-MENU — Menu Page Wireframe + Grid Redesign | FE | 🔄 IN PROGRESS | ~1 | P-MENU-2 |
-| P11 — Add Items to Existing Order | Full | 🔄 IN PROGRESS | ~2 | P11-5 |
+| P11 — Add Items to Existing Order | Full | ✅ COMPLETE | 0 | — |
 | P-ORDER-TOPPING — Order Page Topping Display | FE+BE | ✅ COMPLETE | 0 | — |
 | P-FIX-MOCK — Fix order_service_test mockOrderRepo | BE | ✅ COMPLETE | 0 | — |
 
@@ -296,7 +296,7 @@ The entries below are phase-level summaries only.
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P11-5 | BE | `TestAddItems_Success` (pending order → items appended, total recalculated, events published) + `TestAddItems_StatusReady_Blocked` (order.status=ready → 409 ORDER_NOT_EDITABLE) + `TestAddItems_WrongOwner` (customer callerID ≠ order table_id → 403 FORBIDDEN) | P11-4 ✅ | 1 | ⬜ | Spec4 §5.2 |
+| P11-5 | BE | `TestAddItems_Success` (pending order → items appended, total recalculated, events published) + `TestAddItems_StatusReady_Blocked` (order.status=ready → 409 ORDER_NOT_EDITABLE) + `TestAddItems_WrongOwner` (customer callerID ≠ order table_id → 403 FORBIDDEN) | P11-4 ✅ | 1 | ✅ | Spec4 §5.2 |
 
 ### P11-6 — FE "Thêm món" Flow
 
@@ -306,7 +306,7 @@ The entries below are phase-level summaries only.
 
 | ID | Owner | Task | Deps | Sessions | Status | spec_ref | draw_ref |
 |---|---|---|---|---|---|---|---|
-| P11-6 | FE | (1) Add `addItemsToOrder(orderId, items)` to `api-client.ts`; (2) add "Thêm món" button to customer order tracking page (`order/[id]/page.tsx`) — visible only when order status ∈ {pending, confirmed, preparing}; (3) on click → push to `/menu?add_to_order={orderId}`; (4) in menu `page.tsx` detect `add_to_order` query param → on cart submit call `addItemsToOrder` instead of `createOrder`; (5) on success redirect back to `/order/{orderId}`; show toast "Đã thêm món thành công" | P11-4 ✅ | 1 | `Spec4 §5.2` | — |
+| P11-6 | FE | (1) Add `addItemsToOrder(orderId, items)` to `api-client.ts`; (2) add "Thêm món" button to customer order tracking page (`order/[id]/page.tsx`) — visible only when order status ∈ {pending, confirmed, preparing}; (3) on click → push to `/menu?add_to_order={orderId}`; (4) in menu `page.tsx` detect `add_to_order` query param → on cart submit call `addItemsToOrder` instead of `createOrder`; (5) on success redirect back to `/order/{orderId}`; show toast "Đã thêm món thành công" | P11-4 ✅ | 1 | ✅ | `Spec4 §5.2` | — |
 
 ---
 
