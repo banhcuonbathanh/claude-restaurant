@@ -1,0 +1,286 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Tổng quan" [ref=e6] [cursor=pointer]:
+          - /url: /admin/overview
+        - link "Tổng kết" [ref=e7] [cursor=pointer]:
+          - /url: /admin/summary
+        - link "Sản phẩm" [ref=e8] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Combo" [ref=e9] [cursor=pointer]:
+          - /url: /admin/combos
+        - link "Danh mục" [ref=e10] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e11] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e12] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Kho nguyên liệu" [ref=e13] [cursor=pointer]:
+          - /url: /admin/ingredients
+        - link "Marketing" [ref=e14] [cursor=pointer]:
+          - /url: /admin/marketing
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - heading "Topping (23)" [level=2] [ref=e18]
+        - button "+ Thêm topping" [ref=e19] [cursor=pointer]
+      - table [ref=e21]:
+        - rowgroup [ref=e22]:
+          - row "Tên topping Áp dụng cho sản phẩm Giá thêm Trạng thái" [ref=e23]:
+            - columnheader "Tên topping" [ref=e24]
+            - columnheader "Áp dụng cho sản phẩm" [ref=e25]
+            - columnheader "Giá thêm" [ref=e26]
+            - columnheader "Trạng thái" [ref=e27]
+            - columnheader [ref=e28]
+        - rowgroup [ref=e29]:
+          - row "Chả quế Chưa gắn sản phẩm +8.000 ₫ Có sẵn Sửa Xóa" [ref=e30]:
+            - cell "Chả quế" [ref=e31]
+            - cell "Chưa gắn sản phẩm" [ref=e32]
+            - cell "+8.000 ₫" [ref=e33]:
+              - generic [ref=e34]: +8.000 ₫
+            - cell "Có sẵn" [ref=e35]
+            - cell "Sửa Xóa" [ref=e36]:
+              - generic [ref=e37]:
+                - button "Sửa" [ref=e38] [cursor=pointer]
+                - button "Xóa" [ref=e39] [cursor=pointer]
+          - row "Chả quế Chưa gắn sản phẩm +8.000 ₫ Có sẵn Sửa Xóa" [ref=e40]:
+            - cell "Chả quế" [ref=e41]
+            - cell "Chưa gắn sản phẩm" [ref=e42]
+            - cell "+8.000 ₫" [ref=e43]:
+              - generic [ref=e44]: +8.000 ₫
+            - cell "Có sẵn" [ref=e45]
+            - cell "Sửa Xóa" [ref=e46]:
+              - generic [ref=e47]:
+                - button "Sửa" [ref=e48] [cursor=pointer]
+                - button "Xóa" [ref=e49] [cursor=pointer]
+          - row "Chả quế Chưa gắn sản phẩm +8.000 ₫ Có sẵn Sửa Xóa" [ref=e50]:
+            - cell "Chả quế" [ref=e51]
+            - cell "Chưa gắn sản phẩm" [ref=e52]
+            - cell "+8.000 ₫" [ref=e53]:
+              - generic [ref=e54]: +8.000 ₫
+            - cell "Có sẵn" [ref=e55]
+            - cell "Sửa Xóa" [ref=e56]:
+              - generic [ref=e57]:
+                - button "Sửa" [ref=e58] [cursor=pointer]
+                - button "Xóa" [ref=e59] [cursor=pointer]
+          - row "Cháº£ lá»¥a thÃªm Chưa gắn sản phẩm +15.000 ₫ Có sẵn Sửa Xóa" [ref=e60]:
+            - cell "Cháº£ lá»¥a thÃªm" [ref=e61]
+            - cell "Chưa gắn sản phẩm" [ref=e62]
+            - cell "+15.000 ₫" [ref=e63]:
+              - generic [ref=e64]: +15.000 ₫
+            - cell "Có sẵn" [ref=e65]
+            - cell "Sửa Xóa" [ref=e66]:
+              - generic [ref=e67]:
+                - button "Sửa" [ref=e68] [cursor=pointer]
+                - button "Xóa" [ref=e69] [cursor=pointer]
+          - row "Giò lụa Chưa gắn sản phẩm +10.000 ₫ Có sẵn Sửa Xóa" [ref=e70]:
+            - cell "Giò lụa" [ref=e71]
+            - cell "Chưa gắn sản phẩm" [ref=e72]
+            - cell "+10.000 ₫" [ref=e73]:
+              - generic [ref=e74]: +10.000 ₫
+            - cell "Có sẵn" [ref=e75]
+            - cell "Sửa Xóa" [ref=e76]:
+              - generic [ref=e77]:
+                - button "Sửa" [ref=e78] [cursor=pointer]
+                - button "Xóa" [ref=e79] [cursor=pointer]
+          - row "Giò lụa Chưa gắn sản phẩm +10.000 ₫ Có sẵn Sửa Xóa" [ref=e80]:
+            - cell "Giò lụa" [ref=e81]
+            - cell "Chưa gắn sản phẩm" [ref=e82]
+            - cell "+10.000 ₫" [ref=e83]:
+              - generic [ref=e84]: +10.000 ₫
+            - cell "Có sẵn" [ref=e85]
+            - cell "Sửa Xóa" [ref=e86]:
+              - generic [ref=e87]:
+                - button "Sửa" [ref=e88] [cursor=pointer]
+                - button "Xóa" [ref=e89] [cursor=pointer]
+          - row "Giò lụa Chưa gắn sản phẩm +10.000 ₫ Có sẵn Sửa Xóa" [ref=e90]:
+            - cell "Giò lụa" [ref=e91]
+            - cell "Chưa gắn sản phẩm" [ref=e92]
+            - cell "+10.000 ₫" [ref=e93]:
+              - generic [ref=e94]: +10.000 ₫
+            - cell "Có sẵn" [ref=e95]
+            - cell "Sửa Xóa" [ref=e96]:
+              - generic [ref=e97]:
+                - button "Sửa" [ref=e98] [cursor=pointer]
+                - button "Xóa" [ref=e99] [cursor=pointer]
+          - row "HÃ nh phi BÃ¡nh Cuá»‘n Thá»‹t BÃ¡nh Cuá»‘n TÃ´m BÃ¡nh Cuá»‘n Tháºp Cáº©m BÃ¡nh Cuá»‘n Trá»©ng +5.000 ₫ Có sẵn Sửa Xóa" [ref=e100]:
+            - cell "HÃ nh phi" [ref=e101]
+            - cell "BÃ¡nh Cuá»‘n Thá»‹t BÃ¡nh Cuá»‘n TÃ´m BÃ¡nh Cuá»‘n Tháºp Cáº©m BÃ¡nh Cuá»‘n Trá»©ng" [ref=e102]:
+              - generic [ref=e103]:
+                - generic [ref=e104]: BÃ¡nh Cuá»‘n Thá»‹t
+                - generic [ref=e105]: BÃ¡nh Cuá»‘n TÃ´m
+                - generic [ref=e106]: BÃ¡nh Cuá»‘n Tháºp Cáº©m
+                - generic [ref=e107]: BÃ¡nh Cuá»‘n Trá»©ng
+            - cell "+5.000 ₫" [ref=e108]:
+              - generic [ref=e109]: +5.000 ₫
+            - cell "Có sẵn" [ref=e110]
+            - cell "Sửa Xóa" [ref=e111]:
+              - generic [ref=e112]:
+                - button "Sửa" [ref=e113] [cursor=pointer]
+                - button "Xóa" [ref=e114] [cursor=pointer]
+          - row "Hành phi Chưa gắn sản phẩm Miễn phí Có sẵn Sửa Xóa" [ref=e115]:
+            - cell "Hành phi" [ref=e116]
+            - cell "Chưa gắn sản phẩm" [ref=e117]
+            - cell "Miễn phí" [ref=e118]
+            - cell "Có sẵn" [ref=e119]
+            - cell "Sửa Xóa" [ref=e120]:
+              - generic [ref=e121]:
+                - button "Sửa" [ref=e122] [cursor=pointer]
+                - button "Xóa" [ref=e123] [cursor=pointer]
+          - row "Hành phi Chưa gắn sản phẩm Miễn phí Có sẵn Sửa Xóa" [ref=e124]:
+            - cell "Hành phi" [ref=e125]
+            - cell "Chưa gắn sản phẩm" [ref=e126]
+            - cell "Miễn phí" [ref=e127]
+            - cell "Có sẵn" [ref=e128]
+            - cell "Sửa Xóa" [ref=e129]:
+              - generic [ref=e130]:
+                - button "Sửa" [ref=e131] [cursor=pointer]
+                - button "Xóa" [ref=e132] [cursor=pointer]
+          - row "Hành phi Chưa gắn sản phẩm Miễn phí Có sẵn Sửa Xóa" [ref=e133]:
+            - cell "Hành phi" [ref=e134]
+            - cell "Chưa gắn sản phẩm" [ref=e135]
+            - cell "Miễn phí" [ref=e136]
+            - cell "Có sẵn" [ref=e137]
+            - cell "Sửa Xóa" [ref=e138]:
+              - generic [ref=e139]:
+                - button "Sửa" [ref=e140] [cursor=pointer]
+                - button "Xóa" [ref=e141] [cursor=pointer]
+          - row "Ruá»‘c tÃ´m BÃ¡nh Cuá»‘n Thá»‹t BÃ¡nh Cuá»‘n TÃ´m BÃ¡nh Cuá»‘n Tháºp Cáº©m +10.000 ₫ Có sẵn Sửa Xóa" [ref=e142]:
+            - cell "Ruá»‘c tÃ´m" [ref=e143]
+            - cell "BÃ¡nh Cuá»‘n Thá»‹t BÃ¡nh Cuá»‘n TÃ´m BÃ¡nh Cuá»‘n Tháºp Cáº©m" [ref=e144]:
+              - generic [ref=e145]:
+                - generic [ref=e146]: BÃ¡nh Cuá»‘n Thá»‹t
+                - generic [ref=e147]: BÃ¡nh Cuá»‘n TÃ´m
+                - generic [ref=e148]: BÃ¡nh Cuá»‘n Tháºp Cáº©m
+            - cell "+10.000 ₫" [ref=e149]:
+              - generic [ref=e150]: +10.000 ₫
+            - cell "Có sẵn" [ref=e151]
+            - cell "Sửa Xóa" [ref=e152]:
+              - generic [ref=e153]:
+                - button "Sửa" [ref=e154] [cursor=pointer]
+                - button "Xóa" [ref=e155] [cursor=pointer]
+          - 'row "ThÃªm tÃ´m BÃ¡nh Cuá»‘n TÃ´m BÃ¡nh Cuá»‘n Tháºp Cáº©m Gá»i Cuá»‘n +25.000 ₫ Có sẵn Sửa Xóa" [ref=e156]':
+            - cell "ThÃªm tÃ´m" [ref=e157]
+            - 'cell "BÃ¡nh Cuá»‘n TÃ´m BÃ¡nh Cuá»‘n Tháºp Cáº©m Gá»i Cuá»‘n" [ref=e158]':
+              - generic [ref=e159]:
+                - generic [ref=e160]: BÃ¡nh Cuá»‘n TÃ´m
+                - generic [ref=e161]: BÃ¡nh Cuá»‘n Tháºp Cáº©m
+                - generic [ref=e162]: "Gá»\x8fi Cuá»‘n"
+            - cell "+25.000 ₫" [ref=e163]:
+              - generic [ref=e164]: +25.000 ₫
+            - cell "Có sẵn" [ref=e165]
+            - cell "Sửa Xóa" [ref=e166]:
+              - generic [ref=e167]:
+                - button "Sửa" [ref=e168] [cursor=pointer]
+                - button "Xóa" [ref=e169] [cursor=pointer]
+          - 'row "ThÃªm thá»‹t BÃ¡nh Cuá»‘n Thá»‹t BÃ¡nh Cuá»‘n Tháºp Cáº©m Gá»i Cuá»‘n +20.000 ₫ Có sẵn Sửa Xóa" [ref=e170]':
+            - cell "ThÃªm thá»‹t" [ref=e171]
+            - 'cell "BÃ¡nh Cuá»‘n Thá»‹t BÃ¡nh Cuá»‘n Tháºp Cáº©m Gá»i Cuá»‘n" [ref=e172]':
+              - generic [ref=e173]:
+                - generic [ref=e174]: BÃ¡nh Cuá»‘n Thá»‹t
+                - generic [ref=e175]: BÃ¡nh Cuá»‘n Tháºp Cáº©m
+                - generic [ref=e176]: "Gá»\x8fi Cuá»‘n"
+            - cell "+20.000 ₫" [ref=e177]:
+              - generic [ref=e178]: +20.000 ₫
+            - cell "Có sẵn" [ref=e179]
+            - cell "Sửa Xóa" [ref=e180]:
+              - generic [ref=e181]:
+                - button "Sửa" [ref=e182] [cursor=pointer]
+                - button "Xóa" [ref=e183] [cursor=pointer]
+          - row "Tôm tươi Chưa gắn sản phẩm +15.000 ₫ Có sẵn Sửa Xóa" [ref=e184]:
+            - cell "Tôm tươi" [ref=e185]
+            - cell "Chưa gắn sản phẩm" [ref=e186]
+            - cell "+15.000 ₫" [ref=e187]:
+              - generic [ref=e188]: +15.000 ₫
+            - cell "Có sẵn" [ref=e189]
+            - cell "Sửa Xóa" [ref=e190]:
+              - generic [ref=e191]:
+                - button "Sửa" [ref=e192] [cursor=pointer]
+                - button "Xóa" [ref=e193] [cursor=pointer]
+          - row "Tôm tươi Chưa gắn sản phẩm +15.000 ₫ Có sẵn Sửa Xóa" [ref=e194]:
+            - cell "Tôm tươi" [ref=e195]
+            - cell "Chưa gắn sản phẩm" [ref=e196]
+            - cell "+15.000 ₫" [ref=e197]:
+              - generic [ref=e198]: +15.000 ₫
+            - cell "Có sẵn" [ref=e199]
+            - cell "Sửa Xóa" [ref=e200]:
+              - generic [ref=e201]:
+                - button "Sửa" [ref=e202] [cursor=pointer]
+                - button "Xóa" [ref=e203] [cursor=pointer]
+          - row "Tôm tươi Chưa gắn sản phẩm +15.000 ₫ Có sẵn Sửa Xóa" [ref=e204]:
+            - cell "Tôm tươi" [ref=e205]
+            - cell "Chưa gắn sản phẩm" [ref=e206]
+            - cell "+15.000 ₫" [ref=e207]:
+              - generic [ref=e208]: +15.000 ₫
+            - cell "Có sẵn" [ref=e209]
+            - cell "Sửa Xóa" [ref=e210]:
+              - generic [ref=e211]:
+                - button "Sửa" [ref=e212] [cursor=pointer]
+                - button "Xóa" [ref=e213] [cursor=pointer]
+          - row "topping 1 Chưa gắn sản phẩm +12 ₫ Có sẵn Sửa Xóa" [ref=e214]:
+            - cell "topping 1" [ref=e215]
+            - cell "Chưa gắn sản phẩm" [ref=e216]
+            - cell "+12 ₫" [ref=e217]:
+              - generic [ref=e218]: +12 ₫
+            - cell "Có sẵn" [ref=e219]
+            - cell "Sửa Xóa" [ref=e220]:
+              - generic [ref=e221]:
+                - button "Sửa" [ref=e222] [cursor=pointer]
+                - button "Xóa" [ref=e223] [cursor=pointer]
+          - row "topping 2 banh cuon +1 ₫ Có sẵn Sửa Xóa" [ref=e224]:
+            - cell "topping 2" [ref=e225]
+            - cell "banh cuon" [ref=e226]:
+              - generic [ref=e228]: banh cuon
+            - cell "+1 ₫" [ref=e229]:
+              - generic [ref=e230]: +1 ₫
+            - cell "Có sẵn" [ref=e231]
+            - cell "Sửa Xóa" [ref=e232]:
+              - generic [ref=e233]:
+                - button "Sửa" [ref=e234] [cursor=pointer]
+                - button "Xóa" [ref=e235] [cursor=pointer]
+          - row "Trá»©ng chiÃªn BÃ¡nh Cuá»‘n Tháºp Cáº©m BÃ¡nh Cuá»‘n Trá»©ng +15.000 ₫ Có sẵn Sửa Xóa" [ref=e236]:
+            - cell "Trá»©ng chiÃªn" [ref=e237]
+            - cell "BÃ¡nh Cuá»‘n Tháºp Cáº©m BÃ¡nh Cuá»‘n Trá»©ng" [ref=e238]:
+              - generic [ref=e239]:
+                - generic [ref=e240]: BÃ¡nh Cuá»‘n Tháºp Cáº©m
+                - generic [ref=e241]: BÃ¡nh Cuá»‘n Trá»©ng
+            - cell "+15.000 ₫" [ref=e242]:
+              - generic [ref=e243]: +15.000 ₫
+            - cell "Có sẵn" [ref=e244]
+            - cell "Sửa Xóa" [ref=e245]:
+              - generic [ref=e246]:
+                - button "Sửa" [ref=e247] [cursor=pointer]
+                - button "Xóa" [ref=e248] [cursor=pointer]
+          - row "Trứng chiên Chưa gắn sản phẩm +5.000 ₫ Có sẵn Sửa Xóa" [ref=e249]:
+            - cell "Trứng chiên" [ref=e250]
+            - cell "Chưa gắn sản phẩm" [ref=e251]
+            - cell "+5.000 ₫" [ref=e252]:
+              - generic [ref=e253]: +5.000 ₫
+            - cell "Có sẵn" [ref=e254]
+            - cell "Sửa Xóa" [ref=e255]:
+              - generic [ref=e256]:
+                - button "Sửa" [ref=e257] [cursor=pointer]
+                - button "Xóa" [ref=e258] [cursor=pointer]
+          - row "Trứng chiên Chưa gắn sản phẩm +5.000 ₫ Có sẵn Sửa Xóa" [ref=e259]:
+            - cell "Trứng chiên" [ref=e260]
+            - cell "Chưa gắn sản phẩm" [ref=e261]
+            - cell "+5.000 ₫" [ref=e262]:
+              - generic [ref=e263]: +5.000 ₫
+            - cell "Có sẵn" [ref=e264]
+            - cell "Sửa Xóa" [ref=e265]:
+              - generic [ref=e266]:
+                - button "Sửa" [ref=e267] [cursor=pointer]
+                - button "Xóa" [ref=e268] [cursor=pointer]
+          - row "Trứng chiên Chưa gắn sản phẩm +5.000 ₫ Có sẵn Sửa Xóa" [ref=e269]:
+            - cell "Trứng chiên" [ref=e270]
+            - cell "Chưa gắn sản phẩm" [ref=e271]
+            - cell "+5.000 ₫" [ref=e272]:
+              - generic [ref=e273]: +5.000 ₫
+            - cell "Có sẵn" [ref=e274]
+            - cell "Sửa Xóa" [ref=e275]:
+              - generic [ref=e276]:
+                - button "Sửa" [ref=e277] [cursor=pointer]
+                - button "Xóa" [ref=e278] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e279]
