@@ -7,11 +7,20 @@ export const CREDS = {
   manager: { username: 'manager1', password: 'manager123' },
 } as const
 
-/** QR tokens from scripts/seed.sql */
+/**
+ * QR tokens from scripts/seed.sql.
+ * ban01–ban03: original seed tables.
+ * ban04–ban07: additional tables required for add-items, POS payment, overview WS tests.
+ *              Ensure scripts/seed.sql includes matching rows for these tokens.
+ */
 export const QR = {
   ban01: 'a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890',
   ban02: 'b2c3d4e5f6789012b2c3d4e5f6789012b2c3d4e5f6789012b2c3d4e5f6789012',
   ban03: 'c3d4e5f678901234c3d4e5f678901234c3d4e5f678901234c3d4e5f678901234',
+  ban04: 'd4e5f67890123456d4e5f67890123456d4e5f67890123456d4e5f67890123456',
+  ban05: 'e5f6789012345678e5f6789012345678e5f6789012345678e5f6789012345678',
+  ban06: 'f678901234567890f678901234567890f678901234567890f678901234567890',
+  ban07: 'a7b8c9d0e1f23456a7b8c9d0e1f23456a7b8c9d0e1f23456a7b8c9d0e1f23456',
 } as const
 
 /**

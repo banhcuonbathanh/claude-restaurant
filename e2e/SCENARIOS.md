@@ -76,6 +76,105 @@
 
 ---
 
+## Flow 4 — Auth: Role Redirects + Invalid QR + Logout
+
+**File:** `tests/auth.spec.ts` · Diagram: §1.1 · §1.3 · §1.4
+
+| Step | Action | Expected |
+|---|---|---|
+| 1 | Login as chef | Redirect /kds |
+| 2 | Login as cashier | Redirect /pos |
+| 3 | Login as manager | Redirect /admin/overview |
+| 4 | Login as admin | Redirect /admin/overview |
+| 5 | Login with wrong credentials | Stay on /login + error message |
+| 6 | Visit /admin/overview unauthenticated | Redirect /login |
+| 7 | Navigate to invalid QR URL | Error shown; no /menu redirect |
+| 8 | Manager logout | Redirect /login; protected route also redirects to /login |
+
+---
+
+## Flow 5 — Add Items to Existing Order
+
+**File:** `tests/add-items.spec.ts` · Diagram: §2.2
+**Seed prerequisite:** `ban04` QR token in `scripts/seed.sql`
+
+| Step | Action | Expected |
+|---|---|---|
+| 1 | Guest auth via ban04 | /menu |
+| 2 | Place order | Redirect /order/:id |
+| 3 | Click "Thêm món" | Redirect /menu?add_to_order=:id |
+| 4 | Add item + submit | Toast "Đã thêm món thành công" or back to /order/:id |
+| 5 | Submit with invalid orderId | 409 error toast shown |
+
+---
+
+## Flow 6 — POS & COD Payment
+
+**File:** `tests/pos.spec.ts` · Diagram: §4.1 · §4.2
+**Seed prerequisite:** `ban05`, `ban06` QR tokens in `scripts/seed.sql`
+
+| Step | Action | Expected |
+|---|---|---|
+| 1 | Cashier login | Redirect /pos |
+| 2 | POS: table grid visible | At least 1 Bàn button shown |
+| 3 | Click table | Order panel loads, no error |
+| 4 | Click "Tạo đơn mới" | Modal opens |
+| 5 | Submit order form | No error toast |
+| 6 | Guest places order; cashier opens /cashier/payment/:id | Total + payment method options visible |
+| 7 | "Xác nhận COD" button | Present on payment page |
+
+Note: VNPay/MoMo/ZaloPay QR gateway tests are excluded — require ngrok sandbox (Phase 7-7).
+
+---
+
+## Flow 7 — Admin Overview & QR Marketing
+
+**File:** `tests/admin-overview.spec.ts` · Diagram: §5.1 · §5.4
+**Seed prerequisite:** `ban07` QR token in `scripts/seed.sql`
+
+| Step | Action | Expected |
+|---|---|---|
+| 1 | Manager opens /admin/overview | 4 stat cards visible |
+| 2 | Table grid | At least 1 table card |
+| 3 | "Chờ xác nhận" section | Visible |
+| 4 | Guest places order → manager sees it | No crash; page stays live |
+| 5 | "Kiểm tra" toggle | Prep panel appears (if active orders exist) |
+| 6 | Manager opens /admin/marketing | QR cards + QR images rendered |
+| 7 | Copy button | Green checkmark briefly shown |
+| 8 | SVG / Print buttons | Visible |
+| 9 | Product catalogue section | Visible |
+
+---
+
+## Flow 8 — Product/Category/Topping CRUD
+
+**File:** `tests/admin-products.spec.ts` · Diagram: §5.3
+
+| Step | Action | Expected |
+|---|---|---|
+| 1 | /admin/products | List renders |
+| 2 | Create product | Toast "Đã tạo"; row appears |
+| 3 | Edit product name | Toast "Đã cập nhật" |
+| 4 | Soft-delete product | Toast "Đã xoá / Đã ẩn" |
+| 5 | /admin/categories — create | Toast "Đã tạo" |
+| 6 | /admin/toppings — create | Toast "Đã tạo" |
+
+---
+
+## Seed Requirement Summary
+
+| QR Token | Table | Used by |
+|---|---|---|
+| `a1b2c3d4…` (ban01) | Bàn 01 | guest-order.spec.ts |
+| `b2c3d4e5…` (ban02) | Bàn 02 | kds.spec.ts — WS new order |
+| `c3d4e5f6…` (ban03) | Bàn 03 | kds.spec.ts — mark item |
+| `d4e5f678…` (ban04) | Bàn 04 | add-items.spec.ts |
+| `e5f67890…` (ban05) | Bàn 05 | pos.spec.ts — payment page |
+| `f6789012…` (ban06) | Bàn 06 | pos.spec.ts — COD confirm |
+| `a7b8c9d0…` (ban07) | Bàn 07 | admin-overview.spec.ts — WS event |
+
+---
+
 ## Running Tests
 
 ```bash
@@ -88,10 +187,15 @@ docker compose up -d
 # Run all tests
 cd e2e && npm test
 
-# Run single flow
-npm run test:guest
-npm run test:kds
-npm run test:admin
+# Run individual flows
+npm run test:guest       # §2.1 QR → order
+npm run test:kds         # §3 KDS
+npm run test:admin       # §5.2 staff management
+npm run test:auth        # §1.1 §1.3 §1.4 auth flows
+npm run test:add-items   # §2.2 add to existing order
+npm run test:pos         # §4.1 §4.2 POS + payment
+npm run test:overview    # §5.1 §5.4 admin overview + marketing
+npm run test:products    # §5.3 product/category/topping CRUD
 
 # Visual debugging
 npm run test:headed

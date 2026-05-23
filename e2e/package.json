@@ -9,6 +9,11 @@
     "test:guest": "playwright test tests/guest-order.spec.ts",
     "test:kds": "playwright test tests/kds.spec.ts",
     "test:admin": "playwright test tests/admin.spec.ts",
+    "test:auth": "playwright test tests/auth.spec.ts",
+    "test:add-items": "playwright test tests/add-items.spec.ts",
+    "test:pos": "playwright test tests/pos.spec.ts",
+    "test:overview": "playwright test tests/admin-overview.spec.ts",
+    "test:products": "playwright test tests/admin-products.spec.ts",
     "report": "playwright show-report"
   },
   "devDependencies": {
