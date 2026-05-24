@@ -56,3 +56,4 @@ Based on the wireframe image and the accompanying `menu_wireframe_v1.md` specifi
 **Overall:** This is a **strong, production-ready spec** with clear UX intent. The main risks are **vertical space consumption** and **card density**. Shifting complex interactions to bottom sheets, simplifying pricing display, and refining sticky behavior will elevate this from "functional" to "delightful" on mobile.
 
 Let me know if you'd like Figma component suggestions, Tailwind utility mappings, or Playwright test scaffolding for these zones.
+
