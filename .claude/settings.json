@@ -20,7 +20,9 @@
       "Bash(git diff *)",
       "Bash(git checkout *)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/admin/products)",
-      "Bash(pkill -f \"mcp-chrome\")"
+      "Bash(pkill -f \"mcp-chrome\")",
+      "Edit(/.claude/skills/excalidraw/**)",
+      "Bash(python3 -c \"import json; f=open\\('/Users/monghoaivu/Desktop/code/claude restaurant/docs/fe/wireframes/admin-staff-training.excalidraw'\\); data=json.load\\(f\\); print\\(f'Valid JSON. Elements: {len\\(data[\\\\\"elements\\\\\"]\\)}'\\)\")"
     ]
   }
 }
