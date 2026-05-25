@@ -23,7 +23,12 @@
       "Bash(pkill -f \"mcp-chrome\")",
       "Edit(/.claude/skills/excalidraw/**)",
       "Bash(python3 -c \"import json; f=open\\('/Users/monghoaivu/Desktop/code/claude restaurant/docs/fe/wireframes/admin-staff-training.excalidraw'\\); data=json.load\\(f\\); print\\(f'Valid JSON. Elements: {len\\(data[\\\\\"elements\\\\\"]\\)}'\\)\")",
-      "Bash(python3 -c \"import json; f=open\\('/Users/monghoaivu/Desktop/code/claude restaurant/docs/fe/wireframes/admin-staff-training.excalidraw'\\); data=json.load\\(f\\); print\\(f'Valid JSON. Total elements: {len\\(data[\\\\\"elements\\\\\"]\\)}'\\)\")"
+      "Bash(python3 -c \"import json; f=open\\('/Users/monghoaivu/Desktop/code/claude restaurant/docs/fe/wireframes/admin-staff-training.excalidraw'\\); data=json.load\\(f\\); print\\(f'Valid JSON. Total elements: {len\\(data[\\\\\"elements\\\\\"]\\)}'\\)\")",
+      "Bash(mkdir -p \"/Users/monghoaivu/Desktop/code/claude restaurant/.claude/skills/wireframe\")",
+      "Edit(/.claude/skills/wireframe/**)"
+    ],
+    "additionalDirectories": [
+      "/Users/monghoaivu/Desktop/code/claude restaurant/.claude/skills"
     ]
   }
 }

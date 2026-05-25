@@ -15,6 +15,8 @@
 | `/doc-check [task-id]` | Before starting a specific task | Scopes the scan to one domain (e.g. `/doc-check 4.1`) |
 | `/quality-check` | After completing a task or end of session | Audits last 5 sessions: commit hygiene, code rules, skipped steps, CSS safety, skeleton coverage |
 | `/quality-check [N]` | When reviewing a specific number of sessions | Same audit scoped to last N sessions (e.g. `/quality-check 3`) |
+| `/wireframe <folder-name>` | Before building any new FE page | Scaffolds full wireframe folder: 7 files + WIREFRAME_INDEX row. Run `/excalidraw` after. |
+| `/excalidraw <folder-name>` | After `/wireframe`, once zones are planned | Draws the visual Excalidraw file. 3-phase: plan → main page → modals. |
 
 ---
 
@@ -95,8 +97,10 @@ Claude will scan:
     │   └── SKILL.md      ← /doc-check command source
     ├── excalidraw/
     │   └── SKILL.md      ← /excalidraw command source
-    └── quality-check/
-        └── SKILL.md      ← /quality-check command source
+    ├── quality-check/
+    │   └── SKILL.md      ← /quality-check command source
+    └── wireframe/
+        └── SKILL.md      ← /wireframe command source
 ```
 
 To add a new command: create a new folder under `.claude/skills/<name>/` containing a `SKILL.md` file.
