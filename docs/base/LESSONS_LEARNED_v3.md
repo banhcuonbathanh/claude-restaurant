@@ -47,17 +47,18 @@ Clarify DoD trước khi code — không 'xong nhưng sai hướng' |
 
 ## 📋 0.4 — Các Tình Huống Thường Gặp & Cách Claude Xử Lý
 
-| Tình Huống                   | Claude Làm                                                  | Claude KHÔNG Làm                |
-| ---------------------------- | ----------------------------------------------------------- | ------------------------------- |
-| Spec thiếu edge case         | Hỏi: 'Edge case X thì handle thế nào?' trước khi code       | Code rồi mới hỏi sau            |
-| Tìm thấy bug trong code cũ   | Flag 🚨 RISK ngay dù không trong scope task hiện tại        | Giả vờ không thấy, làm tiếp     |
-| 2 docs mâu thuẫn nhau        | Báo ⚠️ FLAG + hỏi doc nào là source of truth                | Tự chọn 1 doc để follow         |
-| Task quá lớn cho 1 session   | Break down + confirm scope trước khi bắt đầu                | Làm một nửa rồi stop giữa chừng |
-| Code đúng spec nhưng có risk | Implement + flag 🚨 RISK rõ ràng, giải thích why            | Im lặng implement               |
-| Không hiểu requirement       | Hỏi ngay: 'Ý bạn là X hay Y?' (max 3 câu)                   | Đoán mò rồi code                |
-| Biết cách tốt hơn            | 💡 SUGGESTION với trade-off rõ ràng, để bạn quyết           | Tự ý làm khác với spec          |
-| Review code của bạn          | Honest feedback — không chỉ khen, chỉ rõ risk + suggest fix | Rubber stamp mọi thứ            |
-| Deadline gấp                 | Prioritize, flag ⚠️ những gì bỏ qua để fix sau              | Cut corners im lặng             |
+| Tình Huống                          | Claude Làm                                                                                                        | Claude KHÔNG Làm                              |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| Spec thiếu edge case                | Hỏi: 'Edge case X thì handle thế nào?' trước khi code                                                             | Code rồi mới hỏi sau                          |
+| Tìm thấy bug trong code cũ          | Flag 🚨 RISK ngay dù không trong scope task hiện tại                                                              | Giả vờ không thấy, làm tiếp                   |
+| 2 docs mâu thuẫn nhau               | Báo ⚠️ FLAG + hỏi doc nào là source of truth                                                                      | Tự chọn 1 doc để follow                       |
+| Task quá lớn cho 1 session          | Break down + confirm scope trước khi bắt đầu                                                                      | Làm một nửa rồi stop giữa chừng               |
+| Code đúng spec nhưng có risk        | Implement + flag 🚨 RISK rõ ràng, giải thích why                                                                  | Im lặng implement                             |
+| Không hiểu requirement              | Hỏi ngay: 'Ý bạn là X hay Y?' (max 3 câu)                                                                         | Đoán mò rồi code                              |
+| Biết cách tốt hơn                   | 💡 SUGGESTION với trade-off rõ ràng, để bạn quyết                                                                | Tự ý làm khác với spec                        |
+| Review code của bạn                 | Honest feedback — không chỉ khen, chỉ rõ risk + suggest fix                                                      | Rubber stamp mọi thứ                          |
+| Deadline gấp                        | Prioritize, flag ⚠️ những gì bỏ qua để fix sau                                                                   | Cut corners im lặng                           |
+| Task không có trong MASTER_TASK.md  | STOP → 5-step gate: Classify → Register (show draft row) → Size + break down → Show full plan → Wait for ALIGN   | Tự ý code ngay sau khi owner confirm task tồn tại |
 
 ## ⚠️ 0.6 — Known Weaknesses in This System (Added 2026-04-30)
 
@@ -115,11 +116,23 @@ These are structural gaps identified after a full audit of the workflow. Each ha
 Reading code before requirements are clear is never the right first move for a spec-less task.
 **Index:** Full procedure-to-task mapping lives in `docs/PROCEDURE_INDEX.md`.
 
-### Weakness 9 — Task started without a MASTER.md row (2026-05-12)
+### Weakness 9 — Task started without a MASTER.md row, plan, or breakdown (2026-05-12 · updated 2026-05-25)
 
-**Problem:** Work begins on a task or sub-task that has no row in `docs/tasks/MASTER_TASK.md`. The task is completed but never tracked, so the next session has no record of it, phase status drifts, and follow-up tasks have no dependency anchor.
-**Root cause:** The 7-step workflow assumed the task already existed in MASTER.md. There was no explicit gate enforcing this before step 1 (READ).
-**Rule:** Before any task or sub-task starts — even a sub-task inside an existing phase — a row must exist in `docs/tasks/MASTER_TASK.md`. If it does not → add the row, confirm with owner, then proceed. No exceptions.
+**Problem:** Work begins on a task that has no row in `docs/tasks/MASTER_TASK.md`, OR a row exists but Claude jumps straight into coding without showing a plan, breaking it down, or waiting for ALIGN confirmation. Both cases produce untracked, unreviewed work that may go in the wrong direction.
+**Root cause (original):** The 7-step workflow assumed the task already existed in MASTER.md. There was no explicit gate enforcing this before step 1 (READ).
+**Root cause (updated):** Even after "add the row + confirm" was added, Claude had no gate between confirmation and coding for unlisted tasks. Claude treated owner confirmation of the *task existence* as permission to code immediately — skipping the plan and breakdown steps that listed tasks go through.
+
+**Rule — 5-step gate for any task NOT on the list (no exceptions):**
+
+| Step | Action | Gate |
+|---|---|---|
+| 1 — Classify | Ask: bug fix / feature / refactor? Which domain? Urgent or backlog? | Owner answers |
+| 2 — Register | Add draft row to MASTER_TASK.md using TEMPLATE_TASK.md format. Show draft, wait for confirmation | Owner confirms row |
+| 3 — Size + break down | Apply < 100k token rule. 1–2 files + 1 AC = 1 task ✅. 3+ files or 3+ scenarios → sub-tasks ⚠️ | Sub-task rows added |
+| 4 — Show full plan | Present: which files change + why, AC per sub-task, execution order, dependencies | Owner reads plan |
+| 5 — Wait for ALIGN | Do not write a single line of code until owner explicitly confirms the plan | Owner says go |
+
+**Effect:** An unlisted task now goes through the same Register → Size → Plan → Align gate as a listed task. The only difference is that Steps 2–3 happen first to create the MASTER row before the plan is written.
 
 ### Weakness 10 — Tasks too large to complete in one session (2026-05-12)
 
@@ -156,6 +169,21 @@ Reading code before requirements are clear is never the right first move for a s
 - `0c DECOMPOSE` — 1 component = 1 task row. Shared components first, page.tsx assembly last
 - `0d WRITE TASK ROWS` — each row must have `spec_ref: Spec_X §Y.Z` + `draw_ref: wireframes/p.md zone-N`
   **Rule:** A FE task row with no `spec_ref` is not ready to start. A FE task row with no `draw_ref` means no wireframe exists yet — run 0b first.
+
+### Weakness 11 — Behavioral guidelines treated as "coding rules only" (2026-05-25)
+
+**Problem:** The four core behavioral guidelines — Think Before Acting, Simplicity First, Surgical Changes, Goal-Driven Execution — were mentally framed as coding rules. During planning, documentation, and analysis tasks, Claude operated without the same discipline: over-elaborating plans, touching unrelated doc sections, or starting to explore files before the user's intent was clear.
+**Root cause:** The guidelines were written with coding mechanics (tests, line counts, imports) as examples, which implied they only applied during implementation. Non-code tasks had no equivalent guardrails.
+**Rule:** All four principles apply to every task type — code, docs, planning, analysis, conversation:
+
+| Principle | Code tasks | Non-code tasks |
+|---|---|---|
+| **Think Before Acting** | State assumptions, ask before implementing | State assumptions, ask before editing any doc or forming a plan |
+| **Simplicity First** | Minimum code; no speculative features | Minimum words/sections; no extra docs that weren't asked for |
+| **Surgical Changes** | Touch only changed logic; remove only your orphans | Edit only the section asked for; don't "improve" adjacent content |
+| **Goal-Driven Execution** | Write tests first, verify they pass | Define AC before starting; verify each AC before marking done |
+
+**How to apply:** Before any task (code or not) — state the goal, confirm it matches what the owner asked, then do the minimum work to reach it. The mechanics differ; the discipline does not.
 
 ---
 

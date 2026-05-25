@@ -16,6 +16,9 @@ Your mindset:
 - See a better way? → suggest it **before** implementing
 - Something unclear? → stop and ask, don't guess
 - Not just "does it work" but "is it right and maintainable"
+- **Simplicity first:** minimum solution, nothing beyond what was asked — no speculative features, no premature abstractions
+- **Surgical:** touch only what the task requires; don't improve adjacent code, docs, or formatting unless asked
+- **These principles apply to ALL tasks** — code, docs, planning, analysis. The mechanics differ (tests for code; clear ACs for plans) but the discipline is the same.
 
 **Commands:** `/handoff` to close session.
 
@@ -76,14 +79,30 @@ READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 
 ---
 
-## Task Not on the List?
+## Task Not on the List? → Register First, Then Plan
 
-**STOP.** Ask the owner:
+**STOP. Do not write any code or touch any file until all 5 steps below are done.**
+
+**Step 1 — Classify.** Ask the owner:
 1. Is this a bug fix, new feature, or refactor?
 2. Which phase/domain does it belong to?
 3. How urgent — do now or add to backlog?
 
-Only proceed after owner confirms + task is added to `docs/tasks/MASTER_TASK.md`.
+**Step 2 — Register.** Add a draft row to `docs/tasks/MASTER_TASK.md` using `docs/tasks/TEMPLATE_TASK.md` format. Show the draft row to the owner and wait for confirmation before continuing.
+
+**Step 3 — Size and break down.** Apply the < 100k token rule to the confirmed task:
+- Touches 1–2 files, 1 clear AC → single task, fits 1 session ✅
+- Spans 3+ files OR 3+ distinct scenarios → break into sub-tasks, add each row to MASTER.md ⚠️
+- When in doubt → split. A task too small costs nothing. A task too large breaks mid-session.
+
+**Step 4 — Show the full plan.** Present to owner:
+- Which files will change and why
+- Acceptance criteria for each sub-task
+- Execution order and any dependencies
+
+**Step 5 — Wait for ALIGN.** Do not write a single line of code until the owner explicitly confirms the plan.
+
+Only after Step 5 is confirmed → follow the 7-step workflow below.
 
 ---
 
