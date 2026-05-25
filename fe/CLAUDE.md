@@ -28,19 +28,28 @@ API calls     → lib/api-client.ts (axios + interceptors)
 ```
 
 ```
-fe/
+fe/src/
 ├── app/
 │   ├── (auth)/login/           ← login page
-│   ├── (shop)/                 ← customer menu + order tracking (SSE)
-│   └── (dashboard)/            ← staff: kds/ (WS) · pos/ · manager/
-├── features/
-│   ├── auth/                   ← auth.store.ts · auth.api.ts
-│   └── [domain]/               ← [domain].store.ts · [domain].api.ts
+│   ├── (shop)/                 ← customer: menu · order · checkout
+│   └── (dashboard)/            ← staff: kds/ (WS) · cashier/ · admin/
 ├── components/
-│   ├── ui/                     ← Button, Input, Modal, Badge
+│   ├── ui/                     ← atoms: Button, Input, Card, Badge, Label
+│   ├── shared/                 ← cross-page: ConnectionErrorBanner, CookieConsent, EmptyState, StatusBadge
+│   ├── menu/                   ← menu-only: ProductCard, ComboCard, CartDrawer, CategoryTabs
+│   ├── order/                  ← order-specific components
 │   └── guards/                 ← AuthGuard.tsx · RoleGuard.tsx
-└── lib/
-    └── api-client.ts           ← axios instance + interceptors
+├── features/
+│   ├── auth/                   ← auth.store.ts
+│   └── admin/                  ← admin domain store + components
+├── hooks/                      ← shared hooks: useOrderSSE, useAdminSSE, useOverviewWS
+│                                  NEW hooks go HERE (not inside page folders)
+├── store/                      ← global stores: cart.ts · favourites.ts · settings.ts
+│                                  NEW stores go HERE (not inside page folders)
+├── lib/
+│   ├── api-client.ts           ← axios instance + interceptors
+│   └── storage-keys.ts         ← ALL localStorage key constants (single source)
+└── types/                      ← shared TypeScript types
 ```
 
 ## Commands
@@ -55,6 +64,7 @@ docker compose up -d --build fe  # rebuild FE container
 
 ## Critical Pointers
 
+- KHÔNG hardcode localStorage key strings — import từ `src/lib/storage-keys.ts`; không tạo key string trực tiếp trong component/hook
 - KHÔNG hardcode hex — dùng token từ tailwind.config.ts: `bg-primary`, `text-card`, `text-muted-fg` → `docs/fe/FE_DOC_INDEX.md §3`
 - `formatVND()` cho mọi giá tiền — từ `src/lib/utils.ts` (đã có)
 - Access token: Zustand memory ONLY → `docs/core/MASTER_v1.2.md §6`

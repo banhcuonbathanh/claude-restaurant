@@ -30,6 +30,7 @@
 | P11 — Add Items to Existing Order | Full | ✅ COMPLETE | 0 | — |
 | P-ORDER-TOPPING — Order Page Topping Display | FE+BE | ✅ COMPLETE | 0 | — |
 | P-FIX-MOCK — Fix order_service_test mockOrderRepo | BE | ✅ COMPLETE | 0 | — |
+| P-ARCH — FE Architecture Groundwork | FE+Docs | ⬜ NOT STARTED | 2 | P-ARCH-1 (storage-keys) |
 
 ---
 
@@ -323,6 +324,21 @@ The entries below are phase-level summaries only.
 |---|---|---|---|---|---|---|---|
 | P-MENU-1 | FE | Wireframe + zone table (menu.excalidraw + menu.md) | — | 1 | ✅ | `Spec_3 §4` | `wireframes/menu.excalidraw` |
 | P-MENU-2 | FE | `ProductGridCard` component + update menu/page.tsx to 2-col grid | P-MENU-1 ✅ | 1 | ⬜ | `Spec_3 §4.1 §4.3` | `wireframes/menu.md Zone E` |
+
+---
+
+## Phase P-ARCH — FE Architecture Groundwork
+
+> **Owner:** FE + Docs
+> **Dependency:** P5 ✅ (FE codebase exists)
+> **Goal:** Prevent cross-page duplication and silent bugs before building the next 10 FE pages. Fix storage key scatter + correct inaccurate wireframe file paths.
+> **Order:** P-ARCH-1 and P-ARCH-2 are independent — can run in either order.
+> **Added:** 2026-05-25
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P-ARCH-1 | FE | Create `src/lib/storage-keys.ts` — single source for all localStorage key constants; update `CookieConsent.tsx` (`cookie_consent_accepted`), `useOrderSSE.ts` + `order/page.tsx` + `menu/page.tsx` (`order_cache_` prefix — currently hardcoded in 3 files), `favourites.ts` (`favourites`), `settings.ts` (`customer-settings`) to import from it | P5 ✅ | 1 | ⬜ | No hardcoded localStorage key strings outside `storage-keys.ts`; `tsc --noEmit` clean; behavior unchanged |
+| P-ARCH-2 | Docs | Correct `menu_wireframe_v1.md` wrong file paths: cartStore → `src/store/cart.ts` (not `menu/stores/`); hooks → `src/hooks/` (not `menu/hooks/`); remove persist middleware from cartStore spec (cart is memory-only in actual code); fix `useCombos enabled: true` → `enabled: selectedCategory === null`; update `_TEMPLATE.md` to match richer zone format | — | 1 | ⬜ | All paths match actual codebase; `useCombos` enabled flag correct; template has Zone table + Data Sources + TypeScript contracts sections |
 
 ---
 

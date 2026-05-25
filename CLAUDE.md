@@ -142,6 +142,7 @@ Only after Step 5 is confirmed → follow the 7-step workflow below.
 | Phase 6 — DevOps | ✅ COMPLETE — .env.example + migrate.sh + Caddyfile + Caddy in compose + CI/CD + README | — |
 | Phase 7 — Testing + Go-Live | ⬜ NOT STARTED | Needs P4+P5 |
 | Phase 8 — Admin Dashboard | ✅ COMPLETE — FE pages + BE staff CRUD + Overview + Marketing (8-1→8-17) | — |
+| P-ARCH — FE Architecture Groundwork | ⬜ NOT STARTED — storage-keys + wireframe doc corrections | — |
 
 ## Document Map (3 Tầng)
 
@@ -212,17 +213,23 @@ Ports: **BE=8080 · FE=3000 · MySQL=3306 · Redis=6379 · RedisInsight=8001**
 BE layers (strict): `handler` → `service` → `repository` → `db` (sqlc generated)
 FE state (strict): server → TanStack Query · client → Zustand · forms → RHF+Zod · API → `lib/api-client.ts`
 
+FE folder conventions (enforce on every new page):
+- Shared query hooks → `src/hooks/` (NOT inside page folders)
+- Stores → `src/store/` (top-level, NOT inside page folders)
+- Shared components → `src/components/shared/` · atoms → `src/components/ui/`
+- All localStorage keys → `src/lib/storage-keys.ts` ONLY — no hardcoded strings
+
 ## Branch Naming
 
 `feature/spec-001-auth` · `fix/auth-refresh-token-null` · `chore/docker-compose-redis-stack`
 
 ## Current Work
 
-- **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 ✅ · Phase 10 ✅ · Phase UX ✅ · Phase 7 ⬜ NEXT · Phase 9 ⬜ NEXT.
-- **Branch:** test — uncommitted changes. Run `docker compose up -d --build be fe` after any change.
+- **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 ✅ · Phase 10 ✅ · Phase UX ✅ · Phase 7 ⬜ NEXT · P-ARCH ⬜ NEXT.
+- **Branch:** chore/wireframe-files — uncommitted changes. Run `docker compose up -d --build be fe` after any change.
 - **Done this session:**
-  - **product-detail wireframe** — drew `docs/fe/wireframes/product-detail.excalidraw` (+ PNG export); not yet committed
+  - **P-ARCH registered** — MASTER + CLAUDE.md + fe/CLAUDE.md + LESSONS_LEARNED updated; 2 tasks ready
 - **Next (in order):**
-  1. **Phase 7-1/7-2/7-3** — BE unit tests (auth/order/payment services)
-  2. **Phase 9 (9-2→9-7)** — extract WS hook + components from overview/page.tsx
+  1. **P-ARCH-1** — create `src/lib/storage-keys.ts` + update 6 files (1 session)
+  2. **P-ARCH-2** — correct `menu_wireframe_v1.md` file paths + update `_TEMPLATE.md` (1 session)
   3. **Phase 7-7** — Payment sandbox (VNPay + MoMo via ngrok)
