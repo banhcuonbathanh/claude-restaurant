@@ -1,68 +1,199 @@
 ---
-description: Scaffold a full wireframe folder for a FE page. Usage: /wireframe <page-folder-name>. Two-phase flow: Phase 1 collects page info and previews the plan, Phase 2 creates all files. Standard: docs/fe/wireframes/FOLDER_STANDARD.md
+description: Scaffold a full wireframe folder for a FE page. Usage: /wireframe <page-folder-name> [excalidraw-path]. Two flows: (A) excalidraw-first — read existing .excalidraw and build all files from it; (B) spec-first — collect info, create placeholder files, run /excalidraw after. Standard: docs/fe/wireframes/FOLDER_STANDARD.md
 ---
 
-You are scaffolding a wireframe folder for the BanhCuon restaurant project.
+You are scaffolding a wireframe folder for a FE page.
 
-The argument passed to this skill is the page folder name: **$ARGUMENTS**
+The argument passed to this skill is: **$ARGUMENTS**
+- First token = page folder name (required)
+- Second token = path to existing excalidraw file (optional)
 
 Read `docs/fe/wireframes/FOLDER_STANDARD.md` now — it is the authoritative standard for every file you will create.
 
 ---
 
-## PHASE 1 — Gather info and plan (always run first, always wait for approval)
+## PHASE 0 — Detect excalidraw (always run first, takes < 1 min)
 
-### 1a — Ask for required inputs
+### 0a — Parse arguments
 
-If any of the following are missing from the conversation context, ask the user now (all in one message — do not ask one at a time):
+Extract:
+- `FOLDER` = first token of `$ARGUMENTS` (e.g. `admin_main/admin_main_staff`)
+- `EXCALIDRAW_PATH` = second token if provided (e.g. `docs/fe/wireframes/admin_main/admin_main_staff/admin-main-staff.excalidraw`)
+
+If `EXCALIDRAW_PATH` was not in `$ARGUMENTS`, auto-detect:
+- Check if any `*.excalidraw` file exists inside `docs/fe/wireframes/FOLDER/`
+- If exactly one found → set `EXCALIDRAW_PATH` to that file
+- If multiple found → ask the user which one to use (pick one — do not proceed with ambiguity)
+- If none found → set `EXCALIDRAW_PATH = none` → go to **Flow B** below
+
+### 0b — Choose flow based on whether excalidraw exists
+
+| | Flow A — excalidraw-first | Flow B — spec-first |
+|---|---|---|
+| **When** | `EXCALIDRAW_PATH` is set | `EXCALIDRAW_PATH = none` |
+| **Phase 1** | Read excalidraw → extract zones → ask only for missing info | Ask all 9 questions from scratch |
+| **Phase 2 content** | Real zone names, real Vietnamese copy, real components | [TBD] placeholders |
+| **Post-scaffold** | Files are dev-ready | User must run `/excalidraw FOLDER` next |
+
+---
+
+## FLOW A — Excalidraw-first
+
+### Phase 1A — Read and extract
+
+**Step 1A-1: Read the excalidraw file**
+
+Read `EXCALIDRAW_PATH` and extract the following. Excalidraw files are JSON — look at `elements` array for text, rectangles, frames, and groups:
+
+| What to extract | How to find it |
+|-----------------|----------------|
+| Page title / display name | Largest or topmost text element; frame labels |
+| Zone labels | Letter-labeled frames or groups (A, B, C…); text near zone boundaries |
+| Zone names (Vietnamese/English) | Text inside or adjacent to each zone frame |
+| Sticky zones | Zones labeled "sticky", "top-0", "z-20", or similar annotation |
+| Modals | Frames labeled "Modal", "Popup", "M1", "M2", etc. |
+| UI components visible | Button labels, table headers, form fields, tab names |
+| Vietnamese copy | Any Vietnamese text — capture verbatim for how_to_use.md |
+| Device target | Labels "Mobile", "Desktop", "375px", "1280px", etc. |
+| FE route | Text containing `/admin/`, `/(shop)/`, `/staff/`, etc. |
+
+Synthesise a `SPEC_SUMMARY` (5–8 bullet points) from what you extracted.
+
+**Step 1A-2: Complexity assessment**
+
+Count zones + modals:
+
+| Complexity | Criteria | Session estimate |
+|---|---|---|
+| Simple | ≤ 4 zones, 0–1 modals, ≤ 3 data sources | 1 session |
+| Medium | 5–6 zones, 1–2 modals, 4–6 data sources | 1 session (tight) |
+| Complex | ≥ 7 zones OR ≥ 3 modals OR 7+ data sources OR 3+ TypeScript interfaces | Break into sub-tasks |
+
+If **Complex**, print a breakdown plan and wait for the user to confirm which sub-tasks to run now:
+
+```
+⚠️ COMPLEXITY WARNING — this folder is too large for 1 session.
+
+Proposed sub-tasks:
+  Sub-task A1: [FOLDER]_wireframe_v1.md + zone mapping tables
+  Sub-task A2: business_description.md + how_to_use.md
+  Sub-task A3: tech_description.md + TypeScript contracts + query hooks
+  Sub-task A4: conccern.md + recomment/recommend.md + recomment/recomment_claude.md
+
+Which sub-tasks should I run now? (default: A1 only, run the rest in follow-up sessions)
+```
+
+Do not proceed past this point until the user responds.
+
+**Step 1A-3: Ask for missing inputs**
+
+If any of the following could NOT be extracted from the excalidraw, ask now (in one message):
+
+| Input | Extracted? | Ask if missing |
+|-------|------------|----------------|
+| Page display name | From frame title / text | ✅ / ❓ |
+| FE route | From route text in drawing | ✅ / ❓ |
+| Device type | From labels | ✅ / ❓ |
+| Business rules / constraints | Usually NOT in excalidraw | Always ask |
+| Edge cases to handle | Usually NOT in excalidraw | Always ask |
+
+**Step 1A-4: Print the plan**
+
+```
+📋 WIREFRAME SCAFFOLD PLAN (excalidraw-first) — [FOLDER]
+
+Source: [EXCALIDRAW_PATH]
+Folder: docs/fe/wireframes/[FOLDER]/
+
+Extracted from excalidraw:
+  Page: [display name]
+  Route: [route]
+  Device: [mobile | desktop]
+  Zones found: [A — name], [B — name], [C — name], …
+  Modals found: [M1 — name], [M2 — name], …
+
+Spec Summary (derived from excalidraw):
+  • [bullet 1]
+  • [bullet 2]
+  • [bullet 3]
+  • [bullet 4]
+  • [bullet 5]
+
+Files to create:
+  1. [FOLDER]_wireframe_v1.md      ← full spec with real zone content
+  2. business_description.md       ← Vietnamese user-facing description
+  3. tech_description.md           ← architecture & patterns
+  4. how_to_use.md                 ← step-by-step guide (Vietnamese)
+  5. conccern.md                   ← open questions & risks
+  6. recomment/recommend.md        ← UX/UI review
+  7. recomment/recomment_claude.md ← Claude implementation guidelines
+
+WIREFRAME_INDEX.md: will add 1 new row.
+```
+
+**Step 1A-5: STOP and wait for approval**
+
+> **Waiting for approval.** Reply "ok" to create all files, or correct any detail above first.
+
+Do NOT proceed to Phase 2 until the user explicitly approves.
+
+---
+
+## FLOW B — Spec-first (no excalidraw)
+
+### Phase 1B — Gather info from scratch
+
+Ask all of the following in one message if not already in context:
 
 | Input | Example |
 |-------|---------|
-| Page display name | "Client — Order History" |
-| FE route | `/(shop)/order-history/page.tsx` |
-| Spec reference | `Spec_3 §6` |
+| Page display name | "Admin — Staff Management" |
+| FE route | `/admin/staff/page.tsx` |
 | Device type | `mobile` or `desktop` |
-| Short description | "Shows past orders with reorder CTA" |
+| Short description | "CRUD table for staff accounts with role assignment" |
+| Who uses this page? | "Admin, Manager" |
+| Main user actions | "View list, create staff, edit role, deactivate" |
+| Data this page needs | "Staff list, roles, department" |
+| Business rules / constraints | "Only Admin can deactivate staff; Manager can only edit own department" |
+| Edge cases to handle | "Empty staff list, network error, duplicate email" |
 
-If `$ARGUMENTS` is empty, ask for the folder name too.
+Synthesise a `SPEC_SUMMARY` (3–5 bullets) from the answers.
 
-### 1b — Print the plan
-
-Once you have all inputs, print this block (fill in real values):
+Print the plan:
 
 ```
-📋 WIREFRAME SCAFFOLD PLAN — [page-folder-name]
+📋 WIREFRAME SCAFFOLD PLAN (spec-first) — [FOLDER]
 
-Folder: docs/fe/wireframes/[page-folder-name]/
+Folder: docs/fe/wireframes/[FOLDER]/
 
 Files to create:
-  1. [page-folder-name]_wireframe_v1.md   ← main spec (copy from _TEMPLATE.md structure)
-  2. business_description.md              ← user-facing description (Vietnamese)
-  3. tech_description.md                  ← architecture & patterns for developers
-  4. how_to_use.md                        ← step-by-step guide per zone (Vietnamese)
-  5. conccern.md                          ← open questions & raw notes
-  6. recomment/recommend.md               ← UX/UI review template
-  7. recomment/recomment_claude.md        ← Claude architectural guidelines
+  1. [FOLDER]_wireframe_v1.md      ← spec with [TBD] zone placeholders
+  2. business_description.md
+  3. tech_description.md
+  4. how_to_use.md
+  5. conccern.md
+  6. recomment/recommend.md
+  7. recomment/recomment_claude.md
 
 NOT created by this skill (run separately):
-  • [page-folder-name].excalidraw         ← run /excalidraw [page-folder-name] after
-  • [page-folder-name].png                ← export from Excalidraw after drawing
+  • [FOLDER].excalidraw             ← run /excalidraw [FOLDER] after
+  • [FOLDER].png                    ← export from Excalidraw
 
-WIREFRAME_INDEX.md: will add 1 new row under Pages or Flows.
+WIREFRAME_INDEX.md: will add 1 row.
 
 Page: [display name]
 Route: [route]
-Spec: [spec ref]
 Device: [mobile | desktop]
+
+Spec Summary:
+  • [bullet 1]
+  • [bullet 2]
+  • [bullet 3]
 ```
 
-### 1c — STOP and wait for approval
-
-After printing the plan, write:
+**STOP and wait for approval.**
 
 > **Waiting for approval.** Reply "ok" to create all files, or adjust any detail above first.
-
-Do NOT proceed to Phase 2 until the user explicitly approves.
 
 ---
 
@@ -70,57 +201,56 @@ Do NOT proceed to Phase 2 until the user explicitly approves.
 
 Only begin after the user approves the Phase 1 plan.
 
-Use the exact folder name from `$ARGUMENTS` (or confirmed in Phase 1) for all paths.
 Variables used below:
-- `FOLDER` = the folder name (e.g. `client_order_history`)
-- `PAGE` = display name (e.g. "Client — Order History")
-- `ROUTE` = FE route (e.g. `/(shop)/order-history/page.tsx`)
-- `SPEC` = spec reference (e.g. `Spec_3 §6`)
+- `FOLDER` = folder path (e.g. `admin_main/admin_main_training`)
+- `FOLDER_NAME` = last segment (e.g. `admin_main_training`)
+- `PAGE` = display name (e.g. "Admin — Staff Training")
+- `ROUTE` = FE route
+- `SPEC_SUMMARY` = bullet list synthesised in Phase 1
 - `DEVICE` = `mobile` or `desktop`
-- `DESC` = short description provided in Phase 1
-- `DATE` = today's date in YYYY-MM-DD format
+- `DATE` = today in YYYY-MM-DD
+- `FLOW` = `A` (excalidraw-first) or `B` (spec-first)
 
-### Step 1 — Create the folder structure
+**For Flow A**: pre-fill all zone-specific rows with real data extracted from the excalidraw. Do NOT leave zone names or component names as [TBD].
+**For Flow B**: leave zone rows as [TBD] placeholders; the user will fill them after running /excalidraw.
+
+---
+
+### Step 1 — Create folder structure
 
 Create:
 - `docs/fe/wireframes/FOLDER/`
 - `docs/fe/wireframes/FOLDER/recomment/`
 
-### Step 2 — Create `FOLDER_wireframe_v1.md`
+---
 
-This is the main spec. Follow `_TEMPLATE.md` exactly. Pre-fill all known fields; leave zone-specific rows as `[TBD]` placeholders.
+### Step 2 — Create `FOLDER_NAME_wireframe_v1.md`
+
+Follow `_TEMPLATE.md` exactly. For **Flow A**, the ASCII wireframe and all tables must use real zone names, real copy, and real component names from the excalidraw.
 
 ```markdown
 ---
-page: FOLDER
+page: FOLDER_NAME
 route: ROUTE
-spec_ref: SPEC
 created: DATE
 status: Draft
 ---
 
 # Page: PAGE
 **Route:** `ROUTE`
-**Spec Ref:** `SPEC`
 **Version:** v1
 **Status:** Draft
+
+## Spec Summary
+
+SPEC_SUMMARY
 
 ---
 
 ## 📐 Visual Wireframe
 
-> Draw this in Excalidraw: run `/excalidraw FOLDER` to generate the visual file.
-> Once drawn, paste the ASCII zone layout here.
-
-```text
-┌─────────────────────────────────────────────────────────┐
-│  [A] [Zone name — fill after /excalidraw]               │
-├─────────────────────────────────────────────────────────┤
-│  [B] [Zone name]                                        │
-├─────────────────────────────────────────────────────────┤
-│  [C] [Zone name]                                        │
-└─────────────────────────────────────────────────────────┘
-```
+[Flow A: Draw ASCII layout with real zone labels from excalidraw. Use real Vietnamese copy, not placeholders. Show sticky z-index annotations.]
+[Flow B: Leave placeholder boxes labeled [A], [B], [C] with note "Fill after /excalidraw"]
 
 ---
 
@@ -128,9 +258,8 @@ status: Draft
 
 | Zone | Component | Visibility Condition | Sticky / Position |
 |------|-----------|---------------------|-------------------|
-| **A** | `[ComponentName]` | Always | `top-0 z-20` |
-| **B** | `[ComponentName]` | [condition] | Scrollable |
-| **C** | `[ComponentName]` | [condition] | Scrollable |
+[Flow A: one real row per zone + modal found in excalidraw]
+[Flow B: rows for A, B, C with [ComponentName] placeholders]
 
 ---
 
@@ -138,53 +267,31 @@ status: Draft
 
 | Zone | Data Source | Update Mechanism | Query Key | Notes |
 |------|-------------|------------------|-----------|-------|
-| **A** | `[store].[field]` | Zustand | N/A | |
-| **B** | `GET /api/v1/[resource]` | TanStack Query | `['[resource]']` | `staleTime: 5min` |
-| **C** | `[store].[field]` | Zustand (computed) | N/A | |
+[Flow A: real data sources per zone based on component types found in excalidraw]
+[Flow B: [TBD] rows]
 
 ---
 
 ## 🧩 Component Specifications
 
-| Zone | Component | File | Spec Ref | Props / Interface |
-|------|-----------|------|----------|------------------|
-| **A** | `[Component]` | `[path]/page.tsx` | `SPEC.1` | Inline |
-| **B** | `[Component]` | `components/FOLDER/[Component].tsx` | `SPEC.2` | `[Component]Props` |
-| **C** | `[Component]` | `components/FOLDER/[Component].tsx` | `SPEC.3` | `[Component]Props` |
+| Zone | Component | File | Requirement | Props / Interface |
+|------|-----------|------|-------------|-----------------|
+[Flow A: real component names + file paths based on FOLDER_NAME]
+[Flow B: [TBD] rows]
 
 ---
 
 ## 👨‍💻 Developer Implementation Details
 
-<!-- Fill after zones are finalized. Skip for simple/static pages. -->
-
 ### TypeScript Contracts
 
-```typescript
-// types/FOLDER.ts
-
-export interface [Entity] {
-  id: string; // UUID — NEVER number
-  // [add fields from spec]
-}
-```
+[Flow A: write real interfaces for all data shapes inferred from excalidraw (tables, forms, cards)]
+[Flow B: stub with // [add fields from spec] placeholder]
 
 ### Query Configuration
 
-```typescript
-// hooks/use[PAGE]Queries.ts
-
-import { useQuery } from '@tanstack/react-query';
-
-export const use[Resource] = () => {
-  return useQuery({
-    queryKey: ['[resource]'],
-    queryFn: () => fetch('/api/v1/[resource]').then(res => res.json()),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-  });
-};
-```
+[Flow A: real query hooks for each data source]
+[Flow B: stub template]
 
 ---
 
@@ -192,25 +299,19 @@ export const use[Resource] = () => {
 
 | Scenario | Detection | Dev Action | UX Fallback |
 |----------|-----------|------------|-------------|
-| **Image fails to load** | `onError` on `<img>` | Show placeholder SVG | Gray block with icon |
-| **Empty list** | `data.length === 0` | Show empty state | "[Empty state text]" + CTA |
-| **Network offline** | `query.isError` | Show error banner | "Kết nối mạng yếu. Nhấn thử lại" |
-| **No permission** | API returns 403 | Redirect or hide UI | Toast "Không có quyền truy cập" |
-| **[page-specific case]** | [detection] | [dev action] | [UX fallback] |
+[Flow A: include all edge cases visible in excalidraw + standard ones (offline, empty, 403)]
+[Flow B: standard rows only]
 
 ---
 
 ## 🧪 Testing & QA Checklist
 
 ### Functional Tests
-- [ ] **Zone A:** [describe expected behaviour]
-- [ ] **Zone B:** [describe expected behaviour]
-- [ ] **Zone C:** [describe expected behaviour]
+[Flow A: one test per zone, using real zone names]
+[Flow B: [Zone A], [Zone B] placeholders]
 
 ### Edge Case Tests
-- [ ] Image fails to load → placeholder shows
-- [ ] Network offline → error banner appears
-- [ ] Empty list → empty state shows correctly
+- [ ] [standard tests]
 
 ### Accessibility Tests
 - [ ] All interactive elements have `min-h-[44px] min-w-[44px]`
@@ -226,257 +327,214 @@ export const use[Resource] = () => {
 
 ## 📋 Task Rows
 
-| ID | Owner | Task | Status | Spec Ref | Draw Ref |
-|----|-------|------|--------|----------|----------|
-| [X]-1 | FE | Wireframe + zone table | ⬜ | SPEC | wireframes/FOLDER_wireframe_v1.md |
-| [X]-2 | FE | [Main component] | ⬜ | SPEC | Zone B |
-| [X]-3 | FE | `FOLDER/page.tsx` — assemble | ⬜ | SPEC | wireframes/FOLDER_wireframe_v1.md |
+| ID | Owner | Task | Status | Draw Ref |
+|----|-------|------|--------|----------|
+| [X]-1 | FE | Wireframe + zone table | ✅ | wireframes/FOLDER/FOLDER_NAME_wireframe_v1.md |
+[Flow A: one row per component found]
+[Flow B: rows for main component + page assembly]
 
 ---
 
 ## 📝 Changelog
 
 **v1 (DATE)**
-- Initial scaffold
+- Initial scaffold[Flow A: add "based on [excalidraw filename]" + list zones and modals documented]
 
 ---
 
 *Last Updated: DATE*
 *Approved by: —*
-*Next Review: After excalidraw zones confirmed*
+*Next Review: [Flow A: After zone content reviewed with owner | Flow B: After excalidraw zones confirmed]*
 ```
+
+---
 
 ### Step 3 — Create `business_description.md`
 
-Audience: end users and restaurant owner. No technical terms. Write in Vietnamese. Use DESC as context.
+Audience: end users and restaurant owner. **Vietnamese.** No technical terms.
 
+**Flow A**: Write real copy using the Vietnamese text, button labels, and flows found in the excalidraw. Describe actual features visible in the drawing.
+
+**Flow B**: Use the DESC from Phase 1B as context; leave zone-specific details for after /excalidraw.
+
+Template structure:
 ```markdown
 > Dành cho: Khách hàng cuối, onboarding, FAQ. Không dùng thuật ngữ kỹ thuật.
 
 ---
 
-### PAGE — Dành cho khách hàng
+### PAGE — Dành cho [người dùng]
 
-[Viết 1 câu mô tả trang này làm gì từ góc độ người dùng.]
+[1 câu mô tả trang làm gì từ góc độ người dùng.]
 
 #### Bạn sẽ thích ngay khi sử dụng:
 
-1. **[Lợi ích 1]**
-   [Mô tả ngắn]
-
-2. **[Lợi ích 2]**
-   [Mô tả ngắn]
-
-3. **[Lợi ích 3]**
-   [Mô tả ngắn]
+1. **[Lợi ích 1]** — [mô tả ngắn]
+2. **[Lợi ích 2]** — [mô tả ngắn]
+3. **[Lợi ích 3]** — [mô tả ngắn]
 
 #### Trải nghiệm được tối ưu:
-- Giao diện di động mượt mà, thao tác chạm chuẩn 44px
-- Dữ liệu được lưu tự động
+- Giao diện [mobile/desktop], thao tác chuẩn 44px
+- Dữ liệu lưu tự động
 - Minh bạch thông tin
 
 #### Quy trình [N] bước:
 `Bước 1` → `Bước 2` → `Bước 3`
+```
 
 ---
-*[Gợi ý: điền nội dung thực sau khi excalidraw và spec zone đã xác nhận]*
-```
 
 ### Step 4 — Create `tech_description.md`
 
 Audience: developers. Include stack, patterns, file org.
 
+**Flow A**: Write real zone count, real store names, real query resource names, real file org tree.
+
+**Flow B**: Use [TBD] stubs for zone-specific content; fill tech stack from project defaults.
+
+Template structure:
 ```markdown
 ## Technical Architecture — PAGE
 
 ### Page Structure
-- Zones: [A–?] (fill after excalidraw)
+- Zones: [list real zones for Flow A | A–C (fill after /excalidraw) for Flow B]
 - Device target: DEVICE
-- Conditional rendering: [TBD]
-- Scrollable area: between [Zone ?] and [Zone ?]
+- Sticky zones: [list sticky zones | TBD]
+- Modals: [list modals | TBD]
 
 ### Tech Stack
-```
 React (Next.js App Router)
-├── State: Zustand ([store names — TBD]) + localStorage persistence
-├── Data: TanStack Query ([resource names — TBD])
+├── State: Zustand ([store names]) + localStorage persistence
+├── Data: TanStack Query ([resource names])
 ├── Styling: Tailwind CSS (DEVICE layout)
 └── Types: TypeScript interfaces for all components
-```
 
 ### Key Implementation Patterns
-
-**1. Component Architecture**
-- [TBD — fill after zones confirmed]
-
-**2. State Management**
-```typescript
-// [store-name]Store: {
-//   [field]: [type]
-//   // Actions: [TBD]
-// }
-```
-
-**3. Data Fetching**
-```typescript
-// queryKey: ['[resource]', ...params]
-// staleTime: 5 * 60 * 1000
-```
-
-**4. Performance**
-- [TBD — debounce, optimistic updates, memoization as applicable]
-
-**5. Edge Cases**
-- Image fallback → placeholder SVG
-- Network error → retry banner
-- Empty state → contextual CTA
+[1. Component Architecture, 2. State Management (with interface), 3. Data Fetching, 4. Performance, 5. Edge Cases]
 
 ### File Organization
-```
-/(ROUTE_BASE)/
-├── page.tsx
-├── components/
-│   └── [Component].tsx   ← [TBD]
-└── hooks/
-    └── use[PAGE]Queries.ts
-```
+[tree matching actual FE folder structure]
 
 ### Critical Notes
-- UUID for all entity IDs (never numeric)
-- Price formatting client-side (raw numbers in state/API)
-- [Add page-specific constraints after spec review]
+[Flow A: derive from excalidraw content | Flow B: UUID rule + project defaults]
 ```
+
+---
 
 ### Step 5 — Create `how_to_use.md`
 
-Audience: end users. Vietnamese. Zone-by-zone guide. Use DESC as context.
+Audience: end users. **Vietnamese.** Zone-by-zone guide.
 
+**Flow A**: Write using real zone names and real Vietnamese copy from the excalidraw. Every zone must appear.
+
+**Flow B**: Write with [Zone A — TBD], [Zone B — TBD] stubs per zone.
+
+Template structure:
 ```markdown
 > Dành cho: Khách hàng, onboarding in-app, FAQ hỗ trợ.
 
 ---
 # Hướng dẫn sử dụng: PAGE
 
-[1 câu về nguyên tắc thiết kế của trang này.]
+[1 câu về nguyên tắc thiết kế.]
 
 ## Bước 1: [Tên nhóm zone] (Zone A, B)
-
 | Vùng | Chức năng | Cách dùng |
-|------|-----------|-----------|
-| **A – [Tên]** | [Chức năng] | [Cách dùng — điền sau khi zone xác nhận] |
-| **B – [Tên]** | [Chức năng] | [Cách dùng] |
+...
 
 ## Bước 2: [Tên nhóm zone] (Zone C, D)
-
-| Vùng | Chức năng | Cách dùng |
-|------|-----------|-----------|
-| **C – [Tên]** | [Chức năng] | [Cách dùng] |
-| **D – [Tên]** | [Chức năng] | [Cách dùng] |
+...
 
 ## Mẹo & Hỗ trợ đặc biệt
-
 | Tình huống | Cách hệ thống xử lý | Gợi ý cho khách |
-|------------|---------------------|-----------------|
-| Thoát app / Tải lại | Dữ liệu lưu tự động | Không lo mất thông tin |
-| Mạng yếu / Offline | Hiện banner thử lại | Nhấn banner để tải lại |
-| Không tìm thấy kết quả | Hiện trạng thái trống | Thử bộ lọc khác |
+...
 
 ## Luồng chuẩn
-
-```
-Bước 1  →  Bước 2  →  Bước 3
+[ASCII flow]
 ```
 
 ---
-*[Điền nội dung chi tiết sau khi zone layout được xác nhận từ excalidraw]*
-```
 
 ### Step 6 — Create `conccern.md`
 
 Audience: owner + developer scratchpad. Raw questions, not a formal doc.
 
+**Flow A**: Open questions derived from what was ambiguous or missing in the excalidraw (e.g., missing API endpoint for a form, unclear pagination strategy, undocumented modal close behaviour).
+
+**Flow B**: Generic open questions from Phase 1B inputs.
+
 ```markdown
 > Scratchpad: open questions, risks, undecided items for PAGE.
-> Not a formal spec — write freely. Resolve items here before finalising the wireframe.
 
 ---
 
 ## Open Questions
-
-- [ ] [Question 1 — e.g. "Can users edit after submitting?"]
-- [ ] [Question 2 — e.g. "What is the max items per page? Pagination or infinite scroll?"]
-- [ ] [Question 3 — e.g. "Does this page require auth? What happens if session expires mid-view?"]
+- [ ] [Question 1]
+- [ ] [Question 2]
+- [ ] [Question 3]
 
 ## Risks
-
-- [Risk 1 — e.g. "Zone layout on 375px may be too dense — test before finalising"]
+- [Risk 1]
 
 ## Undecided
-
-- [Item 1 — e.g. "Empty state illustration: custom SVG or generic icon?"]
+- [Item 1]
 
 ## Resolved
-
-*(Move items here once decided — record the decision, not just the outcome)*
+*(Move items here once decided)*
 
 ---
 *Created: DATE*
 ```
 
+---
+
 ### Step 7 — Create `recomment/recommend.md`
 
-Audience: developer + designer doing UX review. Structured tables.
+Audience: developer + designer doing UX review.
+
+**Flow A**: Reference specific zones found in excalidraw; note alignment gaps between excalidraw visuals and spec. Recommendations should be concrete (e.g., "Zone B tab bar: add count badge — not shown in excalidraw but spec requires it").
+
+**Flow B**: Generic UX review template with [TBD] zone references.
 
 ```markdown
-> UX/UI review for PAGE. Fill after excalidraw is drawn and zones are confirmed.
+> UX/UI review for PAGE. [Flow A: filled from excalidraw review | Flow B: fill after /excalidraw]
 
 ---
 
 ## ✅ UX Strengths
-
-1. [Strength 1 — what the current design does well]
+1. [Strength 1]
 2. [Strength 2]
 3. [Strength 3]
 
 ---
 
 ## ⚠️ UX Recommendations
-
 | Area | Observation | Recommendation |
-|------|-------------|----------------|
-| [Zone / Feature] | [What you noticed] | [What to change] |
-| [Zone / Feature] | | |
+...
 
 ---
 
 ## 🎨 UI & Visual Recommendations
-
 | Element | Issue | Fix |
-|---------|-------|-----|
-| [Element] | [Issue] | [Fix] |
+...
 
 ---
 
 ## 🔍 Spec vs. Excalidraw Alignment
-
 | Zone | Spec Says | Excalidraw Shows | Action |
-|------|-----------|-----------------|--------|
-| [Zone] | [spec claim] | [what image shows] | [update doc / update drawing] |
+...
 
 ---
 
 ## ♿ Accessibility & Edge Cases
-
-- [ ] Touch targets ≥ 44px on all interactive elements
-- [ ] Screen reader labels on all icons and buttons
-- [ ] Keyboard navigation: Tab → Enter → Esc
+- [ ] Touch targets ≥ 44px
+- [ ] Screen reader labels on icons
+- [ ] Keyboard: Tab → Enter → Esc
 - [ ] `prefers-reduced-motion` respected
-- [ ] [page-specific a11y note]
 
 ---
 
 ## 🚀 Recommended Next Steps
-
 1. [Action 1]
 2. [Action 2]
 3. [Action 3]
@@ -486,95 +544,88 @@ Audience: developer + designer doing UX review. Structured tables.
 *Reviewed by: —*
 ```
 
+---
+
 ### Step 8 — Create `recomment/recomment_claude.md`
 
-Audience: developer team. Claude's analysis — cross-page architecture + what Claude needs to know before coding this page.
+Audience: developer team. Claude's architectural analysis for implementing this page.
+
+**Flow A**: Derive shared component reuse, state strategy, and non-obvious implementation notes from what you read in the excalidraw (modals, forms, real-time data, etc.).
+
+**Flow B**: Generic template with [TBD] stubs.
 
 ```markdown
 # Claude Guidelines — PAGE
 
 > Read this before implementing PAGE.
-> Covers: shared components, state strategy, performance, and what is non-obvious from the main spec.
 
 ---
 
-## Spec Summary (SPEC)
+## Spec Summary
+SPEC_SUMMARY
 
-DESC
-
-Key constraint: [read SPEC and note the single most important constraint for Claude — e.g. "auth required", "real-time SSE", "optimistic update pattern"]
+Key constraint: [Flow A: derive from excalidraw content | Flow B: derive from SPEC_SUMMARY]
 
 ---
 
 ## Shared Components — Reuse Checklist
-
-Before building any new component, check these first:
-
 | Component needed | Reuse from | Notes |
-|------------------|-----------|-------|
-| Page header | `components/shared/PageHeader.tsx` | Pass `title`, `tableLabel` props |
-| Error banner | `components/shared/ErrorBanner.tsx` | Network error pattern |
-| Empty state | `components/shared/EmptyState.tsx` | Pass `icon`, `message`, `cta` |
-| Loading skeleton | `components/shared/Skeleton.tsx` | Match zone dimensions |
-| [Page-specific] | [TBD] | |
+...
 
 ---
 
 ## State Strategy
-
 | Data type | Where it lives | Why |
-|-----------|---------------|-----|
-| [Server data] | TanStack Query | Cache + revalidation |
-| [Cross-page state] | Zustand global store | Needed by [other pages] |
-| [Page-local state] | `useState` inside page | Never leaves this page |
-| [Persisted client state] | Zustand + `persist` middleware | Survives reload |
+...
 
 ---
 
 ## Performance Checklist
-
-- [ ] Code split: each page in `/(ROUTE_BASE)/` loads its own JS bundle (automatic via App Router)
-- [ ] Images: use `next/image` — never raw `<img>` tags
-- [ ] Lists > 20 items: add virtualization (`react-window`) or pagination
-- [ ] API calls: use TanStack Query — no `useEffect` + `fetch` combos
-- [ ] Animations: wrap in `prefers-reduced-motion` check
+- [ ] Code split: App Router automatic per page
+- [ ] Images: `next/image` only
+- [ ] Lists > 20: virtualization or pagination
+- [ ] API calls: TanStack Query — no useEffect+fetch combos
+- [ ] Animations: `prefers-reduced-motion` check
 
 ---
 
 ## Cross-Page Notes
-
-- State shared with other pages: [TBD — list stores this page reads/writes]
-- Navigation from this page: [TBD — list routes this page links to]
-- Navigation to this page: [TBD — list what routes link here]
+- State shared with other pages: [TBD]
+- Navigation from this page: [TBD]
+- Navigation to this page: [TBD]
 
 ---
 
 ## Non-Obvious Implementation Notes
-
-*(Fill after spec review — things not obvious from reading the wireframe)*
-
-- [Note 1]
-- [Note 2]
+[Flow A: list non-obvious things derived from excalidraw — modals with complex state, real-time data, optimistic updates, etc.]
+[Flow B: [Note 1], [Note 2] stubs]
 
 ---
 *Created: DATE*
 ```
 
+---
+
 ### Step 9 — Update `docs/fe/wireframes/WIREFRAME_INDEX.md`
 
-Add one new row to the Pages table. Use the display name and correct relative link:
+Add one new row to the Pages table:
 
 ```
-| [next number] | PAGE | [FOLDER/FOLDER_wireframe_v1.md](FOLDER/FOLDER_wireframe_v1.md) |
+| [next number] | PAGE | [FOLDER_NAME_wireframe_v1.md](FOLDER/FOLDER_NAME_wireframe_v1.md) |
 ```
+
+---
 
 ### Step 10 — Print completion summary
 
 ```
 ✅ /wireframe FOLDER — scaffold complete
 
+Flow: [A — excalidraw-first | B — spec-first]
+[Flow A only: Source: EXCALIDRAW_PATH]
+
 Files created (7):
-  docs/fe/wireframes/FOLDER/FOLDER_wireframe_v1.md
+  docs/fe/wireframes/FOLDER/FOLDER_NAME_wireframe_v1.md
   docs/fe/wireframes/FOLDER/business_description.md
   docs/fe/wireframes/FOLDER/tech_description.md
   docs/fe/wireframes/FOLDER/how_to_use.md
@@ -585,11 +636,18 @@ Files created (7):
 Updated:
   docs/fe/wireframes/WIREFRAME_INDEX.md ← added row [N]
 
-Next steps (in order):
+Next steps:
+[Flow A:]
+  1. Review the files and fill any [TBD] gaps (mostly in conccern.md and recomment/)
+  2. Add task rows from FOLDER_NAME_wireframe_v1.md to docs/tasks/MASTER_TASK.md
+  3. Export a PNG from the excalidraw → save as FOLDER_NAME.png
+  4. Run /doc-check after filling content
+
+[Flow B:]
   1. Run `/excalidraw FOLDER` → draw the visual wireframe
-  2. Paste the ASCII zone layout into FOLDER_wireframe_v1.md §📐 Visual Wireframe
-  3. Fill in Zone Mapping, Data Sources, and Component tables
-  4. Fill in business_description.md and how_to_use.md with real copy
+  2. Paste the ASCII zone layout into FOLDER_NAME_wireframe_v1.md §📐 Visual Wireframe
+  3. Fill Zone Mapping, Data Sources, and Component tables
+  4. Fill business_description.md and how_to_use.md with real copy
   5. Add at least 3 items to conccern.md before design review
-  6. Run /doc-check after filling content to verify no stale placeholders
+  6. Run /doc-check after filling content
 ```

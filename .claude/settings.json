@@ -1,5 +1,12 @@
 {
   "permissions": {
+    "deny": [
+      "Bash(rm *)",
+      "Bash(rm -rf *)",
+      "Bash(rmdir *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
+    ],
     "allow": [
       "Bash(sqlc generate *)",
       "Bash(git stash *)",

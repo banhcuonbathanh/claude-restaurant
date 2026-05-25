@@ -31,6 +31,7 @@
 | P-ORDER-TOPPING — Order Page Topping Display | FE+BE | ✅ COMPLETE | 0 | — |
 | P-FIX-MOCK — Fix order_service_test mockOrderRepo | BE | ✅ COMPLETE | 0 | — |
 | P-ARCH — FE Architecture Groundwork | FE+Docs | ⬜ NOT STARTED | 2 | P-ARCH-1 (storage-keys) |
+| P-TRAINING — Admin Staff Training Page | FE | ⬜ NOT STARTED | 6 | P-TRAINING-2 (RoleFilterTabs) |
 
 ---
 
@@ -398,6 +399,31 @@ The entries below are phase-level summaries only.
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
 | P-FIX-MOCK-1 | BE | Add `appendOrderItemsFn` field + `AppendOrderItems` method stub to `mockOrderRepo` in `order_service_test.go` | P11-2 ✅ | 1 | ✅ | `go test ./be/internal/service/...` compiles and all existing tests pass |
+
+---
+
+## Phase P-TRAINING — Admin Staff Training Page
+
+> **Owner:** FE
+> **Dependency:** P8 ✅ (Admin Dashboard exists) · P-ARCH-1 ⬜ (storage-keys — complete before P-TRAINING-2 to avoid adding hardcoded localStorage keys)
+> **Wireframe:** `docs/fe/wireframes/admin_main/admin_main_training/admin_staff_training_wireframe_v1.md`
+> **Excalidraw:** `docs/fe/wireframes/admin_main/admin_main_training/admin-staff-training.excalidraw` ✅
+> **Route:** `/admin/training/page.tsx`
+> **Goal:** Job guide management (CRUD) + role filter + per-staff completion tracking + quiz history + manager notes
+> **Zones:** Nav Sidebar · A (Page Header) · B (Role Filter Tabs) · C (Job Guide Card 2×2 grid) · D (Completion Tracking Table) · Modal 1 (Create/Edit Guide) · Modal 2 (Staff Progress Detail)
+> **Key resolved decisions:** guides auto-assigned by role; quiz passThreshold per-guide (default 75); max 3 attempts; Required/Optional flag on each guide; 3-dot kebab for edit/delete; 10 rows/page in Zone D
+> **Order:** P-TRAINING-1 ✅ → 2 → 3 → 4 → 5 → 6 → 7 (strict; each builds on previous)
+> **Added:** 2026-05-25
+
+| ID | Owner | Task | Deps | Sessions | Status | spec_ref | draw_ref |
+|----|-------|------|------|----------|--------|----------|----------|
+| P-TRAINING-1 | FE | Wireframe + zone table + all scaffold files | — | 1 | ✅ | — | `admin_main_training/admin_staff_training_wireframe_v1.md` |
+| P-TRAINING-2 | FE | `types/training.ts` + `hooks/useTrainingQueries.ts` + `store/trainingStore.ts` + `RoleBadge.tsx` | P-TRAINING-1 ✅ | 1 | ⬜ | wireframe §TypeScript Contracts | Zone B |
+| P-TRAINING-3 | FE | `JobGuideCard.tsx` + `JobGuideCardGrid.tsx` — cover img, role badge, KPI chips, YouTube link, 3-dot kebab menu, Draft overlay, Required chip, empty state | P-TRAINING-2 ✅ | 1 | ⬜ | wireframe §Zone C | Zone C |
+| P-TRAINING-4 | FE | `RoleFilterTabs.tsx` (Zone B) + `CompletionTrackingTable.tsx` (Zone D) — guide dropdown, paginated table (10/page), status badges, "Jump to Tracking" anchor | P-TRAINING-3 ✅ | 1 | ⬜ | wireframe §Zone B §Zone D | Zone B + Zone D |
+| P-TRAINING-5 | FE | `CreateEditGuideModal.tsx` — RHF + Zod, 10 fields (Title, Role, Description, Cover URL, YouTube URL, Quality KPI, Quantity KPI, Pass Threshold, Max Attempts, Required toggle, Responsible Roles multi-tag, Published toggle), POST/PATCH mutation | P-TRAINING-4 ✅ | 1 | ⬜ | wireframe §Modal 1 | Modal 1 |
+| P-TRAINING-6 | FE | `TrainingProgressModal.tsx` — 3-step timeline, progress bar, quiz attempts table, "Reset attempts" button (Admin/Manager only), Manager Notes debounced PATCH (flush on close), Close button | P-TRAINING-5 ✅ | 1 | ⬜ | wireframe §Modal 2 | Modal 2 |
+| P-TRAINING-7 | FE | `app/admin/training/page.tsx` — assemble all zones, wire modals, RBAC gate on "+ New Guide" + kebab menu (Admin/Manager only), Zone D anchor, browser golden path test | P-TRAINING-6 ✅ | 1 | ⬜ | wireframe all zones | all zones |
 
 ---
 
