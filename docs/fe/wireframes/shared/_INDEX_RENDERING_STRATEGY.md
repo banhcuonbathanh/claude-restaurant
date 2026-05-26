@@ -93,6 +93,9 @@ export default async function Page() {
 | Page | Route | Pattern | ISR revalidate | RSC prefetches | Client zones | Skeleton defined? | Source |
 |------|-------|---------|----------------|----------------|--------------|-------------------|--------|
 | Menu | `/(shop)/menu` | A — ISR + RSC | 300s | `['categories']` · `['products', null, undefined]` · `['combos']` | A–J (all) | ❌ not yet | [menu_wireframe_v1.md](../client_menu_page/menu_wireframe_v1.md) |
+| Admin — Products | `/admin/products` | A — ISR + RSC | 30s | `['admin', 'products']` · `['categories']` · `['admin', 'toppings']` | Nav · A · B · M1 | ❌ not yet | [admin_main_product_wireframe_v1.md](../admin_main/admin_main_product/admin_main_product_wireframe_v1.md) |
+| Admin — Staff | `/admin/staff` | A — ISR + RSC | 30s | `['admin', 'staff']` | A · B · C · D · E · M1 · M2 | ❌ not yet | [admin_main_staff_wireframe_v1.md](../admin_main/admin_main_staff/admin_main_staff_wireframe_v1.md) |
+| Admin — Storage | `/admin/storage` | A — ISR + RSC | 60s | `['admin', 'ingredients']` | C · D · E | ❌ not yet | [admin_main_storage_wireframe_v1.md](../admin_main/admin_main_storage/admin_main_storage_wireframe_v1.md) |
 
 ---
 

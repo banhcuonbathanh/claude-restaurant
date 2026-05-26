@@ -8,10 +8,10 @@
 | 2 | Admin — Categories | [admin_main_categories_wireframe_v1.md](admin_main/admin_main_categories/admin_main_categories_wireframe_v1.md) |
 | 3 | Admin — Combos | [admin_main_combos_wireframe_v1.md](admin_main/admin_main_combos/admin_main_combos_wireframe_v1.md) |
 | 4 | Admin — Marketing | [admin_main_marketing_wireframe_v1.md](admin_main/admin_main_marketing/admin_main_marketing_wireframe_v1.md) |
-| 5 | Admin — Products | [admin-products.excalidraw](admin_main/admin_main_product/admin-products.excalidraw) |
-| 6 | Admin — Staff | [admin-main-staff.excalidraw](admin_main/admin_main_staff/admin-main-staff.excalidraw) |
+| 5 | Admin — Products | [admin_main_product_wireframe_v1.md](admin_main/admin_main_product/admin_main_product_wireframe_v1.md) |
+| 6 | Admin — Staff | [admin_main_staff_wireframe_v1.md](admin_main/admin_main_staff/admin_main_staff_wireframe_v1.md) |
 | 7 | Admin — Staff Task Board | [staff-task-board.excalidraw](admin_main/admin_main_staff_task_boad/staff-task-board.excalidraw) |
-| 8 | Admin — Storage | [storage.excalidraw](admin_main/admin_main_storage/storage.excalidraw) |
+| 8 | Admin — Storage | [admin_main_storage_wireframe_v1.md](admin_main/admin_main_storage/admin_main_storage_wireframe_v1.md) |
 | 9 | Admin — Topping | [admin-topping.excalidraw](admin_main/admin_main_topping/admin-topping.excalidraw) |
 | 10 | Admin — Overview (Desktop) | [admin-overview.excalidraw](admin_main/admin_overview/admin-overview.excalidraw) |
 | 11 | Admin — Overview (Mobile) | [admin-overview-mobile.excalidraw](admin_main/admin_overview/admin-overview-mobile.excalidraw) |

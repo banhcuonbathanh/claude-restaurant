@@ -53,11 +53,14 @@ In your wireframe's **Data Sources & State Management** table, reference this fi
 | `['combos']` | `GET /api/v1/combos` | 5 min | Menu | Customer-facing combo list |
 | `['admin', 'combos']` | `GET /api/v1/admin/combos` | 30s | Admin — Combos | Admin-facing combo list (separate key from customer `['combos']`) |
 | `['admin', 'products']` | `GET /api/v1/admin/products` | 60s | Admin — Combos | Product search in ComboFormModal |
-| `['admin', 'staff']` | `GET /api/v1/admin/staff` | on-focus | Admin — Staff | Refetches on window focus |
+| `['admin', 'staff']` | `GET /api/v1/admin/staff` | on-focus | Admin — Staff | Refetches on window focus; full list (client-side filter + paginate) |
+| `['admin', 'staff', id]` | `GET /api/v1/admin/staff/:id` | 30s | Admin — Staff | `enabled` only when StaffDetailDrawer opens; fetches single staff with full detail |
 | `['training', 'guides', role]` | `GET /api/v1/admin/training/guides` | 5 min | Admin — Training | Parameterised by role filter |
 | `['training', 'progress', guideId, page]` | `GET /api/v1/admin/training/guides/:id/progress` | 2 min | Admin — Training | Paginated; changes on guide dropdown |
 | `['training', 'staffProgress', staffId, guideId]` | `GET /api/v1/admin/training/staff/:id/progress/:guideId` | on-demand | Admin — Training | Fetched only when Modal 2 opens |
 | `['marketing', 'spend', dateRange]` | `GET /api/v1/admin/marketing/spend` | 5 min | Admin — Marketing | Shared by Zones C, D, E on the same page |
+| `['admin', 'toppings']` | `GET /api/v1/admin/toppings` | 60s | Admin — Products | Topping checkbox list in ProductFormModal |
+| `['admin', 'ingredients']` | `GET /api/v1/admin/ingredients` | 60s | Admin — Storage | Full ingredient list; client-side filter by search query |
 
 ---
 
@@ -142,6 +145,22 @@ In your wireframe's **Data Sources & State Management** table, reference this fi
 
 ---
 
+### Admin — Products — `/admin/products`
+
+| State | Layer | Source | Notes |
+|-------|-------|--------|-------|
+| Auth / role | Zustand | `useAuthStore` | Guards page via AuthGuard + RoleGuard |
+| Product list | TanStack Query | `['admin', 'products']` | staleTime 30s; shared with Admin — Combos |
+| Category list (form) | TanStack Query | `['categories']` | staleTime 60s; shared with Menu + Admin — Categories |
+| Topping list (form) | TanStack Query | `['admin', 'toppings']` | staleTime 60s; read-only in ProductFormModal |
+| Modal open + mode | `useState` (local) | `ProductsPageClient` | `'add' \| 'edit'` |
+| Selected product (edit) | `useState` (local) | `ProductsPageClient` | `Product \| null` |
+| Product form | RHF + Zod | `ProductFormModal` | POST / PATCH → invalidate `['admin', 'products']` |
+
+**Sharing:** `['admin', 'products']` shared with Admin — Combos. `['categories']` shared with Menu + Admin — Categories.
+
+---
+
 ### Admin — Staff — `/admin/staff`
 
 | State | Layer | Source | Notes |
@@ -185,10 +204,12 @@ In your wireframe's **Data Sources & State Management** table, reference this fi
 | Admin — Combos | `/admin/combos` | [admin_main_combos_wireframe_v1.md](../admin_main/admin_main_combos/admin_main_combos_wireframe_v1.md) | `useAuthStore` | `['admin', 'combos']` · `['admin', 'products']` | modalOpen · modalMode · selectedCombo |
 | Admin — Training | `/admin/training` | [admin_staff_training_wireframe_v1.md](../admin_main/admin_main_training/admin_staff_training_wireframe_v1.md) | `useAuthStore` · `useTrainingStore` | `['training', 'guides', role]` · `['training', 'progress', ...]` · `['training', 'staffProgress', ...]` | modal1Open · modal2Context |
 | Admin — Marketing | `/admin/marketing` | [admin_main_marketing_wireframe_v1.md](../admin_main/admin_main_marketing/admin_main_marketing_wireframe_v1.md) | `useAuthStore` | `['marketing', 'spend', dateRange]` | dateRange |
-| Admin — Staff | `/admin/staff` | [admin-main-staff.md](../admin_main/admin_main_staff/admin-main-staff.md) | `useAuthStore` | `['admin', 'staff']` | searchFilter · roleFilter · modalOpen · selectedStaff |
+| Admin — Staff | `/admin/staff` | [admin_main_staff_wireframe_v1.md](../admin_main/admin_main_staff/admin_main_staff_wireframe_v1.md) | `useAuthStore` | `['admin', 'staff']` · `['admin', 'staff', id]` | search · roleFilter · statusFilter · page · modalOpen · modalMode · selectedStaff · detailStaffId |
+| Admin — Products | `/admin/products` | [admin_main_product_wireframe_v1.md](../admin_main/admin_main_product/admin_main_product_wireframe_v1.md) | `useAuthStore` | `['admin', 'products']` · `['categories']` · `['admin', 'toppings']` | modalOpen · modalMode · selectedProduct |
+| Admin — Storage | `/admin/storage` | [admin_main_storage_wireframe_v1.md](../admin_main/admin_main_storage/admin_main_storage_wireframe_v1.md) | `useAuthStore` | `['admin', 'ingredients']` | searchQuery · modalOpen · modalMode · selectedIngredient |
 
 ---
 
-*Last updated: 2026-05-26*
+*Last updated: 2026-05-26 (admin_main_storage added — ['admin', 'ingredients'] key registered; Page Directory row added)*
 *Add a new row whenever a wireframe page is cross-referenced against this index.*
 *Update Server Cache Keys and Global Stores the moment a new store or key is created.*

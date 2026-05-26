@@ -46,7 +46,8 @@ In your Component Map (Step 5), write the component name and point to this file:
 | `AdminTopNav` | `shared/AdminTopNav.tsx` | `activeTab: AdminTab` | Top navigation bar for all admin pages | admin/categories · admin/training · admin/marketing |
 | `AdminSidebar` | `shared/AdminSidebar.tsx` | `activeItem: string` | Side navigation panel for all admin pages | admin/training |
 | `DateRangePicker` | `shared/DateRangePicker.tsx` | `value: DateRange · onChange: (range) => void · placeholder?` | Date range filter input. Supports keyboard ISO entry + visual calendar. Use on any admin page with date-scoped data. Used by: admin_main_marketing |
-| `KPICard` | `shared/KPICard.tsx` | `label: string · value: string · badge?: string · valueColor?: string · badgeVariant?` | Generic KPI metric card (label + large value + optional badge). Use for overview dashboards, summary pages, marketing. Used by: admin_main_marketing |
+| `KPICard` | `shared/KPICard.tsx` | `label: string · value: string · badge?: string · valueColor?: string · badgeVariant?` | Generic KPI metric card (label + large value + optional badge). Use for overview dashboards, summary pages, marketing. Used by: admin_main_marketing · admin_main_staff |
+| `Pagination` | `shared/Pagination.tsx` | `currentPage: number · totalPages: number · onPageChange: (page: number) => void` | Generic page navigation control (← page buttons →). Use on any admin list page with more than 1 page of results. Used by: admin_main_staff |
 
 ---
 
@@ -110,9 +111,12 @@ In your Component Map (Step 5), write the component name and point to this file:
 | Admin — Training | `/admin/training` | [admin_staff_training_wireframe_v1.md](../admin_main/admin_main_training/admin_staff_training_wireframe_v1.md) | `AdminSidebar` · `AuthGuard` · `RoleGuard` · `useAuthStore` | `RoleFilterTabs` · `JobGuideCardGrid` · `JobGuideCard` · `CompletionTrackingTable` · `CreateEditGuideModal` · `TrainingProgressModal` |
 | Admin — Combos | `/admin/combos` | [admin_main_combos_wireframe_v1.md](../admin_main/admin_main_combos/admin_main_combos_wireframe_v1.md) | `AdminTopNav` · `AuthGuard` · `RoleGuard` · `useAuthStore` · `Button` · `Badge` · `Input` · `Card` · `EmptyState` | `ComboPageHeader` · `ComboTable` · `ComboFormModal` · `ProductSearchList` |
 | Admin — Marketing | `/admin/marketing` | [admin_main_marketing_wireframe_v1.md](../admin_main/admin_main_marketing/admin_main_marketing_wireframe_v1.md) | `AdminTopNav` · `AuthGuard` · `RoleGuard` · `useAuthStore` · `Button` · `Badge` · `DateRangePicker` · `KPICard` · `ProgressBar` | `MarketingPageHeader` · `BudgetSummaryCards` · `SpendBreakdownTable` · `BudgetDonutChart` · `LoveScoreSection` · `CampaignTimeline` |
+| Admin — Products | `/admin/products` | [admin_main_product_wireframe_v1.md](../admin_main/admin_main_product/admin_main_product_wireframe_v1.md) | `AdminTopNav` · `AuthGuard` · `RoleGuard` · `useAuthStore` · `Button` · `Badge` · `EmptyState` | `ProductPageHeader` · `ProductsTable` · `ProductFormModal` |
+| Admin — Staff | `/admin/staff` | [admin_main_staff_wireframe_v1.md](../admin_main/admin_main_staff/admin_main_staff_wireframe_v1.md) | `AdminTopNav` · `AuthGuard` · `RoleGuard` · `useAuthStore` · `Button` · `Badge` · `ProgressBar` · `EmptyState` · `KPICard` · `Pagination` | `StaffPageHeader` · `StaffStatsBar` · `StaffFilterBar` · `StaffTable` · `AddEditStaffModal` · `StaffDetailDrawer` |
+| Admin — Storage | `/admin/storage` | [admin_main_storage_wireframe_v1.md](../admin_main/admin_main_storage/admin_main_storage_wireframe_v1.md) | `AdminTopNav` · `AuthGuard` · `RoleGuard` · `useAuthStore` · `Button` · `Badge` · `Input` · `EmptyState` | `StoragePageHeader` · `IngredientTable` · `IngredientFormModal` |
 
 ---
 
-*Last updated: 2026-05-26 (admin_main_marketing added — DateRangePicker, KPICard, ProgressBar registered)*
+*Last updated: 2026-05-26 (admin_main_storage added — no new shared components; Page Directory row added)*
 *Add new components here the moment they are built — not after.*
 *Add a new Page Directory row whenever a wireframe is cross-referenced against this index.*
