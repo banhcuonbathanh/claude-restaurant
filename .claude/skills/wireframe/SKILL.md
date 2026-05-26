@@ -22,7 +22,8 @@ Extract:
 
 If `EXCALIDRAW_PATH` was not in `$ARGUMENTS`, auto-detect:
 - Check if any `*.excalidraw` file exists inside `docs/fe/wireframes/FOLDER/`
-- If exactly one found → set `EXCALIDRAW_PATH` to that file
+- If not found at that direct path, search recursively: `find docs/fe/wireframes -type d -name "FOLDER_NAME"` where FOLDER_NAME is the last segment of FOLDER (e.g. `admin_main_combos`). Use the first match as the resolved folder path.
+- If exactly one excalidraw found → set `EXCALIDRAW_PATH` to that file
 - If multiple found → ask the user which one to use (pick one — do not proceed with ambiguity)
 - If none found → set `EXCALIDRAW_PATH = none` → go to **Flow B** below
 
