@@ -50,7 +50,7 @@ Copy `_TEMPLATE.md`, fill in every section.
 | `## 📐 Visual Wireframe` | ASCII box drawing of the full page. Label each zone [A], [B], [C]... Show sticky notes (← sticky top-0 z-20). Show real copy, not placeholders. |
 | `## 🗺️ Zone Mapping` | One row per zone: component name, when it shows, sticky/fixed position |
 | `## 📊 Data Sources` | Per zone: where data comes from (Zustand store, TanStack Query, SSE). Include query key and staleTime. |
-| `## 🧩 Component Specifications` | Per zone: component name, file path, spec ref, props interface name |
+| `## 🧩 Component Specifications` | Per zone: `Reuse?` (✅ reuse / new (local) / new (shared)) · component name · file path · props interface. **Read `shared/_INDEX_SHARING_COMPONENT.md` first** before filling this table. |
 | `## 👨‍💻 Developer Implementation Details` | TypeScript interfaces for all data shapes. Query hook signatures. Store slice definition. Skip if the page is simple/static. |
 | `## ⚠️ Edge Cases & Fallbacks` | One row per scenario: empty list, image fail, network offline, no permission, quantity limits |
 | `## 🧪 Testing & QA Checklist` | Functional tests per zone. Edge case tests. Accessibility checks. Cross-device checks. |
@@ -269,4 +269,5 @@ If you are time-constrained, do Step 1 + Step 2 only. A folder with just the wir
 [ ] recomment/recommend.md — UX strengths + recommendations table filled
 [ ] recomment/recomment_claude.md — shared component + state strategy written
 [ ] WIREFRAME_INDEX.md — row updated with correct link
+[ ] shared/_INDEX_SHARING_COMPONENT.md — all `new (shared)` components from this page registered
 ```

@@ -58,13 +58,19 @@ status: Draft | Approved for Development
 
 ## 🧩 Component Specifications
 
-| Zone | Component | File | Spec Ref | Props / Interface |
-|------|-----------|------|----------|------------------|
-| **A** | `PageHeader` | `[page]/page.tsx` | `Spec_X §Y.1` | Inline component |
-| **B** | `SubHeader` | `components/[page]/SubHeader.tsx` | `Spec_X §Y.2` | `SubHeaderProps` |
-| **C** | `MainPanel` | `components/[page]/MainPanel.tsx` | `Spec_X §Y.3` | `MainPanelProps` |
-| **D** | `SidePanel` | `components/[page]/SidePanel.tsx` | `Spec_X §Y.4` | `SidePanelProps` |
-| **E** | `ActionBar` | `components/[page]/ActionBar.tsx` | `Spec_X §Y.5` | `ActionBarProps` |
+> Before filling this table: read [`shared/_INDEX_SHARING_COMPONENT.md`](../shared/_INDEX_SHARING_COMPONENT.md).
+> Mark each component with one of three `Reuse?` values:
+> - `✅ reuse` — already exists in the shared index; just import it
+> - `new (local)` — only this page uses it; lives in the page folder
+> - `new (shared)` — will be used by multiple pages; register in `_INDEX_SHARING_COMPONENT.md` when built
+
+| Zone | Component | Reuse? | File | Props / Interface |
+|------|-----------|--------|------|------------------|
+| **A** | `PageHeader` | new (local) | `[page]/page.tsx` | Inline component |
+| **B** | `StatusBadge` | ✅ reuse | `shared/StatusBadge.tsx` | `status: OrderStatus` |
+| **C** | `MainPanel` | new (local) | `components/[page]/MainPanel.tsx` | `MainPanelProps` |
+| **D** | `SidePanel` | new (shared) | `components/[page]/SidePanel.tsx` | `SidePanelProps` |
+| **E** | `ActionBar` | new (local) | `components/[page]/ActionBar.tsx` | `ActionBarProps` |
 
 ---
 

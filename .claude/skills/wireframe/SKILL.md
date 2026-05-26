@@ -224,9 +224,39 @@ Create:
 
 ---
 
+### Step 1b — Component Reuse Audit (required before writing any file)
+
+**Do this before Step 2. Never skip.**
+
+1. Read `docs/fe/wireframes/shared/_INDEX_SHARING_COMPONENT.md` in full.
+2. Compile the full component list for this page:
+   - **Flow A**: extract every component name visible in the excalidraw (zone components + modals + nav).
+   - **Flow B**: derive from the spec discussion — list every component mentioned.
+3. For each component, check every tier in the index:
+   - Found in index → classify as `✅ reuse`
+   - Not found, clearly page-specific (e.g. `CategoryPageHeader`) → classify as `new (local)`
+   - Not found, but could logically serve multiple pages (e.g. a nav bar, a status chip) → classify as `new (shared)`
+4. Print the classification table before proceeding:
+
+```
+🔍 Component Reuse Audit — FOLDER
+
+| Component | Reuse? | Reason |
+|-----------|--------|--------|
+| `AdminTopNav` | ✅ reuse | Found in Tier 2 shared index |
+| `CategoryTable` | new (local) | Page-specific CRUD table |
+| `PageActionBar` | new (shared) | Could serve other admin list pages |
+```
+
+5. For each `new (shared)` component: decide which tier it belongs to (Tier 1 atom / Tier 2 shared / Tier 3 feature / Tier 4 guard).
+6. Keep this table — you will use it to fill the `Reuse?` column in Step 2 and update the index in Step 9b.
+
+---
+
 ### Step 2 — Create `FOLDER_NAME_wireframe_v1.md`
 
 Follow `_TEMPLATE.md` exactly. For **Flow A**, the ASCII wireframe and all tables must use real zone names, real copy, and real component names from the excalidraw.
+Use the Reuse Audit from Step 1b to fill the `Reuse?` column — do not re-derive it.
 
 ```markdown
 ---
@@ -274,10 +304,13 @@ SPEC_SUMMARY
 
 ## 🧩 Component Specifications
 
-| Zone | Component | File | Requirement | Props / Interface |
-|------|-----------|------|-------------|-----------------|
-[Flow A: real component names + file paths based on FOLDER_NAME]
-[Flow B: [TBD] rows]
+> Before filling this table: read `docs/fe/wireframes/shared/_INDEX_SHARING_COMPONENT.md`.
+> Mark each row with one of: `✅ reuse` · `new (local)` · `new (shared)`
+
+| Zone | Component | Reuse? | File | Props / Interface |
+|------|-----------|--------|------|-----------------|
+[Flow A: real rows — check _INDEX_SHARING_COMPONENT.md for each component; mark reuse status]
+[Flow B: [TBD] rows with `new (local)` placeholder in Reuse? column]
 
 ---
 
@@ -569,8 +602,14 @@ Key constraint: [Flow A: derive from excalidraw content | Flow B: derive from SP
 ---
 
 ## Shared Components — Reuse Checklist
-| Component needed | Reuse from | Notes |
-...
+
+> Copy all rows marked `new (shared)` from the Component Specifications table above.
+> These must be registered in `docs/fe/wireframes/shared/_INDEX_SHARING_COMPONENT.md` before implementation starts.
+
+| Component | Tier | File | Register in Index? |
+|-----------|------|------|--------------------|
+[Flow A: list each `new (shared)` component with its intended tier (UI atom / shared / feature / guard)]
+[Flow B: [TBD] — fill after Zone Mapping is confirmed]
 
 ---
 
@@ -616,6 +655,30 @@ Add one new row to the Pages table:
 
 ---
 
+### Step 9b — Update `docs/fe/wireframes/shared/_INDEX_SHARING_COMPONENT.md`
+
+Two updates in the same file:
+
+**9b-1 — Register `new (shared)` components (if any from Step 1b)**
+
+For each component classified `new (shared)` in the Reuse Audit:
+- Add a row to the correct tier table (Tier 1–4, Order Domain, or Stores).
+- Fill: Component name · File · Key Props · When to use · `Used by: FOLDER_NAME`
+
+If there are no `new (shared)` components, skip 9b-1.
+
+**9b-2 — Add a row to the Page Directory table (always)**
+
+Add one row at the bottom of the `## 📋 Page Directory` table:
+
+```
+| PAGE | `ROUTE` | [FOLDER_NAME_wireframe_v1.md](../FOLDER/FOLDER_NAME_wireframe_v1.md) | [list all ✅ reuse components from Step 1b, separated by ·] | [list all new (local) components from Step 1b, separated by ·] |
+```
+
+This step is mandatory even when there are zero `new (shared)` components — the Page Directory must always be kept current.
+
+---
+
 ### Step 10 — Print completion summary
 
 ```
@@ -635,19 +698,22 @@ Files created (7):
 
 Updated:
   docs/fe/wireframes/WIREFRAME_INDEX.md ← added row [N]
+  shared/_INDEX_SHARING_COMPONENT.md   ← Page Directory row added [always]
+  [+ N new (shared) component rows registered | none if 0 shared components found]
 
 Next steps:
 [Flow A:]
   1. Review the files and fill any [TBD] gaps (mostly in conccern.md and recomment/)
-  2. Add task rows from FOLDER_NAME_wireframe_v1.md to docs/tasks/MASTER_TASK.md
-  3. Export a PNG from the excalidraw → save as FOLDER_NAME.png
-  4. Run /doc-check after filling content
+  3. Add task rows from FOLDER_NAME_wireframe_v1.md to docs/tasks/MASTER_TASK.md
+  4. Export a PNG from the excalidraw → save as FOLDER_NAME.png
+  5. Run /doc-check after filling content
 
 [Flow B:]
   1. Run `/excalidraw FOLDER` → draw the visual wireframe
   2. Paste the ASCII zone layout into FOLDER_NAME_wireframe_v1.md §📐 Visual Wireframe
-  3. Fill Zone Mapping, Data Sources, and Component tables
-  4. Fill business_description.md and how_to_use.md with real copy
-  5. Add at least 3 items to conccern.md before design review
-  6. Run /doc-check after filling content
+  3. Fill Zone Mapping, Data Sources, and Component tables (include Reuse? column)
+  4. Register any `new (shared)` components in shared/_INDEX_SHARING_COMPONENT.md
+  5. Fill business_description.md and how_to_use.md with real copy
+  6. Add at least 3 items to conccern.md before design review
+  7. Run /doc-check after filling content
 ```
