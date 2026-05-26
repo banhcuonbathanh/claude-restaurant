@@ -112,6 +112,17 @@ và minh bạch hơn. Không cần thao tác rườm rà — mọi thứ đượ
 - Conditional rendering rules (what shows/hides and when)
 - Scrollable vs. fixed areas
 
+## RBAC & Auth Rules
+(REQUIRED — fill even if the page is public)
+
+| Rule | Value |
+|------|-------|
+| **Route protection** | None / AuthGuard / RoleGuard([roles]) |
+| **Allowed roles** | Guest · Staff · Manager · Admin · [combinations] |
+| **Auth state used** | Which fields from useAuthStore / useSettingsStore are read |
+| **Conditional UI by role** | Which zones/buttons are hidden or disabled per role |
+| **Unauthorized redirect** | Where the user goes when auth fails (login page / QR entry / 403) |
+
 ## Tech Stack
 (show as a tree)
 React (Next.js App Router)
@@ -128,14 +139,49 @@ React (Next.js App Router)
 5. UX Enhancements — progressive disclosure, immediate feedback, a11y
 6. Edge Case Handling — image fallback, network error, quantity limits
 
+## Rendering Strategy
+(REQUIRED — fill for every page. See `shared/_INDEX_RENDERING_STRATEGY.md` for pattern definitions.)
+
+| Layer | What | Why |
+|---|---|---|
+| **ISR** (`revalidate: [N]s`) | [query keys prefetched in page.tsx] | Data stable across users — safe to cache |
+| **RSC** | `page.tsx` only — prefetch + HydrationBoundary | [no per-user server data / OR: per-user, use Pattern C] |
+| **Client** (`'use client'`) | Zones [A–X] | Zustand / localStorage / user interaction |
+
+> Gap: [any navigation or tab-change that causes a loading wait not covered by server prefetch]
+
+After implementing: add a row to `docs/fe/wireframes/shared/_INDEX_RENDERING_STRATEGY.md`.
+
 ## File Organization
-(show as a tree matching the actual FE folder structure)
+(show as a tree — stores go in src/store/, hooks go in src/hooks/, NEVER inside page folders)
+
+src/
+├── app/[route]/
+│   ├── page.tsx
+│   └── components/          # local — only this page uses these
+│       └── ...
+├── hooks/                   # top-level shared hooks
+│   └── use[Page]Queries.ts
+└── store/                   # top-level stores
+    └── [store].ts
+
+## State Contract
+(REQUIRED — document what this page reads, writes, and hands off)
+
+| Store | Reads | Writes | Lifecycle | Next Page |
+|-------|-------|--------|-----------|-----------|
+| `use[Store]` | field names | action names | when created/cleared | what the next route reads |
 
 ## Critical Implementation Notes
 - Bullet list of non-obvious constraints (UUID rules, price formatting, auto-collapse timers, sticky stack conflicts)
 ```
 
 **Length:** 400–700 words. Code snippets encouraged for state shape and query keys.
+
+**Rules that apply to every `tech_description.md`:**
+- `RBAC & Auth Rules` — fill this table even for public pages (write "None" for guard, "Guest" for roles). A reader must never have to guess whether a page needs auth.
+- `State Contract` — one row per global store this page touches. "Next Page" column makes inter-page handoffs explicit. Leave blank if the page is a dead end.
+- `File Organization` — stores must appear under `src/store/`, hooks under `src/hooks/`. Never show them inside the page folder tree. This is enforced by `CLAUDE.md`.
 
 ---
 
@@ -264,6 +310,8 @@ If you are time-constrained, do Step 1 + Step 2 only. A folder with just the wir
 [ ] [page].png — exported and matches excalidraw
 [ ] business_description.md — no technical terms, customer-readable
 [ ] tech_description.md — file org tree matches actual FE structure
+[ ] tech_description.md — Rendering Strategy section filled (Pattern A/B/C declared, gaps noted)
+[ ] shared/_INDEX_RENDERING_STRATEGY.md — row added for this page
 [ ] how_to_use.md — every zone covered, Vietnamese copy
 [ ] conccern.md — at least 3 open questions documented
 [ ] recomment/recommend.md — UX strengths + recommendations table filled

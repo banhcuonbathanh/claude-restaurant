@@ -7,7 +7,7 @@
 | 1 | Admin — Staff Training | [admin_staff_training_wireframe_v1.md](admin_main/admin_main_training/admin_staff_training_wireframe_v1.md) |
 | 2 | Admin — Categories | [admin_main_categories_wireframe_v1.md](admin_main/admin_main_categories/admin_main_categories_wireframe_v1.md) |
 | 3 | Admin — Combos | [admin_main_combos_wireframe_v1.md](admin_main/admin_main_combos/admin_main_combos_wireframe_v1.md) |
-| 4 | Admin — Marketing | [admin-main-marketing.excalidraw](admin_main/admin_main_marketing/admin-main-marketing.excalidraw) |
+| 4 | Admin — Marketing | [admin_main_marketing_wireframe_v1.md](admin_main/admin_main_marketing/admin_main_marketing_wireframe_v1.md) |
 | 5 | Admin — Products | [admin-products.excalidraw](admin_main/admin_main_product/admin-products.excalidraw) |
 | 6 | Admin — Staff | [admin-main-staff.excalidraw](admin_main/admin_main_staff/admin-main-staff.excalidraw) |
 | 7 | Admin — Staff Task Board | [staff-task-board.excalidraw](admin_main/admin_main_staff_task_boad/staff-task-board.excalidraw) |

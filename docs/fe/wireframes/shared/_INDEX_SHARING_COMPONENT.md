@@ -29,6 +29,7 @@ In your Component Map (Step 5), write the component name and point to this file:
 | `Input` | `ui/input.tsx` | — | Styled text input. Wrap with `Label` for forms |
 | `Label` | `ui/label.tsx` | — | For form fields only |
 | `Card` | `ui/card.tsx` | `Card` · `CardHeader` · `CardContent` · `CardFooter` · `CardTitle` · `CardDescription` | Admin and dashboard pages. Not used in customer flow |
+| `ProgressBar` | `ui/progress-bar.tsx` | `value: number · max?: number · color?: string · className?` | Generic inline percentage progress bar. Use for budget progress, follower goals, or any % metric. `role="progressbar"` required. Used by: admin_main_marketing |
 
 ---
 
@@ -42,8 +43,10 @@ In your Component Map (Step 5), write the component name and point to this file:
 | `EmptyState` | `shared/EmptyState.tsx` | `icon?: string` · `message: string` | Any empty list or zero-result state. Default icon: 🍜 | — |
 | `ConnectionErrorBanner` | `shared/ConnectionErrorBanner.tsx` | none | SSE disconnect. Fixed top banner. Use on KDS, Order tracking pages | — |
 | `CookieConsent` | `shared/CookieConsent.tsx` | — | Layout-level only. Do not use inside pages | — |
-| `AdminTopNav` | `shared/AdminTopNav.tsx` | `activeTab: AdminTab` | Top navigation bar for all admin pages | admin/categories · admin/training |
+| `AdminTopNav` | `shared/AdminTopNav.tsx` | `activeTab: AdminTab` | Top navigation bar for all admin pages | admin/categories · admin/training · admin/marketing |
 | `AdminSidebar` | `shared/AdminSidebar.tsx` | `activeItem: string` | Side navigation panel for all admin pages | admin/training |
+| `DateRangePicker` | `shared/DateRangePicker.tsx` | `value: DateRange · onChange: (range) => void · placeholder?` | Date range filter input. Supports keyboard ISO entry + visual calendar. Use on any admin page with date-scoped data. Used by: admin_main_marketing |
+| `KPICard` | `shared/KPICard.tsx` | `label: string · value: string · badge?: string · valueColor?: string · badgeVariant?` | Generic KPI metric card (label + large value + optional badge). Use for overview dashboards, summary pages, marketing. Used by: admin_main_marketing |
 
 ---
 
@@ -106,9 +109,10 @@ In your Component Map (Step 5), write the component name and point to this file:
 | Admin — Categories | `/admin/categories` | [admin_main_categories_wireframe_v1.md](../admin_main/admin_main_categories/admin_main_categories_wireframe_v1.md) | `AdminTopNav` · `AuthGuard` · `RoleGuard` · `useAuthStore` | `CategoryPageHeader` · `CategoryTable` · `AddCategoryModal` · `EditCategoryModal` |
 | Admin — Training | `/admin/training` | [admin_staff_training_wireframe_v1.md](../admin_main/admin_main_training/admin_staff_training_wireframe_v1.md) | `AdminSidebar` · `AuthGuard` · `RoleGuard` · `useAuthStore` | `RoleFilterTabs` · `JobGuideCardGrid` · `JobGuideCard` · `CompletionTrackingTable` · `CreateEditGuideModal` · `TrainingProgressModal` |
 | Admin — Combos | `/admin/combos` | [admin_main_combos_wireframe_v1.md](../admin_main/admin_main_combos/admin_main_combos_wireframe_v1.md) | `AdminTopNav` · `AuthGuard` · `RoleGuard` · `useAuthStore` · `Button` · `Badge` · `Input` · `Card` · `EmptyState` | `ComboPageHeader` · `ComboTable` · `ComboFormModal` · `ProductSearchList` |
+| Admin — Marketing | `/admin/marketing` | [admin_main_marketing_wireframe_v1.md](../admin_main/admin_main_marketing/admin_main_marketing_wireframe_v1.md) | `AdminTopNav` · `AuthGuard` · `RoleGuard` · `useAuthStore` · `Button` · `Badge` · `DateRangePicker` · `KPICard` · `ProgressBar` | `MarketingPageHeader` · `BudgetSummaryCards` · `SpendBreakdownTable` · `BudgetDonutChart` · `LoveScoreSection` · `CampaignTimeline` |
 
 ---
 
-*Last updated: 2026-05-26*
+*Last updated: 2026-05-26 (admin_main_marketing added — DateRangePicker, KPICard, ProgressBar registered)*
 *Add new components here the moment they are built — not after.*
 *Add a new Page Directory row whenever a wireframe is cross-referenced against this index.*

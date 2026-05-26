@@ -446,6 +446,21 @@ React (Next.js App Router)
 ### Key Implementation Patterns
 [1. Component Architecture, 2. State Management (with interface), 3. Data Fetching, 4. Performance, 5. Edge Cases]
 
+### Rendering Strategy
+
+| Layer | What | Why |
+|---|---|---|
+| **ISR** (`revalidate: [N]s`) | [Flow A: list query keys from Data Sources table that are shared/non-user-specific · Flow B: [TBD]] | Data changes at admin cadence, not per request |
+| **RSC** | `page.tsx` only — prefetch + HydrationBoundary | No per-user server data needed |
+| **Client** (`'use client'`) | [Flow A: list zones by letter · Flow B: [TBD]] | Zustand / localStorage / user interaction |
+
+> Gap: [any data source not prefetched server-side → causes loading wait; add `prefetchQuery` on hover/focus to fix]
+
+[Flow A: decide which queries are ISR candidates (stable, shared) vs. client-only (user-specific, real-time). If all data is user-specific → use Pattern B (full client). See `docs/fe/wireframes/shared/_INDEX_RENDERING_STRATEGY.md` for pattern definitions.]
+[Flow B: fill after zones and data sources are confirmed in the wireframe]
+
+Register this page in `docs/fe/wireframes/shared/_INDEX_RENDERING_STRATEGY.md` after implementing.
+
 ### File Organization
 [tree matching actual FE folder structure]
 
@@ -680,6 +695,52 @@ This step is mandatory even when there are zero `new (shared)` components — th
 
 ---
 
+### Step 9c — Update `docs/fe/wireframes/shared/_INDEX_STATE_MANAGEMENT.md`
+
+Two updates in the same file:
+
+**9c-1 — Register new stores and query keys (if any)**
+
+From the Data Sources & State Management table you filled in Step 2, check each item against the index:
+
+- **New Zustand store** (not already in `## Global Zustand Stores`): add a row with `Store · File · What it owns · Used by`
+- **New TanStack Query key** (not already in `## Server Cache Keys`): add a row with `Query Key · Endpoint · staleTime · Used by · Notes`
+
+If every store and query key already exists in the index, skip 9c-1.
+
+**9c-2 — Add a row to the Page Directory table (always)**
+
+Add one row at the bottom of the `## 📋 Page Directory` table:
+
+```
+| PAGE | `ROUTE` | [FOLDER_NAME_wireframe_v1.md](../FOLDER/FOLDER_NAME_wireframe_v1.md) | [global stores used, separated by ·] | [TanStack query keys used, separated by ·] | [local useState items, separated by ·] |
+```
+
+This step is mandatory — the Page Directory must always be kept current.
+
+---
+
+### Step 9d — Update `docs/fe/wireframes/shared/_INDEX_RENDERING_STRATEGY.md`
+
+Add one row to the `## 📋 Page Directory` table:
+
+```
+| PAGE | `ROUTE` | [Pattern A / B / C] | [revalidate seconds or N/A] | [query keys passed to prefetchQuery, separated by ·] | [zone letters, separated by ·] | [✅ / ❌] | [FOLDER_NAME_wireframe_v1.md](../FOLDER/FOLDER_NAME_wireframe_v1.md) |
+```
+
+How to fill each column:
+- **Pattern** — A (ISR + RSC), B (Full Client), or C (SSR per request). See the Pattern Library in the index.
+- **ISR revalidate** — seconds set in `export const revalidate = N`. Write `N/A` for Pattern B/C.
+- **RSC prefetches** — exact TanStack Query keys passed to `prefetchQuery` in `page.tsx`. Write `none` for Pattern B/C.
+- **Client zones** — zone letters where `'use client'` components live (usually all zones).
+- **Skeleton defined?** — ✅ if a `<Skeleton />` component is built for the loading state. Required for Pattern B.
+
+If this page introduces a new loading gap (e.g. a tab-change that causes a loading wait not covered by prefetch), also add a row to the `## Known Gaps` table.
+
+This step is mandatory — the index must stay current so devs can see at a glance which pattern every page uses.
+
+---
+
 ### Step 10 — Print completion summary
 
 ```
@@ -698,9 +759,10 @@ Files created (7):
   docs/fe/wireframes/FOLDER/recomment/recomment_claude.md
 
 Updated:
-  docs/fe/wireframes/WIREFRAME_INDEX.md ← added row [N]
-  shared/_INDEX_SHARING_COMPONENT.md   ← Page Directory row added [always]
-  [+ N new (shared) component rows registered | none if 0 shared components found]
+  docs/fe/wireframes/WIREFRAME_INDEX.md        ← added row [N]
+  shared/_INDEX_SHARING_COMPONENT.md           ← Page Directory row added [always]; [N new (shared) component rows | none]
+  shared/_INDEX_STATE_MANAGEMENT.md            ← Page Directory row added [always]; [N new stores/query keys | none]
+  shared/_INDEX_RENDERING_STRATEGY.md          ← Page Directory row added [always]; [Pattern A/B/C · gaps noted | none]
 
 Next steps:
 [Flow A:]

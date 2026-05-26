@@ -44,6 +44,20 @@ status: Draft | Approved for Development
 
 ---
 
+## 🔐 Access Control
+
+> Fill this section for every page — write "None" for public routes. Never leave blank.
+
+| Rule | Value |
+|------|-------|
+| **Route protection** | None / `AuthGuard` / `RoleGuard([roles])` |
+| **Allowed roles** | Guest · Staff · Manager · Admin · [combinations] |
+| **Auth state used** | Fields read from `useAuthStore` / `useSettingsStore` |
+| **Conditional UI by role** | Which zones/buttons/actions are hidden or disabled per role (e.g. "Edit button hidden for Staff") |
+| **Unauthorized redirect** | Where the user goes when auth fails — login page · QR entry · 403 screen |
+
+---
+
 ## 📊 Data Sources & State Management
 
 | Zone | Data Source | Update Mechanism | Query Key | Notes |
@@ -106,6 +120,18 @@ export const use[Resource] = () => {
   });
 };
 ```
+
+### Rendering Strategy
+
+> See pattern definitions: [`shared/_INDEX_RENDERING_STRATEGY.md`](../shared/_INDEX_RENDERING_STRATEGY.md)
+
+| Layer | What | Why |
+|---|---|---|
+| **ISR** (`revalidate: [N]s`) | [list query keys prefetched in `page.tsx`] | Data changes at admin cadence, not per user |
+| **RSC** | `page.tsx` only — prefetch + HydrationBoundary | No per-user server data |
+| **Client** (`'use client'`) | Zones [list zone letters] | Zustand / localStorage / user interaction |
+
+> Gap: [any data not prefetched server-side that causes a loading wait — note it here]
 
 ---
 
