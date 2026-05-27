@@ -118,7 +118,7 @@ status: Draft
 
 | Zone | Component | Reuse? | File | Props / Interface |
 |------|-----------|--------|------|-----------------|
-| A | `ClientTopNav` | new (shared) | `components/shared/ClientTopNav.tsx` | `title: string · onBack?: () => void` |
+| A | `CustomerTopNav` | ✅ reuse | `components/shared/CustomerTopNav.tsx` | `title: string · cartCount?: number · onBack: () => void` — note: `cartCount` must be made optional; no cart on profile page |
 | B | `ProfileAvatarHeader` | new (local) | `app/(shop)/profile/components/ProfileAvatarHeader.tsx` | `name: string · isMember: boolean · onAvatarChange?: () => void` |
 | B | `Badge` | ✅ reuse | `components/ui/badge.tsx` | `variant="success"` — "✓ Thành viên" |
 | C | `PersonalInfoForm` | new (local) | `app/(shop)/profile/components/PersonalInfoForm.tsx` | `defaultValues: UpdateProfileForm · onSubmit: (data) => void · isLoading: boolean` |
@@ -127,7 +127,7 @@ status: Draft
 | D | `QuickNavGrid` | new (local) | `app/(shop)/profile/components/QuickNavGrid.tsx` | `cards: QuickNavCardData[]` |
 | E | `SaveCTABar` | new (local) | `app/(shop)/profile/components/SaveCTABar.tsx` | `isLoading: boolean · disabled: boolean` |
 | E | `Button` | ✅ reuse | `components/ui/button.tsx` | `variant="default" size="lg"` — full width |
-| F | `ClientBottomNav` | new (shared) | `components/shared/ClientBottomNav.tsx` | `activeTab: ClientTab` |
+| F | `ClientMainBottomNav` | new (shared) | `components/shared/ClientMainBottomNav.tsx` | none — derives `activeTab` from `usePathname()` internally |
 
 ---
 

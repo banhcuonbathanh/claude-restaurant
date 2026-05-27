@@ -69,9 +69,10 @@ In your wireframe's **Data Sources & State Management** table, reference this fi
 | `['combos', id]` | `GET /api/v1/combos/:id` | 5 min | Client — Favourites (S1, S3) | Per-item combo metadata fetch. One query per favourited combo ID via `useQueries`. |
 | `['admin', 'summary', date]` | `GET /api/v1/admin/summary?date=` | 30s (today) / 300s (past) | Admin — Tổng Kết Ngày | Aggregate for Zones 1–7. `refetchInterval: 300s` when `date === today`. Single endpoint returns all zone data. |
 | `['admin', 'shift-log', date]` | `GET /api/v1/admin/shift-log?date=` | 30s | Admin — Tổng Kết Ngày | Zone 8 shift log. Separate from summary so note mutations don't refetch all zone data. |
-| `['order', orderId]` | `GET /api/v1/orders/:id` | 0s | Client — Restaurant Monitor | Initial order detail fetch (Zone C). staleTime 0 — SSE keeps data current. `refetchOnWindowFocus: false`. |
+| `['order', orderId]` | `GET /api/v1/orders/:id` | 0s | Client — Restaurant Monitor · Client — Order Tracking | Initial order detail fetch. staleTime 0 — SSE keeps data current via `queryClient.setQueryData`. `refetchOnWindowFocus: true` on Order Tracking (catches events missed on reconnect). |
 | `['admin', 'overview', 'orders']` | `GET /api/v1/admin/orders?status=active` | 0s | Admin — Overview | Initial hydration of live order list into `useOverviewStore`. After mount, WS keeps data current. `refetchOnWindowFocus: false`. Re-fetch on WS reconnect to resync missed events. |
 | `['admin', 'tables']` | `GET /api/v1/admin/tables` | 30s | Admin — Overview | Full table list; filtered to `status === 'empty'` for Zone D. Invalidated by WS `table_status` event. |
+| `['customer', 'profile']` | `GET /api/v1/customer/profile` | 5 min | Client — Info | User-specific profile (name · phone · address · email · isMember). Invalidated on PUT mutation. Also syncs `useSettingsStore.customerName` on save success. ⚠️ Requires registered customer JWT — not compatible with stateless guest JWT. |
 
 ---
 
@@ -190,6 +191,22 @@ In your wireframe's **Data Sources & State Management** table, reference this fi
 
 ---
 
+### Client — Order Tracking — `/(shop)/order/[id]`
+
+| State | Layer | Source | Notes |
+|-------|-------|--------|-------|
+| Table label · guest token | Zustand | `useSettingsStore` | Read-only — set at QR scan; `guestToken` sent as Bearer on API + SSE |
+| Order detail | TanStack Query | `['order', orderId]` | staleTime 0; SSE patches cache via `queryClient.setQueryData` on each event |
+| SSE connection state | `useOrderSSE` (hook) | Internal | `sseConnected: boolean` drives Zone C1 banner and Nav LIVE pill |
+| Zone 1 card collapsed | `useState` (local) | page component | `isCardCollapsed: boolean` |
+| Per-combo collapsed | `useState` (local) | page component | `comboCollapsed: Record<string, boolean>` — keyed by comboId |
+| Cancel target | `useState` (local) | page component | `cancelTarget: CancelTarget \| null` — drives Modal B |
+| Order confirmed modal | `useState` (local) | page component | `showConfirmedModal: boolean` — set on `order_confirmed` SSE event |
+
+**Sharing:** `['order', orderId]` key shared with Client — Restaurant Monitor. `useSettingsStore` shared across all client pages. No writes to any global store.
+
+---
+
 ## Cross-Page State Sharing Map
 
 > Which state escapes a single page.
@@ -227,9 +244,11 @@ In your wireframe's **Data Sources & State Management** table, reference this fi
 | Client — Product Detail | `/(shop)/menu/product/[id]` | [client_product_detail_wireframe_v1.md](../client_product_detail/client_product_detail_wireframe_v1.md) | `useCartStore` (write) · `useSettingsStore` (read) | `['products', id]` | selectedToppingIds · quantity |
 | Client — Restaurant Monitor | `/(shop)/tracking` | [client_monitoring_servicing_table_wireframe_v1.md](../client_monitoring_servicing_table/client_monitoring_servicing_table_wireframe_v1.md) | `useSettingsStore` (read guestToken · tableLabel) | `['order', orderId]` | orderStatus · queueData · tableStatuses · sseConnected |
 | Admin — Overview | `/admin/overview` | [admin_overview_wireframe_v1.md](../admin_main/admin_overview/admin_overview_wireframe_v1.md) | `useAuthStore` · `useOverviewStore` (page-local) | `['admin', 'overview', 'orders']` · `['admin', 'tables']` | elapsedTimeTick (30s interval) · dropdownOpenOrderId |
+| Client — Info | `/(shop)/profile` | [client_info_page_wireframe_v1.md](../client_info_page/client_info_page_wireframe_v1.md) | `useSettingsStore` (write customerName on save) | `['customer', 'profile']` | form state (RHF local) |
+| Client — Order Tracking | `/(shop)/order/[id]` | [client_order_page_wireframe_v1.md](../client_order_page/client_order_page_wireframe_v1.md) | `useSettingsStore` (read: tableLabel · guestToken) | `['order', orderId]` | isCardCollapsed · comboCollapsed · cancelTarget · showConfirmedModal |
 
 ---
 
-*Last updated: 2026-05-27 (admin_overview added — useOverviewStore + ['admin', 'overview', 'orders'] + ['admin', 'tables'] registered; Page Directory row added)*
+*Last updated: 2026-05-27 (Client — Order Tracking added — ['order', orderId] updated to include Order Tracking as co-user; Per-Page section + Page Directory row added)*
 *Add a new row whenever a wireframe page is cross-referenced against this index.*
 *Update Server Cache Keys and Global Stores the moment a new store or key is created.*

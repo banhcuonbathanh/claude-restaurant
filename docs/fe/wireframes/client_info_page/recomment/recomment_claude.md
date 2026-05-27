@@ -20,27 +20,20 @@
 
 | Component | Tier | File | Register in Index? |
 |-----------|------|------|--------------------|
-| `ClientTopNav` | Tier 2 — Shared | `components/shared/ClientTopNav.tsx` | ✅ Yes |
-| `ClientBottomNav` | Tier 2 — Shared | `components/shared/ClientBottomNav.tsx` | ✅ Yes |
+| `CustomerTopNav` | Tier 2 — Shared | `components/shared/CustomerTopNav.tsx` | Already registered — make `cartCount` optional |
+| `ClientMainBottomNav` | Tier 2 — Shared | `components/shared/ClientMainBottomNav.tsx` | ✅ Yes — new |
 
-**ClientTopNav props:**
+> **Note:** `CustomerTopNav` already exists (`used by: client_product_detail`). Its `cartCount: number` prop must be changed to `cartCount?: number` so profile page can use it without a cart count. This is a non-breaking change — existing callers can keep passing it.
+
+**ClientMainBottomNav:**
 ```typescript
-interface ClientTopNavProps {
-  title: string
-  onBack?: () => void    // defaults to router.back()
-}
+// No props — derives active tab from usePathname() internally
+// Distinct from ClientBottomNav (3-tab monitoring page variant)
+type ClientMainTab = 'home' | 'menu' | 'favourites' | 'history' | 'profile'
 ```
 
-**ClientBottomNav props:**
-```typescript
-type ClientTab = 'home' | 'menu' | 'favourites' | 'history' | 'profile'
-
-interface ClientBottomNavProps {
-  // No activeTab prop — component derives it from usePathname() internally
-}
-```
-
-> **Important:** `ClientBottomNav` must NOT accept `activeTab` as a prop. Derive it from `usePathname()` inside the component. Avoids prop drilling across all 5 client pages.
+> **Important:** `ClientMainBottomNav` must NOT accept `activeTab` as a prop. Derive it from `usePathname()` inside the component. Avoids prop drilling across all 5 main client pages.
+> Do NOT confuse with `ClientBottomNav` (3-tab: menu · favourites · refresh) — that is the monitoring page's nav bar, not this one.
 
 ---
 
@@ -58,8 +51,8 @@ interface ClientBottomNavProps {
 
 ## Build Order (recommended)
 
-1. **CI-1:** `ClientTopNav` — minimal: title + back button. No state.
-2. **CI-2:** `ClientBottomNav` — 5 tabs, `usePathname()` for active state. Write unit test for active tab detection.
+1. **CI-1:** Make `cartCount` optional in `CustomerTopNav` (shared/CustomerTopNav.tsx) — one-line change, non-breaking.
+2. **CI-2:** `ClientMainBottomNav` — 5 tabs, `usePathname()` for active state. Write unit test for active tab detection.
 3. **CI-8 / CI-9:** Confirm + implement BE endpoints (cannot continue FE without API)
 4. **CI-3:** `ProfileAvatarHeader` — show avatar placeholder + membership badge. Avatar upload is stubbed.
 5. **CI-4:** `PersonalInfoForm` — RHF + Zod, 4 fields, inline validation messages

@@ -106,6 +106,8 @@ export default async function Page() {
 | Client — Product Detail | `/(shop)/menu/product/[id]` | A — ISR + RSC | 300s | `['products', id]` | NAV · A · B · C · D · E | ❌ not yet | [client_product_detail_wireframe_v1.md](../client_product_detail/client_product_detail_wireframe_v1.md) |
 | Client — Restaurant Monitor | `/(shop)/tracking` | B — Full Client | N/A | none | A · B · C · D · E · F | ❌ not yet | [client_monitoring_servicing_table_wireframe_v1.md](../client_monitoring_servicing_table/client_monitoring_servicing_table_wireframe_v1.md) |
 | Admin — Overview | `/admin/overview` | B — Full Client | N/A | none | Nav · A · B · C · D | ❌ not yet | [admin_overview_wireframe_v1.md](../admin_main/admin_overview/admin_overview_wireframe_v1.md) |
+| Client — Info | `/(shop)/profile` | B — Full Client | N/A | none | A · B · C · D · E · F | ❌ not yet | [client_info_page_wireframe_v1.md](../client_info_page/client_info_page_wireframe_v1.md) |
+| Client — Order Tracking | `/(shop)/order/[id]` | B — Full Client | N/A | none | Nav · C1 · 1 · 2 · 3 · 4 · 5 · 6 · Modal A · Modal B | ❌ not yet | [client_order_page_wireframe_v1.md](../client_order_page/client_order_page_wireframe_v1.md) |
 
 ---
 
@@ -122,3 +124,4 @@ export default async function Page() {
 | Client — Favourites S1/S3 | Item metadata (`['products', id]` · `['combos', id]`) fetched client-side per item — brief loading flash per card on cold visit when localStorage has many items. Pre-warm not in scope for v1. | Low-Medium — noticeable if > 5 items favourited |
 | Admin — Tổng Kết Ngày | Pattern B — skeleton visible on every cold visit; ISR not possible because `selectedDate` is runtime user state. `<AdminSummarySkeleton />` required before SUM-2 ships. | Medium — skeleton flash on every visit; acceptable for a management dashboard |
 | Client — Restaurant Monitor | SSE connection opens ~200–400ms after mount → queue/table data lags one tick on first render. `<MonitoringSkeleton />` required; show until both `useQuery` resolves AND first SSE event received. Also: iOS Safari kills EventSource when screen locks — add `visibilitychange` reconnect handler. | Medium — blank monitoring zones on cold visit without skeleton; SSE drop silently on iOS |
+| Client — Order Tracking | SSE disconnect + reconnect may miss events during the gap — stale item counts shown until next SSE tick. Mitigation: `refetchOnWindowFocus: true` on `useQuery`, OR `queryClient.invalidateQueries(['order', orderId])` inside `useOrderSSE` reconnect handler. `<OrderPageSkeleton />` not yet built — blank screen on every cold visit until it ships. | High — skeleton required before shipping; reconnect gap is Medium on slow/mobile networks |

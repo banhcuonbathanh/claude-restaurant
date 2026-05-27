@@ -8,21 +8,64 @@
 
 ## Active Task
 
-**ID:** P-WIRE-ORDER-1
+**ID:** P-WIRE-ORDER-4
 **Phase:** P-WIRE-ORDER — Client Order Page Wireframe
 **Owner:** Docs
-**Status:** 🔄 IN PROGRESS (started, excalidraw extracted, NOT yet written to files)
+**Status:** ⬜ NOT STARTED — ready to begin
 
-**What to create (A1 only this session):**
-- `docs/fe/wireframes/client_order_page/client_order_page_wireframe_v1.md`
-- Update `docs/fe/wireframes/WIREFRAME_INDEX.md` — add row 21
-- Update `docs/fe/wireframes/shared/_INDEX_SHARING_COMPONENT.md` — Page Directory row only (no new shared components found)
+**What to create (A4 this session):**
+- `docs/fe/wireframes/client_order_page/conccern.md` — ≥ 5 open questions / implementation concerns
+- `docs/fe/wireframes/client_order_page/recomment/recommend.md` — UX strengths + improvement recommendations (human perspective)
+- `docs/fe/wireframes/client_order_page/recomment/recomment_claude.md` — Claude's architectural / technical recommendations
+- Update `docs/fe/wireframes/shared/_INDEX_SHARING_COMPONENT.md` — Page Directory row already added in A1; verify it is still accurate after A3
 
-**AC:** All 8 zones + 2 modals documented; Zone Mapping + Data Sources + Component Specs + Edge Cases + Testing tables filled; no [TBD] in zone tables.
+**Source to read first:** `docs/fe/wireframes/client_order_page/client_order_page_wireframe_v1.md` (already produced in A1)
+**DO NOT re-read excalidraw.**
+
+**AC:** ≥ 5 open questions in conccern.md; UX strengths + recommendations table filled in recommend.md; shared component reuse table complete in recomment_claude.md; `_INDEX_SHARING_COMPONENT.md` Page Directory row is accurate.
 
 ---
 
-## Context Already Extracted (DO NOT re-read excalidraw — use this)
+## Pre-computed facts for A4 (use directly — do not re-derive)
+
+**Route:** `/(shop)/order/[id]`
+**Pattern:** B — Full Client
+**Device:** Mobile 420px
+
+**Open concerns to document (seed — expand with more):**
+1. SSE reconnect gap — missed events between disconnect and reconnect; `refetchOnWindowFocus` is mitigation but not 100% reliable
+2. iOS Safari kills EventSource on screen lock — needs `visibilitychange` reconnect handler
+3. Qty stepper min/max bounds — min is 1 (can't go below), max not specified; what happens if guest tries to increase beyond kitchen capacity?
+4. Cancel whole order at exactly 30% — is `progress < 30%` inclusive or exclusive? Race condition if two guests cancel simultaneously?
+5. Guest token expiry while on page — redirect mid-session; UX is abrupt; consider grace period or soft-expiry warning
+6. `còn×N` badge vs `✓ xong` — what if qtyServed > qtyOrdered (over-serve edge case)?
+7. SSE event ordering — if `item_update` and `order_delivered` arrive in wrong order, the UI may flash "delivered" then revert
+8. `tableLabel` is display-only — if table reassigned while order is active, label shown will be stale
+
+**UX strengths to note in recommend.md:**
+- Realtime SSE → no manual refresh needed
+- Collapsible card + combo grouping reduces cognitive load for large orders
+- Dual cancel (item-level + whole-order) with confirmation dialog prevents accidents
+- còn×N badge gives precise kitchen queue visibility
+- Money split (served vs remaining) removes payment surprise
+
+**UX concerns to note in recommend.md:**
+- No "last updated" timestamp — guest has no way to know how stale the data is after reconnect
+- Progress bar % can jump backwards if an item is cancelled post-serve
+- No sound/vibration when `order_confirmed` modal fires — easy to miss on noisy tables
+- Zone 6 "Thêm món" disappears for takeaway — unintuitive; consider disabling + tooltip instead of hiding
+
+**Technical recommendations for recomment_claude.md:**
+- `useOrderTracking` should be a single hook (not split between page and useOrderSSE)
+- `CancelTarget` union type forces discriminated union — avoids boolean flag + nullable id smell
+- `comboCollapsed: Record<string, boolean>` initialised lazily (first interaction) — don't pre-populate on mount
+- `OrderPageSkeleton` should match Zone 1 + Zone 2 + Zone 3 + Zone 6 shapes (as drawn in excalidraw)
+- SSE event handler should be idempotent — duplicate events must not double-apply patches
+- Consider `optimistic update` on cancel → rollback on API error (UX feels faster on mobile)
+
+---
+
+## Context Already Extracted (DO NOT re-read excalidraw — use CURRENT_TASK facts above)
 
 **Source:** `docs/fe/wireframes/client_order_page/order_ver2.excalidraw`
 **Page:** Theo Dõi Đơn Hàng (Order Tracking)
@@ -30,150 +73,33 @@
 **Device:** Mobile (420px)
 **Auth:** None — guest page accessed via QR link
 
-### Confirmed Answers (owner confirmed 2026-05-27)
-1. Route: `/(shop)/order/[id]`
-2. Qty stepper (−/qty/+) on items: **YES — live today**
-3. Item cancel (`Huỷ` button): **any time** (no kitchen-started restriction)
-4. `còn×N` badge: **portions NOT YET SERVED** (still in kitchen queue)
-
----
-
 ### Zones (8 total)
 
-| Zone | Name | Visibility | Sticky |
-|------|------|------------|--------|
-| Nav | Order Tracking Nav | Always | `top-0 z-20` |
-| C1 | Connection Error Banner | Only when SSE disconnects | Below nav |
-| 1 | Order Card | Always (collapsible ↕) | No |
-| 2 | Dish Summary Table | Always | No |
-| 3 | Money Summary Card | Always | No |
-| 4 | Completed Banner | Only when `status = delivered` | No |
-| 5 | Cancel Whole Order | Only when `progress < 30%` AND `status = active` | No |
-| 6 | Add More Dishes | Only when `table_id` exists | No |
-
-### Zone Detail
-
-**Nav:**
-- Left: `← Theo Dõi Đơn Hàng` (back button)
-- Right: `● LIVE` green pill badge (SSE connected)
-
-**Zone C1 — Connection Error Banner:**
-- Red background `#fee2e2`, red border
-- Text: `⚠ Mất kết nối realtime – Đang thử kết nối lại...`
-
-**Zone 1 — Order Card (SSE realtime, collapsible):**
-- Header row: `Bàn 5  order no: 0042` | status badge `Đang Làm` (amber) | `215,000đ  11 phút  ↕`
-- Orange progress bar (~40% filled)
-- **COMBO A section** (collapsible ↕): `COMBO A · Bánh Cuốn Tôm + Chả Giò  2 món ↕`
-  - `· Bánh Cuốn Tôm` — `tổng ×2  ra ×1` — `còn×1` badge — `Huỷ` button
-    - Topping chips: `+ Giò lụa  5,000đ` · `+ Hành phi`
-  - `· Chả Giò (combo)` — `tổng ×1  ra ×1  ✓ xong` (green)
-    - Topping chip: `+ Tương hoisin`
-- **Standalone: Nước Cam** — `tổng ×1  ra ×0` — `còn×1` badge — `Huỷ` button
-  - Qty stepper: `Số lượng: −  2  +`
-  - Topping chips: `+ Ít đường` · `+ Nhiều đá`
-- **Standalone: Bún Bò Huế (canh/soup)** — `còn×2` badge — `Huỷ` button
-  - Topping chips: `+ Bò viên  10,000đ` · `+ Chả cá  8,000đ`
-- Footer: `3 / 7 phần đã ra`
-
-**Zone 2 — Dish Summary Table:**
-- Columns: `TÊN MÓN` | `SL  RA  CÒN` | `ĐƠN GIÁ  TỔNG`
-- Rows + topping chips:
-  - Bánh Cuốn Tôm — 2, 1, ×1 — 45,000đ, 90,000đ — chips: Giò lụa 5,000đ · Hành phi
-  - Chả Giò — 1, 0, ×1 — 30,000đ, 30,000đ — chip: Tương hoisin
-  - Bún Bò Huế — 2, 1, ×1 — 60,000đ, 120,000đ — chips: Bò viên 10,000đ · Chả cá 8,000đ
-  - Nước Cam — 1, 0, ×1 — 25,000đ, 25,000đ — chips: Ít đường · Nhiều đá
-- Footer rows: `Tổng tiền còn lại 155,000đ` (orange) · `Tổng tất cả món 265,000đ`
-
-**Zone 3 — Money Summary Card:**
-- `Đã dùng (3 phần)` — `110,000đ` (green)
-- `Còn lại (4 phần chưa ra)` — `155,000đ` (orange)
-- Divider
-- `Tổng cộng` — `265,000đ` (large, bold)
-
-**Zone 4 — Completed Banner (conditional):**
-- Green border + bg `#f0fdf4`
-- `✓` icon in green circle
-- Title: `Đơn hàng đã hoàn thành`
-- Body: `Cảm ơn bạn đã dùng bữa! Bạn có thể đặt thêm bên dưới.`
-
-**Zone 5 — Cancel Whole Order (conditional):**
-- Red outline button, full width
-- Text: `Huỷ toàn bộ đơn hàng`
-- Condition: `progress < 30% AND status = active`
-
-**Zone 6 — Add More Dishes (conditional):**
-- Orange filled button, full width
-- Text: `＋ Thêm món`
-- Condition: `table_id` exists (dine-in only)
+| Zone | Name | Visibility |
+|------|------|------------|
+| Nav | Order Tracking Nav | Always sticky top-0 |
+| C1 | Connection Error Banner | SSE disconnected only |
+| 1 | Order Card | Always (collapsible) |
+| 2 | Dish Summary Table | Always |
+| 3 | Money Summary Card | Always |
+| 4 | Completed Banner | `status = delivered` only |
+| 5 | Cancel Whole Order | `progress < 30% AND status = active` only |
+| 6 | Add More Dishes | `table_id` exists (dine-in only) |
 
 ### Modals (2)
-
-**Modal A — Order Confirmed (SSE push):**
-- Dark overlay (75% opacity) + dark card `#1e293b`
-- `✓` icon in green circle (dark green bg `#166534`)
-- Title (white): `Nhà hàng đã nhận đơn!`
-- Body (grey): `Dự kiến phục vụ trong khoảng 15 phút.`
-- CTA orange button: `Đã hiểu`
-- Trigger: SSE event `order_confirmed`
-
-**Modal B — Cancel Confirm Dialog:**
-- Dark overlay + dark card `#1e293b`
-- `⚠` icon in dark red circle
-- Title (white): `Huỷ món này?`
-- Body (grey): `"Bánh Cuốn Tôm" sẽ bị huỷ. Không thể hoàn tác.`
-- Buttons: `Giữ lại` (outline) · `Xác nhận huỷ` (red filled)
-- Trigger: tapping any `Huỷ` button (item-level OR Zone 5 whole-order cancel)
-
-### Skeleton
-Fully drawn — matches Zone 1 card + Zone 2 table + Zone 3 money card + Zone 6 button shape. `<OrderPageSkeleton />` required (Pattern B).
+- Modal A — Order Confirmed (SSE `order_confirmed` push)
+- Modal B — Cancel Confirm Dialog (item-level OR whole-order cancel)
 
 ---
 
-## Component Reuse Audit (pre-computed)
+## Previous Tasks in This Phase
 
-| Component | Reuse? | Reason |
-|-----------|--------|--------|
-| `ConnectionErrorBanner` | ✅ reuse | `shared/ConnectionErrorBanner.tsx` — Tier 2 |
-| `StatusBadge` | ✅ reuse | `shared/StatusBadge.tsx` — order statuses |
-| `QuantityStepper` | ✅ reuse | `shared/QuantityStepper.tsx` — Tier 2 |
-| `Button` | ✅ reuse | `ui/button.tsx` — Tier 1 |
-| `Badge` | ✅ reuse | `ui/badge.tsx` — Tier 1 |
-| `OrderTrackingNav` | new (local) | Page-specific nav with back + LIVE badge |
-| `OrderCard` | new (local) | Collapsible card — page-specific |
-| `ComboSection` | new (local) | Combo grouping inside OrderCard |
-| `OrderItemRow` | new (local) | Single item row with còn×N + Huỷ + stepper |
-| `ToppingChip` | new (local) | Small topping label chip |
-| `DishSummaryTable` | new (local) | Zone 2 summary table |
-| `MoneySummaryCard` | new (local) | Zone 3 money breakdown |
-| `CompletedBanner` | new (local) | Zone 4 green banner |
-| `OrderConfirmedModal` | new (local) | Modal A — SSE push |
-| `CancelConfirmModal` | new (local) | Modal B — item/order cancel |
-| `OrderPageSkeleton` | new (local) | Pattern B skeleton — required |
-| `useSettingsStore` | ✅ reuse | `store/settings.ts` — tableLabel · guestToken |
-
-**No new (shared) components** — all new components are page-specific.
-
----
-
-## State & Rendering (pre-computed)
-
-- **Pattern:** B — Full Client (`'use client'`) — all data is order-specific + SSE realtime
-- **Skeleton:** `<OrderPageSkeleton />` required
-- **Query key:** `['order', orderId]` — `GET /api/v1/orders/:id` — staleTime: 0 (SSE updates primary)
-- **SSE:** existing `useOrderSSE` hook — events: `order_confirmed` · `item_update` · `order_ready` · `order_delivered`
-- **Stores:** `useSettingsStore` (read: `tableLabel`, `guestToken`)
-- **Local state:** `cancelTarget: { itemId, itemName } | 'whole' | null` · `showConfirmedModal: boolean` · `isCardCollapsed: boolean` · `isComboCollapsed: Record<string, boolean>`
-
----
-
-## Next Tasks After This One
-
-| ID | What |
-|----|------|
-| P-WIRE-ORDER-2 | `business_description.md` + `how_to_use.md` — read `wireframe_v1.md` as source |
-| P-WIRE-ORDER-3 | `tech_description.md` + update state/rendering indexes |
-| P-WIRE-ORDER-4 | `conccern.md` + `recomment/` |
+| ID | Status | What |
+|----|--------|------|
+| P-WIRE-ORDER-1 | ✅ | `wireframe_v1.md` + WIREFRAME_INDEX.md update + `_INDEX_SHARING_COMPONENT.md` Page Directory row |
+| P-WIRE-ORDER-2 | ✅ | `business_description.md` + `how_to_use.md` |
+| P-WIRE-ORDER-3 | ✅ | `tech_description.md` + `_INDEX_STATE_MANAGEMENT.md` + `_INDEX_RENDERING_STRATEGY.md` updates |
+| P-WIRE-ORDER-4 | ⬜ | `conccern.md` + `recomment/` (this task) |
 
 ---
 

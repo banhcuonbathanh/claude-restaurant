@@ -51,8 +51,8 @@ app/(shop)/profile/
 
 src/
 ├── components/shared/
-│   ├── ClientTopNav.tsx        ← Zone A (shared — Tier 2)
-│   └── ClientBottomNav.tsx     ← Zone F (shared — Tier 2)
+│   ├── CustomerTopNav.tsx      ← Zone A (shared — existing; make cartCount optional)
+│   └── ClientMainBottomNav.tsx ← Zone F (shared — new Tier 2; 5-tab main nav)
 └── hooks/
     └── useCustomerProfile.ts   ← query + mutation hooks
 ```

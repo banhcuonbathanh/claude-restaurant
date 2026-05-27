@@ -32,7 +32,7 @@
 | P-FIX-MOCK — Fix order_service_test mockOrderRepo | BE | ✅ COMPLETE | 0 | — |
 | P-ARCH — FE Architecture Groundwork | FE+Docs | ⬜ NOT STARTED | 2 | P-ARCH-1 (storage-keys) |
 | P-TRAINING — Admin Staff Training Page | FE | ⬜ NOT STARTED | 6 | P-TRAINING-2 (RoleFilterTabs) |
-| P-WIRE-ORDER — Client Order Page Wireframe | Docs | 🔄 IN PROGRESS | 4 | P-WIRE-ORDER-1 (wireframe_v1.md) |
+| P-WIRE-ORDER — Client Order Page Wireframe | Docs | 🔄 IN PROGRESS | 1 | P-WIRE-ORDER-4 (conccern + recomment) |
 
 ---
 
@@ -437,9 +437,9 @@ The entries below are phase-level summaries only.
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P-WIRE-ORDER-1 | Docs | `client_order_page_wireframe_v1.md` — full zone tables (Zone Mapping + Data Sources + Component Specs + Edge Cases + Testing checklist) from excalidraw; update WIREFRAME_INDEX.md row | — | 1 | ⬜ | All 8 zones + 2 modals documented; no [TBD] in zone tables |
-| P-WIRE-ORDER-2 | Docs | `business_description.md` + `how_to_use.md` — Vietnamese copy, zone-by-zone user guide, standard flow | P-WIRE-ORDER-1 ✅ | 1 | ⬜ | Every zone covered; no technical terms in business_description; standard 4-step flow diagram in how_to_use |
-| P-WIRE-ORDER-3 | Docs | `tech_description.md` — RBAC table, Rendering Strategy (Pattern B — SSE-driven), TypeScript interfaces (OrderItem · ComboSection · OrderCardData · MoneyBreakdown), query hook stubs, file org tree; update `_INDEX_STATE_MANAGEMENT.md` + `_INDEX_RENDERING_STRATEGY.md` | P-WIRE-ORDER-1 ✅ | 1 | ⬜ | Pattern B declared; skeleton defined flag set; new query keys registered in state index |
+| P-WIRE-ORDER-1 | Docs | `client_order_page_wireframe_v1.md` — full zone tables (Zone Mapping + Data Sources + Component Specs + Edge Cases + Testing checklist) from excalidraw; update WIREFRAME_INDEX.md row | — | 1 | ✅ | All 8 zones + 2 modals documented; no [TBD] in zone tables |
+| P-WIRE-ORDER-2 | Docs | `business_description.md` + `how_to_use.md` — Vietnamese copy, zone-by-zone user guide, standard flow | P-WIRE-ORDER-1 ✅ | 1 | ✅ | Every zone covered; no technical terms in business_description; standard 4-step flow diagram in how_to_use |
+| P-WIRE-ORDER-3 | Docs | `tech_description.md` — RBAC table, Rendering Strategy (Pattern B — SSE-driven), TypeScript interfaces (OrderItem · ComboSection · OrderCardData · MoneyBreakdown), query hook stubs, file org tree; update `_INDEX_STATE_MANAGEMENT.md` + `_INDEX_RENDERING_STRATEGY.md` | P-WIRE-ORDER-1 ✅ | 1 | ✅ | Pattern B declared; skeleton defined flag set; new query keys registered in state index |
 | P-WIRE-ORDER-4 | Docs | `conccern.md` + `recomment/recommend.md` + `recomment/recomment_claude.md`; update `_INDEX_SHARING_COMPONENT.md` Page Directory row | P-WIRE-ORDER-1 ✅ | 1 | ⬜ | ≥ 5 open questions in conccern; UX strengths + recommendations table filled; shared component reuse table complete |
 
 ---
