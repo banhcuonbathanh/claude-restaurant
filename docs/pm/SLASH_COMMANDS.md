@@ -17,6 +17,12 @@
 | `/quality-check [N]` | When reviewing a specific number of sessions | Same audit scoped to last N sessions (e.g. `/quality-check 3`) |
 | `/wireframe <folder-name>` | Before building any new FE page | Scaffolds full wireframe folder: 7 files + WIREFRAME_INDEX row. Run `/excalidraw` after. |
 | `/excalidraw <folder-name>` | After `/wireframe`, once zones are planned | Draws the visual Excalidraw file. 3-phase: plan → main page → modals. |
+| `/redraw <page-folder-path>` | When a page has a `recomment/recommend.md` and needs a v2 drawing | Reads v1 excalidraw + recommend.md, plans zone-level changes, draws v2 into `recomment/<name>_ver2.excalidraw`. Updates progress tracker. |
+| `/redraw-all` | To loop through all 9 pages in one session | Processes one page at a time with approval gate. Reply "continue" to advance, "skip" to skip, "stop" to pause. Resumes from last ⬜ in tracker. |
+| `/design` | Scaffold `docs/design/DESIGN.md` from existing tokens | Auto-reads `globals.css` + `tailwind.config.ts`, generates YAML front matter + markdown body. |
+| `/design lint` | Validate `DESIGN.md` | Runs 7 rules: broken refs · primary color · WCAG contrast · orphaned tokens · typography · section order · touch target. |
+| `/design export [tailwind\|css]` | Export tokens to code | Generates Tailwind `theme.extend` or CSS variables block from DESIGN.md tokens. Confirms before writing. |
+| `/design diff <file1> <file2>` | Compare two DESIGN.md files | Token-level diff with regression detection. |
 
 ---
 
@@ -99,8 +105,10 @@ Claude will scan:
     │   └── SKILL.md      ← /excalidraw command source
     ├── quality-check/
     │   └── SKILL.md      ← /quality-check command source
-    └── wireframe/
-        └── SKILL.md      ← /wireframe command source
+    ├── wireframe/
+    │   └── SKILL.md      ← /wireframe command source
+    └── redraw/
+        └── SKILL.md      ← /redraw command source
 ```
 
 To add a new command: create a new folder under `.claude/skills/<name>/` containing a `SKILL.md` file.

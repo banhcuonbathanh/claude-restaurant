@@ -32,6 +32,7 @@
 | P-FIX-MOCK — Fix order_service_test mockOrderRepo | BE | ✅ COMPLETE | 0 | — |
 | P-ARCH — FE Architecture Groundwork | FE+Docs | ⬜ NOT STARTED | 2 | P-ARCH-1 (storage-keys) |
 | P-TRAINING — Admin Staff Training Page | FE | ⬜ NOT STARTED | 6 | P-TRAINING-2 (RoleFilterTabs) |
+| P-WIRE-ORDER — Client Order Page Wireframe | Docs | 🔄 IN PROGRESS | 4 | P-WIRE-ORDER-1 (wireframe_v1.md) |
 
 ---
 
@@ -424,6 +425,22 @@ The entries below are phase-level summaries only.
 | P-TRAINING-5 | FE | `CreateEditGuideModal.tsx` — RHF + Zod, 10 fields (Title, Role, Description, Cover URL, YouTube URL, Quality KPI, Quantity KPI, Pass Threshold, Max Attempts, Required toggle, Responsible Roles multi-tag, Published toggle), POST/PATCH mutation | P-TRAINING-4 ✅ | 1 | ⬜ | wireframe §Modal 1 | Modal 1 |
 | P-TRAINING-6 | FE | `TrainingProgressModal.tsx` — 3-step timeline, progress bar, quiz attempts table, "Reset attempts" button (Admin/Manager only), Manager Notes debounced PATCH (flush on close), Close button | P-TRAINING-5 ✅ | 1 | ⬜ | wireframe §Modal 2 | Modal 2 |
 | P-TRAINING-7 | FE | `app/admin/training/page.tsx` — assemble all zones, wire modals, RBAC gate on "+ New Guide" + kebab menu (Admin/Manager only), Zone D anchor, browser golden path test | P-TRAINING-6 ✅ | 1 | ⬜ | wireframe all zones | all zones |
+
+---
+
+## Phase P-WIRE-ORDER — Client Order Page Wireframe
+
+> **Owner:** Docs
+> **Dependency:** excalidraw `order_ver2.excalidraw` ✅ (source file exists)
+> **Source:** `docs/fe/wireframes/client_order_page/order_ver2.excalidraw`
+> **Order:** A1 → A2 → A3 → A4 (strict — each file builds on the previous)
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P-WIRE-ORDER-1 | Docs | `client_order_page_wireframe_v1.md` — full zone tables (Zone Mapping + Data Sources + Component Specs + Edge Cases + Testing checklist) from excalidraw; update WIREFRAME_INDEX.md row | — | 1 | ⬜ | All 8 zones + 2 modals documented; no [TBD] in zone tables |
+| P-WIRE-ORDER-2 | Docs | `business_description.md` + `how_to_use.md` — Vietnamese copy, zone-by-zone user guide, standard flow | P-WIRE-ORDER-1 ✅ | 1 | ⬜ | Every zone covered; no technical terms in business_description; standard 4-step flow diagram in how_to_use |
+| P-WIRE-ORDER-3 | Docs | `tech_description.md` — RBAC table, Rendering Strategy (Pattern B — SSE-driven), TypeScript interfaces (OrderItem · ComboSection · OrderCardData · MoneyBreakdown), query hook stubs, file org tree; update `_INDEX_STATE_MANAGEMENT.md` + `_INDEX_RENDERING_STRATEGY.md` | P-WIRE-ORDER-1 ✅ | 1 | ⬜ | Pattern B declared; skeleton defined flag set; new query keys registered in state index |
+| P-WIRE-ORDER-4 | Docs | `conccern.md` + `recomment/recommend.md` + `recomment/recomment_claude.md`; update `_INDEX_SHARING_COMPONENT.md` Page Directory row | P-WIRE-ORDER-1 ✅ | 1 | ⬜ | ≥ 5 open questions in conccern; UX strengths + recommendations table filled; shared component reuse table complete |
 
 ---
 

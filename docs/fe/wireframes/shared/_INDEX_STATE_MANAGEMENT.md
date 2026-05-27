@@ -35,10 +35,11 @@ In your wireframe's **Data Sources & State Management** table, reference this fi
 | Store | File | What it owns | Used by |
 |-------|------|-------------|---------|
 | `useCartStore` | `store/cart.ts` | `items` · `drinkConfig` · `orderNote` · `activeOrderId` — computed: `itemCount()` · `total()` | Menu |
-| `useFavouritesStore` | `store/favourites.ts` | Favourite product/combo IDs (localStorage-persisted) | Menu |
+| `useFavouritesStore` | `store/favourites.ts` | `items: FavouriteItem[]` (id · type · qty · toppingIds) · `sets: FavouriteSet[]` (id · name · createdAt · items snapshot) — localStorage-persisted. **Needs store extension before Favourites pages are built.** | Menu · Client — Favourites |
 | `useSettingsStore` | `store/settings.ts` | `tableLabel` · `customerName` · `guestToken` | Menu |
 | `useAuthStore` | `store/auth.ts` | `user` · `role` · JWT token | Admin — Categories · Admin — Training · Admin — Combos · Admin — Marketing · Admin — Staff |
 | `useTrainingStore` | `store/trainingStore.ts` | `activeRole: StaffRole \| 'all'` · `selectedGuideId: string` | Admin — Training |
+| `useOverviewStore` | `store/overviewStore.ts` | `connected: boolean` · `liveOrders: PrepOrder[]` · `tables: EmptyTable[]` — page-local, cleared on unmount | Admin — Overview |
 
 ---
 
@@ -61,6 +62,16 @@ In your wireframe's **Data Sources & State Management** table, reference this fi
 | `['marketing', 'spend', dateRange]` | `GET /api/v1/admin/marketing/spend` | 5 min | Admin — Marketing | Shared by Zones C, D, E on the same page |
 | `['admin', 'toppings']` | `GET /api/v1/admin/toppings` | 60s | Admin — Products | Topping checkbox list in ProductFormModal |
 | `['admin', 'ingredients']` | `GET /api/v1/admin/ingredients` | 60s | Admin — Storage | Full ingredient list; client-side filter by search query |
+| `['admin', 'tasks', 'stats', date]` | `GET /api/v1/admin/tasks/stats?date=` | 30s | Admin — Staff Task Board | Returns DailyTaskMetrics + StaffTaskStat[]; drives Zone D KPI cards + Zone E table. Refetch interval: 60s |
+| `['admin', 'tasks', staffId, date]` | `GET /api/v1/admin/tasks?staffId=&date=` | 15s | Admin — Staff Task Board | Lazy-fetched; `enabled: !!staffId`. Loaded only when staff row is expanded. Prefetch on hover to reduce gap |
+| `['admin', 'tasks', 'todo', staffId, startDate, endDate, status, page]` | `GET /api/v1/admin/tasks/list` | 30s | Admin — Staff Task List | Paginated; `keepPreviousData`. Staff users: server restricts to own tasks only. `refetchOnWindowFocus: true` to catch overdue status changes |
+| `['products', id]` | `GET /api/v1/products/:id` | 5 min | Client — Favourites (S1, S3) | Per-item product metadata fetch. One query per favourited product ID via `useQueries`. |
+| `['combos', id]` | `GET /api/v1/combos/:id` | 5 min | Client — Favourites (S1, S3) | Per-item combo metadata fetch. One query per favourited combo ID via `useQueries`. |
+| `['admin', 'summary', date]` | `GET /api/v1/admin/summary?date=` | 30s (today) / 300s (past) | Admin — Tổng Kết Ngày | Aggregate for Zones 1–7. `refetchInterval: 300s` when `date === today`. Single endpoint returns all zone data. |
+| `['admin', 'shift-log', date]` | `GET /api/v1/admin/shift-log?date=` | 30s | Admin — Tổng Kết Ngày | Zone 8 shift log. Separate from summary so note mutations don't refetch all zone data. |
+| `['order', orderId]` | `GET /api/v1/orders/:id` | 0s | Client — Restaurant Monitor | Initial order detail fetch (Zone C). staleTime 0 — SSE keeps data current. `refetchOnWindowFocus: false`. |
+| `['admin', 'overview', 'orders']` | `GET /api/v1/admin/orders?status=active` | 0s | Admin — Overview | Initial hydration of live order list into `useOverviewStore`. After mount, WS keeps data current. `refetchOnWindowFocus: false`. Re-fetch on WS reconnect to resync missed events. |
+| `['admin', 'tables']` | `GET /api/v1/admin/tables` | 30s | Admin — Overview | Full table list; filtered to `status === 'empty'` for Zone D. Invalidated by WS `table_status` event. |
 
 ---
 
@@ -188,7 +199,8 @@ In your wireframe's **Data Sources & State Management** table, reference this fi
 | `['categories']` cache | Menu ↔ Admin — Categories | TanStack Query shared key — mutation in Admin refreshes Menu |
 | `useAuthStore` | All admin pages | Zustand global store |
 | `useCartStore` | Menu (all zones) | Zustand — no other page reads cart |
-| `useFavouritesStore` | Menu (FavoritesRail ↔ ProductCard ↔ ComboCard) | Zustand — within Menu only |
+| `useFavouritesStore` | Menu ↔ Client — Favourites | Zustand — written by Menu (♥ toggle); read + extended by Favourites pages |
+| `['products', id]` / `['combos', id]` | Menu · Client — Favourites | TanStack Query shared key — both pages fetch the same item IDs |
 
 ---
 
@@ -207,9 +219,17 @@ In your wireframe's **Data Sources & State Management** table, reference this fi
 | Admin — Staff | `/admin/staff` | [admin_main_staff_wireframe_v1.md](../admin_main/admin_main_staff/admin_main_staff_wireframe_v1.md) | `useAuthStore` | `['admin', 'staff']` · `['admin', 'staff', id]` | search · roleFilter · statusFilter · page · modalOpen · modalMode · selectedStaff · detailStaffId |
 | Admin — Products | `/admin/products` | [admin_main_product_wireframe_v1.md](../admin_main/admin_main_product/admin_main_product_wireframe_v1.md) | `useAuthStore` | `['admin', 'products']` · `['categories']` · `['admin', 'toppings']` | modalOpen · modalMode · selectedProduct |
 | Admin — Storage | `/admin/storage` | [admin_main_storage_wireframe_v1.md](../admin_main/admin_main_storage/admin_main_storage_wireframe_v1.md) | `useAuthStore` | `['admin', 'ingredients']` | searchQuery · modalOpen · modalMode · selectedIngredient |
+| Admin — Staff Task Board | `/admin/staff/task-board` | [admin_main_staff_task_boad_wireframe_v1.md](../admin_main/admin_main_staff_task_boad/admin_main_staff_task_boad_wireframe_v1.md) | `useAuthStore` | `['admin', 'tasks', 'stats', date]` · `['admin', 'tasks', staffId, date]` · `['admin', 'staff']` | selectedDate · selectedRole · selectedStatus · searchQuery · expandedStaffId · createModalOpen · defaultStaffId |
+| Admin — Staff Task List | `/admin/todo-list` | [admin_main_todo_list_wireframe_v1.md](../admin_main/admin_main_todo_list/admin_main_todo_list_wireframe_v1.md) | `useAuthStore` | `['admin', 'tasks', 'todo', staffId, startDate, endDate, status, page]` · `['admin', 'staff']` | filters (staffId · startDate · endDate · status · page) · modalOpen · modalMode · selectedTask |
+| Admin — Topping | `/admin/toppings` | [admin_main_topping_wireframe_v1.md](../admin_main/admin_main_topping/admin_main_topping_wireframe_v1.md) | `useAuthStore` | `['admin', 'toppings']` | addModalOpen · editTopping |
+| Client — Favourites (×3) | `/(shop)/menu/favourites` · `/save` · `/sets` | [client_favourite_page_wireframe_v1.md](../client_favourite_page/client_favourite_page_wireframe_v1.md) | `useFavouritesStore` · `useCartStore` (write-only via applySet) | `['products', id]` · `['combos', id]` | activeFilterTab (S1) · setNameForm (S2) |
+| Admin — Tổng Kết Ngày | `/admin/summary` | [admin_summary_wireframe_v1.md](../admin_main/admin_summary/admin_summary_wireframe_v1.md) | `useAuthStore` | `['admin', 'summary', date]` · `['admin', 'shift-log', date]` | selectedDate · addNoteModalOpen |
+| Client — Product Detail | `/(shop)/menu/product/[id]` | [client_product_detail_wireframe_v1.md](../client_product_detail/client_product_detail_wireframe_v1.md) | `useCartStore` (write) · `useSettingsStore` (read) | `['products', id]` | selectedToppingIds · quantity |
+| Client — Restaurant Monitor | `/(shop)/tracking` | [client_monitoring_servicing_table_wireframe_v1.md](../client_monitoring_servicing_table/client_monitoring_servicing_table_wireframe_v1.md) | `useSettingsStore` (read guestToken · tableLabel) | `['order', orderId]` | orderStatus · queueData · tableStatuses · sseConnected |
+| Admin — Overview | `/admin/overview` | [admin_overview_wireframe_v1.md](../admin_main/admin_overview/admin_overview_wireframe_v1.md) | `useAuthStore` · `useOverviewStore` (page-local) | `['admin', 'overview', 'orders']` · `['admin', 'tables']` | elapsedTimeTick (30s interval) · dropdownOpenOrderId |
 
 ---
 
-*Last updated: 2026-05-26 (admin_main_storage added — ['admin', 'ingredients'] key registered; Page Directory row added)*
+*Last updated: 2026-05-27 (admin_overview added — useOverviewStore + ['admin', 'overview', 'orders'] + ['admin', 'tables'] registered; Page Directory row added)*
 *Add a new row whenever a wireframe page is cross-referenced against this index.*
 *Update Server Cache Keys and Global Stores the moment a new store or key is created.*

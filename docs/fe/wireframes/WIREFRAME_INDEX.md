@@ -1,6 +1,6 @@
 # Wireframe Index
 
-## Pages (19)
+## Pages (22)
 
 | # | Page | Link |
 |---|---|---|
@@ -10,19 +10,20 @@
 | 4 | Admin — Marketing | [admin_main_marketing_wireframe_v1.md](admin_main/admin_main_marketing/admin_main_marketing_wireframe_v1.md) |
 | 5 | Admin — Products | [admin_main_product_wireframe_v1.md](admin_main/admin_main_product/admin_main_product_wireframe_v1.md) |
 | 6 | Admin — Staff | [admin_main_staff_wireframe_v1.md](admin_main/admin_main_staff/admin_main_staff_wireframe_v1.md) |
-| 7 | Admin — Staff Task Board | [staff-task-board.excalidraw](admin_main/admin_main_staff_task_boad/staff-task-board.excalidraw) |
+| 7 | Admin — Staff Task Board | [admin_main_staff_task_boad_wireframe_v1.md](admin_main/admin_main_staff_task_boad/admin_main_staff_task_boad_wireframe_v1.md) |
 | 8 | Admin — Storage | [admin_main_storage_wireframe_v1.md](admin_main/admin_main_storage/admin_main_storage_wireframe_v1.md) |
-| 9 | Admin — Topping | [admin-topping.excalidraw](admin_main/admin_main_topping/admin-topping.excalidraw) |
-| 10 | Admin — Overview (Desktop) | [admin-overview.excalidraw](admin_main/admin_overview/admin-overview.excalidraw) |
+| 9 | Admin — Topping | [admin_main_topping_wireframe_v1.md](admin_main/admin_main_topping/admin_main_topping_wireframe_v1.md) |
+| 10 | Admin — Overview (Desktop) | [admin_overview_wireframe_v1.md](admin_main/admin_overview/admin_overview_wireframe_v1.md) · [admin-overview.excalidraw](admin_main/admin_overview/admin-overview.excalidraw) |
 | 11 | Admin — Overview (Mobile) | [admin-overview-mobile.excalidraw](admin_main/admin_overview/admin-overview-mobile.excalidraw) |
-| 12 | Admin — Summary | [admin-summary.excalidraw](admin_main/admin_summary/admin-summary.excalidraw) |
-| 13 | Client — Favourites | [favourites.excalidraw](client_favourite_page/favourites.excalidraw) |
+| 12 | Admin — Tổng Kết Ngày | [admin_summary_wireframe_v1.md](admin_main/admin_summary/admin_summary_wireframe_v1.md) · [admin-summary.excalidraw](admin_main/admin_summary/admin-summary.excalidraw) |
+| 13 | Client — Favourites | [client_favourite_page_wireframe_v1.md](client_favourite_page/client_favourite_page_wireframe_v1.md) · [favourites.excalidraw](client_favourite_page/favourites.excalidraw) |
 | 14 | Client — Info | [client_info.excalidraw](client_info_page/client_info.excalidraw) |
 | 15 | Client — Menu | [menu_ver1_done.excalidraw](client_menu_page/menu_ver1_done.excalidraw) |
-| 16 | Client — Restaurant Monitor | [restaurant-monitor.excalidraw](client_monitoring_servicing_table/restaurant-monitor.excalidraw) |
+| 16 | Client — Restaurant Monitor | [client_monitoring_servicing_table_wireframe_v1.md](client_monitoring_servicing_table/client_monitoring_servicing_table_wireframe_v1.md) · [restaurant-monitor.excalidraw](client_monitoring_servicing_table/restaurant-monitor.excalidraw) |
 | 17 | Client — Order (v1) | [order.excalidraw](client_order_page/order.excalidraw) |
 | 18 | Client — Order (v2) | [order_ver2.excalidraw](client_order_page/order_ver2.excalidraw) |
-| 19 | Client — Product Detail | [product-detail.excalidraw](client_product_detail/product-detail.excalidraw) |
+| 19 | Client — Product Detail | [client_product_detail_wireframe_v1.md](client_product_detail/client_product_detail_wireframe_v1.md) · [product-detail.excalidraw](client_product_detail/product-detail.excalidraw) |
+| 20 | Admin — Staff Task List | [admin_main_todo_list_wireframe_v1.md](admin_main/admin_main_todo_list/admin_main_todo_list_wireframe_v1.md) |
 
 ## Flows (8)
 

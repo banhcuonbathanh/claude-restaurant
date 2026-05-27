@@ -8,69 +8,174 @@
 
 ## Active Task
 
-| Field | Value |
-|---|---|
-| **Task ID** | — |
-| **Owner** | — |
-| **Title** | — |
-| **Session goal** | — |
-| **Branch** | — |
-| **Started** | — |
-| **Blocked by** | — |
-| **Stopped at** | — |
-| **Notes** | — |
+**ID:** P-WIRE-ORDER-1
+**Phase:** P-WIRE-ORDER — Client Order Page Wireframe
+**Owner:** Docs
+**Status:** 🔄 IN PROGRESS (started, excalidraw extracted, NOT yet written to files)
+
+**What to create (A1 only this session):**
+- `docs/fe/wireframes/client_order_page/client_order_page_wireframe_v1.md`
+- Update `docs/fe/wireframes/WIREFRAME_INDEX.md` — add row 21
+- Update `docs/fe/wireframes/shared/_INDEX_SHARING_COMPONENT.md` — Page Directory row only (no new shared components found)
+
+**AC:** All 8 zones + 2 modals documented; Zone Mapping + Data Sources + Component Specs + Edge Cases + Testing tables filled; no [TBD] in zone tables.
 
 ---
 
-## How to use this file
+## Context Already Extracted (DO NOT re-read excalidraw — use this)
 
-### At session START — fill in the block above:
-1. Pick next `⬜` task from `MASTER_TASK.md` where all `Deps` are ✅
-2. Check `Sessions = 1` — if not, break it down in `MASTER_TASK.md` first
-3. Set **Task ID**, **Owner**, **Title**, **Session goal**, **Branch**, **Started**
-4. Mark task `🔄` in `MASTER_TASK.md`
-5. Run `git checkout -b feature/{ID}-{short-name}`
+**Source:** `docs/fe/wireframes/client_order_page/order_ver2.excalidraw`
+**Page:** Theo Dõi Đơn Hàng (Order Tracking)
+**Route:** `/(shop)/order/[id]`
+**Device:** Mobile (420px)
+**Auth:** None — guest page accessed via QR link
 
-### At session END — update the block:
-- **Task fully done** → mark ✅ in `MASTER_TASK.md`, then set all fields above to `—`
-- **Task partially done** → fill in **Stopped at** (exact function/file/line) + **Notes**
-- **Task blocked** → fill in **Blocked by** + mark `🔴` in `MASTER_TASK.md`
+### Confirmed Answers (owner confirmed 2026-05-27)
+1. Route: `/(shop)/order/[id]`
+2. Qty stepper (−/qty/+) on items: **YES — live today**
+3. Item cancel (`Huỷ` button): **any time** (no kitchen-started restriction)
+4. `còn×N` badge: **portions NOT YET SERVED** (still in kitchen queue)
 
 ---
 
-## Session History (last 5)
+### Zones (8 total)
 
-| Date | Task ID | Title | Outcome |
-|---|---|---|---|
-| 2026-05-19 | P11-6 | FE Thêm món flow | ✅ `addItemsToOrder` added to `api-client.ts`; `order/[id]/page.tsx` Thêm món button now navigates to `/menu?add_to_order={orderId}`; `menu/page.tsx` reads `add_to_order` param, shows banner, passes `addToOrderId` to CartDrawer; `CartDrawer.tsx` shows "Thêm vào đơn hàng" footer when `addToOrderId` set, calls API on click, toasts success + clears cart + redirects to `/order/{id}`. `tsc --noEmit` clean. P11 ✅ COMPLETE. |
-| 2026-05-19 | P11-5 | AddItemsToOrder unit tests | ✅ Added 3 tests to `order_service_test.go`: `TestAddItems_Success` (pending order + customer owns table → AppendOrderItems called, AddedCount=2, NewTotalAmount returned), `TestAddItems_StatusReady_Blocked` (status=ready → AppError 409 ORDER_NOT_EDITABLE), `TestAddItems_WrongOwner` (customer callerID≠table_id → AppError 403 FORBIDDEN). All 15 service tests pass. |
-| 2026-05-19 | P11-4 | AddItemsToOrder handler + route registration | ✅ Added `AddItemsToOrder` handler to `order_handler.go`: `addItemsReq`/`addItemsReqItem` structs; per-item validation (exactly one of product_id/combo_id); customer callerID = TableID, staff = Subject; maps to `[]service.CreateOrderItemInput`; returns 200 `{order_id, added_items_count, new_total_amount}`. Registered `POST /:id/items` in `main.go` (authMW already on orderR, no extra RBAC). `go build ./be/...` clean. |
-| 2026-05-19 | P-FIX-MOCK-1 + P11-3 | Fix mockOrderRepo + AddItemsToOrder service | ✅ P-FIX-MOCK-1: added `appendOrderItemsFn` field + `AppendOrderItems` method stub to `mockOrderRepo`; `go test ./be/internal/service/...` all 12 pass. P11-3: added `AddItemsToOrderResult` struct + `AddItemsToOrder` method to `order_service.go`; 7-step business logic (fetch→ownership→status guard→expand→append→recalc→publish); return type `(AddItemsToOrderResult, error)`. `go build ./be/...` clean. |
-| 2026-05-19 | P-ORDER-TOPPING | Order Page Topping Display (BE + FE) | ✅ BE: added `GetToppingSnapshot` to `ProductLookup` interface + `ToppingSnapshot` type; implemented in `ProductService`; fixed `buildProductRow` to enrich snapshot with name+price; added stub to `mockProductLookup`. FE: added `ToppingSnapshotEntry` type; typed `OrderItem.toppings_snapshot`; rendered topping chips in `DishRow`. Side-finding: `mockOrderRepo` missing `AppendOrderItems` → tracked as P-FIX-MOCK-1. `go build ./be/...` + `tsc --noEmit` clean. |
-| 2026-05-16 | P11-2 | sqlc Queries + Repository Layer — AppendOrderItems | ✅ Added `AppendOrderItems(ctx, orderID, items) (string, error)` to `OrderRepository` interface + `orderRepo` impl; TX: loop CreateOrderItem → RecalculateTotalAmount → GetOrderByID → commit → return TotalAmount; no new SQL queries (existing queries sufficient); `go build ./...` clean |
-| 2026-05-16 | P11-1 | Add Items spec — POST /api/v1/orders/:id/items to Spec4 §5.2.1 | ✅ New section §5.2.1 written: request body, validation (status guard + ownership), response shape, 4 error codes, 8-step business rules (combo expand + recalc + SSE + KDS WS + orders-live WS events with full JSON schemas), 10-item AC checklist |
-| 2026-05-16 | P7-5.3 | SSE reconnect + WS reconnect integration tests | ✅ 8/8 pass; new file: `realtime_test.go` (TestSSE x4 + TestWS x4); added SSE+WS routes to `testhelper.go buildRouter`; verified reconnect x3 + event delivery via Redis publish for both SSE and WS |
-| 2026-05-16 | P7-5.2 | Order + Payment API integration tests | ✅ 21/21 pass; new files: `helpers_test.go` (doPatch/doDelete/createOrder/advanceToReady), `order_test.go` (10 tests); 3 production bugs fixed: NULL gateway_data scan, Secure cookie over HTTP, expanded buildRouter |
-| 2026-05-16 | P7-9 | Compliance pages — /privacy-policy + /terms + cookie consent banner | ✅ 3 files created: privacy-policy/page.tsx + terms/page.tsx (server components, Vietnamese, ArrowLeft back link) + CookieConsent.tsx (localStorage `cookie_consent_accepted`, orange Đồng ý button); wired to root layout.tsx; tsc clean; PCI-DSS verified (no card data anywhere in FE) |
-| 2026-05-16 | P9-8 | overview/page.tsx final assembly | ✅ Replaced 1079-line inline page with clean 200-line assembly; removed all mock data + USE_MOCK flag + inline PrepPanel/StatCard/EmptyTableCard/WS useEffect; wired useOverviewWS + StatCards + WaitingSection + PrepPanel + TableGrid; kept NewOrderPopup inline + SSE popup; 30s timer retained; tsc clean |
-| 2026-05-16 | P7-4 | FE Store Tests — cart.store.test.ts + utils.test.ts | ✅ 6/6 pass; Vitest installed (vitest + vite-tsconfig-paths); `npm test` script added; all 4 cart tests + 2 utils tests green |
-| 2026-05-16 | P7-3 | TestVNPayWebhook_ValidSignature + TestVNPayWebhook_InvalidSignature + TestVNPayWebhook_Idempotent + TestCreatePayment_OrderNotReady | ✅ 4/4 pass; all 16 service tests green. Added `paymentRedisClient` interface to `payment_service.go` (Publish only) for mock injection. Bonus fix: `rateLimitMax` was 50 (typo) → corrected to 5 per Spec1 comment; restored `TestLogin_RateLimitAfter5Fails` to green. |
-| 2026-05-16 | P7-E2E-1 | Re-run Playwright suite + fix remaining failures | ✅ 9/9 pass, 0 flaky, ~14s. Two real bugs found while triaging: (a) global-setup didn't hide non-seed product pollution OR invalidate the BE `products:list` Redis cache → `.first()` grabbed a 4₫ "banh cuon" row; (b) WS pubsub forwarder at `be/internal/websocket/handler.go:60` panicked `send on closed channel` when hub closed `client.send` mid-flight → BE crashed → `ERR_EMPTY_RESPONSE` on the order POST. Fixes: added DB+Redis cleanup to `e2e/global-setup.ts`; added `defer recover()` to the pubsub goroutine to match the existing pattern at `client.go:38,66`. |
-| 2026-05-16 | P7-E2E-0 | Fix dev DB seed so e2e tests can authenticate | ✅ No-op — dev DB already seeded correctly. Verified: admin/chef1/cashier1/manager1 all return HTTP 200 on `/api/v1/auth/login`; QR `a1b2c3d4…` resolves to Bàn 01 via `GET /api/v1/tables/qr/:token`. Original "wrong password" + "missing QR token" notes were stale. |
-| 2026-05-15 | P7-2.3 | TestItemStatusCycle + TestAutoReadyWhenAllItemsDone | ✅ Both tests pass; mockOrderRepo extended with 3 fn fields (getOrderItemByIDFn, updateQtyServedFn, updateOrderStatusFn); all 12 service tests green |
-| 2026-05-15 | P7-2.2 | TestCancelOrder_Under30Percent + TestCancelOrder_Over30Percent | ✅ Both tests pass; mockOrderRepo extended with 3 fn fields; all 10 service tests green |
-| 2026-05-15 | P7-2.1 | TestCreateOrder_ComboExpand + TestCreateOrder_DuplicateTable | ✅ Both tests pass; orderRedisClient interface added; all 8 service tests green |
-| 2026-05-15 | P7-1.5 | Fix Spec4 §5/§7/§8 gaps — SSE+WS payload schemas + combo display rules + low_stock=min_stock | ✅ All 3 gaps fixed; Spec4 updated |
-| 2026-05-15 | P7-1.3 | TestAccountDisabledImmediate + TestTokenRotation | ✅ Both tests pass; all 6 auth tests green; added setStaffActiveFn to mockAuthRepo |
-| 2026-05-14 | P7-1.2 | TestMultiSessionLogin + TestLogoutSingleSession | ✅ Both tests pass; build clean; added tokenStore helper + 4 fn fields to mockAuthRepo |
-| 2026-05-14 | P7-1.1 | Auth service test scaffolding + TestLogin_WrongPassword + TestLogin_RateLimitAfter5Fails | ✅ Both tests pass; build clean; added redisClient interface to auth_service.go |
-| 2026-05-14 | P-UX2 | Favourites + Combo detail + Settings (P-UX2-1/2/3) | ✅ All 3 tasks complete; build clean |
-| 2026-05-14 | P-PD-5 | Browser test golden path + regressions | ✅ 3 bugs fixed; all tests pass |
-| 2026-05-12 | P-PD-4 | Zone D QtyStepper + Zone E sticky CTA footer | ✅ Zone D+E added, tsc clean |
-| 2026-05-12 | P-PD-3 | Zone C ToppingSelector + live running total + skeleton | ✅ Zone C added, tsc clean |
-| 2026-05-12 | P-PD-2 | Create route + Zone A (HeroImage) + Zone B + skeleton | ✅ page.tsx created, tsc clean |
-| 2026-05-12 | P-PD-1 | Read Spec_3 §4 + verify API shape + cart store signature | ✅ All integration points confirmed — see findings |
-| 2026-05-11 | SETUP | Create docs/tasks/ folder | ✅ GUIDE · MASTER · CURRENT · TEMPLATE created |
-| — | — | — | — |
-| — | — | — | — |
-| — | — | — | — |
+| Zone | Name | Visibility | Sticky |
+|------|------|------------|--------|
+| Nav | Order Tracking Nav | Always | `top-0 z-20` |
+| C1 | Connection Error Banner | Only when SSE disconnects | Below nav |
+| 1 | Order Card | Always (collapsible ↕) | No |
+| 2 | Dish Summary Table | Always | No |
+| 3 | Money Summary Card | Always | No |
+| 4 | Completed Banner | Only when `status = delivered` | No |
+| 5 | Cancel Whole Order | Only when `progress < 30%` AND `status = active` | No |
+| 6 | Add More Dishes | Only when `table_id` exists | No |
+
+### Zone Detail
+
+**Nav:**
+- Left: `← Theo Dõi Đơn Hàng` (back button)
+- Right: `● LIVE` green pill badge (SSE connected)
+
+**Zone C1 — Connection Error Banner:**
+- Red background `#fee2e2`, red border
+- Text: `⚠ Mất kết nối realtime – Đang thử kết nối lại...`
+
+**Zone 1 — Order Card (SSE realtime, collapsible):**
+- Header row: `Bàn 5  order no: 0042` | status badge `Đang Làm` (amber) | `215,000đ  11 phút  ↕`
+- Orange progress bar (~40% filled)
+- **COMBO A section** (collapsible ↕): `COMBO A · Bánh Cuốn Tôm + Chả Giò  2 món ↕`
+  - `· Bánh Cuốn Tôm` — `tổng ×2  ra ×1` — `còn×1` badge — `Huỷ` button
+    - Topping chips: `+ Giò lụa  5,000đ` · `+ Hành phi`
+  - `· Chả Giò (combo)` — `tổng ×1  ra ×1  ✓ xong` (green)
+    - Topping chip: `+ Tương hoisin`
+- **Standalone: Nước Cam** — `tổng ×1  ra ×0` — `còn×1` badge — `Huỷ` button
+  - Qty stepper: `Số lượng: −  2  +`
+  - Topping chips: `+ Ít đường` · `+ Nhiều đá`
+- **Standalone: Bún Bò Huế (canh/soup)** — `còn×2` badge — `Huỷ` button
+  - Topping chips: `+ Bò viên  10,000đ` · `+ Chả cá  8,000đ`
+- Footer: `3 / 7 phần đã ra`
+
+**Zone 2 — Dish Summary Table:**
+- Columns: `TÊN MÓN` | `SL  RA  CÒN` | `ĐƠN GIÁ  TỔNG`
+- Rows + topping chips:
+  - Bánh Cuốn Tôm — 2, 1, ×1 — 45,000đ, 90,000đ — chips: Giò lụa 5,000đ · Hành phi
+  - Chả Giò — 1, 0, ×1 — 30,000đ, 30,000đ — chip: Tương hoisin
+  - Bún Bò Huế — 2, 1, ×1 — 60,000đ, 120,000đ — chips: Bò viên 10,000đ · Chả cá 8,000đ
+  - Nước Cam — 1, 0, ×1 — 25,000đ, 25,000đ — chips: Ít đường · Nhiều đá
+- Footer rows: `Tổng tiền còn lại 155,000đ` (orange) · `Tổng tất cả món 265,000đ`
+
+**Zone 3 — Money Summary Card:**
+- `Đã dùng (3 phần)` — `110,000đ` (green)
+- `Còn lại (4 phần chưa ra)` — `155,000đ` (orange)
+- Divider
+- `Tổng cộng` — `265,000đ` (large, bold)
+
+**Zone 4 — Completed Banner (conditional):**
+- Green border + bg `#f0fdf4`
+- `✓` icon in green circle
+- Title: `Đơn hàng đã hoàn thành`
+- Body: `Cảm ơn bạn đã dùng bữa! Bạn có thể đặt thêm bên dưới.`
+
+**Zone 5 — Cancel Whole Order (conditional):**
+- Red outline button, full width
+- Text: `Huỷ toàn bộ đơn hàng`
+- Condition: `progress < 30% AND status = active`
+
+**Zone 6 — Add More Dishes (conditional):**
+- Orange filled button, full width
+- Text: `＋ Thêm món`
+- Condition: `table_id` exists (dine-in only)
+
+### Modals (2)
+
+**Modal A — Order Confirmed (SSE push):**
+- Dark overlay (75% opacity) + dark card `#1e293b`
+- `✓` icon in green circle (dark green bg `#166534`)
+- Title (white): `Nhà hàng đã nhận đơn!`
+- Body (grey): `Dự kiến phục vụ trong khoảng 15 phút.`
+- CTA orange button: `Đã hiểu`
+- Trigger: SSE event `order_confirmed`
+
+**Modal B — Cancel Confirm Dialog:**
+- Dark overlay + dark card `#1e293b`
+- `⚠` icon in dark red circle
+- Title (white): `Huỷ món này?`
+- Body (grey): `"Bánh Cuốn Tôm" sẽ bị huỷ. Không thể hoàn tác.`
+- Buttons: `Giữ lại` (outline) · `Xác nhận huỷ` (red filled)
+- Trigger: tapping any `Huỷ` button (item-level OR Zone 5 whole-order cancel)
+
+### Skeleton
+Fully drawn — matches Zone 1 card + Zone 2 table + Zone 3 money card + Zone 6 button shape. `<OrderPageSkeleton />` required (Pattern B).
+
+---
+
+## Component Reuse Audit (pre-computed)
+
+| Component | Reuse? | Reason |
+|-----------|--------|--------|
+| `ConnectionErrorBanner` | ✅ reuse | `shared/ConnectionErrorBanner.tsx` — Tier 2 |
+| `StatusBadge` | ✅ reuse | `shared/StatusBadge.tsx` — order statuses |
+| `QuantityStepper` | ✅ reuse | `shared/QuantityStepper.tsx` — Tier 2 |
+| `Button` | ✅ reuse | `ui/button.tsx` — Tier 1 |
+| `Badge` | ✅ reuse | `ui/badge.tsx` — Tier 1 |
+| `OrderTrackingNav` | new (local) | Page-specific nav with back + LIVE badge |
+| `OrderCard` | new (local) | Collapsible card — page-specific |
+| `ComboSection` | new (local) | Combo grouping inside OrderCard |
+| `OrderItemRow` | new (local) | Single item row with còn×N + Huỷ + stepper |
+| `ToppingChip` | new (local) | Small topping label chip |
+| `DishSummaryTable` | new (local) | Zone 2 summary table |
+| `MoneySummaryCard` | new (local) | Zone 3 money breakdown |
+| `CompletedBanner` | new (local) | Zone 4 green banner |
+| `OrderConfirmedModal` | new (local) | Modal A — SSE push |
+| `CancelConfirmModal` | new (local) | Modal B — item/order cancel |
+| `OrderPageSkeleton` | new (local) | Pattern B skeleton — required |
+| `useSettingsStore` | ✅ reuse | `store/settings.ts` — tableLabel · guestToken |
+
+**No new (shared) components** — all new components are page-specific.
+
+---
+
+## State & Rendering (pre-computed)
+
+- **Pattern:** B — Full Client (`'use client'`) — all data is order-specific + SSE realtime
+- **Skeleton:** `<OrderPageSkeleton />` required
+- **Query key:** `['order', orderId]` — `GET /api/v1/orders/:id` — staleTime: 0 (SSE updates primary)
+- **SSE:** existing `useOrderSSE` hook — events: `order_confirmed` · `item_update` · `order_ready` · `order_delivered`
+- **Stores:** `useSettingsStore` (read: `tableLabel`, `guestToken`)
+- **Local state:** `cancelTarget: { itemId, itemName } | 'whole' | null` · `showConfirmedModal: boolean` · `isCardCollapsed: boolean` · `isComboCollapsed: Record<string, boolean>`
+
+---
+
+## Next Tasks After This One
+
+| ID | What |
+|----|------|
+| P-WIRE-ORDER-2 | `business_description.md` + `how_to_use.md` — read `wireframe_v1.md` as source |
+| P-WIRE-ORDER-3 | `tech_description.md` + update state/rendering indexes |
+| P-WIRE-ORDER-4 | `conccern.md` + `recomment/` |
+
+---
+
+*Created: 2026-05-27 — context extracted from order_ver2.excalidraw in same session*
+*Do NOT re-parse the excalidraw — use the zone detail above.*

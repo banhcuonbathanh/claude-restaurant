@@ -46,8 +46,16 @@ In your Component Map (Step 5), write the component name and point to this file:
 | `AdminTopNav` | `shared/AdminTopNav.tsx` | `activeTab: AdminTab` | Top navigation bar for all admin pages | admin/categories · admin/training · admin/marketing |
 | `AdminSidebar` | `shared/AdminSidebar.tsx` | `activeItem: string` | Side navigation panel for all admin pages | admin/training |
 | `DateRangePicker` | `shared/DateRangePicker.tsx` | `value: DateRange · onChange: (range) => void · placeholder?` | Date range filter input. Supports keyboard ISO entry + visual calendar. Use on any admin page with date-scoped data. Used by: admin_main_marketing |
+| `AdminSingleDatePicker` | `shared/AdminSingleDatePicker.tsx` | `value: string (ISO) · onChange: (date: string) => void · maxDate?: string` | Single-date selector for admin report/summary pages. Disables future dates via `maxDate`. Used by: admin_summary |
 | `KPICard` | `shared/KPICard.tsx` | `label: string · value: string · badge?: string · valueColor?: string · badgeVariant?` | Generic KPI metric card (label + large value + optional badge). Use for overview dashboards, summary pages, marketing. Used by: admin_main_marketing · admin_main_staff |
 | `Pagination` | `shared/Pagination.tsx` | `currentPage: number · totalPages: number · onPageChange: (page: number) => void` | Generic page navigation control (← page buttons →). Use on any admin list page with more than 1 page of results. Used by: admin_main_staff |
+| `TaskStatusBadge` | `shared/TaskStatusBadge.tsx` | `status: 'pending' \| 'in_progress' \| 'completed' \| 'overdue'` | Styled badge for staff task statuses. Distinct from `StatusBadge` (order statuses). Used by: admin_main_staff_task_boad |
+| `TaskPriorityBadge` | `shared/TaskPriorityBadge.tsx` | `priority: 'high' \| 'medium' \| 'low'` | Priority chip: red=HIGH · yellow=MEDIUM · grey=LOW. Use on any page displaying task priorities. Used by: admin_main_staff_task_boad |
+| `QuantityStepper` | `shared/QuantityStepper.tsx` | `value: number · min?: number · max?: number · onChange: (n) => void · size?: 'sm' \| 'md' · disabled?: boolean` | Inline −/qty/+ stepper. "−" disabled at `value <= min`. `role="spinbutton"` + aria labels required. Min touch 44px. Used by: client_favourite_page · client_product_detail |
+| `CustomerTopNav` | `shared/CustomerTopNav.tsx` | `title: string · cartCount: number · onBack: () => void` | Mobile top nav for customer-facing pages. Dark (#1e293b) bg, back arrow, page title, cart icon with count. Used by: client_product_detail |
+| `TableLayoutMap` | `shared/TableLayoutMap.tsx` | `tables: TableStatus[] · highlightTableId?: string` | 3-column color-coded table grid (orange=serving · red=waiting · green=empty). Cells min-h-[56px]. `aria-label` per cell required. Used by: client_monitoring_servicing_table |
+| `ClientBottomNav` | `shared/ClientBottomNav.tsx` | `activeTab: 'menu' \| 'favourites' \| 'refresh' · onRefresh?: () => void` | Sticky bottom nav for all client pages. Three tabs: Menu · Yêu Thích · Làm Mới. `onRefresh` fires SSE reconnect on monitoring page. Used by: client_monitoring_servicing_table |
+| `UrgencyBorderTimer` | `shared/UrgencyBorderTimer.tsx` | `elapsedMinutes: number · className?` | Returns border color class based on elapsed time: `border-red-500` (>20 min) · `border-yellow-400` (10–20 min) · `border-orange-400` (<10 min) · `border-gray-200` (none). Use on any page with time-based order urgency. Used by: admin_overview |
 
 ---
 
@@ -92,8 +100,8 @@ In your Component Map (Step 5), write the component name and point to this file:
 | Store | File | What it owns | Used by |
 |-------|------|-------------|---------|
 | `useCartStore` | `store/cart.ts` | Cart items · total · itemCount · activeOrderId | menu |
-| `useFavouritesStore` | `store/favourites.ts` | Favourite product/combo IDs (localStorage persisted) | menu |
-| `useSettingsStore` | `store/settings.ts` | tableLabel · customerName · guestToken | menu |
+| `useFavouritesStore` | `store/favourites.ts` | `items: FavouriteItem[]` (id · type · qty · toppingIds) · `sets: FavouriteSet[]` (id · name · createdAt · items snapshot) — localStorage persisted. **Needs store extension before Favourites pages are built.** | menu · client_favourite_page |
+| `useSettingsStore` | `store/settings.ts` | tableLabel · customerName · guestToken | menu · client_monitoring_servicing_table |
 | `useAuthStore` | `store/auth.ts` | Current user · role · JWT | admin/categories · admin/training |
 
 ---
@@ -114,9 +122,17 @@ In your Component Map (Step 5), write the component name and point to this file:
 | Admin — Products | `/admin/products` | [admin_main_product_wireframe_v1.md](../admin_main/admin_main_product/admin_main_product_wireframe_v1.md) | `AdminTopNav` · `AuthGuard` · `RoleGuard` · `useAuthStore` · `Button` · `Badge` · `EmptyState` | `ProductPageHeader` · `ProductsTable` · `ProductFormModal` |
 | Admin — Staff | `/admin/staff` | [admin_main_staff_wireframe_v1.md](../admin_main/admin_main_staff/admin_main_staff_wireframe_v1.md) | `AdminTopNav` · `AuthGuard` · `RoleGuard` · `useAuthStore` · `Button` · `Badge` · `ProgressBar` · `EmptyState` · `KPICard` · `Pagination` | `StaffPageHeader` · `StaffStatsBar` · `StaffFilterBar` · `StaffTable` · `AddEditStaffModal` · `StaffDetailDrawer` |
 | Admin — Storage | `/admin/storage` | [admin_main_storage_wireframe_v1.md](../admin_main/admin_main_storage/admin_main_storage_wireframe_v1.md) | `AdminTopNav` · `AuthGuard` · `RoleGuard` · `useAuthStore` · `Button` · `Badge` · `Input` · `EmptyState` | `StoragePageHeader` · `IngredientTable` · `IngredientFormModal` |
+| Admin — Staff Task Board | `/admin/staff/task-board` | [admin_main_staff_task_boad_wireframe_v1.md](../admin_main/admin_main_staff_task_boad/admin_main_staff_task_boad_wireframe_v1.md) | `AdminTopNav` · `KPICard` · `EmptyState` · `Button` · `Badge` · `Input` · `Label` · `AuthGuard` · `RoleGuard` · `TaskStatusBadge` · `TaskPriorityBadge` | `BreadcrumbPageHeader` · `StaffTaskFilterBar` · `StaffTaskTable` · `ExpandedTaskList` · `CreateTaskModal` |
+| Admin — Staff Task List | `/admin/todo-list` | [admin_main_todo_list_wireframe_v1.md](../admin_main/admin_main_todo_list/admin_main_todo_list_wireframe_v1.md) | `AdminTopNav` · `DateRangePicker` · `TaskStatusBadge` · `EmptyState` · `Pagination` · `Button` · `Badge` · `Input` · `Label` · `AuthGuard` · `RoleGuard` | `TodoPageHeader` · `TodoFilterBar` · `TodoTaskTable` · `TodoTaskCard` · `CreateEditTaskModal` · `TodoPageSkeleton` |
+| Admin — Topping | `/admin/toppings` | [admin_main_topping_wireframe_v1.md](../admin_main/admin_main_topping/admin_main_topping_wireframe_v1.md) | `AdminTopNav` · `AuthGuard` · `RoleGuard` · `Button` · `Badge` · `Input` · `Label` · `EmptyState` | `ToppingPageHeader` · `ToppingTable` · `ToppingFormModal` |
+| Client — Favourites | `/(shop)/menu/favourites` (×3 sub-routes) | [client_favourite_page_wireframe_v1.md](../client_favourite_page/client_favourite_page_wireframe_v1.md) | `Button` · `Badge` · `Input` · `EmptyState` · `QuantityStepper` · `useFavouritesStore` | `FavouritesTopNav` · `FavouriteFilterTabs` · `FavouriteItemCard` · `FavouritesFooter` · `FavouritesSummaryList` · `SetCard` |
+| Admin — Tổng Kết Ngày | `/admin/summary` | [admin_summary_wireframe_v1.md](../admin_main/admin_summary/admin_summary_wireframe_v1.md) | `AdminTopNav` · `AuthGuard` · `RoleGuard` · `useAuthStore` · `Button` · `Badge` · `KPICard` · `EmptyState` · `AdminSingleDatePicker` | `HourlyRevenueChart` · `PaymentMethodPieChart` · `OrderChannelCards` · `TopSellingList` · `SlowItemsAlert` · `StaffPerformanceTable` · `InventoryAlertList` · `ShiftLogList` · `AddShiftNoteModal` |
+| Client — Product Detail | `/(shop)/menu/product/[id]` | [client_product_detail_wireframe_v1.md](../client_product_detail/client_product_detail_wireframe_v1.md) | `Badge` · `QuantityStepper` · `CustomerTopNav` | `ProductHeroImage` · `ProductInfo` · `ToppingSelector` · `CTAFooter` · `ProductDetailSkeleton` |
+| Client — Restaurant Monitor | `/(shop)/tracking` | [client_monitoring_servicing_table_wireframe_v1.md](../client_monitoring_servicing_table/client_monitoring_servicing_table_wireframe_v1.md) | `StatusBadge` · `ConnectionErrorBanner` · `EmptyState` · `TableLayoutMap` · `ClientBottomNav` · `useSettingsStore` | `MonitoringTopBar` · `TableInfoBanner` · `OrderDetailCard` · `ServiceQueueList` · `ServiceQueueItem` · `MonitoringSkeleton` |
+| Admin — Overview | `/admin/overview` | [admin_overview_wireframe_v1.md](../admin_main/admin_overview/admin_overview_wireframe_v1.md) | `AdminTopNav` · `AuthGuard` · `RoleGuard` · `useAuthStore` · `KPICard` · `StatusBadge` · `EmptyState` · `Button` · `Badge` · `ConnectionErrorBanner` · `UrgencyBorderTimer` | `PrepListSection` · `PrepListCard` · `StatusChangeDropdown` · `ServingSection` · `DishSummaryRow` · `TableServingCard` · `EmptyTableGrid` · `EmptyTableCard` · `OverviewSkeleton` |
 
 ---
 
-*Last updated: 2026-05-26 (admin_main_storage added — no new shared components; Page Directory row added)*
+*Last updated: 2026-05-27 (admin_overview added — UrgencyBorderTimer new shared component registered; Page Directory row added)*
 *Add new components here the moment they are built — not after.*
 *Add a new Page Directory row whenever a wireframe is cross-referenced against this index.*

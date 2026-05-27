@@ -96,6 +96,16 @@ export default async function Page() {
 | Admin — Products | `/admin/products` | A — ISR + RSC | 30s | `['admin', 'products']` · `['categories']` · `['admin', 'toppings']` | Nav · A · B · M1 | ❌ not yet | [admin_main_product_wireframe_v1.md](../admin_main/admin_main_product/admin_main_product_wireframe_v1.md) |
 | Admin — Staff | `/admin/staff` | A — ISR + RSC | 30s | `['admin', 'staff']` | A · B · C · D · E · M1 · M2 | ❌ not yet | [admin_main_staff_wireframe_v1.md](../admin_main/admin_main_staff/admin_main_staff_wireframe_v1.md) |
 | Admin — Storage | `/admin/storage` | A — ISR + RSC | 60s | `['admin', 'ingredients']` | C · D · E | ❌ not yet | [admin_main_storage_wireframe_v1.md](../admin_main/admin_main_storage/admin_main_storage_wireframe_v1.md) |
+| Admin — Staff Task Board | `/admin/staff/task-board` | B — Full Client | N/A | none | A · B · C · D · E · F · G | ❌ not yet | [admin_main_staff_task_boad_wireframe_v1.md](../admin_main/admin_main_staff_task_boad/admin_main_staff_task_boad_wireframe_v1.md) |
+| Admin — Staff Task List | `/admin/todo-list` | B — Full Client | N/A | none | A · B · C · D | ❌ not yet | [admin_main_todo_list_wireframe_v1.md](../admin_main/admin_main_todo_list/admin_main_todo_list_wireframe_v1.md) |
+| Admin — Topping | `/admin/toppings` | A — ISR + RSC | 60s | `['admin', 'toppings']` | A · B · C · D | ❌ not yet | [admin_main_topping_wireframe_v1.md](../admin_main/admin_main_topping/admin_main_topping_wireframe_v1.md) |
+| Client — Favourites (S1) | `/(shop)/menu/favourites` | B — Full Client | N/A | none | ZA · ZB · ZC · ZD | ❌ not yet | [client_favourite_page_wireframe_v1.md](../client_favourite_page/client_favourite_page_wireframe_v1.md) |
+| Client — Favourites (S2) | `/(shop)/menu/favourites/save` | B — Full Client | N/A | none | ZA · ZB · ZC · ZD | ❌ not yet | [client_favourite_page_wireframe_v1.md](../client_favourite_page/client_favourite_page_wireframe_v1.md) |
+| Client — Favourites (S3) | `/(shop)/menu/favourites/sets` | B — Full Client | N/A | none | ZA · ZB · ZC | ❌ not yet | [client_favourite_page_wireframe_v1.md](../client_favourite_page/client_favourite_page_wireframe_v1.md) |
+| Admin — Tổng Kết Ngày | `/admin/summary` | B — Full Client | N/A | none | Zones 1–8 | ❌ not yet | [admin_summary_wireframe_v1.md](../admin_main/admin_summary/admin_summary_wireframe_v1.md) |
+| Client — Product Detail | `/(shop)/menu/product/[id]` | A — ISR + RSC | 300s | `['products', id]` | NAV · A · B · C · D · E | ❌ not yet | [client_product_detail_wireframe_v1.md](../client_product_detail/client_product_detail_wireframe_v1.md) |
+| Client — Restaurant Monitor | `/(shop)/tracking` | B — Full Client | N/A | none | A · B · C · D · E · F | ❌ not yet | [client_monitoring_servicing_table_wireframe_v1.md](../client_monitoring_servicing_table/client_monitoring_servicing_table_wireframe_v1.md) |
+| Admin — Overview | `/admin/overview` | B — Full Client | N/A | none | Nav · A · B · C · D | ❌ not yet | [admin_overview_wireframe_v1.md](../admin_main/admin_overview/admin_overview_wireframe_v1.md) |
 
 ---
 
@@ -106,3 +116,9 @@ export default async function Page() {
 | Menu | No `prefetchQuery` on category tab hover → each tab tap waits for a network round-trip | Medium — noticeable on slow connections |
 | Menu | No skeleton defined for Zone C (category tabs), Zone E (combos), Zone F (product grid) | Medium — flash of empty on first paint if ISR cache misses |
 | All Pattern B pages | Must define `<PageSkeleton />` before shipping | High — blank screen without it |
+| Admin — Staff Task Board | Zone F (ExpandedTaskList) is lazy-fetched on row expand → loading spinner visible on expand click. Prefetch on row hover (`queryClient.prefetchQuery`) to hide this gap | Low-Medium — noticeable on slow connections |
+| Admin — Overview | No `OverviewSkeleton` defined — blank screen during initial REST hydration + WS connect (~500ms). Must define before shipping. | High — all zones are client-rendered |
+| Admin — Staff Task List | `['admin', 'tasks', 'todo', ...]` has `staleTime: 30s`. Overdue status computed on BE read — a cached response can show "pending" for an overdue task. Set `refetchOnWindowFocus: true` as a mitigation. | Low — only visible after a tab switch |
+| Client — Favourites S1/S3 | Item metadata (`['products', id]` · `['combos', id]`) fetched client-side per item — brief loading flash per card on cold visit when localStorage has many items. Pre-warm not in scope for v1. | Low-Medium — noticeable if > 5 items favourited |
+| Admin — Tổng Kết Ngày | Pattern B — skeleton visible on every cold visit; ISR not possible because `selectedDate` is runtime user state. `<AdminSummarySkeleton />` required before SUM-2 ships. | Medium — skeleton flash on every visit; acceptable for a management dashboard |
+| Client — Restaurant Monitor | SSE connection opens ~200–400ms after mount → queue/table data lags one tick on first render. `<MonitoringSkeleton />` required; show until both `useQuery` resolves AND first SSE event received. Also: iOS Safari kills EventSource when screen locks — add `visibilitychange` reconnect handler. | Medium — blank monitoring zones on cold visit without skeleton; SSE drop silently on iOS |
