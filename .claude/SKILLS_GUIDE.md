@@ -197,6 +197,25 @@ Pass a task ID to scope the scan to one task.
 
 ---
 
+### `/codebase-graph [view]`
+**What it does:** Scans the entire codebase and generates Mermaid knowledge graphs showing architecture, layer dependencies, and FE↔BE connections. Output is written to `docs/graphs/CODEBASE_GRAPH.md` — open with VSCode Markdown Preview (`Cmd+Shift+V`) or push to GitHub to view.
+
+**Views:**
+- `arch` (default) — full system: clients → FE → BE → DB/Redis
+- `be` — backend layer graph per domain (handler → service → repo → table)
+- `fe` — frontend page graph (page → hook → store → API call)
+- `api` — FE page ↔ BE endpoint connection map
+- `all` — all four diagrams at once
+
+```
+/codebase-graph
+/codebase-graph be
+/codebase-graph api
+/codebase-graph all
+```
+
+---
+
 ## Quick reference card
 
 ```
@@ -217,6 +236,13 @@ BUILDING PAGES
 
 DESIGN SYSTEM
   Manage tokens       → /design [scaffold|lint|export|diff]
+
+CODEBASE EXPLORATION
+  Architecture graph  → /codebase-graph
+  Backend layers      → /codebase-graph be
+  Frontend pages      → /codebase-graph fe
+  API connections     → /codebase-graph api
+  All views           → /codebase-graph all
 
 QUALITY / DOCS
   Mid-session audit   → /doc-check [task-id]
