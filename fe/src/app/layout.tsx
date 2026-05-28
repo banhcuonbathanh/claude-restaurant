@@ -1,19 +1,33 @@
 import type { Metadata } from 'next'
-import { Playfair_Display, Be_Vietnam_Pro } from 'next/font/google'
+import localFont from 'next/font/local'
 import { Providers } from '@/lib/providers'
 import { CookieConsent } from '@/components/shared/CookieConsent'
 import './globals.css'
 
-const playfair = Playfair_Display({
-  subsets: ['latin'],
+const playfair = localFont({
+  src: [
+    { path: '../../public/fonts/playfair-display-vietnamese.woff2', weight: '400 700', style: 'normal' },
+    { path: '../../public/fonts/playfair-display-latin.woff2', weight: '400 700', style: 'normal' },
+  ],
   variable: '--font-display',
-  weight: ['400', '600', '700'],
+  display: 'swap',
 })
 
-const beVietnam = Be_Vietnam_Pro({
-  subsets: ['latin', 'vietnamese'],
+const beVietnam = localFont({
+  src: [
+    { path: '../../public/fonts/be-vietnam-pro-300-vietnamese.woff2', weight: '300', style: 'normal' },
+    { path: '../../public/fonts/be-vietnam-pro-300-latin.woff2', weight: '300', style: 'normal' },
+    { path: '../../public/fonts/be-vietnam-pro-400-vietnamese.woff2', weight: '400', style: 'normal' },
+    { path: '../../public/fonts/be-vietnam-pro-400-latin.woff2', weight: '400', style: 'normal' },
+    { path: '../../public/fonts/be-vietnam-pro-500-vietnamese.woff2', weight: '500', style: 'normal' },
+    { path: '../../public/fonts/be-vietnam-pro-500-latin.woff2', weight: '500', style: 'normal' },
+    { path: '../../public/fonts/be-vietnam-pro-600-vietnamese.woff2', weight: '600', style: 'normal' },
+    { path: '../../public/fonts/be-vietnam-pro-600-latin.woff2', weight: '600', style: 'normal' },
+    { path: '../../public/fonts/be-vietnam-pro-700-vietnamese.woff2', weight: '700', style: 'normal' },
+    { path: '../../public/fonts/be-vietnam-pro-700-latin.woff2', weight: '700', style: 'normal' },
+  ],
   variable: '--font-body',
-  weight: ['300', '400', '500', '600', '700'],
+  display: 'swap',
 })
 
 export const metadata: Metadata = {

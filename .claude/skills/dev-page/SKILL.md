@@ -1,5 +1,6 @@
 ---
-description: Build FE components and verify BE endpoints for a page from its wireframe folder. Usage: /dev-page <page-folder-name>. Three phases: (1) Audit — diff wireframe spec vs. existing code; (2) Gap Fill — build only what is missing; (3) Integration — wire zones into page.tsx and verify ACs.
+name: dev-page
+description: Build FE components and verify BE endpoints for a page from its wireframe folder. Usage: /dev-page <page-folder-name>. Four phases: (1) Audit — diff wireframe spec vs. existing code; (2) Gap Fill — build only what is missing; (3) Integration — wire zones into page.tsx and verify ACs; (4) Visual & Functional Audit — screenshot the live page against the .excalidraw layout and click-test every interactive element.
 ---
 
 You are a senior co-developer building or completing a page from its wireframe spec.
@@ -240,6 +241,161 @@ ACs NOT covered: [list or "none"]
 
 Next: run /verify to confirm the page works in the browser.
 ```
+
+### 3-final — Update TRACKER.md
+
+After printing the final summary, **always** update `docs/fe/dev-page/TRACKER.md`:
+
+**Step 1 — Update the status row for this page.**
+
+Find the row whose Command matches the current `$ARGUMENTS`. Set:
+- `Status` → `✅` if all ACs covered, `⚠️` if any AC NOT covered, `❌` if Phase 2 was blocked
+- `Last Run` → today's date (YYYY-MM-DD)
+- `Concerns / Notes` → one-line summary of any ⚠️ AC NOT COVERED items, or "—" if clean
+
+**Step 2 — Append a row to the Session Log table.**
+
+Format:
+```
+| YYYY-MM-DD | [page folder name] | ✅ / ⚠️ / ❌ | [key decisions, blockers, or open concerns — one line] |
+```
+
+**Step 3 — Update any Cross-Page Concerns rows** (X1–X6) if this run revealed new information about shared components, state, SSE wiring, or mobile responsiveness. Change status from ⬜ to 🔄 or ✅ where applicable.
+
+---
+
+## PHASE 4 — Visual & Functional Audit (always runs after Phase 3)
+
+This phase has two goals:
+1. **Visual match** — does the live page look like the `.excalidraw` wireframe?
+2. **Functional check** — does every interactive element from the spec actually work?
+
+### 4-pre — Confirm the dev server is running
+
+```
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000
+```
+
+- If `200` → proceed.
+- If not → output: `⚠️ Dev server not responding on :3000. Start it with: cd fe && npm run dev` and STOP.
+
+---
+
+### 4a — Visual Layout Audit
+
+**Step 1 — Read the `.excalidraw` file.**
+
+Look for `*.excalidraw` inside the wireframe folder. If found, parse it as JSON and extract:
+- Frame / group labels — these map to zone names (e.g. "Zone A — Header", "Zone B — Search")
+- Approximate vertical order of frames top-to-bottom — this is the expected scroll order on the page
+
+If no `.excalidraw` file exists → skip visual audit, note: `⚠️ No .excalidraw found — visual audit skipped`.
+
+**Step 2 — Screenshot the live page at mobile width (390 × 844).**
+
+Use Playwright:
+```
+browser_navigate  → http://localhost:3000/[route from spec]
+browser_resize    → width: 390, height: 844
+browser_take_screenshot
+```
+
+If the route requires auth, navigate to the login page first, fill credentials (use seeded test data if available), then navigate to the target route.
+
+**Step 3 — Compare screenshot to excalidraw zones.**
+
+For each zone extracted from the `.excalidraw` (in top-to-bottom order), answer:
+
+| Zone | Expected (from excalidraw) | Visible in screenshot? | Match? |
+|------|---------------------------|------------------------|--------|
+| Zone A | Header bar with logo + cart icon | … | ✅ / ⚠️ / ❌ |
+| Zone B | Category tabs | … | ✅ / ⚠️ / ❌ |
+| … | … | … | … |
+
+Scoring:
+- ✅ **Match** — element is clearly present in the correct position
+- ⚠️ **Partial** — element exists but position, size, or content differs noticeably from the wireframe
+- ❌ **Missing** — zone is not visible at all
+
+**Step 4 — Output the Visual Audit Report.**
+
+```
+VISUAL AUDIT — [page folder name]
+══════════════════════════════════
+Viewport: 390×844 (mobile)
+
+Zone A — Header          ✅ matches wireframe
+Zone B — Search Bar      ⚠️ present but search icon missing (wireframe shows magnifier)
+Zone C — Category Rail   ✅ matches wireframe
+Zone D — Product Grid    ❌ not visible — check if data-fetching hook fires
+...
+
+Visual Match Score: [N/total zones] zones ✅
+```
+
+---
+
+### 4b — Functional Audit
+
+For each AC in the spec that describes user interaction (clicks, inputs, navigation, real-time updates), run a Playwright test sequence.
+
+**Standard interaction checklist (run for every page):**
+
+| # | Test | Playwright steps | Pass? |
+|---|------|-----------------|-------|
+| F-01 | Page loads without console errors | `browser_navigate` → `browser_console_messages` — check for ERROR lines | ✅ / ❌ |
+| F-02 | All images load (no broken img) | `browser_evaluate`: `document.querySelectorAll('img').length` vs images with `naturalWidth > 0` | ✅ / ❌ |
+| F-03 | No layout overflow (horizontal scroll) | `browser_evaluate`: `document.body.scrollWidth > window.innerWidth` → must be false | ✅ / ❌ |
+
+**Page-specific interactions (derived from the spec's AC list):**
+
+Read each AC that starts with a verb (Click, Tap, Select, Submit, Search, Scroll, Toggle, etc.) and map it to a Playwright test:
+
+- AC: "User taps a category → product list filters" → `browser_click` on first category tab → `browser_snapshot` to verify list changed
+- AC: "User adds item to cart → cart badge increments" → `browser_click` on add button → `browser_evaluate` cart badge count
+- AC: "User submits order → redirected to confirmation" → fill form → `browser_click` submit → assert URL changed
+- AC: "Real-time order status updates" → `browser_wait_for` status badge change within 5s after triggering SSE event
+
+For each test, output: `F-[n] [AC text] → ✅ PASS / ❌ FAIL ([reason])`
+
+If a test fails, do **not** automatically fix it — flag it and continue with the remaining tests.
+
+**Step — Output the Functional Audit Report.**
+
+```
+FUNCTIONAL AUDIT — [page folder name]
+══════════════════════════════════════
+F-01 Page loads without console errors        ✅ PASS
+F-02 All images load                          ✅ PASS
+F-03 No horizontal overflow                   ✅ PASS
+F-04 Category tap filters product list        ✅ PASS
+F-05 Add to cart increments badge             ⚠️ PASS (badge updates after 300ms delay)
+F-06 Search returns matching products         ❌ FAIL (input fires but API call not observed)
+F-07 Submit order redirects to confirmation   ✅ PASS
+...
+
+Functional Score: [N/total] tests passed
+```
+
+---
+
+### 4-final — Combined Phase 4 Summary + TRACKER update
+
+```
+PHASE 4 COMPLETE — [page folder name]
+══════════════════════════════════════
+Visual:     [N/total] zones match  (⚠️ zones: [list or "none"])
+Functional: [N/total] tests pass   (❌ tests: [list or "none"])
+
+Action items:
+  ⚠️ Zone B — search icon missing → check SearchBar.tsx icon import
+  ❌ F-06 — search API call not firing → check useProductSearch hook trigger condition
+```
+
+Then update `docs/fe/dev-page/TRACKER.md`:
+- Append a `Phase 4` column to the page's status row: `Visual [N/total] · Func [N/total]`
+- If any ❌ functional failures → set Status to ⚠️ (do not mark ✅ until all tests pass)
+- Append the Phase 4 summary as a new line in the Session Log
 
 ---
 

@@ -1,5 +1,5 @@
 'use client'
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState, useEffect, Suspense } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { ShoppingCart, ClipboardList, Settings, PlusCircle } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -22,7 +22,7 @@ import { formatVND } from '@/lib/utils'
 import type { Product, Combo, ComboRaw, Category } from '@/types/product'
 import { STORAGE_KEYS } from '@/lib/storage-keys'
 
-export default function MenuPage() {
+function MenuContent() {
   const router        = useRouter()
   const searchParams  = useSearchParams()
   const addToOrderId  = searchParams.get('add_to_order') ?? undefined
@@ -274,5 +274,13 @@ export default function MenuPage() {
 
       <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} addToOrderId={addToOrderId} />
     </div>
+  )
+}
+
+export default function MenuPage() {
+  return (
+    <Suspense>
+      <MenuContent />
+    </Suspense>
   )
 }

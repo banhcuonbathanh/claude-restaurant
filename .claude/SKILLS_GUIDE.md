@@ -249,3 +249,24 @@ QUALITY / DOCS
   Session quality     → /quality-check [n]
   Close session       → /handoff
 ```
+
+
+
+/dev-page client_menu_page
+/dev-page client_product_detail
+/dev-page client_order_page
+/dev-page client_monitoring_servicing_table
+/dev-page client_favourite_page
+/dev-page client_info_page
+/dev-page admin_main/admin_main_product
+/dev-page admin_main/admin_main_categories
+/dev-page admin_main/admin_main_topping
+/dev-page admin_main/admin_main_combos
+/dev-page admin_main/admin_main_staff
+/dev-page admin_main/admin_main_marketing
+/dev-page admin_main/admin_main_storage
+/dev-page admin_main/admin_main_todo_list
+/dev-page admin_main/admin_main_staff_task_boad
+/dev-page admin_main/admin_main_training
+/dev-page admin_main/admin_overview
+/dev-page admin_main/admin_summary
