@@ -59,7 +59,7 @@ git diff HEAD~1 --name-only
 | `fe/src/app/(dashboard)/kds/**` | `CODEBASE_GRAPH_FE.md` | kds subgraph |
 | `fe/src/app/(dashboard)/pos/**` | `CODEBASE_GRAPH_FE.md` | pos subgraph |
 | `fe/src/app/(dashboard)/admin/**` | `CODEBASE_GRAPH_FE.md` | admin subgraph |
-| `fe/src/store/**` | `CODEBASE_GRAPH_FE.md` | all FE subgraphs (store fields) |
+| `fe/src/store/**` | `CODEBASE_GRAPH_FE.md` + `FE_STRUCTURE.md` | all FE subgraphs + Store Fields table |
 | `fe/src/hooks/**` | `CODEBASE_GRAPH_FE.md` | subgraph(s) that use the changed hook |
 
 Build two lists: `CHANGED_BE` (subgraphs in BE file) and `CHANGED_FE` (subgraphs in FE file) and `CHANGED_SHARED` (sections in shared file).
@@ -83,6 +83,11 @@ For each target file that has changes:
 - Leave all other subgraphs in that file untouched
 - Update the `Last generated` timestamp at the top of the file
 - Write the patched file back
+
+If `fe/src/store/**` is in the changed set:
+- Additionally read each changed store file, extract fields + persist key
+- Open `docs/graphs/FE_STRUCTURE.md`, replace the `## Store Fields` table, update the date header
+- Write `FE_STRUCTURE.md` back
 
 Do NOT read or write files whose domains did not change.
 
@@ -137,6 +142,11 @@ Read these files (in parallel) to fill in the domain connections:
 - `be/internal/handler/router.go` or `be/cmd/main.go` → confirm route groupings (read whichever exists)
 
 From API_CONTRACT, map each endpoint group to a FE page that consumes it.
+
+**Store fields (only when drawing `fe` or `all`):**
+- Read each `*.ts` file found in `fe/src/store/` (from Phase 1 scan)
+- For each file extract: TypeScript interface fields with types · action names · Zustand persist key string (from `persist({ name: ... })`) or "none"
+- Build a table ready to write into `FE_STRUCTURE.md §Store Fields`
 
 ---
 
@@ -220,6 +230,13 @@ graph TD
     end
     %% repeat per route group
 ```
+
+---
+
+**After writing `CODEBASE_GRAPH_FE.md`, also update `docs/graphs/FE_STRUCTURE.md`:**
+- Find the `## Store Fields` section (the table between that heading and the next `---`)
+- Replace the entire table with the store data collected in Phase 2
+- Update the date in the file header line (`> \`fe/src/\` — last updated`)
 
 ---
 

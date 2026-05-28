@@ -34,6 +34,22 @@ Set `SPEC_FILE` = the resolved spec path.
 
 ## PHASE 1 — Audit (read-only, always run before writing any code)
 
+### 1-pre — Read the graph index, then load only what the audit needs
+
+**Step 1 — Read `docs/graphs/GRAPHS_INDEX.md`.**
+Scan the Decision Table. For a `/dev-page` FE audit the table says: read `FE_STRUCTURE.md`, skip all others.
+
+**Step 2 — Read `docs/graphs/FE_STRUCTURE.md`.**
+Extract these three sections (they replace multiple tool calls in 1a–1c):
+- **Folder Tree** → used in 1a instead of `find`/`ls`
+- **Store Fields** → used in 1b instead of opening individual store files
+- **Storage Keys** → used in 1c instead of grepping `storage-keys.ts`
+
+**Step 3 — Freshness check.**
+Check the `> last updated` date at the top of `FE_STRUCTURE.md`. If older than 7 days, add one line to the audit report: `⚠️ FE_STRUCTURE.md may be stale — run /codebase-graph fe to refresh.` Then proceed; do not block the audit.
+
+Only open additional graph files if the GRAPHS_INDEX Decision Table says to — do not speculatively read files not listed for this task type.
+
 Read `SPEC_FILE` and extract:
 
 1. **Route** — the Next.js route (`app/(shop)/menu/page.tsx` etc.)
@@ -48,20 +64,22 @@ Then for each item, check the disk:
 ### 1a — Component file audit
 
 For every component in the Component Map:
-- Does the file exist on disk?
+- Look up the file path in the **Folder Tree** section of `FE_STRUCTURE.md` (already read in 1-pre)
+- Only fall back to a `find` call if the path is ambiguous or not listed
 - Mark: ✅ exists / ❌ missing / ⚠️ exists-but-check (file exists but task is still 🔄)
 
 ### 1b — Store field audit
 
 For every store field the spec requires:
-- Read the store file (`src/store/*.ts`)
-- Does the field exist in the interface and in the `create()` call?
+- Look up the store in the **Store Fields** table of `FE_STRUCTURE.md` (already read in 1-pre)
+- Does the required field appear in the State fields column?
 - Mark: ✅ exists / ❌ missing
+- Only open the actual store file if the table entry says "open file for fields" or the store is not listed
 
 ### 1c — `storage-keys.ts` audit
 
-- Check if `src/lib/storage-keys.ts` exists
-- If it does, check that every `localStorage` key string used in page and components is imported from it (grep for raw string literals like `localStorage.setItem('order_`)
+- Check the **Storage Keys** table in `FE_STRUCTURE.md` (already read in 1-pre) — no need to open `storage-keys.ts`
+- Grep for raw `localStorage` string literals only in files the spec says this page touches (not the whole codebase)
 - Mark violations as: ⚠️ HARDCODED KEY: `[key]` in `[file]`
 
 ### 1d — BE endpoint audit
