@@ -1,20 +1,19 @@
 'use client'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-
-const STORAGE_KEY = 'cookie_consent_accepted'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 
 export function CookieConsent() {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    if (!localStorage.getItem(STORAGE_KEY)) {
+    if (!localStorage.getItem(STORAGE_KEYS.COOKIE_CONSENT)) {
       setVisible(true)
     }
   }, [])
 
   function accept() {
-    localStorage.setItem(STORAGE_KEY, '1')
+    localStorage.setItem(STORAGE_KEYS.COOKIE_CONSENT, '1')
     setVisible(false)
   }
 

@@ -218,7 +218,7 @@ export interface CartItem {
 ### Query Configuration
 
 ```typescript
-// hooks/useMenuQueries.ts
+// src/hooks/useMenuQueries.ts
 
 import { useQuery } from '@tanstack/react-query';
 
@@ -250,7 +250,7 @@ export const useCombos = () => {
     queryKey: ['combos'],
     queryFn: () => fetch('/api/v1/combos').then(res => res.json()),
     staleTime: 5 * 60 * 1000,
-    enabled: true, // Always fetch, but only show when categoryId === null
+    enabled: selectedCategory === null,
   });
 };
 ```
@@ -258,10 +258,9 @@ export const useCombos = () => {
 ### State Management (Zustand)
 
 ```typescript
-// stores/cartStore.ts
+// src/store/cart.ts
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 interface CartState {
   items: CartItem[];
@@ -282,67 +281,29 @@ interface CartState {
   total: () => number;
 }
 
-export const useCartStore = create<CartState>()(
-  persist(
-    (set, get) => ({
-      items: [],
-      drinkConfig: {
-        vegetableAmount: 'normal',
-        bowlCount: 1,
-        spiceLevel: 'normal',
-      },
-      orderNote: '',
-      
-      addItem: (product, config) => {
-        const newItem: CartItem = {
-          id: crypto.randomUUID(),
-          type: product.type,
-          name: product.name,
-          quantity: config.quantity,
-          price: product.price,
-          toppings: config.toppings,
-          details: product.details,
-        };
-        set(state => ({ items: [...state.items, newItem] }));
-      },
-      
-      removeItem: (id) => {
-        set(state => ({ items: state.items.filter(item => item.id !== id) }));
-      },
-      
-      updateQuantity: (id, quantity) => {
-        set(state => ({
-          items: state.items.map(item =>
-            item.id === id ? { ...item, quantity } : item
-          ),
-        }));
-      },
-      
-      updateToppings: (id, toppings) => {
-        set(state => ({
-          items: state.items.map(item =>
-            item.id === id ? { ...item, toppings } : item
-          ),
-        }));
-      },
-      
-      setDrinkConfig: (config) => set({ drinkConfig: config }),
-      setOrderNote: (note) => set({ orderNote: note }),
-      clearCart: () => set({ items: [] }),
-      
-      itemCount: () => get().items.reduce((sum, item) => sum + item.quantity, 0),
-      total: () => get().items.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-    }),
-    {
-      name: 'cart-storage',
-      partialize: (state) => ({
-        items: state.items,
-        drinkConfig: state.drinkConfig,
-        orderNote: state.orderNote,
-      }),
+// Memory-only — NO persist middleware (cart is cleared on page close by design)
+export const useCartStore = create<CartState>()((set, get) => ({
+  items: [],
+
+  addItem: (item) => set((s) => {
+    const existing = s.items.find(i => i.id === item.id)
+    if (existing) {
+      return { items: s.items.map(i => i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i) }
     }
-  )
-);
+    return { items: [...s.items, item] }
+  }),
+
+  removeItem: (id) => set((s) => ({ items: s.items.filter(i => i.id !== id) })),
+
+  updateQty: (id, qty) => set((s) => ({
+    items: s.items.map(i => i.id === id ? { ...i, quantity: qty } : i).filter(i => i.quantity > 0),
+  })),
+
+  clearCart: () => set({ items: [], tableId: null, activeOrderId: null, paymentMethod: null }),
+
+  itemCount: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
+  total: () => get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
+}));
 ```
 
 ---

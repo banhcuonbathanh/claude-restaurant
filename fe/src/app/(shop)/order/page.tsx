@@ -3,15 +3,16 @@ import { useEffect, useState } from 'react'
 import { ClipboardList, Trash2, ShoppingBag, ChevronRight } from 'lucide-react'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { formatVND } from '@/lib/utils'
-import { OrderDetailSheet } from '@/components/order/OrderDetailSheet'
+import { OrderDetailSheet } from '@/features/order/components/OrderDetailSheet'
 import type { Order } from '@/types/order'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 
 function loadCachedOrders(): Order[] {
   const orders: Order[] = []
   try {
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i)
-      if (!key?.startsWith('order_cache_')) continue
+      if (!key?.startsWith(STORAGE_KEYS.ORDER_CACHE)) continue
       const raw = localStorage.getItem(key)
       if (!raw) continue
       orders.push(JSON.parse(raw))
@@ -42,7 +43,7 @@ export default function OrderListPage() {
       const toRemove: string[] = []
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i)
-        if (key?.startsWith('order_cache_')) toRemove.push(key)
+        if (key?.startsWith(STORAGE_KEYS.ORDER_CACHE)) toRemove.push(key)
       }
       toRemove.forEach(k => localStorage.removeItem(k))
     } catch {}

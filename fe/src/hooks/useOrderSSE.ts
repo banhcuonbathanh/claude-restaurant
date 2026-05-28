@@ -4,8 +4,9 @@ import { fetchEventSource } from '@microsoft/fetch-event-source'
 import { useAuthStore } from '@/features/auth/auth.store'
 import { api } from '@/lib/api-client'
 import type { Order } from '@/types/order'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 
-const cacheKey = (id: string) => `order_cache_${id}`
+const cacheKey = (id: string) => `${STORAGE_KEYS.ORDER_CACHE}${id}`
 
 export type OrderNotification =
   | { kind: 'confirmed'; eta?: number }

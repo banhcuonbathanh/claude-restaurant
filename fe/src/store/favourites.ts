@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 
 interface FavouritesState {
   ids: string[]
@@ -17,6 +18,6 @@ export const useFavouritesStore = create<FavouritesState>()(
         })),
       isFavourite: (id) => get().ids.includes(id),
     }),
-    { name: 'favourites' },
+    { name: STORAGE_KEYS.FAVOURITES },
   ),
 )

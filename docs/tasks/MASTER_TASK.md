@@ -30,9 +30,10 @@
 | P11 — Add Items to Existing Order | Full | ✅ COMPLETE | 0 | — |
 | P-ORDER-TOPPING — Order Page Topping Display | FE+BE | ✅ COMPLETE | 0 | — |
 | P-FIX-MOCK — Fix order_service_test mockOrderRepo | BE | ✅ COMPLETE | 0 | — |
-| P-ARCH — FE Architecture Groundwork | FE+Docs | ⬜ NOT STARTED | 2 | P-ARCH-1 (storage-keys) |
+| P-ARCH — FE Architecture Groundwork | FE+Docs | ✅ COMPLETE | 0 | — |
 | P-TRAINING — Admin Staff Training Page | FE | ⬜ NOT STARTED | 6 | P-TRAINING-2 (RoleFilterTabs) |
 | P-WIRE-ORDER — Client Order Page Wireframe | Docs | 🔄 IN PROGRESS | 1 | P-WIRE-ORDER-4 (conccern + recomment) |
+| P-GRAPH-ENRICH — Enrich Codebase Graphs for /dev-page | Docs | ✅ COMPLETE | 2 | — |
 
 ---
 
@@ -339,8 +340,8 @@ The entries below are phase-level summaries only.
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P-ARCH-1 | FE | Create `src/lib/storage-keys.ts` — single source for all localStorage key constants; update `CookieConsent.tsx` (`cookie_consent_accepted`), `useOrderSSE.ts` + `order/page.tsx` + `menu/page.tsx` (`order_cache_` prefix — currently hardcoded in 3 files), `favourites.ts` (`favourites`), `settings.ts` (`customer-settings`) to import from it | P5 ✅ | 1 | ⬜ | No hardcoded localStorage key strings outside `storage-keys.ts`; `tsc --noEmit` clean; behavior unchanged |
-| P-ARCH-2 | Docs | Correct `menu_wireframe_v1.md` wrong file paths: cartStore → `src/store/cart.ts` (not `menu/stores/`); hooks → `src/hooks/` (not `menu/hooks/`); remove persist middleware from cartStore spec (cart is memory-only in actual code); fix `useCombos enabled: true` → `enabled: selectedCategory === null`; update `_TEMPLATE.md` to match richer zone format | — | 1 | ⬜ | All paths match actual codebase; `useCombos` enabled flag correct; template has Zone table + Data Sources + TypeScript contracts sections |
+| P-ARCH-1 | FE | Create `src/lib/storage-keys.ts` — single source for all localStorage key constants; update `CookieConsent.tsx` (`cookie_consent_accepted`), `useOrderSSE.ts` + `order/page.tsx` + `menu/page.tsx` (`order_cache_` prefix — currently hardcoded in 3 files), `favourites.ts` (`favourites`), `settings.ts` (`customer-settings`) to import from it | P5 ✅ | 1 | ✅ | No hardcoded localStorage key strings outside `storage-keys.ts`; `tsc --noEmit` clean; behavior unchanged |
+| P-ARCH-2 | Docs | Correct `menu_wireframe_v1.md` wrong file paths: cartStore → `src/store/cart.ts` (not `menu/stores/`); hooks → `src/hooks/` (not `menu/hooks/`); remove persist middleware from cartStore spec (cart is memory-only in actual code); fix `useCombos enabled: true` → `enabled: selectedCategory === null`; update `_TEMPLATE.md` to match richer zone format | — | 1 | ✅ | All paths match actual codebase; `useCombos` enabled flag correct; template has Zone table + Data Sources + TypeScript contracts sections + Spec Summary |
 
 ---
 
@@ -441,6 +442,20 @@ The entries below are phase-level summaries only.
 | P-WIRE-ORDER-2 | Docs | `business_description.md` + `how_to_use.md` — Vietnamese copy, zone-by-zone user guide, standard flow | P-WIRE-ORDER-1 ✅ | 1 | ✅ | Every zone covered; no technical terms in business_description; standard 4-step flow diagram in how_to_use |
 | P-WIRE-ORDER-3 | Docs | `tech_description.md` — RBAC table, Rendering Strategy (Pattern B — SSE-driven), TypeScript interfaces (OrderItem · ComboSection · OrderCardData · MoneyBreakdown), query hook stubs, file org tree; update `_INDEX_STATE_MANAGEMENT.md` + `_INDEX_RENDERING_STRATEGY.md` | P-WIRE-ORDER-1 ✅ | 1 | ✅ | Pattern B declared; skeleton defined flag set; new query keys registered in state index |
 | P-WIRE-ORDER-4 | Docs | `conccern.md` + `recomment/recommend.md` + `recomment/recomment_claude.md`; update `_INDEX_SHARING_COMPONENT.md` Page Directory row | P-WIRE-ORDER-1 ✅ | 1 | ⬜ | ≥ 5 open questions in conccern; UX strengths + recommendations table filled; shared component reuse table complete |
+
+---
+
+## Phase P-GRAPH-ENRICH — Enrich Codebase Graphs for /dev-page
+
+> **Goal:** Pre-populate `docs/graphs/CODEBASE_GRAPH_BE.md` and `CODEBASE_GRAPH_FE.md` with grep-derived lookup tables so `/dev-page` audit reads one doc instead of grepping cold across the codebase.
+> **Priority:** HIGH — blocks efficient /dev-page runs across all pages
+> **Order:** ENRICH-1 → ENRICH-2 (BE first, FE second)
+> **Added:** 2026-05-28
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P-GRAPH-ENRICH-1 | Docs | Enrich `docs/graphs/CODEBASE_GRAPH_BE.md` — add Route Index table (method + path + handler func + file), Service Index (func name + file), and Repository Index (func name + file) by grepping `be/internal/` | — | 1 | ✅ | Every registered route appears in table; handler→service→repo chain traceable from doc alone |
+| P-GRAPH-ENRICH-2 | Docs | Enrich `docs/graphs/CODEBASE_GRAPH_FE.md` — add Component Index (component name + file path + zone/page), Store Field Index (store name + fields), and Storage Keys Index (key constant + value) by grepping `fe/src/` | P-GRAPH-ENRICH-1 ✅ | 1 | ✅ | Every page component traceable; all store fields listed; all localStorage keys in index |
 
 ---
 

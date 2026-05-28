@@ -7,13 +7,14 @@ import Link from 'next/link'
 import { useSettingsStore } from '@/store/settings'
 import { api } from '@/lib/api-client'
 import { useCartStore } from '@/store/cart'
-import { CategoryTabs } from '@/components/menu/CategoryTabs'
-import { ProductCard } from '@/components/menu/ProductCard'
-import { ComboCard } from '@/components/menu/ComboCard'
-import { CartDrawer } from '@/components/menu/CartDrawer'
+import { CategoryTabs } from '@/features/menu/components/CategoryTabs'
+import { ProductCard } from '@/features/menu/components/ProductCard'
+import { ComboCard } from '@/features/menu/components/ComboCard'
+import { CartDrawer } from '@/features/menu/components/CartDrawer'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { formatVND } from '@/lib/utils'
 import type { Product, Combo, ComboRaw, Category } from '@/types/product'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 
 export default function MenuPage() {
   const router        = useRouter()
@@ -24,7 +25,7 @@ export default function MenuPage() {
   const [hasOrders, setHasOrders]               = useState(false)
 
   useEffect(() => {
-    const found = Object.keys(localStorage).some(k => k.startsWith('order_cache_'))
+    const found = Object.keys(localStorage).some(k => k.startsWith(STORAGE_KEYS.ORDER_CACHE))
     setHasOrders(found)
   }, [])
 

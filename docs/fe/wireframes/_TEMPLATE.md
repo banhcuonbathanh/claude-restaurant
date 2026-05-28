@@ -14,6 +14,15 @@ status: Draft | Approved for Development
 
 ---
 
+## Spec Summary
+
+- Route: `[route]`, pattern [A/B/C], mobile [Npx] / desktop
+- [N] zones: [list zone letters] · [N] modals: [names or "none"]
+- Key data: [main API calls or state sources]
+- Auth: [guest / staff / manager / admin / any-authenticated]
+
+---
+
 ## 📐 Visual Wireframe
 
 ```text

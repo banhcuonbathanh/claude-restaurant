@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 
 interface SettingsState {
   customerName: string
@@ -16,6 +17,6 @@ export const useSettingsStore = create<SettingsState>()(
       setCustomerName: (name)  => set({ customerName: name }),
       setTableLabel:   (label) => set({ tableLabel: label }),
     }),
-    { name: 'customer-settings' },
+    { name: STORAGE_KEYS.CUSTOMER_SETTINGS },
   ),
 )

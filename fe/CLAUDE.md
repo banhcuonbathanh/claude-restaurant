@@ -36,11 +36,11 @@ fe/src/
 ├── components/
 │   ├── ui/                     ← atoms: Button, Input, Card, Badge, Label
 │   ├── shared/                 ← cross-page: ConnectionErrorBanner, CookieConsent, EmptyState, StatusBadge
-│   ├── menu/                   ← menu-only: ProductCard, ComboCard, CartDrawer, CategoryTabs
-│   ├── order/                  ← order-specific components
 │   └── guards/                 ← AuthGuard.tsx · RoleGuard.tsx
 ├── features/
 │   ├── auth/                   ← auth.store.ts
+│   ├── menu/components/        ← menu-only: ProductCard, ComboCard, CartDrawer, CategoryTabs, ToppingModal, ComboModal
+│   ├── order/components/       ← order-specific: OrderDetailSheet
 │   └── admin/                  ← admin domain store + components
 ├── hooks/                      ← shared hooks: useOrderSSE, useAdminSSE, useOverviewWS
 │                                  NEW hooks go HERE (not inside page folders)
