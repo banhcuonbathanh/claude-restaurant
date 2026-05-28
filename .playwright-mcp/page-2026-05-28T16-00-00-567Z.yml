@@ -1,0 +1,55 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - heading "Quán Bánh Cuốn" [level=1] [ref=e5]
+      - generic [ref=e6]:
+        - link "Cài đặt" [ref=e7] [cursor=pointer]:
+          - /url: /menu/settings
+          - img [ref=e8]
+        - button "Đơn hàng" [ref=e11] [cursor=pointer]:
+          - img [ref=e12]
+          - generic [ref=e15]: Đơn hàng
+        - button "Giỏ hàng" [ref=e16] [cursor=pointer]:
+          - img [ref=e17]
+    - generic [ref=e21]:
+      - img "Quán Bánh Cuốn" [ref=e22]
+      - paragraph [ref=e25]: Bánh cuốn tươi — ngon mỗi ngày
+    - generic [ref=e27]:
+      - img [ref=e28]
+      - textbox "Tìm món nhanh..." [ref=e31]
+    - button "Tất cả" [ref=e34] [cursor=pointer]
+    - main [ref=e35]:
+      - generic [ref=e36]:
+        - paragraph [ref=e78]: ⚠ Kết nối mạng yếu
+        - button "Thử lại" [ref=e79] [cursor=pointer]
+      - generic [ref=e39]:
+        - heading "Nước dùng" [level=2] [ref=e40]
+        - generic [ref=e41]:
+          - button "Rau nhiều" [ref=e42] [cursor=pointer]: Rau nhiều
+          - button "Rau vừa" [ref=e44] [cursor=pointer]: Rau vừa
+          - button "Không" [ref=e46] [cursor=pointer]: Không
+        - generic [ref=e48]:
+          - generic [ref=e49]: Số bát
+          - generic [ref=e50]:
+            - button "Giảm" [disabled] [ref=e51]:
+              - img [ref=e52]
+            - generic [ref=e53]: "1"
+            - button "Tăng" [ref=e54] [cursor=pointer]:
+              - img [ref=e55]
+      - generic [ref=e56]:
+        - heading "Ghi chú" [level=2] [ref=e57]
+        - textbox "Nhập ghi chú cho nhà hàng..." [ref=e58]
+    - generic [ref=e59]:
+      - generic [ref=e60]:
+        - heading "Giỏ hàng (0 món)" [level=2] [ref=e62]
+        - button [active] [ref=e64] [cursor=pointer]:
+          - img [ref=e65]
+      - paragraph [ref=e70]: Giỏ hàng trống
+      - generic [ref=e71]:
+        - generic [ref=e72]:
+          - generic [ref=e73]: Tổng cộng
+          - generic [ref=e74]: 0 ₫
+        - button "Thanh toán" [disabled] [ref=e75]
+        - button "Tiếp tục chọn món" [ref=e76] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e77]

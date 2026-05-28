@@ -3,4 +3,5 @@ export const STORAGE_KEYS = {
   ORDER_CACHE:      'order_cache_',
   FAVOURITES:       'favourites',
   CUSTOMER_SETTINGS: 'customer-settings',
+  CART_CONFIG:      'cart-config',
 } as const

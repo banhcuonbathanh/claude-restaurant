@@ -37,7 +37,7 @@ Set `SPEC_FILE` = the resolved spec path.
 ### 1-pre — Read the graph index, then load only what the audit needs
 
 **Step 1 — Read `docs/graphs/GRAPHS_INDEX.md`.**
-Scan the Decision Table. For a `/dev-page` FE audit the table says: read `FE_STRUCTURE.md`, skip all others.
+Scan the Decision Table. For a `/dev-page` FE+BE audit the table says: read `FE_STRUCTURE.md` (for 1a–1c) and `BE_STRUCTURE.md` (for 1d). Read both now, in parallel.
 
 **Step 2 — Read `docs/graphs/FE_STRUCTURE.md`.**
 Extract these three sections (they replace multiple tool calls in 1a–1c):
@@ -45,8 +45,11 @@ Extract these three sections (they replace multiple tool calls in 1a–1c):
 - **Store Fields** → used in 1b instead of opening individual store files
 - **Storage Keys** → used in 1c instead of grepping `storage-keys.ts`
 
-**Step 3 — Freshness check.**
-Check the `> last updated` date at the top of `FE_STRUCTURE.md`. If older than 7 days, add one line to the audit report: `⚠️ FE_STRUCTURE.md may be stale — run /codebase-graph fe to refresh.` Then proceed; do not block the audit.
+**Step 3 — Read `docs/graphs/BE_STRUCTURE.md`.**
+Extract the handler file list (used in 1d instead of grepping `be/internal/handler/`).
+
+**Step 4 — Freshness check.**
+Check the `> last updated` date at the top of both files. If either is older than 7 days, add one line to the audit report: `⚠️ [FE|BE]_STRUCTURE.md may be stale — run /codebase-graph [fe|be] to refresh.` Then proceed; do not block the audit.
 
 Only open additional graph files if the GRAPHS_INDEX Decision Table says to — do not speculatively read files not listed for this task type.
 
@@ -85,7 +88,8 @@ For every store field the spec requires:
 ### 1d — BE endpoint audit
 
 For every endpoint the page calls:
-- Grep `be/internal/handler/` for the route pattern
+- Look up the handler file in `BE_STRUCTURE.md` (already read in 1-pre)
+- Only fall back to `grep be/internal/handler/` if the handler is not listed or the domain is ambiguous
 - Mark: ✅ handler exists / ❌ missing
 
 ### 1e — Output the Audit Report

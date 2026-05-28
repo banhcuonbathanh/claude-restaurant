@@ -1,5 +1,12 @@
 import type { Topping } from './product'
 
+export type VegAmount = 'nhiều' | 'vừa' | 'không'
+
+export interface DrinkConfig {
+  veg:   VegAmount
+  bowls: number
+}
+
 export interface ComboItemSummary {
   product_name: string
   quantity:     number

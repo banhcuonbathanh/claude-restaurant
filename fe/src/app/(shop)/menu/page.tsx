@@ -5,12 +5,18 @@ import { ShoppingCart, ClipboardList, Settings, PlusCircle } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useSettingsStore } from '@/store/settings'
+import { useFavouritesStore } from '@/store/favourites'
 import { api } from '@/lib/api-client'
 import { useCartStore } from '@/store/cart'
 import { CategoryTabs } from '@/features/menu/components/CategoryTabs'
 import { ProductCard } from '@/features/menu/components/ProductCard'
 import { ComboCard } from '@/features/menu/components/ComboCard'
 import { CartDrawer } from '@/features/menu/components/CartDrawer'
+import { SearchBar } from '@/features/menu/components/SearchBar'
+import { FavouritesRail } from '@/features/menu/components/FavouritesRail'
+import { DrinkCustomize } from '@/features/menu/components/DrinkCustomize'
+import { OrderNote } from '@/features/menu/components/OrderNote'
+import { OrderSummary } from '@/features/menu/components/OrderSummary'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { formatVND } from '@/lib/utils'
 import type { Product, Combo, ComboRaw, Category } from '@/types/product'
@@ -23,6 +29,7 @@ export default function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [cartOpen, setCartOpen]                 = useState(false)
   const [hasOrders, setHasOrders]               = useState(false)
+  const [searchQuery, setSearchQuery]           = useState('')
 
   useEffect(() => {
     const found = Object.keys(localStorage).some(k => k.startsWith(STORAGE_KEYS.ORDER_CACHE))
@@ -31,6 +38,7 @@ export default function MenuPage() {
 
   const { itemCount, total } = useCartStore()
   const { tableLabel } = useSettingsStore()
+  const { ids: favIds } = useFavouritesStore()
 
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ['categories'],
@@ -38,23 +46,25 @@ export default function MenuPage() {
     staleTime: 5 * 60 * 1000,
   })
 
-  // All products (unfiltered) for combo item name lookup
+  // All products (unfiltered) for combo item name lookup + FavouritesRail
   const { data: allProducts = [] } = useQuery<Product[]>({
     queryKey: ['products-all'],
     queryFn: () => api.get('/products').then(r => r.data.data),
     staleTime: 5 * 60 * 1000,
   })
 
-  const { data: products = [], isLoading: loadingProducts } = useQuery<Product[]>({
-    queryKey: ['products', selectedCategory],
+  const { data: products = [], isLoading: loadingProducts, isError, refetch } = useQuery<Product[]>({
+    queryKey: ['products', selectedCategory, searchQuery],
     queryFn: () =>
       api.get('/products', {
         params: {
           ...(selectedCategory && { category_id: selectedCategory }),
+          ...(searchQuery.length >= 2 && { search: searchQuery }),
           is_available: true,
         },
       }).then(r => r.data.data),
     staleTime: 5 * 60 * 1000,
+    enabled: searchQuery.length === 0 || searchQuery.length >= 2,
   })
 
   const { data: rawCombos = [] } = useQuery<ComboRaw[]>({
@@ -85,10 +95,11 @@ export default function MenuPage() {
 
   const count      = itemCount()
   const showCombos = selectedCategory === null && combos.length > 0
+  const showFavs   = selectedCategory === null && favIds.length > 0
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      {/* Zone A — Header */}
       <header className="sticky top-0 z-20 bg-background border-b border-border px-4 py-3 flex items-center justify-between">
         <div className="flex flex-col leading-none">
           <h1 className="font-display text-xl text-foreground font-semibold">Quán Bánh Cuốn</h1>
@@ -163,26 +174,47 @@ export default function MenuPage() {
         </div>
       )}
 
-      {/* Category tabs */}
+      {/* Zone B — SearchBar */}
+      <SearchBar onSearch={setSearchQuery} />
+
+      {/* Zone C — CategoryTabs */}
       <CategoryTabs
         categories={categories}
         selected={selectedCategory}
         onSelect={setSelectedCategory}
       />
 
+      {/* Zone D — FavouritesRail */}
+      {showFavs && (
+        <FavouritesRail products={allProducts} combos={combos} />
+      )}
+
       {/* Content */}
       <main className="px-4 py-4 pb-28">
-        {loadingProducts ? (
+        {isError ? (
+          <div className="flex flex-col items-center justify-center py-16 gap-4">
+            <p className="text-muted-fg text-sm">⚠ Kết nối mạng yếu</p>
+            <button
+              onClick={() => refetch()}
+              className="bg-primary text-white px-6 py-2.5 rounded-xl text-sm font-medium min-h-[44px]"
+            >
+              Thử lại
+            </button>
+          </div>
+        ) : loadingProducts ? (
           <div className="flex flex-col gap-3">
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="bg-card rounded-xl h-24 animate-pulse" />
             ))}
           </div>
         ) : products.length === 0 && !showCombos ? (
-          <EmptyState message="Không có món nào trong danh mục này" />
+          <EmptyState message={searchQuery.length >= 2
+            ? 'Không tìm thấy món nào · Thử từ khóa khác nhé!'
+            : 'Không có món nào trong danh mục này'
+          } />
         ) : (
           <div className="flex flex-col gap-3">
-            {/* Combos section */}
+            {/* Zone E — ComboSection */}
             {showCombos && (
               <section>
                 <h2 className="text-muted-fg font-semibold mb-2 text-sm uppercase tracking-wide">
@@ -196,7 +228,7 @@ export default function MenuPage() {
               </section>
             )}
 
-            {/* Products section */}
+            {/* Zone F — ProductList */}
             {products.length > 0 && (
               <section>
                 {showCombos && (
@@ -213,14 +245,23 @@ export default function MenuPage() {
             )}
           </div>
         )}
+
+        {/* Zone G — DrinkCustomize */}
+        <DrinkCustomize />
+
+        {/* Zone H — OrderNote */}
+        <OrderNote />
+
+        {/* Zone I — OrderSummary */}
+        <OrderSummary />
       </main>
 
-      {/* Cart FAB */}
+      {/* Zone J — CartBottomBar */}
       {count > 0 && (
         <div className="fixed bottom-6 left-4 right-4 z-30">
           <button
             onClick={() => setCartOpen(true)}
-            className="w-full bg-primary text-white py-3.5 rounded-2xl font-semibold flex items-center justify-between px-5 shadow-lg"
+            className="w-full bg-primary text-white py-3.5 rounded-2xl font-semibold flex items-center justify-between px-5 shadow-lg min-h-[44px]"
           >
             <span className="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded-full">
               {count}

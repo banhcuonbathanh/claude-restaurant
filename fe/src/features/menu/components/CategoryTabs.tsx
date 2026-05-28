@@ -9,7 +9,7 @@ interface Props {
 
 export function CategoryTabs({ categories, selected, onSelect }: Props) {
   return (
-    <div className="sticky top-16 z-10 bg-background border-b border-border overflow-x-auto">
+    <div className="sticky top-[108px] z-10 bg-background border-b border-border overflow-x-auto">
       <div className="flex gap-1 px-4 py-2 min-w-max">
         <button
           onClick={() => onSelect(null)}

@@ -1,7 +1,8 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+# Regenerate lock file for Linux optional deps (macOS lock file omits them), then clean install
+RUN npm install --package-lock-only --ignore-scripts && npm ci
 
 FROM node:20-alpine AS builder
 WORKDIR /app
