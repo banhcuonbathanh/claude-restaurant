@@ -34,6 +34,7 @@
 | P-TRAINING — Admin Staff Training Page | FE | ⬜ NOT STARTED | 6 | P-TRAINING-2 (RoleFilterTabs) |
 | P-WIRE-ORDER — Client Order Page Wireframe | Docs | 🔄 IN PROGRESS | 1 | P-WIRE-ORDER-4 (conccern + recomment) |
 | P-GRAPH-ENRICH — Enrich Codebase Graphs for /dev-page | Docs | ✅ COMPLETE | 2 | — |
+| P-MON — Client Order Monitoring Page | BE+FE | ⬜ NOT STARTED | 9 | P-MON-BE-1 |
 
 ---
 
@@ -456,6 +457,32 @@ The entries below are phase-level summaries only.
 |---|---|---|---|---|---|---|
 | P-GRAPH-ENRICH-1 | Docs | Enrich `docs/graphs/CODEBASE_GRAPH_BE.md` — add Route Index table (method + path + handler func + file), Service Index (func name + file), and Repository Index (func name + file) by grepping `be/internal/` | — | 1 | ✅ | Every registered route appears in table; handler→service→repo chain traceable from doc alone |
 | P-GRAPH-ENRICH-2 | Docs | Enrich `docs/graphs/CODEBASE_GRAPH_FE.md` — add Component Index (component name + file path + zone/page), Store Field Index (store name + fields), and Storage Keys Index (key constant + value) by grepping `fe/src/` | P-GRAPH-ENRICH-1 ✅ | 1 | ✅ | Every page component traceable; all store fields listed; all localStorage keys in index |
+
+---
+
+## Phase P-MON — Client Order Monitoring Page
+
+> **Owner:** BE + FE
+> **Dependency:** P4 ✅ · P5 ✅
+> **Wireframe:** `docs/fe/wireframes/client_monitoring_servicing_table/client_monitoring_servicing_table_wireframe_v1.md`
+> **Route:** `/(shop)/tracking/[id]` — guest-facing, orderId from URL param
+> **Goal:** SSE-powered live order monitor — queue position + order detail + table grid + service queue
+> **New BE:** `GET /api/v1/sse/order-monitor/:orderId?token=` (query-param JWT auth) + `queue:monitor` + `tables:monitor` Redis channels
+> **New shared FE:** `TableLayoutMap.tsx` · `ClientBottomNav.tsx`
+> **Order:** BE-1 → BE-2 → BE-3 → FE-1 → FE-2 → FE-3 → FE-4 → FE-5 → FE-6 (strict)
+> **Added:** 2026-05-29
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P-MON-BE-1 | BE | `ListActiveQueueOrders` SQL (status IN pending/confirmed/preparing/ready ORDER BY created_at ASC) + `GetOrderWithTableLabel` SQL (join orders+tables) → `sqlc generate` → add both to `OrderRepository` interface + `orderRepo` impl | P4 ✅ | 1 | ⬜ | `sqlc generate` succeeds; `go build ./...` clean; new methods in generated `db/orders.sql.go` |
+| P-MON-BE-2 | BE | `BuildQueueSnapshot(ctx, orderId)` + `BuildTableStatuses(ctx)` service methods + `publishQueueMonitorEvent` + `publishTablesMonitorEvent` helpers; wire both publishes at end of `UpdateOrderStatus` + `CancelOrder` (after existing publishes) | P-MON-BE-1 ✅ | 1 | ⬜ | `go build ./...` clean; `go test ./be/internal/service/...` still passes |
+| P-MON-BE-3 | BE | `be/internal/sse/monitor_handler.go` — `StreamOrderMonitor`: read `?token=` query param → `jwt.Verify` → 401 if invalid; subscribe `order:{id}` + `queue:monitor` + `tables:monitor`; send initial snapshot on connect; relay events as `order.status` / `queue.update` / `tables.status`; register `v1.GET("/sse/order-monitor/:orderId", ...)` in `main.go` | P-MON-BE-2 ✅ | 1 | ⬜ | `curl ".../sse/order-monitor/X?token=VALID"` → 200 SSE stream; `?token=EXPIRED` → 401 |
+| P-MON-FE-1 | FE | `fe/src/types/monitoring.ts` (OrderDetail, OrderItem, QueueItem, TableStatus, QueueState, SSEEvent union) + `fe/src/hooks/useOrderMonitorSSE.ts` (native EventSource + `useAuthStore.accessToken` for query param + exponential backoff + reconnect fn) | P-MON-BE-3 ✅ | 1 | ⬜ | `tsc --noEmit` clean; hook exposes `{ orderStatus, queueData, tableStatuses, sseConnected, reconnect }` |
+| P-MON-FE-2 | FE | `MonitoringTopBar.tsx` (Zone A — header + LIVE badge pulsing green when connected, grey "Mất kết nối" when not; `ConnectionErrorBanner` fixed z-30 when disconnected) + `TableInfoBanner.tsx` (Zone B — table label, `StatusBadge`, queue position, ETA, pulse on position===1, green delivered state) | P-MON-FE-1 ✅ | 1 | ⬜ | LIVE badge color changes on `sseConnected`; pulse animation fires when `queuePosition === 1` |
+| P-MON-FE-3 | FE | `OrderDetailCard.tsx` (Zone C) — props `order: OrderDetail`; renders order ID, table, `placedAt`, items list with toppings as sub-text, `formatVND()` on all prices, total + itemCount footer | P-MON-FE-2 ✅ | 1 | ⬜ | `formatVND()` used for all prices; empty toppings array renders cleanly |
+| P-MON-FE-4 | FE | `ServiceQueueList.tsx` (Zone D header + map) + `ServiceQueueItem.tsx` (StatusBadge + orderId + tableLabel + itemCount; amber border + "< Đơn của bàn" pill when `isCurrentOrder`; estimated minutes for pending rows) | P-MON-FE-3 ✅ | 1 | ⬜ | Current order row highlighted amber; 5 rows render with correct status badges |
+| P-MON-FE-5 | FE | `components/shared/TableLayoutMap.tsx` (Zone E — 3×4 grid, orange/red/green bg by status, `highlightTableId` adds ★ + "[BÀN BẠN]" label + extra border, `EmptyState` when `tables.length === 0`) + `components/shared/ClientBottomNav.tsx` (Zone F — Menu/Yêu Thích/Làm Mới; all `min-h-[44px]`; sticky bottom-0 z-20; `onRefresh` prop) | P-MON-FE-4 ✅ | 1 | ⬜ | Own table cell shows ★ label; "Làm Mới" calls `onRefresh` |
+| P-MON-FE-6 | FE | `app/(shop)/tracking/[id]/page.tsx` — `params.id` for orderId; `useOrderMonitorSSE` + `useQuery(['order', orderId], staleTime: 0)`; skeleton (animate-pulse) while loading; 404 full-page error; 401 → "Phiên làm việc hết hạn" message; assemble A→B→C→D→E→F in scroll order | P-MON-FE-5 ✅ | 1 | ⬜ | All spec ACs verified; MON-2 through MON-7 status rows = ✅ |
 
 ---
 

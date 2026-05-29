@@ -231,8 +231,9 @@ func main() {
 	orderR.DELETE("/group/:id", middleware.AtLeast("manager"), groupH.DisbandGroup)
 	orderR.GET("/group/:id/events", sse.StreamGroup(rdb, groupSvc))
 
-	// Order items (chef updates qty_served)
+	// Order items
 	v1.PATCH("/orders/items/:id", authMW, middleware.AtLeast("chef"), orderH.UpdateItemServed)
+	v1.DELETE("/orders/items/:id", authMW, orderH.CancelItem)
 
 	// ── Payments ──────────────────────────────────────────────────────────────
 	payR := v1.Group("/payments")

@@ -120,7 +120,7 @@ export function CartDrawer({ open, onClose, addToOrderId }: Props) {
                 Xem đơn hàng
               </button>
             )}
-            <button onClick={onClose} className="text-muted-fg hover:text-foreground">
+            <button onClick={onClose} className="text-muted-fg hover:text-foreground p-2 -mr-2 rounded-full hover:bg-muted transition-colors">
               <X size={20} />
             </button>
           </div>

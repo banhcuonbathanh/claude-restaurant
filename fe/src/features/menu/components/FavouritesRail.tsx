@@ -11,10 +11,10 @@ interface Props {
 }
 
 export function FavouritesRail({ products, combos }: Props) {
-  const { ids, toggle } = useFavouritesStore()
+  const { items, toggleFav } = useFavouritesStore()
 
-  const favProducts = products.filter(p => ids.includes(`product_${p.id}`))
-  const favCombos   = combos.filter(c => ids.includes(`combo_${c.id}`))
+  const favProducts = products.filter(p => items.some(i => i.id === p.id && i.type === 'product'))
+  const favCombos   = combos.filter(c => items.some(i => i.id === c.id && i.type === 'combo'))
 
   if (favProducts.length === 0 && favCombos.length === 0) return null
 
@@ -27,21 +27,23 @@ export function FavouritesRail({ products, combos }: Props) {
         {favProducts.map(p => (
           <FavCard
             key={`product_${p.id}`}
-            id={`product_${p.id}`}
+            id={p.id}
             name={p.name}
             price={p.price}
             imagePath={p.image_path}
-            onToggle={toggle}
+            type="product"
+            onToggle={toggleFav}
           />
         ))}
         {favCombos.map(c => (
           <FavCard
             key={`combo_${c.id}`}
-            id={`combo_${c.id}`}
+            id={c.id}
             name={c.name}
             price={c.price}
             imagePath={c.image_path}
-            onToggle={toggle}
+            type="combo"
+            onToggle={toggleFav}
           />
         ))}
       </div>
@@ -54,10 +56,11 @@ interface FavCardProps {
   name:      string
   price:     number
   imagePath: string | null
-  onToggle:  (id: string) => void
+  type:      'product' | 'combo'
+  onToggle:  (id: string, type: 'product' | 'combo') => void
 }
 
-function FavCard({ id, name, price, imagePath, onToggle }: FavCardProps) {
+function FavCard({ id, name, price, imagePath, type, onToggle }: FavCardProps) {
   const imageUrl = imagePath
     ? `${process.env.NEXT_PUBLIC_STORAGE_URL ?? ''}/${imagePath}`
     : null
@@ -71,7 +74,7 @@ function FavCard({ id, name, price, imagePath, onToggle }: FavCardProps) {
           <div className="absolute inset-0 flex items-center justify-center text-2xl">🍜</div>
         )}
         <button
-          onClick={() => onToggle(id)}
+          onClick={() => onToggle(id, type)}
           className="absolute top-1 right-1 bg-white/80 rounded-full p-1 min-w-[28px] min-h-[28px] flex items-center justify-center"
           aria-label="Bỏ yêu thích"
         >

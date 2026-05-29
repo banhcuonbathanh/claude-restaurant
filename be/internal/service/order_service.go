@@ -480,6 +480,55 @@ func (s *OrderService) CancelOrder(ctx context.Context, orderID, callerID, calle
 	return nil
 }
 
+// CancelOrderItem deletes a single order item if the order is still active and the item is not yet served.
+func (s *OrderService) CancelOrderItem(ctx context.Context, itemID, callerID, callerRole string) error {
+	item, err := s.repo.GetOrderItemByID(ctx, itemID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrNotFound
+		}
+		return fmt.Errorf("order: get item for cancel: %w", err)
+	}
+
+	order, err := s.repo.GetOrderByID(ctx, item.OrderID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrNotFound
+		}
+		return fmt.Errorf("order: get order for item cancel: %w", err)
+	}
+
+	// Ownership check — guests identify by table_id
+	if callerRole == "customer" {
+		if !order.TableID.Valid || order.TableID.String != callerID {
+			return ErrForbidden
+		}
+	}
+
+	// Only cancel from active states
+	switch order.Status {
+	case db.OrdersStatusPending, db.OrdersStatusConfirmed, db.OrdersStatusPreparing:
+	default:
+		return ErrCancelThreshold
+	}
+
+	// Cannot cancel an already-served item
+	if item.QtyServed >= item.Quantity {
+		return ErrCancelThreshold
+	}
+
+	if err := s.repo.DeleteOrderItem(ctx, itemID); err != nil {
+		return fmt.Errorf("order: delete item: %w", err)
+	}
+
+	if err := s.repo.RecalculateTotalAmount(ctx, item.OrderID); err != nil {
+		return fmt.Errorf("order: recalculate after item cancel: %w", err)
+	}
+
+	s.publishOrderEvent(ctx, "item_cancelled", item.OrderID)
+	return nil
+}
+
 // UpdateItemServed increments qty_served for an order item (chef click).
 func (s *OrderService) UpdateItemServed(ctx context.Context, itemID string, newQtyServed int32) error {
 	item, err := s.repo.GetOrderItemByID(ctx, itemID)

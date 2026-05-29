@@ -1,0 +1,358 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - heading "Quán Bánh Cuốn" [level=1] [ref=e5]
+      - generic [ref=e6]:
+        - link "Cài đặt" [ref=e7] [cursor=pointer]:
+          - /url: /menu/settings
+          - img [ref=e8]
+        - button "Đơn hàng" [ref=e11] [cursor=pointer]:
+          - img [ref=e12]
+          - generic [ref=e15]: Đơn hàng
+        - button "Giỏ hàng" [ref=e16] [cursor=pointer]:
+          - img [ref=e17]
+    - paragraph [ref=e24]: Bánh cuốn tươi — ngon mỗi ngày
+    - generic [ref=e26]:
+      - img
+      - textbox "Tìm món nhanh..." [ref=e27]
+    - generic [ref=e29]:
+      - button "Tất cả" [ref=e30] [cursor=pointer]
+      - button "banh cuon" [ref=e31] [cursor=pointer]
+      - button "BÃ¡nh Cuá»‘n" [ref=e32] [cursor=pointer]
+      - button "MÃ³n Phá»¥" [ref=e33] [cursor=pointer]
+      - 'button "Äá»“ Uá»‘ng" [ref=e34] [cursor=pointer]'
+      - button "Combo" [ref=e35] [cursor=pointer]
+    - generic [ref=e36]:
+      - heading "Yêu thích" [level=2] [ref=e37]
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - generic [ref=e41]: 🍜
+          - button "Bỏ yêu thích" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+        - generic [ref=e45]:
+          - paragraph [ref=e46]: "Combo Gia Ä\x90Ã¬nh"
+          - paragraph [ref=e47]: 160.000 ₫
+    - main [ref=e48]:
+      - generic [ref=e49]:
+        - generic [ref=e50]:
+          - heading "Combo" [level=2] [ref=e51]
+          - generic [ref=e52]:
+            - generic [ref=e53]:
+              - generic [ref=e54]:
+                - generic [ref=e56]: 🍱
+                - button "Bỏ yêu thích" [ref=e57] [cursor=pointer]:
+                  - img [ref=e58]
+              - generic [ref=e60]:
+                - generic [ref=e61]:
+                  - paragraph [ref=e62]: "Combo Gia Ä\x90Ã¬nh"
+                  - paragraph [ref=e63]: 160.000 ₫
+                - list [ref=e64]:
+                  - listitem [ref=e65]:
+                    - generic [ref=e66]: ×2
+                    - generic [ref=e67]: BÃ¡nh Cuá»‘n Thá»‹t
+                  - listitem [ref=e68]:
+                    - generic [ref=e69]: ×2
+                    - generic [ref=e70]: Nem RÃ¡n
+                  - listitem [ref=e71]:
+                    - generic [ref=e72]: ×2
+                    - generic [ref=e73]: "TrÃ Ä\x90Ã¡"
+                - generic [ref=e74]:
+                  - link "Chi tiết" [ref=e75] [cursor=pointer]:
+                    - /url: /menu/combo/66666666-6666-6666-6666-000000000001
+                  - button [ref=e76] [cursor=pointer]:
+                    - img [ref=e77]
+            - generic [ref=e78]:
+              - generic [ref=e79]:
+                - generic [ref=e81]: 🍱
+                - button "Yêu thích" [ref=e82] [cursor=pointer]:
+                  - img [ref=e83]
+              - generic [ref=e85]:
+                - generic [ref=e86]:
+                  - paragraph [ref=e87]: "Combo Ä\x90Æ¡n"
+                  - paragraph [ref=e88]: 60.000 ₫
+                - list [ref=e89]:
+                  - listitem [ref=e90]:
+                    - generic [ref=e91]: ×1
+                    - generic [ref=e92]: BÃ¡nh Cuá»‘n TÃ´m
+                  - listitem [ref=e93]:
+                    - generic [ref=e94]: ×1
+                    - generic [ref=e95]: NÆ°á»›c Chanh
+                - generic [ref=e96]:
+                  - link "Chi tiết" [ref=e97] [cursor=pointer]:
+                    - /url: /menu/combo/66666666-6666-6666-6666-000000000002
+                  - button [ref=e98] [cursor=pointer]:
+                    - img [ref=e99]
+        - generic [ref=e100]:
+          - heading "Món lẻ" [level=2] [ref=e101]
+          - generic [ref=e102]:
+            - generic [ref=e103]:
+              - generic [ref=e104]:
+                - link "🍜" [ref=e105] [cursor=pointer]:
+                  - /url: /menu/product/44444444-4444-4444-4444-000000000001
+                  - generic [ref=e106]: 🍜
+                - button "Yêu thích" [ref=e107] [cursor=pointer]:
+                  - img [ref=e108]
+              - generic [ref=e110]:
+                - generic [ref=e111]:
+                  - link "BÃ¡nh Cuá»‘n Thá»‹t" [ref=e112] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000001
+                    - paragraph [ref=e113]: BÃ¡nh Cuá»‘n Thá»‹t
+                  - paragraph [ref=e114]: 45.000 ₫
+                - paragraph [ref=e115]: BÃ¡nh cuá»‘n nhÃ¢n thá»‹t heo xay, hÃ nh phi
+                - paragraph [ref=e116]: Có thể chọn topping
+                - generic [ref=e117]:
+                  - link "Chi tiết" [ref=e118] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000001
+                  - button "Thêm vào giỏ hàng" [ref=e119] [cursor=pointer]:
+                    - img [ref=e120]
+            - generic [ref=e121]:
+              - generic [ref=e122]:
+                - link "🍜" [ref=e123] [cursor=pointer]:
+                  - /url: /menu/product/44444444-4444-4444-4444-000000000005
+                  - generic [ref=e124]: 🍜
+                - button "Yêu thích" [ref=e125] [cursor=pointer]:
+                  - img [ref=e126]
+              - generic [ref=e128]:
+                - generic [ref=e129]:
+                  - link "Nem RÃ¡n" [ref=e130] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000005
+                    - paragraph [ref=e131]: Nem RÃ¡n
+                  - paragraph [ref=e132]: 35.000 ₫
+                - paragraph [ref=e133]: Nem rÃ¡n giÃ²n, nhÃ¢n thá»‹t + miáº¿n
+                - generic [ref=e134]:
+                  - link "Chi tiết" [ref=e135] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000005
+                  - button "Thêm vào giỏ hàng" [ref=e136] [cursor=pointer]:
+                    - img [ref=e137]
+            - generic [ref=e138]:
+              - generic [ref=e139]:
+                - link "🍜" [ref=e140] [cursor=pointer]:
+                  - /url: /menu/product/44444444-4444-4444-4444-000000000009
+                  - generic [ref=e141]: 🍜
+                - button "Yêu thích" [ref=e142] [cursor=pointer]:
+                  - img [ref=e143]
+              - generic [ref=e145]:
+                - generic [ref=e146]:
+                  - 'link "TrÃ ÄÃ¡" [ref=e147] [cursor=pointer]':
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000009
+                    - paragraph [ref=e148]: "TrÃ Ä\x90Ã¡"
+                  - paragraph [ref=e149]: 10.000 ₫
+                - paragraph [ref=e150]: TrÃ Ä‘Ã¡ miá»…n phÃ (1 bÃ¬nh)
+                - generic [ref=e151]:
+                  - link "Chi tiết" [ref=e152] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000009
+                  - button "Thêm vào giỏ hàng" [ref=e153] [cursor=pointer]:
+                    - img [ref=e154]
+            - generic [ref=e155]:
+              - generic [ref=e156]:
+                - link "🍜" [ref=e157] [cursor=pointer]:
+                  - /url: /menu/product/44444444-4444-4444-4444-000000000002
+                  - generic [ref=e158]: 🍜
+                - button "Yêu thích" [ref=e159] [cursor=pointer]:
+                  - img [ref=e160]
+              - generic [ref=e162]:
+                - generic [ref=e163]:
+                  - link "BÃ¡nh Cuá»‘n TÃ´m" [ref=e164] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000002
+                    - paragraph [ref=e165]: BÃ¡nh Cuá»‘n TÃ´m
+                  - paragraph [ref=e166]: 50.000 ₫
+                - paragraph [ref=e167]: BÃ¡nh cuá»‘n nhÃ¢n tÃ´m tÆ°Æ¡i, náº¥m mÃ¨o
+                - paragraph [ref=e168]: Có thể chọn topping
+                - generic [ref=e169]:
+                  - link "Chi tiết" [ref=e170] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000002
+                  - button "Thêm vào giỏ hàng" [ref=e171] [cursor=pointer]:
+                    - img [ref=e172]
+            - generic [ref=e173]:
+              - generic [ref=e174]:
+                - link "🍜" [ref=e175] [cursor=pointer]:
+                  - /url: /menu/product/44444444-4444-4444-4444-000000000006
+                  - generic [ref=e176]: 🍜
+                - button "Yêu thích" [ref=e177] [cursor=pointer]:
+                  - img [ref=e178]
+              - generic [ref=e180]:
+                - generic [ref=e181]:
+                  - link "Cháº£ GiÃ²" [ref=e182] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000006
+                    - paragraph [ref=e183]: Cháº£ GiÃ²
+                  - paragraph [ref=e184]: 35.000 ₫
+                - paragraph [ref=e185]: Cháº£ giÃ² chiÃªn vÃ ng giÃ²n
+                - generic [ref=e186]:
+                  - link "Chi tiết" [ref=e187] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000006
+                  - button "Thêm vào giỏ hàng" [ref=e188] [cursor=pointer]:
+                    - img [ref=e189]
+            - generic [ref=e190]:
+              - generic [ref=e191]:
+                - link "🍜" [ref=e192] [cursor=pointer]:
+                  - /url: /menu/product/44444444-4444-4444-4444-000000000010
+                  - generic [ref=e193]: 🍜
+                - button "Yêu thích" [ref=e194] [cursor=pointer]:
+                  - img [ref=e195]
+              - generic [ref=e197]:
+                - generic [ref=e198]:
+                  - link "NÆ°á»›c Chanh" [ref=e199] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000010
+                    - paragraph [ref=e200]: NÆ°á»›c Chanh
+                  - paragraph [ref=e201]: 20.000 ₫
+                - paragraph [ref=e202]: NÆ°á»›c chanh tÆ°Æ¡i pha máºt ong
+                - generic [ref=e203]:
+                  - link "Chi tiết" [ref=e204] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000010
+                  - button "Thêm vào giỏ hàng" [ref=e205] [cursor=pointer]:
+                    - img [ref=e206]
+            - generic [ref=e207]:
+              - generic [ref=e208]:
+                - link "🍜" [ref=e209] [cursor=pointer]:
+                  - /url: /menu/product/44444444-4444-4444-4444-000000000003
+                  - generic [ref=e210]: 🍜
+                - button "Yêu thích" [ref=e211] [cursor=pointer]:
+                  - img [ref=e212]
+              - generic [ref=e214]:
+                - generic [ref=e215]:
+                  - link "BÃ¡nh Cuá»‘n Tháºp Cáº©m" [ref=e216] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000003
+                    - paragraph [ref=e217]: BÃ¡nh Cuá»‘n Tháºp Cáº©m
+                  - paragraph [ref=e218]: 55.000 ₫
+                - paragraph [ref=e219]: NhÃ¢n thá»‹t + tÃ´m + náº¥m mÃ¨o
+                - paragraph [ref=e220]: Có thể chọn topping
+                - generic [ref=e221]:
+                  - link "Chi tiết" [ref=e222] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000003
+                  - button "Thêm vào giỏ hàng" [ref=e223] [cursor=pointer]:
+                    - img [ref=e224]
+            - generic [ref=e225]:
+              - generic [ref=e226]:
+                - link "🍜" [ref=e227] [cursor=pointer]:
+                  - /url: /menu/product/44444444-4444-4444-4444-000000000007
+                  - generic [ref=e228]: 🍜
+                - button "Yêu thích" [ref=e229] [cursor=pointer]:
+                  - img [ref=e230]
+              - generic [ref=e232]:
+                - generic [ref=e233]:
+                  - link "Cháº£ Lá»¥a" [ref=e234] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000007
+                    - paragraph [ref=e235]: Cháº£ Lá»¥a
+                  - paragraph [ref=e236]: 25.000 ₫
+                - paragraph [ref=e237]: "Cháº£ lá»¥a Huáº¿ truyá»\x81n thá»‘ng (1 khoanh)"
+                - generic [ref=e238]:
+                  - link "Chi tiết" [ref=e239] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000007
+                  - button "Thêm vào giỏ hàng" [ref=e240] [cursor=pointer]:
+                    - img [ref=e241]
+            - generic [ref=e242]:
+              - generic [ref=e243]:
+                - link "🍜" [ref=e244] [cursor=pointer]:
+                  - /url: /menu/product/44444444-4444-4444-4444-000000000011
+                  - generic [ref=e245]: 🍜
+                - button "Yêu thích" [ref=e246] [cursor=pointer]:
+                  - img [ref=e247]
+              - generic [ref=e249]:
+                - generic [ref=e250]:
+                  - link "NÆ°á»›c Cam" [ref=e251] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000011
+                    - paragraph [ref=e252]: NÆ°á»›c Cam
+                  - paragraph [ref=e253]: 25.000 ₫
+                - paragraph [ref=e254]: NÆ°á»›c cam váº¯t tÆ°Æ¡i nguyÃªn cháº¥t
+                - generic [ref=e255]:
+                  - link "Chi tiết" [ref=e256] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000011
+                  - button "Thêm vào giỏ hàng" [ref=e257] [cursor=pointer]:
+                    - img [ref=e258]
+            - generic [ref=e259]:
+              - generic [ref=e260]:
+                - link "🍜" [ref=e261] [cursor=pointer]:
+                  - /url: /menu/product/44444444-4444-4444-4444-000000000004
+                  - generic [ref=e262]: 🍜
+                - button "Yêu thích" [ref=e263] [cursor=pointer]:
+                  - img [ref=e264]
+              - generic [ref=e266]:
+                - generic [ref=e267]:
+                  - link "BÃ¡nh Cuá»‘n Trá»©ng" [ref=e268] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000004
+                    - paragraph [ref=e269]: BÃ¡nh Cuá»‘n Trá»©ng
+                  - paragraph [ref=e270]: 40.000 ₫
+                - paragraph [ref=e271]: BÃ¡nh cuá»‘n nhÃ¢n trá»©ng gÃ
+                - paragraph [ref=e272]: Có thể chọn topping
+                - generic [ref=e273]:
+                  - link "Chi tiết" [ref=e274] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000004
+                  - button "Thêm vào giỏ hàng" [ref=e275] [cursor=pointer]:
+                    - img [ref=e276]
+            - generic [ref=e277]:
+              - generic [ref=e278]:
+                - link "🍜" [ref=e279] [cursor=pointer]:
+                  - /url: /menu/product/44444444-4444-4444-4444-000000000012
+                  - generic [ref=e280]: 🍜
+                - button "Yêu thích" [ref=e281] [cursor=pointer]:
+                  - img [ref=e282]
+              - generic [ref=e284]:
+                - generic [ref=e285]:
+                  - link "CÃ PhÃª Sá»¯a" [ref=e286] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000012
+                    - paragraph [ref=e287]: CÃ PhÃª Sá»¯a
+                  - paragraph [ref=e288]: 30.000 ₫
+                - paragraph [ref=e289]: CÃ phÃª phin + sá»¯a Ä‘áº·c
+                - generic [ref=e290]:
+                  - link "Chi tiết" [ref=e291] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000012
+                  - button "Thêm vào giỏ hàng" [ref=e292] [cursor=pointer]:
+                    - img [ref=e293]
+            - generic [ref=e294]:
+              - generic [ref=e295]:
+                - link "🍜" [ref=e296] [cursor=pointer]:
+                  - /url: /menu/product/44444444-4444-4444-4444-000000000008
+                  - generic [ref=e297]: 🍜
+                - button "Yêu thích" [ref=e298] [cursor=pointer]:
+                  - img [ref=e299]
+              - generic [ref=e301]:
+                - generic [ref=e302]:
+                  - 'link "Gá»i Cuá»‘n" [ref=e303] [cursor=pointer]':
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000008
+                    - paragraph [ref=e304]: "Gá»\x8fi Cuá»‘n"
+                  - paragraph [ref=e305]: 40.000 ₫
+                - paragraph [ref=e306]: "Gá»\x8fi cuá»‘n tÃ´m thá»‹t, bÃºn, rau sá»‘ng"
+                - paragraph [ref=e307]: Có thể chọn topping
+                - generic [ref=e308]:
+                  - link "Chi tiết" [ref=e309] [cursor=pointer]:
+                    - /url: /menu/product/44444444-4444-4444-4444-000000000008
+                  - button "Thêm vào giỏ hàng" [ref=e310] [cursor=pointer]:
+                    - img [ref=e311]
+      - generic [ref=e312]:
+        - heading "Nước dùng" [level=2] [ref=e313]
+        - generic [ref=e314]:
+          - button "Rau nhiều" [ref=e315] [cursor=pointer]: Rau nhiều
+          - button "Rau vừa" [ref=e317] [cursor=pointer]: Rau vừa
+          - button "Không" [ref=e319] [cursor=pointer]: Không
+        - generic [ref=e321]:
+          - generic [ref=e322]: Số bát
+          - generic [ref=e323]:
+            - button "Giảm" [disabled] [ref=e324]:
+              - img [ref=e325]
+            - generic [ref=e326]: "1"
+            - button "Tăng" [ref=e327] [cursor=pointer]:
+              - img [ref=e328]
+      - generic [ref=e329]:
+        - heading "Ghi chú" [level=2] [ref=e330]
+        - textbox "Nhập ghi chú cho nhà hàng..." [ref=e331]
+    - generic [ref=e332]:
+      - generic [ref=e333]:
+        - heading "Giỏ hàng (0 món)" [level=2] [ref=e335]
+        - button [ref=e337] [cursor=pointer]:
+          - img [ref=e338]
+      - paragraph [ref=e343]: Giỏ hàng trống
+      - generic [ref=e344]:
+        - generic [ref=e345]:
+          - generic [ref=e346]: Tổng cộng
+          - generic [ref=e347]: 0 ₫
+        - button "Thanh toán" [disabled] [ref=e348]
+        - button "Tiếp tục chọn món" [ref=e349] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e350]
+  - generic [ref=e351]:
+    - paragraph [ref=e352]:
+      - text: Chúng tôi dùng cookies và bộ nhớ trình duyệt để lưu giỏ hàng và trạng thái đơn hàng. Không có dữ liệu thẻ ngân hàng nào được lưu. Xem
+      - link "Chính sách bảo mật" [ref=e353] [cursor=pointer]:
+        - /url: /privacy-policy
+      - text: .
+    - button "Đồng ý" [ref=e354] [cursor=pointer]

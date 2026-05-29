@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useMutation } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { ChevronDown, ChevronUp, AlertTriangle, CheckCircle, Bell, XCircle, Plus } from 'lucide-react'
+import { ChevronDown, ChevronUp, AlertTriangle, CheckCircle, Bell, XCircle, Plus, ArrowLeft } from 'lucide-react'
 import { useOrderSSE } from '@/hooks/useOrderSSE'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { ConnectionErrorBanner } from '@/components/shared/ConnectionErrorBanner'
@@ -30,6 +30,7 @@ interface SummaryRow {
   totalMoney:       number
   remainingMoney:   number
   remainingItemIds: string[]
+  toppings:         ToppingSnapshotEntry[]
 }
 
 export default function OrderPage({ params }: { params: { id: string } }) {
@@ -95,6 +96,7 @@ export default function OrderPage({ params }: { params: { id: string } }) {
           key, name: i.name, unitPrice: i.unit_price,
           totalQty: 0, totalServed: 0, remaining: 0,
           totalMoney: 0, remainingMoney: 0, remainingItemIds: [],
+          toppings: [],
         })
       }
       const row = summaryMap.get(key)!
@@ -104,6 +106,12 @@ export default function OrderPage({ params }: { params: { id: string } }) {
       row.totalMoney   = row.unitPrice * row.totalQty
       row.remainingMoney = row.unitPrice * row.remaining
       if (i.qty_served < i.quantity) row.remainingItemIds.push(i.id)
+      // Collect unique toppings across all items in this group
+      for (const t of (i.toppings_snapshot ?? []).filter(t => t.name?.trim())) {
+        if (!row.toppings.some(existing => existing.name === t.name)) {
+          row.toppings.push(t)
+        }
+      }
     }
 
     const summaryRows          = Array.from(summaryMap.values())
@@ -123,10 +131,56 @@ export default function OrderPage({ params }: { params: { id: string } }) {
 
   if (!order) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-3">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-muted-fg text-sm">Đang tải đơn hàng...</p>
+      <div className="min-h-screen bg-background pb-10 animate-pulse">
+        {/* Nav skeleton */}
+        <div className="sticky top-0 z-20 bg-card border-b border-border flex items-center gap-3 px-4 py-3">
+          <div className="w-6 h-6 rounded bg-muted" />
+          <div className="flex-1 h-4 bg-muted rounded w-40" />
+          <div className="w-14 h-5 bg-muted rounded-full" />
+        </div>
+        <div className="max-w-lg mx-auto px-4 pt-4 space-y-3">
+          {/* Order card skeleton */}
+          <div className="bg-card rounded-xl overflow-hidden border-l-4 border-primary/30 p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-16 bg-muted rounded" />
+              <div className="h-4 w-12 bg-muted rounded" />
+              <div className="h-5 w-20 bg-muted rounded-full ml-auto" />
+            </div>
+            <div className="h-1 bg-muted rounded" />
+            {[1, 2, 3].map(i => (
+              <div key={i} className="flex items-center gap-2 pt-2 border-t border-border/30">
+                <div className="w-2 h-2 rounded-full bg-muted shrink-0" />
+                <div className="flex-1 h-4 bg-muted rounded" />
+                <div className="w-20 h-4 bg-muted rounded" />
+                <div className="w-8 h-6 bg-muted rounded" />
+              </div>
+            ))}
+          </div>
+          {/* Table skeleton */}
+          <div className="bg-card rounded-xl overflow-hidden border-l-4 border-border/30">
+            <div className="h-8 bg-muted/50" />
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="flex gap-2 px-3 py-3 border-t border-border/30">
+                <div className="flex-1 h-4 bg-muted rounded" />
+                <div className="w-6 h-4 bg-muted rounded" />
+                <div className="w-6 h-4 bg-muted rounded" />
+                <div className="w-8 h-4 bg-muted rounded" />
+                <div className="w-16 h-4 bg-muted rounded" />
+                <div className="w-16 h-4 bg-muted rounded" />
+              </div>
+            ))}
+          </div>
+          {/* Money card skeleton */}
+          <div className="bg-card rounded-xl overflow-hidden border-l-4 border-border/30 divide-y divide-border/30">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="flex justify-between px-4 py-3">
+                <div className="h-4 w-32 bg-muted rounded" />
+                <div className="h-4 w-20 bg-muted rounded" />
+              </div>
+            ))}
+          </div>
+          {/* Button skeleton */}
+          <div className="h-12 bg-muted rounded-xl" />
         </div>
       </div>
     )
@@ -172,6 +226,29 @@ export default function OrderPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="min-h-screen bg-background pb-10">
+      {/* ── Sticky nav ──────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-20 bg-card border-b border-border flex items-center gap-3 px-4 py-3">
+        <button
+          onClick={() => router.back()}
+          aria-label="Quay lại"
+          className="p-1 -ml-1 rounded-lg hover:bg-background/60 transition-colors"
+        >
+          <ArrowLeft size={20} className="text-foreground" />
+        </button>
+        <h1 className="flex-1 text-sm font-semibold text-foreground">Theo Dõi Đơn Hàng</h1>
+        <div
+          aria-label={connectionError ? 'Mất kết nối realtime' : 'Kết nối realtime đang hoạt động'}
+          className={`flex items-center gap-1.5 text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+            connectionError
+              ? 'bg-red-900/30 text-urgent'
+              : 'bg-green-900/30 text-success'
+          }`}
+        >
+          <span className={`w-1.5 h-1.5 rounded-full ${connectionError ? 'bg-urgent' : 'bg-success animate-pulse'}`} />
+          {connectionError ? 'MẤT KẾT NỐI' : 'LIVE'}
+        </div>
+      </header>
+
       {connectionError && <ConnectionErrorBanner />}
 
       <div className="max-w-lg mx-auto px-4 pt-4 space-y-3">
@@ -292,12 +369,24 @@ export default function OrderPage({ params }: { params: { id: string } }) {
           {summaryRows.map((row, idx) => (
             <div
               key={row.key}
-              className={`flex items-center gap-2 px-3 py-2.5 text-xs ${idx < summaryRows.length - 1 ? 'border-b border-border/40' : ''}`}
+              className={`flex items-start gap-2 px-3 py-2.5 text-xs ${idx < summaryRows.length - 1 ? 'border-b border-border/40' : ''}`}
             >
-              {/* Name */}
-              <span className="flex-1 text-sm font-medium text-foreground min-w-0 truncate leading-snug">
-                {row.name}
-              </span>
+              {/* Name + toppings */}
+              <div className="flex-1 min-w-0">
+                <span className="block text-sm font-medium text-foreground truncate leading-snug">
+                  {row.name}
+                </span>
+                {row.toppings.length > 0 && (
+                  <div className="flex flex-wrap gap-x-1.5 mt-0.5">
+                    {row.toppings.map((t, ti) => (
+                      <span key={ti} className="text-[10px] text-muted-fg">
+                        + {t.name}{t.price > 0 ? ` ${formatVND(t.price)}` : ''}
+                        {ti < row.toppings.length - 1 ? ' ·' : ''}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {/* SL */}
               <span className="w-8 text-center font-semibold text-foreground shrink-0">
@@ -418,7 +507,7 @@ export default function OrderPage({ params }: { params: { id: string } }) {
 
       {/* ── Order notification modal ────────────────────────────────── */}
       {notification && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4">
+        <div role="dialog" aria-modal="true" aria-labelledby="modal-a-title" className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4">
           <div className="bg-card rounded-2xl p-6 w-full max-w-sm space-y-4 text-center">
             {notification.kind === 'confirmed' ? (
               <>
@@ -426,7 +515,7 @@ export default function OrderPage({ params }: { params: { id: string } }) {
                   <CheckCircle size={28} className="text-green-400" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-foreground">Nhà hàng đã nhận đơn!</h3>
+                  <h3 id="modal-a-title" className="font-bold text-lg text-foreground">Nhà hàng đã nhận đơn!</h3>
                   <p className="text-muted-fg text-sm mt-1">
                     {notification.eta
                       ? `Dự kiến phục vụ trong khoảng ${notification.eta} phút.`
@@ -471,14 +560,14 @@ export default function OrderPage({ params }: { params: { id: string } }) {
 
       {/* ── Confirm modal ───────────────────────────────────────────── */}
       {cancelTarget && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4">
+        <div role="dialog" aria-modal="true" aria-labelledby="modal-b-title" className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4">
           <div className="bg-card rounded-2xl p-6 w-full max-w-sm space-y-4">
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 rounded-full bg-red-900/40 flex items-center justify-center shrink-0">
                 <AlertTriangle size={18} className="text-urgent" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-base text-foreground">
+                <h3 id="modal-b-title" className="font-bold text-base text-foreground">
                   {cancelTarget.type === 'order' ? 'Huỷ đơn hàng?'
                     : cancelTarget.type === 'combo-remaining' ? 'Huỷ món còn lại?'
                     : 'Huỷ món này?'}
@@ -576,12 +665,12 @@ function DishRow({
         {remaining > 0 && isActive ? (
           <button
             onClick={onCancel}
-            className="shrink-0 text-xs text-urgent border border-urgent/50 px-2 py-0.5 rounded-md hover:bg-red-900/20 transition-colors font-medium"
+            className="shrink-0 min-h-[44px] min-w-[44px] text-xs text-urgent border border-urgent/50 px-2 rounded-md hover:bg-red-900/20 transition-colors font-medium"
           >
             Huỷ
           </button>
         ) : (
-          <span className="w-[38px] shrink-0" />
+          <span className="w-[44px] shrink-0" />
         )}
       </div>
     </div>

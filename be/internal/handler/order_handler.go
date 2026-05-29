@@ -150,6 +150,20 @@ func (h *OrderHandler) Cancel(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// CancelItem handles DELETE /orders/items/:id (auth — guest or staff)
+func (h *OrderHandler) CancelItem(c *gin.Context) {
+	claims := middleware.ClaimsFromContext(c)
+	callerID := claims.Subject
+	if claims.Role == "customer" {
+		callerID = claims.TableID
+	}
+	if err := h.svc.CancelOrderItem(c.Request.Context(), c.Param("id"), callerID, claims.Role); err != nil {
+		handleServiceError(c, err)
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
 type updateItemServedReq struct {
 	QtyServed int32 `json:"qty_served" binding:"min=0"`
 }

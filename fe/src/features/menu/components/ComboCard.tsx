@@ -16,8 +16,8 @@ interface Props {
 export function ComboCard({ combo }: Props) {
   const [modalOpen, setModalOpen] = useState(false)
   const { items, addItem, updateQty } = useCartStore()
-  const { toggle: toggleFav, isFavourite } = useFavouritesStore()
-  const fav = isFavourite(`combo_${combo.id}`)
+  const { toggleFav, isFavourite } = useFavouritesStore()
+  const fav = isFavourite(combo.id, 'combo')
 
   const comboItems = combo.items ?? []
   const cartId     = `combo_${combo.id}`
@@ -67,11 +67,11 @@ export function ComboCard({ combo }: Props) {
           )}
         </div>
         <button
-          onClick={() => toggleFav(`combo_${combo.id}`)}
-          className="absolute top-1 right-1 bg-white/80 rounded-full p-0.5"
+          onClick={() => toggleFav(combo.id, 'combo')}
+          className="absolute top-1 right-1 bg-white/80 rounded-full p-1.5"
           aria-label={fav ? 'Bỏ yêu thích' : 'Yêu thích'}
         >
-          <Heart size={12} className={fav ? 'fill-red-500 text-red-500' : 'text-muted-fg'} />
+          <Heart size={16} className={fav ? 'fill-red-500 text-red-500' : 'text-muted-fg'} />
         </button>
       </div>
 

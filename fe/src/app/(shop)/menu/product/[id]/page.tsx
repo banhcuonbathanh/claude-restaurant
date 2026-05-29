@@ -1,50 +1,50 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import Image from 'next/image'
-import { ArrowLeft, Minus, Plus } from 'lucide-react'
-import { useQuery } from '@tanstack/react-query'
-import { api } from '@/lib/api-client'
-import { formatVND } from '@/lib/utils'
 import { useCartStore } from '@/store/cart'
-import type { Product } from '@/types/product'
+import { useAuthStore } from '@/features/auth/auth.store'
+import { useProductDetail } from '@/hooks/useProductDetail'
+import { CustomerTopNav } from '@/components/shared/CustomerTopNav'
+import { ProductHeroImage } from '@/components/product-detail/ProductHeroImage'
+import { ProductInfo } from '@/components/product-detail/ProductInfo'
+import { ToppingSelector } from '@/components/product-detail/ToppingSelector'
+import { QuantityStepper } from '@/components/shared/QuantityStepper'
+import { CTAFooter } from '@/components/product-detail/CTAFooter'
+import { ProductDetailSkeleton } from '@/components/product-detail/ProductDetailSkeleton'
 
 export default function ProductDetailPage() {
-  const { id } = useParams<{ id: string }>()
-  const router  = useRouter()
-  const [selectedToppingIds, setSelectedToppingIds] = useState<Set<string>>(new Set())
+  const { id }    = useParams<{ id: string }>()
+  const router    = useRouter()
+  const addItem   = useCartStore(s => s.addItem)
+  const itemCount = useCartStore(s => s.itemCount())
+  const accessToken = useAuthStore(s => s.accessToken)
+
+  const [selectedToppingIds, setSelectedToppingIds] = useState<string[]>([])
   const [qty, setQty] = useState(1)
-  const addItem = useCartStore(s => s.addItem)
 
-  function toggleTopping(toppingId: string) {
-    setSelectedToppingIds(prev => {
-      const next = new Set(prev)
-      next.has(toppingId) ? next.delete(toppingId) : next.add(toppingId)
-      return next
-    })
-  }
+  // Redirect unauthenticated guests to welcome
+  useEffect(() => {
+    if (!accessToken) {
+      router.replace('/welcome')
+    }
+  }, [accessToken, router])
 
-  const { data: product, isLoading, isError } = useQuery<Product>({
-    queryKey: ['product', id],
-    queryFn:  () => api.get(`/products/${id}`).then(r => r.data.data),
-    staleTime: 5 * 60 * 1000,
-  })
-
-  const selectedToppings = product?.toppings.filter(t => selectedToppingIds.has(t.id)) ?? []
-  const toppingSum       = selectedToppings.reduce((s, t) => s + t.price, 0)
+  const { data: product, isLoading, isError } = useProductDetail(id)
 
   const imageUrl = product?.image_path
     ? `${process.env.NEXT_PUBLIC_STORAGE_URL ?? ''}/${product.image_path}`
     : null
 
-  const unitPrice = (product?.price ?? 0) + toppingSum
-  const total     = unitPrice * qty
+  const selectedToppings = product?.toppings.filter(t => selectedToppingIds.includes(t.id)) ?? []
+  const toppingSum       = selectedToppings.reduce((s, t) => s + t.price, 0)
+  const unitPrice        = (product?.price ?? 0) + toppingSum
+  const total            = unitPrice * qty
 
   function handleAddToCart() {
     if (!product) return
-    const toppingKey = Array.from(selectedToppingIds).sort().join('-')
+    const toppingKey = [...selectedToppingIds].sort().join('-')
     addItem({
-      id:         `product_${product.id}_${toppingKey}`,
+      id:         `product_${product.id}_${toppingKey || 'plain'}`,
       type:       'product',
       product_id: product.id,
       name:       product.name,
@@ -57,19 +57,17 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Back button */}
-      <button
-        onClick={() => router.back()}
-        className="absolute top-4 left-4 z-10 bg-background/80 backdrop-blur-sm rounded-full p-2 shadow"
-        aria-label="Quay lại"
-      >
-        <ArrowLeft size={20} className="text-foreground" />
-      </button>
+      {/* NAV */}
+      <CustomerTopNav
+        title="Chi tiết sản phẩm"
+        cartCount={itemCount}
+        onBack={() => router.back()}
+      />
 
       {isLoading && <ProductDetailSkeleton />}
 
       {isError && (
-        <div className="flex flex-col items-center justify-center min-h-screen gap-4 px-6">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 px-6">
           <p className="text-muted-fg text-center">Không tìm thấy sản phẩm.</p>
           <button
             onClick={() => router.back()}
@@ -82,157 +80,38 @@ export default function ProductDetailPage() {
 
       {product && (
         <>
-          {/* Zone A — Hero image */}
-          <div className="relative w-full aspect-[4/3] overflow-hidden bg-muted">
-            {imageUrl ? (
-              <Image
-                src={imageUrl}
-                alt={product.name}
-                fill
-                className="object-cover"
-                sizes="100vw"
-                priority
-              />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-6xl bg-muted">
-                🍜
-              </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
-          </div>
+          {/* Zone A */}
+          <ProductHeroImage src={imageUrl} alt={product.name} />
 
-          {/* Zone B — Name, badge, price, description */}
-          <div className="px-4 pt-4 pb-4 flex flex-col gap-3">
-            <div className="flex items-start gap-2">
-              <h1 className="text-xl font-bold text-foreground flex-1 leading-snug">
-                {product.name}
-              </h1>
-              {!product.is_available && (
-                <span className="flex-shrink-0 text-xs font-semibold px-2 py-1 rounded-full bg-red-100 text-red-600">
-                  Hết hàng
-                </span>
-              )}
-            </div>
+          {/* Zone B */}
+          <ProductInfo product={product} />
 
-            <p className="text-2xl font-bold text-primary">
-              {formatVND(product.price)}
-            </p>
+          {/* Zone C — only when toppings exist */}
+          {product.toppings.length > 0 && (
+            <ToppingSelector
+              toppings={product.toppings}
+              selected={selectedToppingIds}
+              basePrice={product.price}
+              onChange={setSelectedToppingIds}
+            />
+          )}
 
-            {product.description && (
-              <p className="text-sm text-muted-fg leading-relaxed">
-                {product.description}
-              </p>
-            )}
-          </div>
-
-          {/* Zone C — ToppingSelector (only when product has toppings) */}
-          {product.toppings.length > 0 ? (
-            <div className="px-4 pt-4 flex flex-col gap-3 border-t border-border">
-              <h2 className="text-sm font-semibold text-foreground">
-                Chọn topping (nhiều lựa chọn)
-              </h2>
-              <div className="flex flex-col gap-2">
-                {product.toppings.map(topping => (
-                  <label
-                    key={topping.id}
-                    className={`flex items-center gap-3 cursor-pointer${!topping.is_available ? ' opacity-50' : ''}`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedToppingIds.has(topping.id)}
-                      onChange={() => toggleTopping(topping.id)}
-                      disabled={!topping.is_available}
-                      className="w-4 h-4 accent-primary"
-                    />
-                    <span className="flex-1 text-sm text-foreground">{topping.name}</span>
-                    <span className="text-sm text-primary font-medium">
-                      +{formatVND(topping.price)}
-                    </span>
-                  </label>
-                ))}
-              </div>
-              {selectedToppingIds.size > 0 && (
-                <p className="text-xs text-muted-fg">
-                  Tổng: {formatVND(product.price)} + {formatVND(toppingSum)} ={' '}
-                  <span className="text-primary font-semibold">
-                    {formatVND(unitPrice)}
-                  </span>
-                </p>
-              )}
-            </div>
-          ) : null}
-
-          {/* Zone D — QtyStepper */}
+          {/* Zone D */}
           <div className="px-4 pt-4 pb-32 flex items-center gap-4">
             <span className="text-sm font-semibold text-foreground">Số lượng</span>
-            <div className="flex items-center gap-3 ml-auto">
-              <button
-                onClick={() => setQty(q => Math.max(1, q - 1))}
-                disabled={qty <= 1}
-                className="w-8 h-8 rounded-full border border-border flex items-center justify-center disabled:opacity-40"
-                aria-label="Giảm số lượng"
-              >
-                <Minus size={14} />
-              </button>
-              <span className="w-6 text-center text-base font-semibold tabular-nums">
-                {qty}
-              </span>
-              <button
-                onClick={() => setQty(q => q + 1)}
-                className="w-8 h-8 rounded-full border border-border flex items-center justify-center"
-                aria-label="Tăng số lượng"
-              >
-                <Plus size={14} />
-              </button>
+            <div className="ml-auto">
+              <QuantityStepper value={qty} min={1} onChange={setQty} />
             </div>
           </div>
 
-          {/* Zone E — Sticky CTA footer */}
-          <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border px-4 pt-3 pb-safe-4">
-            <button
-              onClick={handleAddToCart}
-              disabled={!product.is_available}
-              className="w-full bg-primary text-primary-fg font-semibold text-sm rounded-xl py-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[.98] transition-transform"
-            >
-              {product.is_available
-                ? `Thêm vào giỏ hàng · ${formatVND(total)}`
-                : 'Sản phẩm tạm hết'}
-            </button>
-          </div>
+          {/* Zone E */}
+          <CTAFooter
+            total={total}
+            isAvailable={product.is_available}
+            onAddToCart={handleAddToCart}
+          />
         </>
       )}
-    </div>
-  )
-}
-
-function ProductDetailSkeleton() {
-  return (
-    <div className="animate-pulse">
-      {/* Zone A skeleton */}
-      <div className="w-full aspect-[4/3] bg-muted" />
-
-      {/* Zone B skeleton */}
-      <div className="px-4 pt-4 pb-4 flex flex-col gap-3">
-        <div className="h-7 bg-muted rounded w-3/4" />
-        <div className="h-8 bg-muted rounded w-1/3" />
-        <div className="space-y-2">
-          <div className="h-4 bg-muted rounded w-full" />
-          <div className="h-4 bg-muted rounded w-5/6" />
-          <div className="h-4 bg-muted rounded w-4/6" />
-        </div>
-      </div>
-
-      {/* Zone C skeleton */}
-      <div className="px-4 pt-4 pb-32 flex flex-col gap-3 border-t border-border">
-        <div className="h-4 bg-muted rounded w-2/5" />
-        {[0, 1, 2].map(i => (
-          <div key={i} className="flex items-center gap-3">
-            <div className="w-4 h-4 bg-muted rounded" />
-            <div className="flex-1 h-4 bg-muted rounded" />
-            <div className="w-16 h-4 bg-muted rounded" />
-          </div>
-        ))}
-      </div>
     </div>
   )
 }

@@ -55,6 +55,7 @@ type OrderRepository interface {
 	SetOrderGroupID(ctx context.Context, orderID, groupID string) error
 	ClearOrderGroupID(ctx context.Context, orderID string) error
 	ListOrdersByGroupID(ctx context.Context, groupID string) ([]db.Order, error)
+	DeleteOrderItem(ctx context.Context, itemID string) error
 }
 
 type orderRepo struct {
@@ -236,6 +237,11 @@ func (r *orderRepo) ClearOrderGroupID(ctx context.Context, orderID string) error
 
 func (r *orderRepo) ListOrdersByGroupID(ctx context.Context, groupID string) ([]db.Order, error) {
 	return r.q.ListOrdersByGroupID(ctx, sql.NullString{String: groupID, Valid: true})
+}
+
+func (r *orderRepo) DeleteOrderItem(ctx context.Context, itemID string) error {
+	_, err := r.sqlDB.ExecContext(ctx, `DELETE FROM order_items WHERE id = ?`, itemID)
+	return err
 }
 
 func toInt64(v interface{}) int64 {

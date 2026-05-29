@@ -8,9 +8,12 @@
 
 ## Active Task
 
-**None** — P-ARCH-1 ✅ and P-ARCH-2 ✅ complete. P-ARCH phase done.
+**P-MON — Client Order Monitoring Page**
+- Phase registered in MASTER_TASK.md (2026-05-29)
+- 9 sub-tasks: BE-1 → BE-2 → BE-3 → FE-1 → FE-2 → FE-3 → FE-4 → FE-5 → FE-6
+- Next: **P-MON-BE-1** — `ListActiveQueueOrders` SQL + `GetOrderWithTableLabel` SQL + `sqlc generate` + repo methods
 
-**Next tasks (in order):**
+**Other queued tasks (after P-MON):**
 1. **P-WIRE-ORDER-4** — Client Order Page wireframe (parked, see below)
 2. **Phase 7-7** — Payment sandbox (VNPay + MoMo via ngrok)
 

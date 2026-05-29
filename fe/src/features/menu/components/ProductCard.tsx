@@ -17,8 +17,8 @@ export function ProductCard({ product }: Props) {
   const [modalOpen, setModalOpen] = useState(false)
   const { items, addItem, updateQty } = useCartStore()
 
-  const { toggle: toggleFav, isFavourite } = useFavouritesStore()
-  const fav = isFavourite(`product_${product.id}`)
+  const { toggleFav, isFavourite } = useFavouritesStore()
+  const fav = isFavourite(product.id, 'product')
 
   const hasToppings = (product.toppings ?? []).some(t => t.is_available)
 
@@ -80,11 +80,11 @@ export function ProductCard({ product }: Props) {
           )}
         </Link>
         <button
-          onClick={() => toggleFav(`product_${product.id}`)}
-          className="absolute top-1 right-1 bg-white/80 rounded-full p-0.5"
+          onClick={() => toggleFav(product.id, 'product')}
+          className="absolute top-1 right-1 bg-white/80 rounded-full p-1.5"
           aria-label={fav ? 'Bỏ yêu thích' : 'Yêu thích'}
         >
-          <Heart size={12} className={fav ? 'fill-red-500 text-red-500' : 'text-muted-fg'} />
+          <Heart size={16} className={fav ? 'fill-red-500 text-red-500' : 'text-muted-fg'} />
         </button>
       </div>
 
