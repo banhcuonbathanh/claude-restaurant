@@ -1,10 +1,8 @@
 import type { Topping } from './product'
 
-export type VegAmount = 'nhiều' | 'vừa' | 'không'
-
 export interface DrinkConfig {
-  veg:   VegAmount
-  bowls: number
+  bowls:    number   // total bowls of broth
+  vegBowls: number   // how many of those bowls have vegetables (0–bowls)
 }
 
 export interface ComboItemSummary {

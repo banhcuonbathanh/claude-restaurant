@@ -1,7 +1,7 @@
 'use client'
 import { useMemo, useState, useEffect, Suspense } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { ShoppingCart, ClipboardList, Settings, PlusCircle } from 'lucide-react'
+import { ShoppingCart, ClipboardList, Settings, PlusCircle, Heart } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useSettingsStore } from '@/store/settings'
@@ -36,9 +36,9 @@ function MenuContent() {
     setHasOrders(found)
   }, [])
 
-  const { itemCount, total } = useCartStore()
+  const { items, itemCount, total } = useCartStore()
   const { tableLabel } = useSettingsStore()
-  const { ids: favIds } = useFavouritesStore()
+  const { items: favItems } = useFavouritesStore()
 
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ['categories'],
@@ -95,7 +95,7 @@ function MenuContent() {
 
   const count      = itemCount()
   const showCombos = selectedCategory === null && combos.length > 0
-  const showFavs   = selectedCategory === null && favIds.length > 0
+  const showFavs   = selectedCategory === null && favItems.length > 0
 
   return (
     <div className="min-h-screen bg-background">
@@ -108,6 +108,13 @@ function MenuContent() {
           )}
         </div>
         <div className="flex items-center gap-2">
+          <Link
+            href="/menu/favourites"
+            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-muted transition-colors"
+            aria-label="Yêu thích"
+          >
+            <Heart size={18} className="text-muted-fg" />
+          </Link>
           <Link
             href="/menu/settings"
             className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-muted transition-colors"
@@ -139,6 +146,33 @@ function MenuContent() {
           </button>
         </div>
       </header>
+
+      {/* Mini cart strip — sticky, shows when cart has items */}
+      {count > 0 && (
+        <div className="sticky top-[57px] z-10 bg-background border-b border-border/60 px-4 py-2">
+          <button
+            onClick={() => setCartOpen(true)}
+            className="w-full flex items-center gap-2 text-left"
+          >
+            <span className="bg-primary text-white text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0">
+              {count} món
+            </span>
+            <div className="flex-1 overflow-hidden">
+              <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
+                {items.map(item => (
+                  <span
+                    key={item.id}
+                    className="shrink-0 text-xs text-foreground bg-muted px-2 py-0.5 rounded-full whitespace-nowrap"
+                  >
+                    {item.name} ×{item.quantity}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <span className="shrink-0 text-xs font-bold text-primary ml-1">{formatVND(total())}</span>
+          </button>
+        </div>
+      )}
 
       {/* Restaurant banner */}
       <div className="relative w-full h-44 overflow-hidden">
@@ -254,6 +288,7 @@ function MenuContent() {
 
         {/* Zone I — OrderSummary */}
         <OrderSummary />
+
       </main>
 
       {/* Zone J — CartBottomBar */}

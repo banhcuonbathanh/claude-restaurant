@@ -49,12 +49,14 @@ Customer online đặt hàng qua web, chọn topping/combo, checkout, theo dõi 
 ## 4.1 Layout
 | ┌─────────────────────────────────────┐ |
 | --- |
-| │  [Logo]  BanhCuon    [Cart 🛒 (3)]  │  ← Header sticky |
+| │  [Logo]  BanhCuon  [♡][⚙]  [🛒]   │  ← Header sticky; ♡ → /menu/favourites |
+| ├─────────────────────────────────────┤ |
+| │  [● 3 món]  Combo ×2 · Bánh ×1  45k│  ← Mini cart strip (sticky, count > 0) |
 | ├─────────────────────────────────────┤ |
 | │  [Tất cả] [Bánh Cuốn] [Chả] [Combo]│  ← Category tabs sticky |
 | ├─────────────────────────────────────┤ |
 | │  ┌──────┐  ┌──────┐  ┌──────┐      │ |
-| │  │ img  │  │ img  │  │ img  │      │  ← Product grid (2-3 cols) |
+| │  │ img  │  │ img  │  │ img  │      │  ← Product list (single column) |
 | │  │ tên  │  │ tên  │  │ tên  │      │ |
 | │  │ giá  │  │ giá  │  │ giá  │      │ |
 | │  │[+]   │  │[+]   │  │[+]   │      │ |
@@ -62,6 +64,13 @@ Customer online đặt hàng qua web, chọn topping/combo, checkout, theo dõi 
 | ├─────────────────────────────────────┤ |
 | │        [Xem giỏ hàng  3 món]        │  ← Cart FAB fixed bottom |
 | └─────────────────────────────────────┘ |
+
+### Mini Cart Strip (Zone A.5)
+- Renders between header and restaurant banner when `itemCount > 0`
+- `sticky top-[57px] z-10` — stays visible while scrolling
+- Shows pill badges for every cart item: `{name} ×{qty}`
+- Clicking anywhere on the strip opens the CartDrawer
+- Purpose: customer can always see what they've ordered without scrolling to the bottom
 
 ## 4.2 Data Fetching
 | // useQuery — React Query, không dùng useState |
@@ -175,6 +184,26 @@ Customer online đặt hàng qua web, chọn topping/combo, checkout, theo dõi 
 | total: number           // computed: sum(unit_price * quantity) |
 | itemCount: number       // computed: sum(quantity) |
 | } |
+
+## 4.6b DrinkCustomize Component (Nước dùng)
+- **Visibility:** only renders when cart contains at least one combo item OR at least one product whose name (case-insensitive) contains "nước dùng"
+- If cart has no combo and no nước dùng product → component returns null
+- **DrinkConfig shape** (updated):
+  ```ts
+  interface DrinkConfig {
+    bowls:    number   // total bowls (1–99)
+    vegBowls: number   // bowls with vegetables (0–bowls)
+  }
+  ```
+- **UI:** two steppers — "Số bát" and "Bát có rau" — with summary text: "2 bát có rau · 3 bát không rau"
+- `vegBowls` is automatically clamped to `bowls` when `bowls` decreases
+- Default: `{ bowls: 1, vegBowls: 0 }`
+
+## 4.6c OrderNote Component
+- Auto-saves to Zustand cart store on every keystroke (no submit button needed)
+- Shows debounced `✓ Đã lưu` indicator 800ms after the user stops typing
+- Helper text below textarea: "Ghi chú sẽ gửi cùng đơn hàng khi bạn thanh toán."
+- Note is submitted as part of the order payload at checkout
 
 ## 4.7 Cart Drawer / Sidebar
 | // src/components/menu/CartDrawer.tsx |

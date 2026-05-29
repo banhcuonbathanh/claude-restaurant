@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 import type { CartItem, DrinkConfig } from '@/types/cart'
 import { STORAGE_KEYS } from '@/lib/storage-keys'
 
-const DEFAULT_DRINK_CONFIG: DrinkConfig = { veg: 'vừa', bowls: 1 }
+const DEFAULT_DRINK_CONFIG: DrinkConfig = { bowls: 1, vegBowls: 0 }
 
 interface CartState {
   items:            CartItem[]

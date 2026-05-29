@@ -1,0 +1,42 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - button "Quay lại" [ref=e3] [cursor=pointer]:
+      - img [ref=e4]
+    - generic [ref=e7]: 🍜
+    - generic [ref=e9]:
+      - heading "BÃ¡nh Cuá»‘n Thá»‹t" [level=1] [ref=e11]
+      - paragraph [ref=e12]: 45.000 ₫
+      - paragraph [ref=e13]: BÃ¡nh cuá»‘n nhÃ¢n thá»‹t heo xay, hÃ nh phi
+    - generic [ref=e14]:
+      - heading "Chọn topping (nhiều lựa chọn)" [level=2] [ref=e15]
+      - generic [ref=e16]:
+        - generic [ref=e17] [cursor=pointer]:
+          - checkbox "HÃ nh phi +5.000 ₫" [ref=e18]
+          - generic [ref=e19]: HÃ nh phi
+          - generic [ref=e20]: +5.000 ₫
+        - generic [ref=e21] [cursor=pointer]:
+          - checkbox "Ruá»‘c tÃ´m +10.000 ₫" [ref=e22]
+          - generic [ref=e23]: Ruá»‘c tÃ´m
+          - generic [ref=e24]: +10.000 ₫
+        - generic [ref=e25] [cursor=pointer]:
+          - checkbox "ThÃªm thá»‹t +20.000 ₫" [ref=e26]
+          - generic [ref=e27]: ThÃªm thá»‹t
+          - generic [ref=e28]: +20.000 ₫
+    - generic [ref=e29]:
+      - generic [ref=e30]: Số lượng
+      - generic [ref=e31]:
+        - button "Giảm số lượng" [disabled] [ref=e32]:
+          - img [ref=e33]
+        - generic [ref=e34]: "1"
+        - button "Tăng số lượng" [ref=e35] [cursor=pointer]:
+          - img [ref=e36]
+    - button "Thêm vào giỏ hàng · 45.000 ₫" [ref=e38] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e39]
+  - generic [ref=e40]:
+    - paragraph [ref=e41]:
+      - text: Chúng tôi dùng cookies và bộ nhớ trình duyệt để lưu giỏ hàng và trạng thái đơn hàng. Không có dữ liệu thẻ ngân hàng nào được lưu. Xem
+      - link "Chính sách bảo mật" [ref=e42] [cursor=pointer]:
+        - /url: /privacy-policy
+      - text: .
+    - button "Đồng ý" [ref=e43] [cursor=pointer]

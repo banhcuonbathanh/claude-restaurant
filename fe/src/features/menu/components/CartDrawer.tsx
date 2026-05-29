@@ -22,7 +22,6 @@ export function CartDrawer({ open, onClose, addToOrderId }: Props) {
 
   // Track which combos have their dish list expanded
   const [expandedCombos, setExpandedCombos] = useState<Set<string>>(new Set())
-  const [summaryOpen, setSummaryOpen]       = useState(true)
 
   const addItemsMutation = useMutation({
     mutationFn: () => addItemsToOrder(
@@ -55,33 +54,6 @@ export function CartDrawer({ open, onClose, addToOrderId }: Props) {
       next.has(id) ? next.delete(id) : next.add(id)
       return next
     })
-
-  // Unit price lookup from standalone products currently in cart
-  const productPriceMap = new Map<string, number>()
-  for (const item of items) {
-    if (item.type === 'product') productPriceMap.set(item.name, item.price)
-  }
-
-  // Aggregate all dishes: combos (×combo qty) + standalone products
-  const dishSummary = (() => {
-    const map = new Map<string, number>()
-    for (const item of items) {
-      if (item.type === 'combo' && item.combo_items) {
-        for (const ci of item.combo_items) {
-          map.set(ci.product_name, (map.get(ci.product_name) ?? 0) + ci.quantity * item.quantity)
-        }
-      } else if (item.type === 'product') {
-        map.set(item.name, (map.get(item.name) ?? 0) + item.quantity)
-      }
-    }
-    return Array.from(map.entries()).sort((a, b) => b[1] - a[1])
-  })()
-
-  // Subtotal of dishes where unit price is known
-  const knownSubtotal = dishSummary.reduce((sum, [name, qty]) => {
-    const price = productPriceMap.get(name)
-    return price ? sum + price * qty : sum
-  }, 0)
 
   const handleCheckout = () => {
     onClose()
@@ -217,57 +189,6 @@ export function CartDrawer({ open, onClose, addToOrderId }: Props) {
             )}
           </div>
 
-          {/* Dish summary section */}
-          {dishSummary.length > 0 && (
-            <div className="border-t border-border">
-              {/* Toggle header */}
-              <button
-                onClick={() => setSummaryOpen(v => !v)}
-                className="w-full flex items-center justify-between px-5 py-3 hover:bg-background/60 transition-colors"
-              >
-                <span className="text-xs font-semibold text-muted-fg uppercase tracking-wide">
-                  Tổng số món ({dishSummary.length} loại)
-                </span>
-                {summaryOpen ? <ChevronUp size={14} className="text-muted-fg" /> : <ChevronDown size={14} className="text-muted-fg" />}
-              </button>
-
-              {summaryOpen && (
-                <div className="px-5 pb-4 space-y-0">
-                  {/* Table header */}
-                  <div className="flex items-center justify-between pb-1.5 mb-1 border-b border-border/50">
-                    <span className="text-[11px] text-muted-fg uppercase tracking-wide flex-1">Món</span>
-                    <span className="text-[11px] text-muted-fg uppercase tracking-wide w-10 text-center">SL</span>
-                    <span className="text-[11px] text-muted-fg uppercase tracking-wide w-20 text-right">Đơn giá</span>
-                    <span className="text-[11px] text-muted-fg uppercase tracking-wide w-20 text-right">Thành tiền</span>
-                  </div>
-
-                  {dishSummary.map(([name, qty]) => {
-                    const unitPrice = productPriceMap.get(name)
-                    return (
-                      <div key={name} className="flex items-center justify-between py-1">
-                        <span className="text-sm text-foreground flex-1 pr-2 leading-snug">{name}</span>
-                        <span className="text-sm font-bold text-primary w-10 text-center">×{qty}</span>
-                        <span className="text-xs text-muted-fg w-20 text-right">
-                          {unitPrice ? formatVND(unitPrice) : '—'}
-                        </span>
-                        <span className="text-xs font-semibold text-foreground w-20 text-right">
-                          {unitPrice ? formatVND(unitPrice * qty) : '—'}
-                        </span>
-                      </div>
-                    )
-                  })}
-
-                  {/* Subtotal row for known-price dishes */}
-                  {knownSubtotal > 0 && (
-                    <div className="flex items-center justify-between pt-2 mt-1 border-t border-border/50">
-                      <span className="text-xs text-muted-fg">Tổng món lẻ</span>
-                      <span className="text-sm font-bold text-primary">{formatVND(knownSubtotal)}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
         {/* Footer */}

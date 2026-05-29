@@ -23,9 +23,9 @@
 |---|------|---------|--------|----------|-----------------|
 | C1 | Menu | `/dev-page client_menu_page` | ⬜ | — | — |
 | C2 | Product Detail | `/dev-page client_product_detail` | ⬜ | — | — |
-| C3 | Order | `/dev-page client_order_page` | ⬜ | — | — |
+| C3 | Order | `/dev-page client_order_page` | ⚠️ | 2026-05-29 | Qty stepper skipped (no BE endpoint); 404/401 edge-state handling not implemented; visual audit skipped (Playwright locked) |
 | C4 | Monitoring / Servicing Table | `/dev-page client_monitoring_servicing_table` | ⬜ | — | — |
-| C5 | Favourites | `/dev-page client_favourite_page` | ⬜ | — | — |
+| C5 | Favourites | `/dev-page client_favourite_page` | ⚠️ | 2026-05-29 | 11/12 ACs covered. Open: product-404 toast not implemented (items silently dropped). Store rebuilt (Option A). 3 screens wired. |
 | C6 | Info | `/dev-page client_info_page` | ⬜ | — | — |
 
 ---
@@ -70,7 +70,8 @@
 
 | Date | Page | Outcome | Key decisions / blockers |
 |------|------|---------|--------------------------|
-| — | — | — | — |
+| 2026-05-29 | client_order_page | ⚠️ | Added BE DELETE /orders/items/:id; added Nav+skeleton+Zone2 toppings; qty stepper deferred (needs BE); visual audit skipped (Playwright lock) |
+| 2026-05-29 | client_favourite_page | ⚠️ | Built all 3 screens from scratch; store rebuilt to FavouriteItem[]+FavouriteSet[] (Option A); updated ProductCard/ComboCard/FavouritesRail; QuantityStepper updated with size prop; 11/12 ACs — product-404 toast open |
 
 ---
 

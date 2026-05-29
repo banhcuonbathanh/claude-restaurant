@@ -1,64 +1,77 @@
 'use client'
 import { Plus, Minus } from 'lucide-react'
 import { useCartStore } from '@/store/cart'
-import type { VegAmount } from '@/types/cart'
 
-const VEG_OPTIONS: { value: VegAmount; label: string }[] = [
-  { value: 'nhiều', label: 'Rau nhiều' },
-  { value: 'vừa',   label: 'Rau vừa'   },
-  { value: 'không', label: 'Không'      },
-]
+function Stepper({
+  label, value, min, max, onChange,
+}: { label: string; value: number; min: number; max: number; onChange: (n: number) => void }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-sm text-foreground">{label}</span>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => onChange(Math.max(min, value - 1))}
+          disabled={value <= min}
+          aria-label="Giảm"
+          className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 disabled:opacity-40 transition-colors"
+        >
+          <Minus size={14} />
+        </button>
+        <span className="text-foreground font-bold text-sm w-6 text-center">{value}</span>
+        <button
+          onClick={() => onChange(Math.min(max, value + 1))}
+          disabled={value >= max}
+          aria-label="Tăng"
+          className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary/90 disabled:opacity-40 transition-colors"
+        >
+          <Plus size={14} />
+        </button>
+      </div>
+    </div>
+  )
+}
 
-export function DrinkCustomize() {
-  const { drinkConfig, setDrinkConfig } = useCartStore()
+export function DrinkCustomize({ embedded }: { embedded?: boolean }) {
+  const { items, drinkConfig, setDrinkConfig } = useCartStore()
 
-  const setVeg   = (veg: VegAmount) => setDrinkConfig({ ...drinkConfig, veg })
-  const setBowls = (n: number)      => setDrinkConfig({ ...drinkConfig, bowls: Math.max(1, Math.min(99, n)) })
+  const hasCombo    = items.some(i => i.type === 'combo')
+  const hasNuocDung = items.some(
+    i => i.type === 'product' && i.name.toLowerCase().includes('nước dùng'),
+  )
+
+  if (!hasCombo && !hasNuocDung) return null
+
+  const { bowls, vegBowls } = drinkConfig
+
+  const setBowls = (n: number) => {
+    const next = Math.max(1, Math.min(99, n))
+    setDrinkConfig({ bowls: next, vegBowls: Math.min(vegBowls, next) })
+  }
+
+  const setVegBowls = (n: number) =>
+    setDrinkConfig({ bowls, vegBowls: Math.max(0, Math.min(bowls, n)) })
 
   return (
-    <section className="mx-4 mt-4 bg-card rounded-xl p-4 shadow-sm">
+    <section className={embedded ? 'border-t border-border px-5 py-4' : 'mx-4 mt-4 bg-card rounded-xl p-4 shadow-sm'}>
       <h2 className="text-sm font-semibold text-muted-fg uppercase tracking-wide mb-3">Nước dùng</h2>
-
-      <div className="flex items-center gap-2 mb-4 flex-wrap">
-        {VEG_OPTIONS.map(opt => (
-          <button
-            key={opt.value}
-            onClick={() => setVeg(opt.value)}
-            className={`flex items-center gap-1.5 text-sm min-h-[44px] px-3 rounded-xl border transition-colors ${
-              drinkConfig.veg === opt.value
-                ? 'border-primary text-primary bg-primary/5'
-                : 'border-border text-muted-fg hover:border-primary/50'
-            }`}
-          >
-            <span className={`w-3 h-3 rounded-full border-2 flex-shrink-0 ${
-              drinkConfig.veg === opt.value ? 'border-primary bg-primary' : 'border-muted-fg'
-            }`} />
-            {opt.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-foreground">Số bát</span>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setBowls(drinkConfig.bowls - 1)}
-            disabled={drinkConfig.bowls <= 1}
-            aria-label="Giảm"
-            className="w-8 h-8 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80 disabled:opacity-40 transition-colors"
-          >
-            <Minus size={14} />
-          </button>
-          <span className="text-foreground font-bold text-sm w-6 text-center">{drinkConfig.bowls}</span>
-          <button
-            onClick={() => setBowls(drinkConfig.bowls + 1)}
-            disabled={drinkConfig.bowls >= 99}
-            aria-label="Tăng"
-            className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary/90 disabled:opacity-40 transition-colors"
-          >
-            <Plus size={14} />
-          </button>
-        </div>
+      <div className="space-y-3">
+        <Stepper label="Số bát" value={bowls} min={1} max={99} onChange={setBowls} />
+        <Stepper
+          label="Bát có rau"
+          value={vegBowls}
+          min={0}
+          max={bowls}
+          onChange={setVegBowls}
+        />
+        {bowls > 0 && (
+          <p className="text-xs text-muted-fg">
+            {vegBowls === 0
+              ? `${bowls} bát không rau`
+              : vegBowls === bowls
+              ? `${bowls} bát có rau`
+              : `${vegBowls} bát có rau · ${bowls - vegBowls} bát không rau`}
+          </p>
+        )}
       </div>
     </section>
   )

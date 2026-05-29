@@ -4,6 +4,7 @@
 > **Rule:** Update status here after every completed task. Never let this go stale.
 > **Status codes:** ⬜ not started · 🔄 in progress · ✅ done · 🔴 blocked
 > **Active task:** `docs/tasks/CURRENT_TASK.md` · **Task rules:** `docs/tasks/GUIDE_TASK.md`
+> **Completed phase detail:** `docs/tasks/ARCHIVE_TASKS.md`
 
 ---
 
@@ -18,7 +19,7 @@
 | P4 — Backend | BE | ✅ COMPLETE | 0 | — |
 | P5 — Frontend | FE | ✅ COMPLETE | 0 | — |
 | P6 — DevOps | DevOps | ✅ COMPLETE | 0 | — |
-| P7 — Testing & Go-Live | BE+FE+QA | 🔄 IN PROGRESS | ~11 | P7-3 (payment handler) |
+| P7 — Testing & Go-Live | BE+FE+QA | 🔄 IN PROGRESS | ~5 | P7-5.4 (Playwright E2E) |
 | P8 — Admin Dashboard | BE+FE | ✅ COMPLETE | 0 | — |
 | P9 — Overview Real API | FE | ✅ COMPLETE | 0 | — |
 | P10 — Summary Dashboard | BE+FE | ✅ COMPLETE | 0 | — |
@@ -38,10 +39,10 @@
 
 ---
 
-## Completed Phases (P0 – P6, P8, P10, UX)
+## Completed Phases Summary
 
 All individual tasks for completed phases are recorded in `docs/TASKS.md` (historical record).
-The entries below are phase-level summaries only.
+Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TASKS.md`.
 
 | Phase | Completed | Key deliverables |
 |---|---|---|
@@ -55,8 +56,16 @@ The entries below are phase-level summaries only.
 | P8 — Admin Dashboard | 2026-05 | FE admin pages (8-1→8-17) · BE staff endpoints (8-9→8-13) |
 | P10 — Summary Dashboard | 2026-05 | BE analytics · FE components (10-1→10-14) |
 | P-UX — Customer Flow | 2026-05 | Add-item flow · activeOrderId store · table_name display (UX-1→3) |
-
----
+| P9 — Overview Real API | 2026-05 | Real WS + component extraction (P9-1→P9-8) |
+| P-PD — Product Detail Page | 2026-05 | HeroImage + ToppingSelector + QtyStepper + CTA (P-PD-1→5) |
+| P-UX2 — Customer UX | 2026-05 | Favourites · Combo detail · Settings page (P-UX2-1→3) |
+| P11 — Add Items to Order | 2026-05 | `POST /orders/:id/items` BE+FE (P11-1→6) |
+| P-ARCH — FE Arch Groundwork | 2026-05 | storage-keys.ts + wireframe path fixes (P-ARCH-1→2) |
+| P-DIAGRAM — System Map | 2026-05 | 4-lane swimlane excalidraw |
+| P-FIX — Modal Wiring | 2026-05 | ToppingModal + ComboModal wired (P-FIX-1→2) |
+| P-ORDER-TOPPING | 2026-05 | Topping name/price in order page (P-ORDER-TOPPING-1→2) |
+| P-FIX-MOCK | 2026-05 | mockOrderRepo AppendOrderItems stub |
+| P-GRAPH-ENRICH | 2026-05 | BE + FE codebase graphs enriched |
 
 ---
 
@@ -64,92 +73,13 @@ The entries below are phase-level summaries only.
 
 > **Owner:** BE (unit/integration) · FE (store tests) · QA (UAT) · DevOps (go-live)
 > **Dependency:** P4 ✅ · P5 ✅
-> **Spec:** No single spec — see individual AC refs per task
-> **Order:** Unit tests (7-1→7-4) → Integration (7-5) → Sandbox (7-7) → UAT (7-8→7-9) → Go-live (7-10→7-12)
+> **Completed sub-tasks:** P7-1, P7-2, P7-3, P7-4, P7-5.1–5.3, P7-6, P7-E2E-0, P7-E2E-1, P7-9 → see `ARCHIVE_TASKS.md`
 
-### P7-1 — Auth Service Unit Tests
-
-> **File:** `be/internal/service/auth_service_test.go`
-> **Deps:** P4 ✅ · Go test setup working
-> **Why sub-tasks:** 6 distinct test scenarios, each needs isolated mocks — 3 sessions total
+### P7-5.4 — Playwright E2E (Full Browser Flows)
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P7-1.1 | BE | Test scaffolding setup + TestLogin_WrongPassword + TestLogin_RateLimitAfter5Fails | — | 1 | ✅ | Spec1 §4.1 |
-| P7-1.2 | BE | TestMultiSessionLogin (dual active sessions) + TestLogoutSingleSession | P7-1.1 ✅ | 1 | ✅ | Spec1 §4.2 |
-| P7-1.3 | BE | TestAccountDisabledImmediate (deactivate → 401) + TestTokenRotation | P7-1.2 ✅ | 1 | ✅ | Spec1 §4.3 |
-
-### P7-1.5 — Spec4 Gap Fix (prerequisite for P7-2)
-
-> **File:** `docs/spec/Spec_4_Orders_API.md`
-> **Deps:** P7-1 ✅
-> **Why:** Audit found 3 gaps that will cause guesswork when writing P7-2.x tests. Must fix spec before writing tests.
-> **Gaps to fix:**
-> - §7 SSE: missing JSON payload schemas for `order_init`, `order_status_changed`, `item_progress`, `order_completed` events
-> - §8 WS: missing JSON payload schemas for `new_order`, `item_updated`, `order_cancelled` events; `low_stock` uses `reorder_point` — align to `min_alert_level` per MASTER
-> - §3 Combo expand: clarify whether FE should filter parent combo rows from display (`combo_ref_id` behavior)
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P7-1.5 | BA | Fix Spec4 §7 SSE payloads + §8 WS payloads + §3 combo display + align reorder_point→min_alert_level | P7-1 ✅ | 1 | ✅ | Spec4 §5/§7/§8 updated; low_stock uses min_stock (DB column) |
-
-### P7-2 — Order Service Unit Tests
-
-> **File:** `be/internal/service/order_service_test.go`
-> **Deps:** P7-1 ✅ · P7-1.5 ✅ (Spec4 gaps resolved)
-> **Why sub-tasks:** 6 test scenarios across different order lifecycles — 3 sessions total
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P7-2.1 | BE | TestCreateOrder_ComboExpand (parent+sub-items in TX) + TestCreateOrder_DuplicateTable (409) | P7-1.5 ✅ | 1 | ✅ | Spec4 §5 |
-| P7-2.2 | BE | TestCancelOrder_Under30Percent (success) + TestCancelOrder_Over30Percent (422) | P7-2.1 ✅ | 1 | ✅ | Spec4 §7 |
-| P7-2.3 | BE | TestItemStatusCycle (qty_served progression) + TestAutoReadyWhenAllItemsDone | P7-2.2 ✅ | 1 | ✅ | Spec4 §8 |
-
-### P7-3 — Payment Service Tests
-
-> **File:** `be/internal/service/payment_service_test.go`
-> **Deps:** P7-1 ✅
-> **Note:** 4 test cases, all webhook-related — fits in 1 session
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P7-3 | BE | TestVNPayWebhook_ValidSignature + TestVNPayWebhook_InvalidSignature + TestVNPayWebhook_Idempotent + TestCreatePayment_OrderNotReady | P7-1 ✅ | 1 | ✅ | Spec5 §6 |
-
-### P7-4 — Frontend Store Tests
-
-> **Files:** `fe/src/store/cart.store.test.ts` · `fe/src/lib/utils.test.ts`
-> **Deps:** P5 ✅
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P7-4 | FE | TestAddSameItemIncreasesQty + TestRemoveItem + TestClearCart + TestTotalCalculation + TestFormatVND + TestFormatPercent | — | 1 | ✅ | — |
-
-### P7-5 — Integration Tests
-
-> **Why sub-tasks:** 3 distinct test areas — API endpoints, SSE behavior, WS behavior
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P7-5.1 | BE | Test setup (test DB, seed, teardown helpers) + all auth API endpoints against test DB | P7-1 ✅ | 1 | ✅ | `be/internal/testhelper/` + `be/integration/auth_test.go`; run: `go test -tags integration ./be/integration/...` |
-| P7-5.2 | BE | Order + payment API endpoints integration tests | P7-5.1 ✅ | 1 | ✅ | 21/21 pass; 3 bonus bug fixes: (1) `gateway_data` NULL scan error in `GetPaymentByID`/`GetPaymentByOrderID` (`*json.RawMessage` → `[]byte` intermediary); (2) `SetRefreshCookie` Secure=true blocked HTTP test server — now derives from TLS/X-Forwarded-Proto; (3) expanded `buildRouter` to wire all order+payment routes |
-| P7-5.3 | BE | SSE reconnect behavior (exponential backoff) + WS reconnect exponential backoff | P7-5.2 ✅ | 1 | ✅ | 8/8 pass: TestSSE_RequiresAuth + ConnectedEvent + Reconnect(x3) + EventDelivery; TestWS_RequiresToken + ConnectAndClose + Reconnect(x3) + MessageDelivery; added SSE+WS routes to testhelper buildRouter |
 | P7-5.4 | FE+QA | Playwright E2E — full browser flows: QR scan→menu→checkout→KDS→payment for each role (guest/cashier/chef/manager) | P7-5.1 ✅ · P7-3 ✅ | 2 | ⬜ | Needs docker compose up (full stack); set BASE_URL=http://localhost:3000 |
-
-### P7-6 — Seed Data
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P7-6 | DevOps | `scripts/seed.sql` — 3+ categories, 10+ products, 5+ toppings, 2+ combos, 4 staff accounts (bcrypt), 5+ tables with qr_token | — | 1 | ✅ | — |
-
-### P7-E2E — Playwright E2E Fixes
-
-> **Context:** 9/9 e2e tests fail. Root cause: dev DB was seeded with stale/different data — admin password hash wrong, chef1/cashier1/manager1 missing, QR tokens mismatch. Fix: patch DB + re-run.
-> **Order:** P7-E2E-0 must complete before P7-E2E-1.
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P7-E2E-0 | DevOps | Fix dev DB seed: UPDATE admin password_hash to match admin123; INSERT chef1/cashier1/manager1; INSERT Bàn 01–06 rows with correct QR tokens from seed.sql | P7-6 ✅ | 1 | ✅ | Verified 2026-05-16: curl login → 200 for admin/chef1/cashier1/manager1; `GET /api/v1/tables/qr/a1b2c3…` → 200 (Bàn 01). DB was already correctly seeded; stale notes. |
-| P7-E2E-1 | QA | Re-run full Playwright suite (`cd e2e && npm test`) after P7-E2E-0; fix any remaining selector/flow failures until all 9 tests green | P7-E2E-0 ✅ | 1 | ✅ | Verified 2026-05-16: 9/9 pass, 0 flaky, ~14s, twice in a row. Bonus fixes: (1) global-setup product cleanup + Redis cache invalidation, (2) BE WS pubsub panic — `defer recover()` in `handler.go`. |
 
 ### P7-7 — Payment Sandbox
 
@@ -163,17 +93,11 @@ The entries below are phase-level summaries only.
 |---|---|---|---|---|---|---|
 | P7-8 | QA | `docs/UAT_Plan.md` — test cases per spec, stakeholder sign-off checklist, bug severity P0/P1/P2 definitions | P7-5 ✅ | 1 | ⬜ | — |
 
-### P7-9 — Compliance Pages
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P7-9 | FE | `/privacy-policy` page + `/terms` page + cookie consent banner; verify PCI-DSS: no card numbers stored | — | 1 | ✅ | PCI-DSS verified (no card data in FE); cookie banner uses `cookie_consent_accepted` localStorage key; both pages server components with ArrowLeft back link |
-
 ### P7-10 — Go-Live
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P7-10 | DevOps | DNS A record → VPS IP · Caddy SSL auto-cert · set all prod env vars · `goose up` on prod DB · run seed · smoke test: login + order + payment | P7-5 ✅ · P7-7 ✅ | 1 | ⬜ | — |
+| P7-10 | DevOps | DNS A record → VPS IP · Caddy SSL auto-cert · prod env vars · `goose up` · seed · smoke test | P7-5 ✅ · P7-7 ✅ | 1 | ⬜ | — |
 
 ### P7-11 — Monitoring
 
@@ -189,139 +113,12 @@ The entries below are phase-level summaries only.
 
 ---
 
-## Phase 9 — Overview Page (Real API + Component Extraction)
-
-> **Owner:** FE
-> **Dependency:** P8 ✅ · P4 ✅ (BE endpoints live)
-> **Spec:** `docs/spec/Spec_9_Admin_Dashboard_Pages.md §2`
-> **Goal:** Replace `USE_MOCK = true` with real API + WS; extract inline components; verify all 6 zones match spec
-> **Order is strict:** 9-1 → 9-2 → 9-3 through 9-7 (can parallelise) → 9-8
-
-| ID | Owner | Task | Deps | Sessions | Status | spec_ref | draw_ref |
-|---|---|---|---|---|---|---|---|
-| P9-1 | FE | `admin.api.ts` — verify `listTables`, `listLiveOrders`, `updateOrderStatus` use real axios calls (remove any mock path) | — | 1 | ✅ | `Spec_9 §2.1 §4` | `wireframes/overview.md ZoneF` |
-| P9-2 | FE | `useOverviewWS` hook — WS connect/reconnect (exponential backoff) + 6 message type handlers → mutate TanStack Query cache | P9-1 ✅ | 1 | ✅ | `Spec_9 §2.1` | `wireframes/overview.md ZoneF` |
-| P9-3 | FE | `StatCards` component — 4 stat cards derived from live orders (tables served · pending · preparing · urgency >20min/10-20min) | P9-2 ✅ | 1 | ✅ | `Spec_9 §2.2` | `wireframes/overview.md ZoneA` |
-| P9-4 | FE | `WaitingCard` + `WaitingSection` — pending order cards with Kiểm tra toggle + 3 action buttons (disabled while loadingIds) | P9-2 ✅ | 1 | ✅ | `Spec_9 §2.4` | `wireframes/overview.md ZoneB` |
-| P9-5 | FE | `PrepPanel` — conditional panel (checkedTableIds.size > 0), collapsible per-table + Tổng cần làm summary sorted by remaining qty desc | P9-2 ✅ | 1 | ✅ | `Spec_9 §2.5` | `wireframes/overview.md ZoneC` |
-| P9-6 | FE | `OrderDetail` — progress bar + 3 mini counters + item list with status dots + Hoàn thành/Huỷ/Kiểm tra buttons | P9-2 ✅ | 1 | ✅ | `Spec_9 §2.6` | `wireframes/overview.md ZoneE` |
-| P9-7 | FE | `TableCard` + `TableGrid` — urgency border (gray/orange/yellow/red), occupied-first sort vi-VN locale, empty state icon | P9-2 ✅ | 1 | ✅ | `Spec_9 §2.3 §2.6` | `wireframes/overview.md ZoneD` |
-| P9-8 | FE | `overview/page.tsx` — assemble all zones, wire `useOverviewWS`, remove inline WS/component code, 30s timer tick for urgency recompute | P9-3 ✅ · P9-4 ✅ · P9-5 ✅ · P9-6 ✅ · P9-7 ✅ | 1 | ✅ | `Spec_9 §2` | `wireframes/overview.md` |
-
----
-
-## Phase P-PD — Product Detail Page
-
-> **Owner:** FE
-> **Dependency:** P5 ✅ (menu/cart exists) · P4 ✅ (GET /products/:id live)
-> **Spec:** `docs/spec/Spec_3_Menu_Checkout_UI_v2.md §4`
-> **Wireframe:** `docs/fe/wireframes/product-detail.excalidraw`
-> **Route:** `fe/src/app/(shop)/menu/product/[id]/page.tsx`
-> **Token budget:** each sub-task < 100k tokens
-
-| ID | Owner | Task | Deps | Sessions | Status | spec_ref | draw_ref |
-|---|---|---|---|---|---|---|---|
-| P-PD-1 | FE | Read Spec_3 §4 + verify `GET /products/:id` response shape + cart store `addItem` signature | — | 1 | ✅ | `Spec_3 §4` | — |
-| P-PD-2 | FE | Create route file + Zone A (HeroImage: next/image fill object-cover) + Zone B (name, availability badge, price, description) + loading skeleton (animate-pulse all zones) | P-PD-1 ✅ | 1 | ✅ | `Spec_3 §4` | `product-detail.excalidraw Zone A·B` |
-| P-PD-3 | FE | Zone C — ToppingSelector: multi-select checkboxes, live running total (base + topping prices) | P-PD-2 ✅ | 1 | ✅ | `Spec_3 §4` | `product-detail.excalidraw Zone C` |
-| P-PD-4 | FE | Zone D — QtyStepper (−/qty/+, min=1) + Zone E — sticky CTA footer ("Thêm vào giỏ hàng · {total} ₫") → add to Zustand cart store | P-PD-3 ✅ | 1 | ✅ | `Spec_3 §4` | `product-detail.excalidraw Zone D·E` |
-| P-PD-5 | FE | Browser test: golden path (load → select topping → change qty → add to cart) + edge cases (no toppings, unavailable product) + fix regressions | P-PD-4 ✅ | 1 | ✅ | `Spec_3 §4` | — |
-
----
-
-## Phase P-UX2 — Customer UX Enhancements
-
-> **Owner:** FE
-> **Dependency:** P-PD ✅ · P5 ✅
-> **Spec:** none — UX improvements, no new backend needed
-> **Order:** P-UX2-1 → P-UX2-2 → P-UX2-3 (each independent, but do in order)
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P-UX2-1 | FE | Favourites feature: `useFavouritesStore` (Zustand + localStorage persist) + heart toggle button on `ProductCard` + `ComboCard` | — | 1 | ✅ | Heart icon fills red when toggled; state survives page refresh; no backend call |
-| P-UX2-2 | FE | Combo detail page `/menu/combo/[id]` (fetch via `GET /combos` list + filter by id) + explicit "Detail" link button on `ComboCard` + deduplicate detail affordance on `ProductCard` | P-UX2-1 ✅ | 1 | ✅ | Tapping detail on ComboCard navigates to combo detail; shows image, name, price, items list, qty stepper, add-to-cart CTA |
-| P-UX2-3 | FE | Customer settings page `/menu/settings` accessible from menu header settings icon: customer display name + table label stored in localStorage; displayed in header/cart | P-UX2-2 ✅ | 1 | ✅ | Settings page renders; name/table persists across refresh; accessible from menu header |
-
----
-
-## Phase P11 — Add Items to Existing Order
-
-> **Owner:** Full (BE + FE)
-> **Dependency:** P4 ✅ · P5 ✅
-> **Spec:** `docs/spec/Spec_4_Orders_API.md §5.2` (new section — added by P11-1)
-> **Goal:** Allow customer or cashier to append new items to an active order via `POST /api/v1/orders/:id/items`. Keeps 1-table-1-active-order rule intact — no second order created.
-> **Order:** P11-1 → P11-2 → P11-3 → P11-4 → P11-5 → P11-6 (strict, each builds on previous)
-> **Added:** 2026-05-15 · **Requested by:** owner (design discussion)
-
-### P11-1 — Spec Update
-
-> **File:** `docs/spec/Spec_4_Orders_API.md`
-> **Deps:** —
-> **Why:** All subsequent tasks reference AC from this spec section. Must exist before code.
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P11-1 | BA | Add `POST /api/v1/orders/:id/items` to Spec4 §5.2: request body shape, validation rules (status guard: pending/confirmed/preparing only; ownership; items non-empty), response shape `{ order_id, added_items_count, new_total_amount }`, error codes (403 FORBIDDEN / 409 ORDER_NOT_EDITABLE), business rules (recalc total_amount, combo expand, publish items_added SSE + KDS WS), AC checklist | — | 1 | ✅ | Spec4 §5.2.1 (new section) |
-
-### P11-2 — sqlc Queries + Repository Layer
-
-> **Files:** `be/internal/repository/queries/order_items.sql` · `be/internal/repository/order_repository.go`
-> **Deps:** P11-1 ✅
-> **Why:** DB layer must exist before service can call it. sqlc generate step is a prerequisite for service code.
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P11-2 | BE | Write `AppendOrderItems` SQL (batch INSERT into order_items) + `UpdateOrderTotalAmount` SQL (UPDATE orders SET total_amount); run `sqlc generate`; add both methods to `OrderRepository` interface + `orderRepo` struct impl | P11-1 ✅ | 1 | ✅ | Spec4 §5.2 |
-
-### P11-3 — Service Method
-
-> **File:** `be/internal/service/order_service.go`
-> **Deps:** P11-2 ✅
-> **Why:** Core business logic — status guard, ownership check, combo expand (reuse `expandCombo`), total_amount recalc, Redis publish. Meaty enough to deserve its own session.
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P11-3 | BE | Add `AddItemsToOrder(ctx, orderID, callerID, callerRole string, items []CreateOrderItemInput) (AddItemsToOrderResult, error)`: (1) fetch order → 404 if missing; (2) ownership check for customer role → 403; (3) status guard — reject if status `ready`/`delivered`/`cancelled` → 409 ORDER_NOT_EDITABLE; (4) expand combo items (reuse `expandCombo`); (5) call repo `AppendOrderItems` (handles recalc+TX internally); (6) publish `items_added` event to `order:{id}` SSE channel + `orders:kds` WS channel; returns `{AddedCount, NewTotalAmount}` | P11-2 ✅ | 1 | ✅ | Spec4 §5.2 |
-
-### P11-4 — Handler + Route Registration
-
-> **Files:** `be/internal/handler/order_handler.go` · `be/cmd/server/main.go` (or router file)
-> **Deps:** P11-3 ✅
-> **Why:** HTTP binding and route wiring are separate from business logic; keeps handler thin.
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P11-4 | BE | Add `AddItemsToOrder` handler: bind + validate request body (items non-empty, each item has product_id or combo_id, quantity > 0); call `service.AddItemsToOrder`; return 200 `{ "order_id": "...", "added_items_count": N, "new_total_amount": 290000 }`; map AppError codes to HTTP; register `POST /api/v1/orders/:id/items` in router with `AuthRequired` middleware (allow customer + cashier+) | P11-3 ✅ | 1 | ✅ | Spec4 §5.2 |
-
-### P11-5 — Unit Tests
-
-> **File:** `be/internal/service/order_service_test.go`
-> **Deps:** P11-4 ✅
-> **Why:** 3 distinct test scenarios for the new service method — fits in 1 session.
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P11-5 | BE | `TestAddItems_Success` (pending order → items appended, total recalculated, events published) + `TestAddItems_StatusReady_Blocked` (order.status=ready → 409 ORDER_NOT_EDITABLE) + `TestAddItems_WrongOwner` (customer callerID ≠ order table_id → 403 FORBIDDEN) | P11-4 ✅ | 1 | ✅ | Spec4 §5.2 |
-
-### P11-6 — FE "Thêm món" Flow
-
-> **Files:** `fe/src/app/(shop)/order/[id]/page.tsx` · `fe/src/app/(shop)/menu/page.tsx` · `fe/src/lib/api-client.ts`
-> **Deps:** P11-4 ✅
-> **Why:** FE needs the endpoint live. Flow: "Thêm món" button → back to menu preserving order context → submit calls `POST /orders/:id/items` not `POST /orders`.
-
-| ID | Owner | Task | Deps | Sessions | Status | spec_ref | draw_ref |
-|---|---|---|---|---|---|---|---|
-| P11-6 | FE | (1) Add `addItemsToOrder(orderId, items)` to `api-client.ts`; (2) add "Thêm món" button to customer order tracking page (`order/[id]/page.tsx`) — visible only when order status ∈ {pending, confirmed, preparing}; (3) on click → push to `/menu?add_to_order={orderId}`; (4) in menu `page.tsx` detect `add_to_order` query param → on cart submit call `addItemsToOrder` instead of `createOrder`; (5) on success redirect back to `/order/{orderId}`; show toast "Đã thêm món thành công" | P11-4 ✅ | 1 | ✅ | `Spec4 §5.2` | — |
-
----
-
 ## Phase P-MENU — Menu Page Wireframe + Grid Redesign
 
 > **Owner:** FE
 > **Dependency:** P5 ✅ · Spec_3 §4 verified
 > **Spec:** `docs/spec/Spec_3_Menu_Checkout_UI_v2.md §4`
 > **Wireframe:** `docs/fe/wireframes/menu.excalidraw` · `docs/fe/wireframes/menu.md`
-> **Gap fixed:** Previous impl used list layout; spec §4.1 requires 2-col product grid
 > **Added:** 2026-05-17
 
 | ID | Owner | Task | Deps | Sessions | Status | spec_ref | draw_ref |
@@ -331,158 +128,53 @@ The entries below are phase-level summaries only.
 
 ---
 
-## Phase P-ARCH — FE Architecture Groundwork
+## Phase P-WIRE-ORDER — Client Order Page Wireframe
 
-> **Owner:** FE + Docs
-> **Dependency:** P5 ✅ (FE codebase exists)
-> **Goal:** Prevent cross-page duplication and silent bugs before building the next 10 FE pages. Fix storage key scatter + correct inaccurate wireframe file paths.
-> **Order:** P-ARCH-1 and P-ARCH-2 are independent — can run in either order.
-> **Added:** 2026-05-25
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P-ARCH-1 | FE | Create `src/lib/storage-keys.ts` — single source for all localStorage key constants; update `CookieConsent.tsx` (`cookie_consent_accepted`), `useOrderSSE.ts` + `order/page.tsx` + `menu/page.tsx` (`order_cache_` prefix — currently hardcoded in 3 files), `favourites.ts` (`favourites`), `settings.ts` (`customer-settings`) to import from it | P5 ✅ | 1 | ✅ | No hardcoded localStorage key strings outside `storage-keys.ts`; `tsc --noEmit` clean; behavior unchanged |
-| P-ARCH-2 | Docs | Correct `menu_wireframe_v1.md` wrong file paths: cartStore → `src/store/cart.ts` (not `menu/stores/`); hooks → `src/hooks/` (not `menu/hooks/`); remove persist middleware from cartStore spec (cart is memory-only in actual code); fix `useCombos enabled: true` → `enabled: selectedCategory === null`; update `_TEMPLATE.md` to match richer zone format | — | 1 | ✅ | All paths match actual codebase; `useCombos` enabled flag correct; template has Zone table + Data Sources + TypeScript contracts sections + Spec Summary |
-
----
-
-## Phase P-DIAGRAM — Full System Interaction Map (All Actors)
-
-> **Owner:** Docs / BA
-> **Dependency:** P5 ✅ · P8 ✅ · P9 ✅ · P10 ✅ (all phases complete — diagram documents final system)
-> **Spec:** `docs/CLIENT_FLOW_DIAGRAMS.md` · `docs/core/MASTER_v1.2.md §3 §4 §5`
-> **Goal:** One Excalidraw swimlane diagram showing ALL 4 actor lanes (Customer · Chef · Cashier · Manager/Admin), all phases (Auth → Browse → Kitchen → Payment → Admin → Done), and all 6 cross-actor realtime interactions (SSE + WS events).
-> **Added:** 2026-05-17 · **Requested by:** owner
+> **Owner:** Docs
+> **Dependency:** excalidraw `order_ver2.excalidraw` ✅
+> **Source:** `docs/fe/wireframes/client_order_page/order_ver2.excalidraw`
+> **Order:** A1 → A2 → A3 → A4 (strict)
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P-DIAGRAM-1 | Docs | Draw `docs/fe/wireframes/flow-full-system-journey.excalidraw` — 4-lane swimlane: Customer (Guest) · Chef (KDS) · Cashier (POS) · Manager/Admin; 6 phase columns: Auth · Browse & Order · Kitchen · Payment · Admin Manage · Done; all intra-actor flows; 6 cross-actor realtime arrows (WS/SSE labelled and colour-coded) | P5 ✅ · P8 ✅ | 1 | ✅ | All actors visible; SSE events purple-dashed; WS events cyan-dashed; legend included |
-
----
-
-## Phase P-FIX — Modal Wiring (Spec Compliance Fix)
-
-> **Owner:** FE
-> **Dependency:** P5 ✅ · P-UX2 ✅ (ToppingModal + ComboModal components already built)
-> **Spec:** `docs/spec/Spec_3_Menu_Checkout_UI_v2.md §4.3 §4.4 §4.5`
-> **Root cause:** `ToppingModal.tsx` and `ComboModal.tsx` were written but never imported — `ProductCard` and `ComboCard` bypassed them with inline chips / direct-add respectively.
-> **Size:** Each task touches exactly 1 file → both fit in 1 session.
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P-FIX-1 | FE | Wire `ToppingModal` into `ProductCard`: remove inline topping chips; `+` on product with toppings → opens modal; confirm → `addItem` with selected toppings; products with no toppings keep existing stepper | P-UX2 ✅ | 1 | ✅ | Spec3 §4.3 §4.4 |
-| P-FIX-2 | FE | Wire `ComboModal` into `ComboCard`: first `+` click → opens modal showing combo items; confirm → `addItem`; subsequent `+/-` stepper works directly without re-opening modal | P-UX2 ✅ | 1 | ✅ | Spec3 §4.5 |
-
----
-
-## Phase P-ORDER-TOPPING — Order Page Topping Display
-
-> **Owner:** FE + BE
-> **Dependency:** P5 ✅ · P4 ✅
-> **Spec:** `docs/spec/Spec_3_Menu_Checkout_UI_v2.md §7`
-> **Problem:** `order_items.toppings_snapshot` stored only `{ id }` — name and price were empty. FE had no topping data to display under each dish row.
-> **Fix:** BE enriches snapshot at creation time; FE renders topping chips in `DishRow`.
-> **Added:** 2026-05-19
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P-ORDER-TOPPING-1 | BE | Add `GetToppingSnapshot` to `ProductLookup` interface + `ToppingSnapshot` type in `deps.go`; implement in `ProductService`; fix `buildProductRow` to call it per topping ID; add stub to `mockProductLookup` in test | — | 1 | ✅ | `deps.go` · `product_service.go` · `order_service.go` · `order_service_test.go`; `go build ./be/...` clean |
-| P-ORDER-TOPPING-2 | FE | Add `ToppingSnapshotEntry` type to `types/order.ts`; type `OrderItem.toppings_snapshot`; render topping chips (name + price) in `DishRow` on order tracking page | P-ORDER-TOPPING-1 ✅ | 1 | ✅ | `types/order.ts` · `order/[id]/page.tsx`; `tsc --noEmit` clean |
-
----
-
-## Phase P-FIX-MOCK — Fix order_service_test mockOrderRepo
-
-> **Owner:** BE
-> **Dependency:** P11-2 ✅ (AppendOrderItems added to `OrderRepository` interface)
-> **Problem:** `order_service_test.go` `mockOrderRepo` is missing `AppendOrderItems` → entire test file fails to compile → blocks P11-5 and all future order service tests.
-> **Root cause:** P11-2 added `AppendOrderItems` to the interface but the mock in the test file was not updated.
-> **Added:** 2026-05-19
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P-FIX-MOCK-1 | BE | Add `appendOrderItemsFn` field + `AppendOrderItems` method stub to `mockOrderRepo` in `order_service_test.go` | P11-2 ✅ | 1 | ✅ | `go test ./be/internal/service/...` compiles and all existing tests pass |
+| P-WIRE-ORDER-1 | Docs | `client_order_page_wireframe_v1.md` — full zone tables from excalidraw; update WIREFRAME_INDEX.md | — | 1 | ✅ | All 8 zones + 2 modals documented |
+| P-WIRE-ORDER-2 | Docs | `business_description.md` + `how_to_use.md` — Vietnamese copy, zone-by-zone user guide | P-WIRE-ORDER-1 ✅ | 1 | ✅ | Every zone covered; standard 4-step flow |
+| P-WIRE-ORDER-3 | Docs | `tech_description.md` — RBAC, Pattern B, TypeScript interfaces, query hook stubs, file org tree | P-WIRE-ORDER-1 ✅ | 1 | ✅ | Pattern B declared; skeleton defined; query keys registered |
+| P-WIRE-ORDER-4 | Docs | `conccern.md` + `recomment/recommend.md` + `recomment/recomment_claude.md`; update `_INDEX_SHARING_COMPONENT.md` | P-WIRE-ORDER-1 ✅ | 1 | ⬜ | ≥ 5 open questions in conccern; UX recommendations table filled |
 
 ---
 
 ## Phase P-TRAINING — Admin Staff Training Page
 
 > **Owner:** FE
-> **Dependency:** P8 ✅ (Admin Dashboard exists) · P-ARCH-1 ⬜ (storage-keys — complete before P-TRAINING-2 to avoid adding hardcoded localStorage keys)
+> **Dependency:** P8 ✅ · P-ARCH-1 ✅
 > **Wireframe:** `docs/fe/wireframes/admin_main/admin_main_training/admin_staff_training_wireframe_v1.md`
 > **Excalidraw:** `docs/fe/wireframes/admin_main/admin_main_training/admin-staff-training.excalidraw` ✅
 > **Route:** `/admin/training/page.tsx`
-> **Goal:** Job guide management (CRUD) + role filter + per-staff completion tracking + quiz history + manager notes
-> **Zones:** Nav Sidebar · A (Page Header) · B (Role Filter Tabs) · C (Job Guide Card 2×2 grid) · D (Completion Tracking Table) · Modal 1 (Create/Edit Guide) · Modal 2 (Staff Progress Detail)
-> **Key resolved decisions:** guides auto-assigned by role; quiz passThreshold per-guide (default 75); max 3 attempts; Required/Optional flag on each guide; 3-dot kebab for edit/delete; 10 rows/page in Zone D
-> **Order:** P-TRAINING-1 ✅ → 2 → 3 → 4 → 5 → 6 → 7 (strict; each builds on previous)
+> **Order:** P-TRAINING-1 ✅ → 2 → 3 → 4 → 5 → 6 → 7 (strict)
 > **Added:** 2026-05-25
 
 | ID | Owner | Task | Deps | Sessions | Status | spec_ref | draw_ref |
 |----|-------|------|------|----------|--------|----------|----------|
-| P-TRAINING-1 | FE | Wireframe + zone table + all scaffold files | — | 1 | ✅ | — | `admin_main_training/admin_staff_training_wireframe_v1.md` |
+| P-TRAINING-1 | FE | Wireframe + zone table + all scaffold files | — | 1 | ✅ | — | `admin_staff_training_wireframe_v1.md` |
 | P-TRAINING-2 | FE | `types/training.ts` + `hooks/useTrainingQueries.ts` + `store/trainingStore.ts` + `RoleBadge.tsx` | P-TRAINING-1 ✅ | 1 | ⬜ | wireframe §TypeScript Contracts | Zone B |
-| P-TRAINING-3 | FE | `JobGuideCard.tsx` + `JobGuideCardGrid.tsx` — cover img, role badge, KPI chips, YouTube link, 3-dot kebab menu, Draft overlay, Required chip, empty state | P-TRAINING-2 ✅ | 1 | ⬜ | wireframe §Zone C | Zone C |
-| P-TRAINING-4 | FE | `RoleFilterTabs.tsx` (Zone B) + `CompletionTrackingTable.tsx` (Zone D) — guide dropdown, paginated table (10/page), status badges, "Jump to Tracking" anchor | P-TRAINING-3 ✅ | 1 | ⬜ | wireframe §Zone B §Zone D | Zone B + Zone D |
-| P-TRAINING-5 | FE | `CreateEditGuideModal.tsx` — RHF + Zod, 10 fields (Title, Role, Description, Cover URL, YouTube URL, Quality KPI, Quantity KPI, Pass Threshold, Max Attempts, Required toggle, Responsible Roles multi-tag, Published toggle), POST/PATCH mutation | P-TRAINING-4 ✅ | 1 | ⬜ | wireframe §Modal 1 | Modal 1 |
-| P-TRAINING-6 | FE | `TrainingProgressModal.tsx` — 3-step timeline, progress bar, quiz attempts table, "Reset attempts" button (Admin/Manager only), Manager Notes debounced PATCH (flush on close), Close button | P-TRAINING-5 ✅ | 1 | ⬜ | wireframe §Modal 2 | Modal 2 |
-| P-TRAINING-7 | FE | `app/admin/training/page.tsx` — assemble all zones, wire modals, RBAC gate on "+ New Guide" + kebab menu (Admin/Manager only), Zone D anchor, browser golden path test | P-TRAINING-6 ✅ | 1 | ⬜ | wireframe all zones | all zones |
-
----
-
-## Phase P-WIRE-ORDER — Client Order Page Wireframe
-
-> **Owner:** Docs
-> **Dependency:** excalidraw `order_ver2.excalidraw` ✅ (source file exists)
-> **Source:** `docs/fe/wireframes/client_order_page/order_ver2.excalidraw`
-> **Order:** A1 → A2 → A3 → A4 (strict — each file builds on the previous)
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P-WIRE-ORDER-1 | Docs | `client_order_page_wireframe_v1.md` — full zone tables (Zone Mapping + Data Sources + Component Specs + Edge Cases + Testing checklist) from excalidraw; update WIREFRAME_INDEX.md row | — | 1 | ✅ | All 8 zones + 2 modals documented; no [TBD] in zone tables |
-| P-WIRE-ORDER-2 | Docs | `business_description.md` + `how_to_use.md` — Vietnamese copy, zone-by-zone user guide, standard flow | P-WIRE-ORDER-1 ✅ | 1 | ✅ | Every zone covered; no technical terms in business_description; standard 4-step flow diagram in how_to_use |
-| P-WIRE-ORDER-3 | Docs | `tech_description.md` — RBAC table, Rendering Strategy (Pattern B — SSE-driven), TypeScript interfaces (OrderItem · ComboSection · OrderCardData · MoneyBreakdown), query hook stubs, file org tree; update `_INDEX_STATE_MANAGEMENT.md` + `_INDEX_RENDERING_STRATEGY.md` | P-WIRE-ORDER-1 ✅ | 1 | ✅ | Pattern B declared; skeleton defined flag set; new query keys registered in state index |
-| P-WIRE-ORDER-4 | Docs | `conccern.md` + `recomment/recommend.md` + `recomment/recomment_claude.md`; update `_INDEX_SHARING_COMPONENT.md` Page Directory row | P-WIRE-ORDER-1 ✅ | 1 | ⬜ | ≥ 5 open questions in conccern; UX strengths + recommendations table filled; shared component reuse table complete |
-
----
-
-## Phase P-GRAPH-ENRICH — Enrich Codebase Graphs for /dev-page
-
-> **Goal:** Pre-populate `docs/graphs/CODEBASE_GRAPH_BE.md` and `CODEBASE_GRAPH_FE.md` with grep-derived lookup tables so `/dev-page` audit reads one doc instead of grepping cold across the codebase.
-> **Priority:** HIGH — blocks efficient /dev-page runs across all pages
-> **Order:** ENRICH-1 → ENRICH-2 (BE first, FE second)
-> **Added:** 2026-05-28
-
-| ID | Owner | Task | Deps | Sessions | Status | AC |
-|---|---|---|---|---|---|---|
-| P-GRAPH-ENRICH-1 | Docs | Enrich `docs/graphs/CODEBASE_GRAPH_BE.md` — add Route Index table (method + path + handler func + file), Service Index (func name + file), and Repository Index (func name + file) by grepping `be/internal/` | — | 1 | ✅ | Every registered route appears in table; handler→service→repo chain traceable from doc alone |
-| P-GRAPH-ENRICH-2 | Docs | Enrich `docs/graphs/CODEBASE_GRAPH_FE.md` — add Component Index (component name + file path + zone/page), Store Field Index (store name + fields), and Storage Keys Index (key constant + value) by grepping `fe/src/` | P-GRAPH-ENRICH-1 ✅ | 1 | ✅ | Every page component traceable; all store fields listed; all localStorage keys in index |
+| P-TRAINING-3 | FE | `JobGuideCard.tsx` + `JobGuideCardGrid.tsx` — cover img, role badge, KPI chips, YouTube link, 3-dot kebab, Draft overlay | P-TRAINING-2 ✅ | 1 | ⬜ | wireframe §Zone C | Zone C |
+| P-TRAINING-4 | FE | `RoleFilterTabs.tsx` (Zone B) + `CompletionTrackingTable.tsx` (Zone D) — paginated table, status badges | P-TRAINING-3 ✅ | 1 | ⬜ | wireframe §Zone B §Zone D | Zone B + Zone D |
+| P-TRAINING-5 | FE | `CreateEditGuideModal.tsx` — RHF + Zod, 10 fields, POST/PATCH mutation | P-TRAINING-4 ✅ | 1 | ⬜ | wireframe §Modal 1 | Modal 1 |
+| P-TRAINING-6 | FE | `TrainingProgressModal.tsx` — 3-step timeline, quiz attempts table, Manager Notes PATCH | P-TRAINING-5 ✅ | 1 | ⬜ | wireframe §Modal 2 | Modal 2 |
+| P-TRAINING-7 | FE | `app/admin/training/page.tsx` — assemble all zones, wire modals, RBAC gate, browser golden path test | P-TRAINING-6 ✅ | 1 | ⬜ | wireframe all zones | all zones |
 
 ---
 
 ## Phase P-MON — Client Order Monitoring Page
 
 > **Owner:** BE + FE
-> **Dependency:** P4 ✅ · P5 ✅
-> **Wireframe:** `docs/fe/wireframes/client_monitoring_servicing_table/client_monitoring_servicing_table_wireframe_v1.md`
-> **Route:** `/(shop)/tracking/[id]` — guest-facing, orderId from URL param
-> **Goal:** SSE-powered live order monitor — queue position + order detail + table grid + service queue
-> **New BE:** `GET /api/v1/sse/order-monitor/:orderId?token=` (query-param JWT auth) + `queue:monitor` + `tables:monitor` Redis channels
-> **New shared FE:** `TableLayoutMap.tsx` · `ClientBottomNav.tsx`
-> **Order:** BE-1 → BE-2 → BE-3 → FE-1 → FE-2 → FE-3 → FE-4 → FE-5 → FE-6 (strict)
-> **Added:** 2026-05-29
+> **Dependency:** P5 ✅ · P4 ✅
+> **Status:** ⬜ NOT STARTED — 9 sessions estimated
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P-MON-BE-1 | BE | `ListActiveQueueOrders` SQL (status IN pending/confirmed/preparing/ready ORDER BY created_at ASC) + `GetOrderWithTableLabel` SQL (join orders+tables) → `sqlc generate` → add both to `OrderRepository` interface + `orderRepo` impl | P4 ✅ | 1 | ⬜ | `sqlc generate` succeeds; `go build ./...` clean; new methods in generated `db/orders.sql.go` |
-| P-MON-BE-2 | BE | `BuildQueueSnapshot(ctx, orderId)` + `BuildTableStatuses(ctx)` service methods + `publishQueueMonitorEvent` + `publishTablesMonitorEvent` helpers; wire both publishes at end of `UpdateOrderStatus` + `CancelOrder` (after existing publishes) | P-MON-BE-1 ✅ | 1 | ⬜ | `go build ./...` clean; `go test ./be/internal/service/...` still passes |
-| P-MON-BE-3 | BE | `be/internal/sse/monitor_handler.go` — `StreamOrderMonitor`: read `?token=` query param → `jwt.Verify` → 401 if invalid; subscribe `order:{id}` + `queue:monitor` + `tables:monitor`; send initial snapshot on connect; relay events as `order.status` / `queue.update` / `tables.status`; register `v1.GET("/sse/order-monitor/:orderId", ...)` in `main.go` | P-MON-BE-2 ✅ | 1 | ⬜ | `curl ".../sse/order-monitor/X?token=VALID"` → 200 SSE stream; `?token=EXPIRED` → 401 |
-| P-MON-FE-1 | FE | `fe/src/types/monitoring.ts` (OrderDetail, OrderItem, QueueItem, TableStatus, QueueState, SSEEvent union) + `fe/src/hooks/useOrderMonitorSSE.ts` (native EventSource + `useAuthStore.accessToken` for query param + exponential backoff + reconnect fn) | P-MON-BE-3 ✅ | 1 | ⬜ | `tsc --noEmit` clean; hook exposes `{ orderStatus, queueData, tableStatuses, sseConnected, reconnect }` |
-| P-MON-FE-2 | FE | `MonitoringTopBar.tsx` (Zone A — header + LIVE badge pulsing green when connected, grey "Mất kết nối" when not; `ConnectionErrorBanner` fixed z-30 when disconnected) + `TableInfoBanner.tsx` (Zone B — table label, `StatusBadge`, queue position, ETA, pulse on position===1, green delivered state) | P-MON-FE-1 ✅ | 1 | ⬜ | LIVE badge color changes on `sseConnected`; pulse animation fires when `queuePosition === 1` |
-| P-MON-FE-3 | FE | `OrderDetailCard.tsx` (Zone C) — props `order: OrderDetail`; renders order ID, table, `placedAt`, items list with toppings as sub-text, `formatVND()` on all prices, total + itemCount footer | P-MON-FE-2 ✅ | 1 | ⬜ | `formatVND()` used for all prices; empty toppings array renders cleanly |
-| P-MON-FE-4 | FE | `ServiceQueueList.tsx` (Zone D header + map) + `ServiceQueueItem.tsx` (StatusBadge + orderId + tableLabel + itemCount; amber border + "< Đơn của bàn" pill when `isCurrentOrder`; estimated minutes for pending rows) | P-MON-FE-3 ✅ | 1 | ⬜ | Current order row highlighted amber; 5 rows render with correct status badges |
-| P-MON-FE-5 | FE | `components/shared/TableLayoutMap.tsx` (Zone E — 3×4 grid, orange/red/green bg by status, `highlightTableId` adds ★ + "[BÀN BẠN]" label + extra border, `EmptyState` when `tables.length === 0`) + `components/shared/ClientBottomNav.tsx` (Zone F — Menu/Yêu Thích/Làm Mới; all `min-h-[44px]`; sticky bottom-0 z-20; `onRefresh` prop) | P-MON-FE-4 ✅ | 1 | ⬜ | Own table cell shows ★ label; "Làm Mới" calls `onRefresh` |
-| P-MON-FE-6 | FE | `app/(shop)/tracking/[id]/page.tsx` — `params.id` for orderId; `useOrderMonitorSSE` + `useQuery(['order', orderId], staleTime: 0)`; skeleton (animate-pulse) while loading; 404 full-page error; 401 → "Phiên làm việc hết hạn" message; assemble A→B→C→D→E→F in scroll order | P-MON-FE-5 ✅ | 1 | ⬜ | All spec ACs verified; MON-2 through MON-7 status rows = ✅ |
+| P-MON-BE-1 | BE | TBD | — | — | ⬜ | — |
 
 ---
 
