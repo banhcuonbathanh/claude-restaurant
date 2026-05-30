@@ -24,6 +24,7 @@ export function useOrderSSE(orderId: string) {
   const [order, setOrder]                     = useState<Order | null>(null)
   const [connectionError, setConnectionError] = useState(false)
   const [notification, setNotification]       = useState<OrderNotification | null>(null)
+  const [isNotFound, setIsNotFound]           = useState(false)
   const attemptsRef = useRef(0)
   const abortRef    = useRef<AbortController | null>(null)
   const token       = useAuthStore(state => state.accessToken)
@@ -54,9 +55,10 @@ export function useOrderSSE(orderId: string) {
       try {
         const { data } = await api.get(`/orders/${orderId}`)
         if (!stopped) setOrder(data.data)
-      } catch {
-        // If the fetch fails we still open SSE and wait; spinner stays until
-        // SSE also fails, at which point the banner shows.
+      } catch (err) {
+        const status = (err as { response?: { status?: number } })?.response?.status
+        if (status === 404 && !stopped) { setIsNotFound(true); return }
+        // Non-404 errors: open SSE anyway; spinner stays until SSE also fails.
       }
 
       while (!stopped && attemptsRef.current < RECONNECT.maxAttempts) {
@@ -154,5 +156,5 @@ export function useOrderSSE(orderId: string) {
     return total === 0 ? 0 : Math.round((served / total) * 100)
   }, [order])
 
-  return { order, progress, connectionError, notification, clearNotification: () => setNotification(null) }
+  return { order, progress, connectionError, isNotFound, notification, clearNotification: () => setNotification(null) }
 }

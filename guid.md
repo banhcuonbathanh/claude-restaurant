@@ -1,9 +1,20 @@
 http://localhost:3000/
 http://localhost:8080/
+docker compose build --no-cache
 docker compose up -d --build be
 docker compose up -d --build fe
 docker compose down
 docker compose up
+docker compose build --no-cache
+
+ docker compose build --no-cache fe 2>&1 | tail -8 && docker compose up -d fe 2>&1 | tail -4
+ fe 2>&1 | tail -15
+
+
+
+cd "/Users/monghoaivu/Desktop/code/claude restaurant" && docker compose build --no-cache fe 2>&1 | tail -8 && docker compose up -d fe 2>&1 | tail -4
+
+
 
 §4 — Document architecture — expanded from 3 layers to 5:
 
@@ -188,3 +199,73 @@ cashier1	cashier123	cashier
 Part 1 — Extend /codebase-graph 
 Part 2 — Add a Phase 0c to /dev-page
  /batch-audit skill
+
+
+ check me sequence as below 
+assuming that user login already .
+user go to menu select combo and dish then click at thanh toan. then go to check out to fill all information then client go to 
+http://localhost:3000/order
+i follow that and see 
+Chưa có đơn hàng nào
+
+Quét mã QR tại bàn để bắt đầu đặt món
+i suppose to see all dish i order please check and check how adming overview interact with abvoe sequence
+All accounts created. Here's your login table:
+
+Username	Password	Role	Access
+admin	Admin@123	admin	Admin dashboard + all
+manager	Admin@123	manager	Admin dashboard + all
+cashier	Admin@123	cashier	POS / cashier view
+chef	Admin@123	chef	Kitchen display (KDS)
+staff	Admin@123	staff	General staff access
+All use the same password Admin@123. The seed script is idempotent — re-running it will update existing accounts, not duplicate them.
+
+1. seed cript to create staff
+# 1. Ensure DB is running
+docker compose up -d
+
+# 2. Run the seed script
+go run ./be/cmd/seed/main.go
+
+✓ Quản Trị Viên  role=admin       username=admin        password=Admin@123
+✓ Quản Lý        role=manager     username=manager      password=Admin@123
+✓ Thu Ngân        role=cashier     username=cashier      password=Admin@123
+✓ Đầu Bếp        role=chef        username=chef         password=Admin@123
+✓ Nhân Viên      role=staff       username=staff        password=Admin@123
+
+
+Option 2 — Delete only transactional data (keep products/staff)
+If you only want to clear orders, payments, etc. but keep the menu:
+
+
+docker compose exec mysql mysql -uroot -proot banhcuon -e "
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE TABLE payments;
+TRUNCATE TABLE order_items;
+TRUNCATE TABLE orders;
+TRUNCATE TABLE order_groups;
+SET FOREIGN_KEY_CHECKS=1;
+"
+
+2.  seed cript to create qr
+
+# default — localhost:3000
+go run ./be/cmd/qr/main.go
+
+# mobile / phone on same WiFi
+FE_HOST=http://192.168.1.42:3000 go run ./be/cmd/qr/main.go
+
+
+
+
+BÃ n 01       http://localhost:3000/table/a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890
+BÃ n 02       http://localhost:3000/table/b2c3d4e5f6789012b2c3d4e5f6789012b2c3d4e5f6789012b2c3d4e5f6789012
+BÃ n 03       http://localhost:3000/table/c3d4e5f678901234c3d4e5f678901234c3d4e5f678901234c3d4e5f678901234
+BÃ n 04       http://localhost:3000/table/d4e5f67890123456d4e5f67890123456d4e5f67890123456d4e5f67890123456
+BÃ n 05       http://localhost:3000/table/e5f6789012345678e5f6789012345678e5f6789012345678e5f6789012345678
+BÃ n VIP      http://localhost:3000/table/f67890123456789af67890123456789af67890123456789af67890123456789a
+Ban 01        http://localhost:3000/table/3aec3d0423c6af297bec727d3056c88757e6b05a69e6ca3dd064b388e2985371
+Ban 02        http://localhost:3000/table/f9b1f40610c9c6b3950d31e2ecab5a03361885ca660f39312345286181bf8dfc
+Ban 03        http://localhost:3000/table/ecc6cf5edac88e587c68c8144bdc56baff220ab0b7b1a9f629e525e7218eb90a
+Ban 04        http://localhost:3000/table/8e9de69364ace184d567d54f8e9bfcc0dae8e6787892c2be3d6b43ef08cace80
+Ban 05        http://localhost:3000/table/cbe1a45804c76147effeb31762b3be0d526cb91d6824c5cfc77daf5e8369b256

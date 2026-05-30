@@ -30,7 +30,7 @@ export default function ComboDetailPage() {
   const combo = useMemo<Combo | undefined>(() => {
     const raw = rawCombos.find(c => c.id === id)
     if (!raw) return undefined
-    const productMap = new Map(allProducts.map(p => [p.id, p.name]))
+    const productMap = new Map(allProducts.map(p => [p.id, { name: p.name, price: p.price }]))
     return {
       id:           raw.id,
       category_id:  raw.category_id,
@@ -42,7 +42,8 @@ export default function ComboDetailPage() {
       is_available: raw.is_available,
       items: (raw.combo_items ?? []).map(ci => ({
         product_id:   ci.product_id,
-        product_name: productMap.get(ci.product_id) ?? ci.product_id,
+        product_name: productMap.get(ci.product_id)?.name ?? ci.product_id,
+        unit_price:   productMap.get(ci.product_id)?.price,
         quantity:     ci.quantity,
       })),
     }
@@ -64,7 +65,7 @@ export default function ComboDetailPage() {
       quantity:    qty,
       price:       combo.price,
       toppings:    [],
-      combo_items: combo.items.map(i => ({ product_name: i.product_name, quantity: i.quantity })),
+      combo_items: combo.items.map(i => ({ product_name: i.product_name, quantity: i.quantity, unit_price: i.unit_price })),
     })
     router.back()
   }

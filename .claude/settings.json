@@ -8,6 +8,11 @@
       "Bash(git push *)"
     ],
     "allow": [
+      "Grep",
+      "Bash(ls)",
+      "Bash(ls *)",
+      "Bash(find)",
+      "Bash(find *)",
       "Bash(sqlc generate *)",
       "Bash(git stash *)",
       "Bash(TEST_DB_DSN=\"banhcuon:banhcuonpass@tcp\\(localhost:3306\\)/banhcuon_test?parseTime=true&charset=utf8mb4\" TEST_REDIS_ADDR=\"localhost:6379\" go test -tags integration -v -count=1 ./be/integration/...)",

@@ -17,6 +17,7 @@ import { StatCards } from '@/features/admin/components/StatCards'
 import { WaitingSection } from '@/features/admin/components/WaitingSection'
 import { PrepPanel } from '@/features/admin/components/PrepPanel'
 import { TableGrid } from '@/features/admin/components/TableGrid'
+import { ConnectionErrorBanner } from '@/components/shared/ConnectionErrorBanner'
 
 const ACTIVE = new Set(['pending', 'confirmed', 'preparing', 'ready'])
 
@@ -126,7 +127,7 @@ export default function OverviewPage() {
   const orders = rawOrders.filter(o => ACTIVE.has(o.status))
 
   // WS — mutates ['orders','live'] TanStack Query cache on every push event
-  useOverviewWS(token)
+  const wsConnected = useOverviewWS(token)
 
   // SSE — fires popup when a new order arrives
   const handleNewOrder = useCallback(async (evt: { order_id: string }) => {
@@ -181,16 +182,15 @@ export default function OverviewPage() {
 
   // ── Derived data ───────────────────────────────────────────────────────────
 
-  const tableMap     = new Map(tables.map(t => [t.id, t]))
-  const orderByTable = new Map(orders.filter(o => o.table_id).map(o => [o.table_id!, o]))
-  const checkedOrders = Array.from(checkedTableIds)
-    .map(tid => orderByTable.get(tid))
-    .filter((o): o is Order => o !== undefined)
+  const tableMap = new Map(tables.map(t => [t.id, t]))
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <div className="space-y-5">
+
+      {/* WS disconnect banner */}
+      {wsConnected === false && <ConnectionErrorBanner />}
 
       {/* New-order popup */}
       {popupOrder && (
@@ -228,10 +228,8 @@ export default function OverviewPage() {
         onToggleCheck={toggleCheck}
       />
 
-      {/* Zone C — prep detail panel, visible when any table is checked */}
-      {checkedOrders.length > 0 && (
-        <PrepPanel orders={checkedOrders} tableMap={tableMap} />
-      )}
+      {/* Zone C — dish summary panel (always visible) */}
+      <PrepPanel orders={orders} tableMap={tableMap} />
 
       {/* Zone D — full table grid (occupied first, then empty) */}
       <TableGrid

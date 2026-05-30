@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import { api } from '@/lib/api-client'
 import { useCartStore } from '@/store/cart'
 import { formatVND } from '@/lib/utils'
+import { STORAGE_KEYS } from '@/lib/storage-keys'
 
 const schema = z.object({
   customer_name:   z.string().min(2, 'Vui lòng nhập tên').max(100),
@@ -42,7 +43,6 @@ export default function CheckoutPage() {
 
   const submitOrder = useMutation({
     mutationFn: async (form: CheckoutForm) => {
-      // Store payment method before API call (spec AC-09)
       cart.setPaymentMethod(form.payment_method)
 
       const payload = {
@@ -51,37 +51,38 @@ export default function CheckoutPage() {
         note:           form.note ?? null,
         table_id:       cart.tableId ?? null,
         source:         cart.tableId ? 'qr' : 'online',
-        // payment_method intentionally omitted from POST /orders (spec AC-08)
         items: cart.items.map(item => ({
-          product_id:       item.product_id ?? null,
-          combo_id:         item.combo_id ?? null,
-          quantity:         item.quantity,
-          unit_price:       item.price,
-          topping_snapshot: item.toppings.length > 0 ? item.toppings : null,
+          product_id:  item.product_id ?? null,
+          combo_id:    item.combo_id ?? null,
+          quantity:    item.quantity,
+          topping_ids: item.toppings.map(t => t.id),
         })),
       }
 
       const { data } = await api.post('/orders', payload)
       return data
     },
-    onSuccess: (data) => {
-      console.log('[checkout] onSuccess fired', JSON.stringify(data))
+    onSuccess: async (data) => {
       submitted.current = true
+      const order = data?.data
+      if (order?.id) {
+        try {
+          const { data: fullRes } = await api.get(`/orders/${order.id}`)
+          const fullOrder = fullRes?.data ?? order
+          localStorage.setItem(`${STORAGE_KEYS.ORDER_CACHE}${order.id}`, JSON.stringify(fullOrder))
+        } catch {
+          try { localStorage.setItem(`${STORAGE_KEYS.ORDER_CACHE}${order.id}`, JSON.stringify(order)) } catch {}
+        }
+      }
       cart.clearCart()
-      console.log('[checkout] clearCart done, calling window.location.replace')
-      window.location.replace('/order')
+      window.location.replace(order?.id ? `/order/${order.id}` : '/order')
     },
     onError: (err: unknown) => {
-      const e = err as Record<string, unknown>
-      console.log('[checkout] onError status:', (e?.response as any)?.status)
-      console.log('[checkout] onError data:', JSON.stringify((e?.response as any)?.data ?? null))
-      console.log('[checkout] onError message:', e?.message)
-      console.log('[checkout] onError code:', e?.code)
-      const resp = (err as { response?: { data?: { error?: string; message?: string } } }).response
-      // If table already has an active order (e.g. on test retry), go to order tracking
+      const resp = (err as { response?: { data?: { error?: string; message?: string; details?: { active_order_id?: string } } } }).response
       if (resp?.data?.error === 'TABLE_HAS_ACTIVE_ORDER') {
         submitted.current = true
-        router.push('/order')
+        const activeId = resp?.data?.details?.active_order_id
+        window.location.replace(activeId ? `/order/${activeId}` : '/order')
         return
       }
       toast.error(resp?.data?.message ?? 'Đặt hàng thất bại')

@@ -1,0 +1,9 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - img [ref=e4]
+    - generic [ref=e6]:
+      - paragraph [ref=e7]: Không tìm thấy đơn hàng
+      - paragraph [ref=e8]: Mã đơn hàng không hợp lệ hoặc đã bị xoá.
+    - button "Về trang menu" [ref=e9] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e10]

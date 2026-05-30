@@ -1,8 +1,7 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cart'
-import { useAuthStore } from '@/features/auth/auth.store'
 import { useProductDetail } from '@/hooks/useProductDetail'
 import { CustomerTopNav } from '@/components/shared/CustomerTopNav'
 import { ProductHeroImage } from '@/components/product-detail/ProductHeroImage'
@@ -17,17 +16,8 @@ export default function ProductDetailPage() {
   const router    = useRouter()
   const addItem   = useCartStore(s => s.addItem)
   const itemCount = useCartStore(s => s.itemCount())
-  const accessToken = useAuthStore(s => s.accessToken)
-
   const [selectedToppingIds, setSelectedToppingIds] = useState<string[]>([])
   const [qty, setQty] = useState(1)
-
-  // Redirect unauthenticated guests to welcome
-  useEffect(() => {
-    if (!accessToken) {
-      router.replace('/welcome')
-    }
-  }, [accessToken, router])
 
   const { data: product, isLoading, isError } = useProductDetail(id)
 

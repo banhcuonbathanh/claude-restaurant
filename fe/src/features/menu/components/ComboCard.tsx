@@ -38,7 +38,7 @@ export function ComboCard({ combo }: Props) {
         quantity:    1,
         price:       combo.price,
         toppings:    [],
-        combo_items: comboItems.map(i => ({ product_name: i.product_name, quantity: i.quantity })),
+        combo_items: comboItems.map(i => ({ product_name: i.product_name, quantity: i.quantity, unit_price: i.unit_price })),
       })
     } else {
       updateQty(cartId, qty + 1)

@@ -3,11 +3,11 @@ import { ArrowLeft, ShoppingCart } from 'lucide-react'
 
 interface CustomerTopNavProps {
   title: string
-  cartCount: number
+  cartCount?: number
   onBack: () => void
 }
 
-export function CustomerTopNav({ title, cartCount, onBack }: CustomerTopNavProps) {
+export function CustomerTopNav({ title, cartCount = 0, onBack }: CustomerTopNavProps) {
   return (
     <header className="sticky top-0 z-20 flex items-center h-14 px-4 bg-[#1e293b] text-white shadow-sm">
       <button

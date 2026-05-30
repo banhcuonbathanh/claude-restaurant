@@ -1,9 +1,10 @@
 'use client'
-import { useMemo, useState, useEffect, Suspense } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useMemo, useState, useEffect, useRef, Suspense } from 'react'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { ShoppingCart, ClipboardList, Settings, PlusCircle, Heart } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { toast } from 'sonner'
 import { useSettingsStore } from '@/store/settings'
 import { useFavouritesStore } from '@/store/favourites'
 import { api } from '@/lib/api-client'
@@ -22,12 +23,109 @@ import { formatVND } from '@/lib/utils'
 import type { Product, Combo, ComboRaw, Category } from '@/types/product'
 import { STORAGE_KEYS } from '@/lib/storage-keys'
 
+function TableConfirmModal({ onClose }: { onClose: () => void }) {
+  const cart    = useCartStore()
+  const [note, setNote] = useState('')
+  const done    = useRef(false)
+
+  const submitOrder = useMutation({
+    mutationFn: async () => {
+      const { data } = await api.post('/orders', {
+        customer_name:  '',
+        customer_phone: '',
+        note:           note.trim() || null,
+        table_id:       cart.tableId,
+        source:         'qr',
+        items: cart.items.map(item => ({
+          product_id:  item.product_id ?? null,
+          combo_id:    item.combo_id   ?? null,
+          quantity:    item.quantity,
+          topping_ids: item.toppings.map(t => t.id),
+        })),
+      })
+      return data
+    },
+    onSuccess: async (data) => {
+      done.current = true
+      const order = data?.data
+      if (order?.id) {
+        try {
+          const { data: fullRes } = await api.get(`/orders/${order.id}`)
+          const fullOrder = fullRes?.data ?? order
+          localStorage.setItem(`${STORAGE_KEYS.ORDER_CACHE}${order.id}`, JSON.stringify(fullOrder))
+        } catch {
+          try { localStorage.setItem(`${STORAGE_KEYS.ORDER_CACHE}${order.id}`, JSON.stringify(order)) } catch {}
+        }
+      }
+      cart.clearCart()
+      window.location.replace(order?.id ? `/order/${order.id}` : '/order')
+    },
+    onError: (err: unknown) => {
+      const resp = (err as { response?: { data?: { error?: string; message?: string; details?: { active_order_id?: string } } } }).response
+      if (resp?.data?.error === 'TABLE_HAS_ACTIVE_ORDER') {
+        const activeId = resp?.data?.details?.active_order_id
+        window.location.replace(activeId ? `/order/${activeId}` : '/order')
+        return
+      }
+      toast.error(resp?.data?.message ?? 'Đặt hàng thất bại')
+    },
+  })
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 px-4 pb-4">
+      <div className="bg-card rounded-2xl w-full max-w-sm p-5 space-y-4 shadow-2xl">
+        <h2 className="font-semibold text-foreground text-lg">Xác nhận đặt hàng</h2>
+
+        <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+          {cart.items.map(item => (
+            <div key={item.id} className="flex justify-between text-sm gap-2">
+              <span className="text-foreground flex-1 truncate">{item.quantity}× {item.name}</span>
+              <span className="text-primary font-medium whitespace-nowrap">{formatVND(item.price * item.quantity)}</span>
+            </div>
+          ))}
+        </div>
+
+        <div className="border-t border-border pt-3 flex justify-between font-bold">
+          <span className="text-foreground">Tổng cộng</span>
+          <span className="text-primary text-lg">{formatVND(cart.total())}</span>
+        </div>
+
+        <textarea
+          value={note}
+          onChange={e => setNote(e.target.value)}
+          placeholder="Ghi chú cho bếp (tuỳ chọn)"
+          rows={2}
+          className="w-full bg-muted border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder-muted-fg focus:outline-none focus:border-primary resize-none transition-colors"
+        />
+
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            disabled={submitOrder.isPending}
+            className="flex-1 py-3 rounded-xl border border-border text-muted-fg text-sm font-medium hover:bg-muted transition-colors disabled:opacity-40"
+          >
+            Hủy
+          </button>
+          <button
+            onClick={() => submitOrder.mutate()}
+            disabled={submitOrder.isPending}
+            className="flex-1 py-3 rounded-xl bg-primary text-white font-semibold text-sm disabled:opacity-60 transition-opacity"
+          >
+            {submitOrder.isPending ? 'Đang đặt...' : 'Đặt hàng'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function MenuContent() {
   const router        = useRouter()
   const searchParams  = useSearchParams()
   const addToOrderId  = searchParams.get('add_to_order') ?? undefined
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [cartOpen, setCartOpen]                 = useState(false)
+  const [confirmOpen, setConfirmOpen]           = useState(false)
   const [hasOrders, setHasOrders]               = useState(false)
   const [searchQuery, setSearchQuery]           = useState('')
 
@@ -36,7 +134,7 @@ function MenuContent() {
     setHasOrders(found)
   }, [])
 
-  const { items, itemCount, total } = useCartStore()
+  const { items, itemCount, total, tableId } = useCartStore()
   const { tableLabel } = useSettingsStore()
   const { items: favItems } = useFavouritesStore()
 
@@ -73,9 +171,9 @@ function MenuContent() {
     staleTime: 5 * 60 * 1000,
   })
 
-  // Enrich combos: map combo_items → items with product_name resolved
+  // Enrich combos: map combo_items → items with product_name + unit_price resolved
   const combos = useMemo<Combo[]>(() => {
-    const productMap = new Map(allProducts.map(p => [p.id, p.name]))
+    const productMap = new Map(allProducts.map(p => [p.id, { name: p.name, price: p.price }]))
     return rawCombos.map(raw => ({
       id:           raw.id,
       category_id:  raw.category_id,
@@ -87,7 +185,8 @@ function MenuContent() {
       is_available: raw.is_available,
       items: (raw.combo_items ?? []).map(ci => ({
         product_id:   ci.product_id,
-        product_name: productMap.get(ci.product_id) ?? ci.product_id,
+        product_name: productMap.get(ci.product_id)?.name ?? ci.product_id,
+        unit_price:   productMap.get(ci.product_id)?.price,
         quantity:     ci.quantity,
       })),
     }))
@@ -110,10 +209,18 @@ function MenuContent() {
         <div className="flex items-center gap-2">
           <Link
             href="/menu/favourites"
-            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-muted transition-colors"
+            className="relative flex items-center justify-center w-8 h-8 rounded-full hover:bg-muted transition-colors"
             aria-label="Yêu thích"
           >
-            <Heart size={18} className="text-muted-fg" />
+            <Heart
+              size={18}
+              className={favItems.length > 0 ? 'text-red-500 fill-red-500' : 'text-red-400/60'}
+            />
+            {favItems.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center leading-none">
+                {favItems.length > 9 ? '9+' : favItems.length}
+              </span>
+            )}
           </Link>
           <Link
             href="/menu/settings"
@@ -295,19 +402,26 @@ function MenuContent() {
       {count > 0 && (
         <div className="fixed bottom-6 left-4 right-4 z-30">
           <button
-            onClick={() => setCartOpen(true)}
+            onClick={() => tableId ? setConfirmOpen(true) : router.push('/checkout')}
             className="w-full bg-primary text-white py-3.5 rounded-2xl font-semibold flex items-center justify-between px-5 shadow-lg min-h-[44px]"
           >
             <span className="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded-full">
               {count}
             </span>
-            <span>Xem giỏ hàng</span>
+            <span>Thanh toán</span>
             <span className="font-bold">{formatVND(total())}</span>
           </button>
         </div>
       )}
 
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} addToOrderId={addToOrderId} />
+      <CartDrawer
+        open={cartOpen}
+        onClose={() => setCartOpen(false)}
+        addToOrderId={addToOrderId}
+        onTableCheckout={() => setConfirmOpen(true)}
+      />
+
+      {confirmOpen && <TableConfirmModal onClose={() => setConfirmOpen(false)} />}
     </div>
   )
 }

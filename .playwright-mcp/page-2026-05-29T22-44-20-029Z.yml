@@ -1,0 +1,17 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e126]:
+    - banner [ref=e127]:
+      - button "Quay lại" [ref=e128] [cursor=pointer]:
+        - img [ref=e129]
+      - heading "📋 Các set của tôi" [level=1] [ref=e131]
+      - generic [ref=e132]:
+        - img [ref=e133]
+        - generic [ref=e164]: "2"
+    - generic [ref=e137]:
+      - generic [ref=e175]:
+        - generic [ref=e176]: ♡
+        - paragraph [ref=e177]: Chưa có set nào
+      - paragraph [ref=e178]: Về Yêu thích → điều chỉnh → lưu set
+      - button "← Về Yêu thích" [ref=e179] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e69]

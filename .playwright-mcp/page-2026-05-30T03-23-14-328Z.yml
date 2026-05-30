@@ -1,0 +1,225 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - button "Quay lại" [ref=e4] [cursor=pointer]:
+        - img [ref=e5]
+      - heading "Theo Dõi Đơn Hàng" [level=1] [ref=e7]
+      - generic "Kết nối realtime đang hoạt động" [ref=e8]: LIVE
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - button "Mang về ORD-20260505-0001 Chờ xác nhận 835.144 ₫ 35356 phút" [ref=e236] [cursor=pointer]:
+          - generic [ref=e13]: Mang về
+          - generic [ref=e14]: ORD-20260505-0001
+          - generic [ref=e15]: Chờ xác nhận
+          - generic [ref=e16]: 835.144 ₫
+          - generic [ref=e17]: 35356 phút
+          - img
+        - generic [ref=e238]:
+          - button "Combo Bữa Sáng 2 món" [ref=e239] [cursor=pointer]:
+            - generic [ref=e240]: Combo Bữa Sáng
+            - generic [ref=e241]: 2 món
+            - img [ref=e242]
+          - generic [ref=e245]:
+            - generic [ref=e248]: p1
+            - generic [ref=e249]:
+              - generic [ref=e250]:
+                - text: tổng
+                - generic [ref=e251]: ×6
+              - generic [ref=e252]:
+                - text: ra
+                - generic [ref=e253]: ×0
+              - generic [ref=e254]: còn ×6
+            - button "Huỷ" [ref=e255] [cursor=pointer]
+          - generic [ref=e257]:
+            - generic [ref=e260]: Nước cam
+            - generic [ref=e261]:
+              - generic [ref=e262]:
+                - text: tổng
+                - generic [ref=e263]: ×6
+              - generic [ref=e264]:
+                - text: ra
+                - generic [ref=e265]: ×0
+              - generic [ref=e266]: còn ×6
+            - button "Huỷ" [ref=e267] [cursor=pointer]
+          - button "Huỷ 2 món còn lại của Combo Bữa Sáng" [ref=e269] [cursor=pointer]
+        - generic [ref=e270]:
+          - button "Combo Đôi 2 món" [ref=e271] [cursor=pointer]:
+            - generic [ref=e272]: Combo Đôi
+            - generic [ref=e273]: 2 món
+            - img [ref=e274]
+          - generic [ref=e277]:
+            - generic [ref=e280]: Trà đá
+            - generic [ref=e281]:
+              - generic [ref=e282]:
+                - text: tổng
+                - generic [ref=e283]: ×2
+              - generic [ref=e284]:
+                - text: ra
+                - generic [ref=e285]: ×0
+              - generic [ref=e286]: còn ×2
+            - button "Huỷ" [ref=e287] [cursor=pointer]
+          - generic [ref=e289]:
+            - generic [ref=e292]: Bánh cuốn nhân thịt
+            - generic [ref=e293]:
+              - generic [ref=e294]:
+                - text: tổng
+                - generic [ref=e295]: ×2
+              - generic [ref=e296]:
+                - text: ra
+                - generic [ref=e297]: ×0
+              - generic [ref=e298]: còn ×2
+            - button "Huỷ" [ref=e299] [cursor=pointer]
+          - button "Huỷ 2 món còn lại của Combo Đôi" [ref=e301] [cursor=pointer]
+        - generic [ref=e303]:
+          - generic [ref=e306]: Bánh cuốn nhân tôm
+          - generic [ref=e307]:
+            - generic [ref=e308]:
+              - text: tổng
+              - generic [ref=e309]: ×4
+            - generic [ref=e310]:
+              - text: ra
+              - generic [ref=e311]: ×0
+            - generic [ref=e312]: còn ×4
+          - button "Huỷ" [ref=e313] [cursor=pointer]
+        - generic [ref=e314]:
+          - button "Combo Đặc Biệt 3 món" [ref=e315] [cursor=pointer]:
+            - generic [ref=e316]: Combo Đặc Biệt
+            - generic [ref=e317]: 3 món
+            - img [ref=e318]
+          - generic [ref=e321]:
+            - generic [ref=e324]: Chả lụa thái lát
+            - generic [ref=e325]:
+              - generic [ref=e326]:
+                - text: tổng
+                - generic [ref=e327]: ×1
+              - generic [ref=e328]:
+                - text: ra
+                - generic [ref=e329]: ×0
+              - generic [ref=e330]: còn ×1
+            - button "Huỷ" [ref=e331] [cursor=pointer]
+          - generic [ref=e333]:
+            - generic [ref=e336]: Nước cam
+            - generic [ref=e337]:
+              - generic [ref=e338]:
+                - text: tổng
+                - generic [ref=e339]: ×1
+              - generic [ref=e340]:
+                - text: ra
+                - generic [ref=e341]: ×0
+              - generic [ref=e342]: còn ×1
+            - button "Huỷ" [ref=e343] [cursor=pointer]
+          - generic [ref=e345]:
+            - generic [ref=e348]: Bánh cuốn đặc biệt
+            - generic [ref=e349]:
+              - generic [ref=e350]:
+                - text: tổng
+                - generic [ref=e351]: ×1
+              - generic [ref=e352]:
+                - text: ra
+                - generic [ref=e353]: ×0
+              - generic [ref=e354]: còn ×1
+            - button "Huỷ" [ref=e355] [cursor=pointer]
+          - button "Huỷ 3 món còn lại của Combo Đặc Biệt" [ref=e357] [cursor=pointer]
+        - paragraph [ref=e359]:
+          - generic [ref=e360]: 0/23
+          - text: phần đã ra
+      - generic [ref=e144]:
+        - generic [ref=e145]:
+          - generic [ref=e146]: Tên món
+          - generic [ref=e147]: SL
+          - generic [ref=e148]: Ra
+          - generic [ref=e149]: Còn
+          - generic [ref=e150]: Đơn giá
+          - generic [ref=e151]: Tổng
+        - generic [ref=e152]:
+          - generic:
+            - generic: p1
+          - generic [ref=e153]: "6"
+          - generic [ref=e154]: "0"
+          - generic [ref=e156]: ×6
+          - generic [ref=e157]: 24 ₫
+          - generic [ref=e158]: 144 ₫
+          - button "Huỷ" [ref=e160] [cursor=pointer]
+        - generic [ref=e161]:
+          - generic:
+            - generic: Trà đá
+          - generic [ref=e162]: "2"
+          - generic [ref=e163]: "0"
+          - generic [ref=e165]: ×2
+          - generic [ref=e166]: 10.000 ₫
+          - generic [ref=e167]: 20.000 ₫
+          - button "Huỷ" [ref=e169] [cursor=pointer]
+        - generic [ref=e170]:
+          - generic:
+            - generic: Bánh cuốn nhân thịt
+          - generic [ref=e171]: "2"
+          - generic [ref=e172]: "0"
+          - generic [ref=e174]: ×2
+          - generic [ref=e175]: 40.000 ₫
+          - generic [ref=e176]: 80.000 ₫
+          - button "Huỷ" [ref=e178] [cursor=pointer]
+        - generic [ref=e179]:
+          - generic:
+            - generic: Bánh cuốn nhân tôm
+          - generic [ref=e180]: "4"
+          - generic [ref=e181]: "0"
+          - generic [ref=e183]: ×4
+          - generic [ref=e184]: 45.000 ₫
+          - generic [ref=e185]: 180.000 ₫
+          - button "Huỷ" [ref=e187] [cursor=pointer]
+        - generic [ref=e188]:
+          - generic:
+            - generic: Chả lụa thái lát
+          - generic [ref=e189]: "1"
+          - generic [ref=e190]: "0"
+          - generic [ref=e192]: ×1
+          - generic [ref=e193]: 15.000 ₫
+          - generic [ref=e194]: 15.000 ₫
+          - button "Huỷ" [ref=e196] [cursor=pointer]
+        - generic [ref=e197]:
+          - generic:
+            - generic: Nước cam
+          - generic [ref=e198]: "7"
+          - generic [ref=e199]: "0"
+          - generic [ref=e201]: ×7
+          - generic [ref=e202]: 25.000 ₫
+          - generic [ref=e203]: 175.000 ₫
+          - button "Huỷ" [ref=e205] [cursor=pointer]
+        - generic [ref=e206]:
+          - generic:
+            - generic: Bánh cuốn đặc biệt
+          - generic [ref=e207]: "1"
+          - generic [ref=e208]: "0"
+          - generic [ref=e210]: ×1
+          - generic [ref=e211]: 65.000 ₫
+          - generic [ref=e212]: 65.000 ₫
+          - button "Huỷ" [ref=e214] [cursor=pointer]
+        - generic [ref=e215]:
+          - generic [ref=e216]:
+            - generic [ref=e217]: Tổng tiền còn lại
+            - generic [ref=e218]: 535.144 ₫
+          - generic [ref=e219]:
+            - generic [ref=e220]: Tổng tất cả món
+            - generic [ref=e221]: 535.144 ₫
+      - generic [ref=e223]:
+        - generic [ref=e224]:
+          - generic [ref=e225]: Đã dùng (0 phần)
+          - generic [ref=e226]: 0 ₫
+        - generic [ref=e227]:
+          - generic [ref=e228]: Còn lại (23 phần chưa ra)
+          - generic [ref=e229]: 535.144 ₫
+        - generic [ref=e230]:
+          - generic [ref=e231]: Tổng cộng
+          - generic [ref=e232]: 835.144 ₫
+    - dialog "Huỷ món này?" [ref=e361]:
+      - generic [ref=e362]:
+        - generic [ref=e363]:
+          - img [ref=e365]
+          - generic [ref=e367]:
+            - heading "Huỷ món này?" [level=3] [ref=e368]
+            - paragraph [ref=e369]: "\"Bánh cuốn nhân tôm\" sẽ bị huỷ. Không thể hoàn tác."
+        - generic [ref=e370]:
+          - button "Giữ lại" [ref=e371] [cursor=pointer]
+          - button "Xác nhận huỷ" [ref=e372] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e233]

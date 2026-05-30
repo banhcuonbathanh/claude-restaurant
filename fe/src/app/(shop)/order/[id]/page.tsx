@@ -35,7 +35,7 @@ interface SummaryRow {
 
 export default function OrderPage({ params }: { params: { id: string } }) {
   const router = useRouter()
-  const { order, progress, connectionError, notification, clearNotification } = useOrderSSE(params.id)
+  const { order, progress, connectionError, isNotFound, notification, clearNotification } = useOrderSSE(params.id)
   const setTableId       = useCartStore(s => s.setTableId)
   const setActiveOrderId = useCartStore(s => s.setActiveOrderId)
   const [cancelTarget, setCancelTarget]       = useState<CancelTarget | null>(null)
@@ -129,6 +129,26 @@ export default function OrderPage({ params }: { params: { id: string } }) {
       cancelMultiMutation.mutate(cancelTarget.remainingItems.map(i => i.id))
   }
 
+  if (isNotFound) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 px-6 text-center">
+        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+          <AlertTriangle size={28} className="text-muted-fg" />
+        </div>
+        <div>
+          <p className="text-base font-semibold text-foreground">Không tìm thấy đơn hàng</p>
+          <p className="text-sm text-muted-fg mt-1">Mã đơn hàng không hợp lệ hoặc đã bị xoá.</p>
+        </div>
+        <button
+          onClick={() => router.push('/menu')}
+          className="bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-semibold"
+        >
+          Về trang menu
+        </button>
+      </div>
+    )
+  }
+
   if (!order) {
     return (
       <div className="min-h-screen bg-background pb-10 animate-pulse">
@@ -187,7 +207,7 @@ export default function OrderPage({ params }: { params: { id: string } }) {
   }
 
   const isActive       = order.status !== 'delivered' && order.status !== 'cancelled'
-  const canCancelOrder = progress < 30 && isActive
+  const canCancelOrder = progress < 30 && (order.status === 'confirmed' || order.status === 'preparing')
   const isPending      = cancelOrderMutation.isPending || cancelItemMutation.isPending || cancelMultiMutation.isPending
   const elapsed        = minutesElapsed(order.created_at)
 

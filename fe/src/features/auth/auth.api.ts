@@ -17,3 +17,16 @@ export const getMe = (): Promise<User> =>
 
 export const refreshToken = (): Promise<{ access_token: string }> =>
   api.post('/auth/refresh').then(r => r.data.data)
+
+export interface RegisterResponse {
+  user:         User
+  access_token: string
+}
+
+export const register = (
+  username:  string,
+  password:  string,
+  full_name: string,
+  role:      User['role'],
+): Promise<RegisterResponse> =>
+  api.post('/auth/register', { username, password, full_name, role }).then(r => r.data.data)

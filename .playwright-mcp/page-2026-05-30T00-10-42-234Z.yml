@@ -1,0 +1,122 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - img [ref=e7]
+          - generic [ref=e9]: Bánh Cuốn Bà Hoa
+        - link "Xem Thực Đơn" [ref=e10] [cursor=pointer]:
+          - /url: /menu
+          - img
+          - text: Xem Thực Đơn
+    - generic [ref=e12]:
+      - generic [ref=e13]:
+        - img [ref=e14]
+        - text: Quán Bánh Cuốn Truyền Thống Từ 1995
+      - heading "Hương Vị Bánh Cuốn Đúng Vị Hà Nội" [level=1] [ref=e16]:
+        - text: Hương Vị Bánh Cuốn
+        - text: Đúng Vị Hà Nội
+      - paragraph [ref=e17]: Bánh cuốn tráng tay mỗi sáng từ bột gạo tươi, nhân thịt thơm, nước chấm pha chuẩn — mang trọn ký ức Hà Nội về từng bữa sáng.
+      - generic [ref=e18]:
+        - link "Đặt Món Ngay" [ref=e19] [cursor=pointer]:
+          - /url: /menu
+          - img
+          - text: Đặt Món Ngay
+        - link "Tìm Hiểu Thêm" [ref=e20] [cursor=pointer]:
+          - /url: "#about"
+          - text: Tìm Hiểu Thêm
+          - img
+    - generic [ref=e22]:
+      - generic [ref=e23]:
+        - generic [ref=e24]: Câu Chuyện Của Chúng Tôi
+        - heading "Gần 30 Năm Trao Truyền Hương Vị" [level=2] [ref=e25]:
+          - text: Gần 30 Năm
+          - text: Trao Truyền Hương Vị
+        - paragraph [ref=e26]: Quán Bánh Cuốn Bà Hoa được bà Nguyễn Thị Hoa mở từ năm 1995 tại Hà Nội. Khởi đầu chỉ là chiếc xe đẩy nhỏ trước cổng trường, đến nay quán đã trở thành địa chỉ quen thuộc của hàng nghìn thực khách mỗi tuần.
+        - paragraph [ref=e27]: Mỗi chiếc bánh vẫn được tráng tay từ bột gạo tươi xay mỗi sáng. Nước chấm pha theo công thức gia truyền — không bao giờ thay đổi. Chúng tôi tin rằng sự kiên định với hương vị gốc chính là lý do khách hàng quay lại mỗi ngày.
+      - generic [ref=e29]:
+        - img [ref=e30]
+        - paragraph [ref=e32]: Ảnh quán sẽ được thêm vào đây
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - generic [ref=e36]: Thực Đơn Nổi Bật
+        - heading "Món Đặc Trưng" [level=2] [ref=e37]
+        - paragraph [ref=e38]: Những món được thực khách yêu thích nhất tại quán.
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - img [ref=e42]
+          - generic [ref=e44]:
+            - generic [ref=e45]:
+              - heading "Bánh Cuốn Nhân Thịt" [level=3] [ref=e46]
+              - generic [ref=e47]: Đặc Biệt
+            - paragraph [ref=e48]: Bánh cuốn mỏng mịn cuộn nhân thịt heo xay trộn mộc nhĩ, ăn kèm chả lụa và nước chấm pha chuẩn vị.
+        - generic [ref=e49]:
+          - img [ref=e51]
+          - generic [ref=e53]:
+            - generic [ref=e54]:
+              - heading "Bánh Cuốn Tôm Thịt" [level=3] [ref=e55]
+              - generic [ref=e56]: Bán Chạy
+            - paragraph [ref=e57]: Phiên bản cao cấp hơn — nhân tôm tươi kết hợp thịt băm, ăn kèm hành phi giòn thơm.
+        - generic [ref=e58]:
+          - img [ref=e60]
+          - generic [ref=e62]:
+            - generic [ref=e63]:
+              - heading "Bánh Cuốn Chay" [level=3] [ref=e64]
+              - generic [ref=e65]: Chay
+            - paragraph [ref=e66]: Nhân nấm hương, cà rốt, đậu phụ non — thanh đạm, phù hợp mọi người kể cả người ăn chay.
+      - link "Xem Toàn Bộ Thực Đơn" [ref=e68] [cursor=pointer]:
+        - /url: /menu
+        - text: Xem Toàn Bộ Thực Đơn
+        - img
+    - generic [ref=e69]:
+      - generic [ref=e70]:
+        - generic [ref=e71]: Thông Tin
+        - heading "Giờ Mở Cửa & Địa Chỉ" [level=2] [ref=e72]
+      - generic [ref=e73]:
+        - generic [ref=e74]:
+          - generic [ref=e75]:
+            - img [ref=e77]
+            - heading "Giờ Mở Cửa" [level=3] [ref=e80]
+          - list [ref=e81]:
+            - listitem [ref=e82]:
+              - generic [ref=e83]: Thứ 2 – Thứ 6
+              - generic [ref=e84]: 06:30 – 21:00
+            - listitem [ref=e85]:
+              - generic [ref=e86]: Thứ 7 – Chủ Nhật
+              - generic [ref=e87]: 06:00 – 21:30
+        - generic [ref=e88]:
+          - generic [ref=e89]:
+            - img [ref=e91]
+            - heading "Địa Chỉ" [level=3] [ref=e94]
+          - paragraph [ref=e95]:
+            - text: 123 Đường Ẩm Thực, Phường Hàng Bông,
+            - text: Quận Hoàn Kiếm, Hà Nội
+          - generic [ref=e96]:
+            - img [ref=e97]
+            - generic [ref=e99]: 0901 234 567
+          - generic [ref=e101]:
+            - img [ref=e102]
+            - paragraph [ref=e105]: Bản đồ sẽ được nhúng vào đây
+    - generic [ref=e107]:
+      - img [ref=e109]
+      - heading "Sẵn Sàng Đặt Món?" [level=2] [ref=e115]
+      - paragraph [ref=e116]: Quét mã QR tại bàn hoặc nhấn nút bên dưới để xem thực đơn và đặt món trực tiếp — không cần tải app.
+      - link "Xem Thực Đơn & Đặt Món" [ref=e117] [cursor=pointer]:
+        - /url: /menu
+        - img
+        - text: Xem Thực Đơn & Đặt Món
+    - contentinfo [ref=e118]:
+      - generic [ref=e119]:
+        - generic [ref=e120]:
+          - img [ref=e122]
+          - generic [ref=e124]: Bánh Cuốn Bà Hoa
+        - paragraph [ref=e125]: © 2026 · Hà Nội, Việt Nam
+        - generic [ref=e126]:
+          - link "Thực Đơn" [ref=e127] [cursor=pointer]:
+            - /url: /menu
+          - link "Chính Sách" [ref=e128] [cursor=pointer]:
+            - /url: /privacy-policy
+          - link "Điều Khoản" [ref=e129] [cursor=pointer]:
+            - /url: /terms
+  - region "Notifications alt+T"
+  - alert [ref=e130]

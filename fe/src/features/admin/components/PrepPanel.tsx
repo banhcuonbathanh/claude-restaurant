@@ -10,11 +10,11 @@ interface PrepPanelProps {
 }
 
 export function PrepPanel({ orders, tableMap }: PrepPanelProps) {
-  const [collapsed,      setCollapsed]      = useState<Set<string>>(new Set())
+  const [expanded,       setExpanded]       = useState<Set<string>>(new Set())
   const [summaryVisible, setSummaryVisible] = useState(true)
 
   function toggleCollapse(orderId: string) {
-    setCollapsed(prev => {
+    setExpanded(prev => {
       const next = new Set(prev)
       next.has(orderId) ? next.delete(orderId) : next.add(orderId)
       return next
@@ -39,7 +39,7 @@ export function PrepPanel({ orders, tableMap }: PrepPanelProps) {
   return (
     <div className="bg-white border-2 border-indigo-300 rounded-xl overflow-hidden">
       <div className="bg-indigo-50 px-4 py-3 border-b border-indigo-200">
-        <p className="text-sm font-bold text-indigo-800">Danh sách cần chuẩn bị</p>
+        <p className="text-sm font-bold text-indigo-800">Tổng hợp chế biến</p>
         <p className="text-xs text-indigo-600 mt-0.5">
           {orders.length} bàn · {summaryRows.length} loại món · {totalRemaining} phần còn lại
         </p>
@@ -49,7 +49,7 @@ export function PrepPanel({ orders, tableMap }: PrepPanelProps) {
         {orders.map(order => {
           const tableName   = order.table_id ? (tableMap.get(order.table_id)?.name ?? '—') : '—'
           const kitItems    = order.items.filter(isKitchenItem)
-          const isCollapsed = collapsed.has(order.id)
+          const isCollapsed = !expanded.has(order.id)
 
           return (
             <div key={order.id} className="px-4 py-3">

@@ -74,8 +74,17 @@ fe/src/
 │   ├── shared/                       ← Cross-page shared components
 │   │   ├── ConnectionErrorBanner.tsx
 │   │   ├── CookieConsent.tsx
+│   │   ├── CustomerTopNav.tsx
 │   │   ├── EmptyState.tsx
+│   │   ├── QuantityStepper.tsx
 │   │   └── StatusBadge.tsx
+│   │
+│   ├── product-detail/               ← Product detail page components
+│   │   ├── CTAFooter.tsx
+│   │   ├── ProductDetailSkeleton.tsx
+│   │   ├── ProductHeroImage.tsx
+│   │   ├── ProductInfo.tsx
+│   │   └── ToppingSelector.tsx
 │   │
 │   └── guards/                       ← Route protection
 │       ├── AuthGuard.tsx
@@ -152,6 +161,7 @@ fe/src/
 | `STORAGE_KEYS.ORDER_CACHE` | `'order_cache_'` (prefix) | `useOrderSSE.ts` |
 | `STORAGE_KEYS.FAVOURITES` | `'favourites'` | `store/favourites.ts` |
 | `STORAGE_KEYS.CUSTOMER_SETTINGS` | `'customer-settings'` | `store/settings.ts` |
+| `STORAGE_KEYS.CART_CONFIG` | `'cart-config'` | cart-related (reserved) |
 
 ---
 

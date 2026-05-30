@@ -4,23 +4,37 @@ import type { Order } from '@/types/order'
 import type { Table } from '@/features/admin/admin.api'
 import { elapsedMins, isKitchenItem, statusColors, statusLabel } from '@/features/admin/overview.helpers'
 
+const PREP_STATUSES = new Set(['pending', 'confirmed', 'preparing', 'ready'])
+
+function nextAction(status: Order['status']): { label: string; nextStatus: string; cls: string } | null {
+  switch (status) {
+    case 'pending':   return { label: '✓ Xác nhận',       nextStatus: 'confirmed',  cls: 'bg-blue-500 hover:bg-blue-600 text-white' }
+    case 'confirmed': return { label: '🍳 Bắt đầu làm',  nextStatus: 'preparing',  cls: 'bg-yellow-500 hover:bg-yellow-600 text-white' }
+    case 'preparing': return { label: '✓ Sẵn sàng',       nextStatus: 'ready',      cls: 'bg-green-500 hover:bg-green-600 text-white' }
+    case 'ready':     return { label: '🛎 Đã giao',        nextStatus: 'delivered',  cls: 'bg-green-600 hover:bg-green-700 text-white' }
+    default:          return null
+  }
+}
+
 interface WaitingCardProps {
-  table:          Table
-  order:          Order
-  now:            number
-  loading:        boolean
-  isChecked:      boolean
-  onAction:       (orderId: string, status: string) => Promise<void>
-  onToggleCheck:  (tableId: string) => void
+  table:         Table
+  order:         Order
+  now:           number
+  loading:       boolean
+  isChecked:     boolean
+  onAction:      (orderId: string, status: string) => Promise<void>
+  onToggleCheck: (tableId: string) => void
 }
 
 function WaitingCard({ table, order, now, loading, isChecked, onAction, onToggleCheck }: WaitingCardProps) {
   const [collapsed, setCollapsed] = useState(false)
-  const mins     = elapsedMins(order.created_at, now)
-  const kitItems = order.items.filter(isKitchenItem)
+  const mins      = elapsedMins(order.created_at, now)
+  const kitItems  = order.items.filter(isKitchenItem)
   const remaining = kitItems.reduce((s, i) => s + Math.max(0, i.quantity - i.qty_served), 0)
   const barColor  = mins > 20 ? 'bg-red-400' : mins >= 10 ? 'bg-yellow-400' : 'bg-indigo-400'
   const timeColor = mins > 20 ? 'text-red-600' : mins >= 10 ? 'text-yellow-600' : 'text-amber-600'
+  const next      = nextAction(order.status)
+  const canCancel = ['pending', 'confirmed', 'preparing'].includes(order.status)
 
   return (
     <div>
@@ -64,41 +78,34 @@ function WaitingCard({ table, order, now, loading, isChecked, onAction, onToggle
             <p className="text-xs text-gray-400 pt-0.5">{kitItems.length} món · {remaining} phần còn lại</p>
           </div>
 
-          {/* Kiểm tra toggle */}
           <button
             onClick={() => onToggleCheck(table.id)}
             className={`w-full py-1.5 text-xs rounded-lg font-medium transition-colors ${
-              isChecked
-                ? 'bg-indigo-500 text-white'
-                : 'bg-indigo-50 text-indigo-700'
+              isChecked ? 'bg-indigo-500 text-white' : 'bg-indigo-50 text-indigo-700'
             }`}
           >
             {isChecked ? '✓ Đang xem' : '🔍 Kiểm tra'}
           </button>
 
-          {/* 3 action buttons */}
-          <div className="grid grid-cols-3 gap-1.5">
-            <button
-              disabled={loading}
-              onClick={() => onAction(order.id, 'confirmed')}
-              className="py-1.5 text-xs bg-green-500 hover:bg-green-600 text-white rounded-lg font-medium disabled:opacity-50 transition-colors"
-            >
-              ✓ Phục vụ
-            </button>
-            <button
-              disabled={loading}
-              onClick={() => onAction(order.id, 'confirmed')}
-              className="py-1.5 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium disabled:opacity-50 transition-colors"
-            >
-              🥡 Mang đi
-            </button>
-            <button
-              disabled={loading}
-              onClick={() => onAction(order.id, 'cancelled')}
-              className="py-1.5 text-xs bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-medium disabled:opacity-50 transition-colors"
-            >
-              Huỷ
-            </button>
+          <div className={`grid gap-1.5 ${next && canCancel ? 'grid-cols-2' : 'grid-cols-1'}`}>
+            {next && (
+              <button
+                disabled={loading}
+                onClick={() => onAction(order.id, next.nextStatus)}
+                className={`py-1.5 text-xs rounded-lg font-medium disabled:opacity-50 transition-colors ${next.cls}`}
+              >
+                {next.label}
+              </button>
+            )}
+            {canCancel && (
+              <button
+                disabled={loading}
+                onClick={() => onAction(order.id, 'cancelled')}
+                className="py-1.5 text-xs bg-red-50 hover:bg-red-100 text-red-600 rounded-lg font-medium disabled:opacity-50 transition-colors"
+              >
+                Huỷ
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -121,30 +128,38 @@ export function WaitingSection({
 }: WaitingSectionProps) {
   const tableMap = new Map(tables.map(t => [t.id, t]))
 
-  const waiting = orders
-    .filter(o => o.status === 'pending' && o.table_id && tableMap.has(o.table_id))
-    .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+  const prepOrders = orders
+    .filter(o => PREP_STATUSES.has(o.status) && o.table_id && tableMap.has(o.table_id))
+    .sort((a, b) => {
+      const aM = elapsedMins(a.created_at, now)
+      const bM = elapsedMins(b.created_at, now)
+      if (aM > 20 && bM <= 20) return -1
+      if (bM > 20 && aM <= 20) return 1
+      return bM - aM
+    })
     .map(o => ({ table: tableMap.get(o.table_id!)!, order: o }))
 
-  if (waiting.length === 0) return null
+  if (prepOrders.length === 0) return (
+    <div className="rounded-xl bg-indigo-50 border border-indigo-100 px-4 py-6 text-center text-sm text-indigo-400">
+      Chưa có đơn hàng — quán đang yên tĩnh 🍜
+    </div>
+  )
 
-  const allKitItems = waiting.flatMap(({ order }) => order.items.filter(isKitchenItem))
+  const allKitItems = prepOrders.flatMap(({ order }) => order.items.filter(isKitchenItem))
   const dishTypes   = new Set(allKitItems.map(i => i.name)).size
   const totalRemain = allKitItems.reduce((s, i) => s + Math.max(0, i.quantity - i.qty_served), 0)
 
   return (
     <div className="rounded-xl bg-indigo-50 border border-indigo-100 overflow-hidden">
       <div className="px-4 py-3 border-b border-indigo-100">
-        <p className="text-sm font-bold text-indigo-800">
-          {waiting.length} bàn chờ xác nhận
-        </p>
+        <p className="text-sm font-bold text-indigo-800">Danh sách cần chuẩn bị</p>
         <p className="text-xs text-indigo-500 mt-0.5">
-          {dishTypes} loại món · {totalRemain} phần còn lại
+          {prepOrders.length} bàn · {dishTypes} loại món · {totalRemain} phần còn lại
         </p>
       </div>
 
       <div className="divide-y divide-indigo-100">
-        {waiting.map(({ table, order }) => (
+        {prepOrders.map(({ table, order }) => (
           <WaitingCard
             key={table.id}
             table={table}

@@ -160,6 +160,7 @@ handler → service → repository → db (sqlc)
 | GET | `/api/v1/orders/:id/events` | auth | `sse.StreamOrder` (SSE) |
 | POST | `/api/v1/orders/:id/items` | auth | `orderH.AddItemsToOrder` |
 | PATCH | `/api/v1/orders/items/:id` | chef+ | `orderH.UpdateItemServed` |
+| DELETE | `/api/v1/orders/items/:id` | auth | `orderH.CancelItem` |
 | POST | `/api/v1/orders/group` | cashier+ | `groupH.CreateGroup` |
 | GET | `/api/v1/orders/group/:id` | auth | `groupH.GetGroup` |
 | POST | `/api/v1/orders/group/:id/orders` | cashier+ | `groupH.AddToGroup` |

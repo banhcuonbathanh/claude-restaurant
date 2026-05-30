@@ -1,0 +1,38 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - button "Quay lại" [ref=e4] [cursor=pointer]:
+        - img [ref=e5]
+      - heading "❤ Yêu thích" [level=1] [ref=e7]
+      - img [ref=e9]
+    - generic [ref=e13]:
+      - button "Tất cả (1)" [active] [ref=e70] [cursor=pointer]
+      - button "Món lẻ (0)" [ref=e71] [cursor=pointer]
+      - button "Combo (1)" [ref=e16] [cursor=pointer]
+    - generic [ref=e72]:
+      - generic [ref=e73]:
+        - generic [ref=e75]: 🍜
+        - generic [ref=e76]:
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - generic [ref=e79]: Combo
+              - paragraph [ref=e80]: "Combo Gia Ä\x90Ã¬nh"
+            - button "Xoá khỏi yêu thích" [ref=e81] [cursor=pointer]:
+              - img [ref=e82]
+          - paragraph [ref=e84]: 160.000 ₫/phần
+      - generic [ref=e85]:
+        - generic [ref=e87]: • BÃ¡nh Cuá»‘n Thá»‹t × 2
+        - generic [ref=e89]: • Nem RÃ¡n × 2
+        - generic [ref=e91]: "• TrÃ Ä\x90Ã¡ × 2"
+      - generic [ref=e93]:
+        - button "Giảm số lượng" [disabled] [ref=e94]:
+          - img [ref=e95]
+        - generic [ref=e96]: "1"
+        - button "Tăng số lượng" [ref=e97] [cursor=pointer]:
+          - img [ref=e98]
+    - generic [ref=e65]:
+      - button "📋 Xem các set đã lưu (0) →" [ref=e66] [cursor=pointer]
+      - button "💾 Lưu thành set mới..." [ref=e67] [cursor=pointer]
+      - button "🛒 Thêm tất cả vào giỏ hàng" [ref=e68] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e69]

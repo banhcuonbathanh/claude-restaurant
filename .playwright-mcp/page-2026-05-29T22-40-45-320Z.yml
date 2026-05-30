@@ -1,0 +1,17 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - button "Quay lại" [ref=e4] [cursor=pointer]:
+        - img [ref=e5]
+      - heading "❤ Yêu thích" [level=1] [ref=e7]
+      - img [ref=e9]
+    - generic [ref=e13]:
+      - button "Tất cả (1)" [ref=e70] [cursor=pointer]
+      - button "Món lẻ (0)" [ref=e71] [cursor=pointer]
+      - button "Combo (1)" [ref=e16] [cursor=pointer]
+    - generic [ref=e65]:
+      - button "📋 Xem các set đã lưu (0) →" [ref=e66] [cursor=pointer]
+      - button "💾 Lưu thành set mới..." [ref=e67] [cursor=pointer]
+      - button "🛒 Thêm tất cả vào giỏ hàng" [ref=e68] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e69]

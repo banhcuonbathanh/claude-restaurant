@@ -12,6 +12,7 @@ type AppError struct {
 	Status  int
 	Code    string
 	Message string
+	Details map[string]any
 }
 
 func (e *AppError) Error() string {

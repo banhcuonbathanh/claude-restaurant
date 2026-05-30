@@ -8,6 +8,7 @@ export interface DrinkConfig {
 export interface ComboItemSummary {
   product_name: string
   quantity:     number
+  unit_price?:  number
 }
 
 export interface CartItem {

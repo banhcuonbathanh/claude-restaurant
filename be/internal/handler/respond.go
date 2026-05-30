@@ -24,7 +24,11 @@ func respondError(c *gin.Context, status int, code, message string, details ...a
 func handleServiceError(c *gin.Context, err error) {
 	var appErr *service.AppError
 	if errors.As(err, &appErr) {
-		respondError(c, appErr.Status, appErr.Code, appErr.Message)
+		if len(appErr.Details) > 0 {
+			respondError(c, appErr.Status, appErr.Code, appErr.Message, appErr.Details)
+		} else {
+			respondError(c, appErr.Status, appErr.Code, appErr.Message)
+		}
 		return
 	}
 	c.Error(err)

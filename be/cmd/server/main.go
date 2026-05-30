@@ -302,6 +302,9 @@ func main() {
 	// ── Admin SSE ─────────────────────────────────────────────────────────────
 	v1.GET("/sse/admin", authMW, middleware.AtLeast("manager"), sse.StreamAdmin(rdb))
 
+	// ── Guest order monitor SSE ───────────────────────────────────────────────
+	v1.GET("/sse/order-monitor/:id", authMW, sse.StreamOrderMonitor(rdb))
+
 	// ── WebSocket ─────────────────────────────────────────────────────────────
 	wsR := v1.Group("/ws")
 	wsR.GET("/kds", ws.KDSHandler(hub, rdb))

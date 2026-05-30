@@ -1,0 +1,7 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]: ⚠️
+    - paragraph [ref=e4]: Mã bàn không hợp lệ hoặc đã hết hạn. Vui lòng quét lại QR.
+    - button "Vào menu" [ref=e5] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e6]

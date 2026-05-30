@@ -9,7 +9,8 @@ import type { User } from '@/types/auth'
 export default function TablePage({ params }: { params: { tableId: string } }) {
   const router = useRouter()
   const setAuth   = useAuthStore((s) => s.setAuth)
-  const setTableId = useCartStore((s) => s.setTableId)
+  const setTableId   = useCartStore((s) => s.setTableId)
+  const setTableName = useCartStore((s) => s.setTableName)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -27,6 +28,7 @@ export default function TablePage({ params }: { params: { tableId: string } }) {
         }
         setAuth(guestUser, access_token)   // memory-only, never localStorage
         setTableId(table.id)
+        setTableName(table.name)
         router.replace('/menu')
       })
       .catch((err) => {

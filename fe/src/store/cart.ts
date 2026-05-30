@@ -8,6 +8,7 @@ const DEFAULT_DRINK_CONFIG: DrinkConfig = { bowls: 1, vegBowls: 0 }
 interface CartState {
   items:            CartItem[]
   tableId:          string | null
+  tableName:        string | null
   activeOrderId:    string | null
   paymentMethod:    string | null
   drinkConfig:      DrinkConfig
@@ -15,8 +16,10 @@ interface CartState {
   addItem:          (item: CartItem) => void
   removeItem:       (id: string) => void
   updateQty:        (id: string, qty: number) => void
+  updateComboItem:  (comboCartId: string, productName: string, qty: number) => void
   clearCart:        () => void
   setTableId:       (id: string) => void
+  setTableName:     (name: string) => void
   setActiveOrderId: (id: string | null) => void
   setPaymentMethod: (method: string) => void
   setDrinkConfig:   (config: DrinkConfig) => void
@@ -30,6 +33,7 @@ export const useCartStore = create<CartState>()(
     (set, get) => ({
       items:         [],
       tableId:       null,
+      tableName:     null,
       activeOrderId: null,
       paymentMethod: null,
       drinkConfig:   DEFAULT_DRINK_CONFIG,
@@ -57,9 +61,27 @@ export const useCartStore = create<CartState>()(
             .filter(i => i.quantity > 0),
         })),
 
-      clearCart: () => set({ items: [], tableId: null, activeOrderId: null, paymentMethod: null }),
+      updateComboItem: (comboCartId, productName, qty) =>
+        set((s) => ({
+          items: s.items.map(i => {
+            if (i.id !== comboCartId || !i.combo_items) return i
+            const old = i.combo_items.find(ci => ci.product_name === productName)
+            const newComboItems = qty <= 0
+              ? i.combo_items.filter(ci => ci.product_name !== productName)
+              : i.combo_items.map(ci => ci.product_name === productName ? { ...ci, quantity: qty } : ci)
+            let newPrice = i.price
+            if (old?.unit_price !== undefined) {
+              const delta = (qty <= 0 ? 0 : qty) - old.quantity
+              newPrice = Math.max(0, i.price + delta * old.unit_price)
+            }
+            return { ...i, combo_items: newComboItems, price: newPrice }
+          }),
+        })),
+
+      clearCart: () => set({ items: [], tableId: null, tableName: null, activeOrderId: null, paymentMethod: null }),
 
       setTableId:       (id)     => set({ tableId: id }),
+      setTableName:     (name)   => set({ tableName: name }),
       setActiveOrderId: (id)     => set({ activeOrderId: id }),
       setPaymentMethod: (method) => set({ paymentMethod: method }),
       setDrinkConfig:   (config) => set({ drinkConfig: config }),

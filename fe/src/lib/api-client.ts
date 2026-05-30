@@ -18,7 +18,8 @@ api.interceptors.response.use(
   (res) => res,
   async (err) => {
     const original = err.config
-    if (err.response?.status === 401 && !original._retry) {
+    const isAuthEndpoint = original?.url?.includes('/auth/login') || original?.url?.includes('/auth/register')
+    if (err.response?.status === 401 && !original._retry && !isAuthEndpoint) {
       // Guest exception — decode sub claim; guests must not refresh
       const token = useAuthStore.getState().accessToken
       if (token) {

@@ -437,6 +437,7 @@ func (s *OrderService) UpdateOrderStatus(ctx context.Context, orderID, newStatus
 	}
 
 	s.publishOrderEvent(ctx, "order_status_changed", orderID, orderEvent{Status: string(next)})
+	go s.publishMonitorBroadcast(context.Background())
 	return nil
 }
 
@@ -660,6 +661,102 @@ func (s *OrderService) publishAdminOrderEvent(ctx context.Context, orderID, orde
 	s.rdb.Publish(ctx, "orders:admin", string(payload))
 }
 
+// publishMonitorBroadcast publishes queue and table status snapshots to the two
+// broadcast channels consumed by StreamOrderMonitor. Runs in a goroutine so it
+// never blocks the status-update call path.
+func (s *OrderService) publishMonitorBroadcast(ctx context.Context) {
+	orders, err := s.repo.ListActiveOrders(ctx)
+	if err != nil {
+		slog.WarnContext(ctx, "monitor: list active orders failed", "err", err)
+		return
+	}
+
+	// ── Queue broadcast ───────────────────────────────────────────────────────
+	type queueItem struct {
+		Type      string `json:"type"`
+		OrderID   string `json:"orderId"`
+		TableLabel string `json:"tableLabel"`
+		Status    string `json:"status"`
+		ItemCount int    `json:"itemCount"`
+	}
+	type queuePayload struct {
+		Type             string      `json:"type"`
+		Queue            []queueItem `json:"queue"`
+		Position         int         `json:"position"`
+		Total            int         `json:"total"`
+		EstimatedMinutes int         `json:"estimatedMinutes"`
+	}
+
+	queueItems := make([]queueItem, 0, len(orders))
+	for _, o := range orders {
+		label := ""
+		if o.TableID.Valid {
+			label = o.TableID.String
+		}
+		queueItems = append(queueItems, queueItem{
+			OrderID:    o.ID,
+			TableLabel: label,
+			Status:     string(o.Status),
+			ItemCount:  0, // item count not fetched to avoid N+1; FE hides when 0
+		})
+	}
+
+	qp, _ := json.Marshal(queuePayload{
+		Type:  "queue.update",
+		Queue: queueItems,
+		Total: len(queueItems),
+	})
+	s.rdb.Publish(ctx, "queue:broadcast", string(qp))
+
+	// ── Tables broadcast ──────────────────────────────────────────────────────
+	tables, err := s.tableRepo.ListTables(ctx)
+	if err != nil {
+		slog.WarnContext(ctx, "monitor: list tables failed", "err", err)
+		return
+	}
+
+	// Map table_id → order status (to derive serving/waiting/empty)
+	tableStatus := make(map[string]string, len(orders))
+	for _, o := range orders {
+		if !o.TableID.Valid {
+			continue
+		}
+		existing := tableStatus[o.TableID.String]
+		// ready > preparing > confirmed > pending (priority for display)
+		if existing == "" || o.Status == "ready" ||
+			(o.Status == "preparing" && existing == "confirmed") ||
+			(o.Status == "preparing" && existing == "pending") {
+			tableStatus[o.TableID.String] = string(o.Status)
+		}
+	}
+
+	type tableItem struct {
+		ID     string `json:"id"`
+		Status string `json:"status"`
+	}
+	type tablesPayload struct {
+		Type   string      `json:"type"`
+		Tables []tableItem `json:"tables"`
+	}
+
+	tableItems := make([]tableItem, 0, len(tables))
+	for _, t := range tables {
+		status := "empty"
+		if s, ok := tableStatus[t.ID]; ok {
+			switch s {
+			case "ready", "delivered":
+				status = "serving"
+			case "pending", "confirmed", "preparing":
+				status = "waiting"
+			}
+		}
+		tableItems = append(tableItems, tableItem{ID: t.Name, Status: status})
+	}
+
+	tp, _ := json.Marshal(tablesPayload{Type: "tables.status", Tables: tableItems})
+	s.rdb.Publish(ctx, "tables:broadcast", string(tp))
+}
+
 func (s *OrderService) publishItemEvent(ctx context.Context, orderID, itemID string, qtyServed, quantity int32) {
 	payload, _ := json.Marshal(itemEvent{
 		Type:       "item_progress",
@@ -674,9 +771,11 @@ func (s *OrderService) publishItemEvent(ctx context.Context, orderID, itemID str
 	s.rdb.Publish(ctx, "orders:kds", string(payload))
 }
 
-// AppError with detail is a helper for structured conflict responses.
+// withDetail attaches a key-value pair to the error's Details map.
 func (e *AppError) withDetail(key string, value any) *AppError {
-	// Detail is logged but not exposed through the simple AppError type.
-	// The handler reads AppError.Code to decide if extra details are needed.
+	if e.Details == nil {
+		e.Details = make(map[string]any)
+	}
+	e.Details[key] = value
 	return e
 }

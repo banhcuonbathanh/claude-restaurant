@@ -1,0 +1,25 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e99]:
+    - banner [ref=e100]:
+      - button "Quay lại" [ref=e101] [cursor=pointer]:
+        - img [ref=e102]
+      - heading "💾 Lưu thành set mới" [level=1] [ref=e104]
+    - generic [ref=e106]:
+      - generic [ref=e107]: "Đặt tên cho set này:"
+      - 'textbox "vd: Set cuối tuần, Bữa sáng..." [ref=e108]'
+    - generic [ref=e110]:
+      - paragraph [ref=e111]: "Tóm tắt:"
+      - generic [ref=e112]:
+        - generic [ref=e113]:
+          - text: "▸ Combo Gia Ä\x90Ã¬nh × 2"
+          - generic [ref=e114]: (160.000 ₫)
+        - generic [ref=e116]: • BÃ¡nh Cuá»‘n Thá»‹t × 2
+        - generic [ref=e118]: • Nem RÃ¡n × 2
+        - generic [ref=e120]: "• TrÃ Ä\x90Ã¡ × 2"
+      - separator [ref=e121]
+      - generic [ref=e122]: "Tổng: 320.000 ₫"
+    - generic [ref=e123]:
+      - button "Huỷ" [ref=e124] [cursor=pointer]
+      - button "💾 Lưu set này" [disabled] [ref=e125]
+  - region "Notifications alt+T"
+  - alert [ref=e69]

@@ -1,5 +1,6 @@
 'use client'
 import Image from 'next/image'
+import Link from 'next/link'
 import { Heart } from 'lucide-react'
 import { useFavouritesStore } from '@/store/favourites'
 import type { Product, Combo } from '@/types/product'
@@ -67,24 +68,26 @@ function FavCard({ id, name, price, imagePath, type, onToggle }: FavCardProps) {
 
   return (
     <div className="relative flex-shrink-0 w-28 bg-card rounded-xl overflow-hidden shadow-sm">
-      <div className="relative w-full h-20 bg-muted">
-        {imageUrl ? (
-          <Image src={imageUrl} alt={name} fill className="object-cover" sizes="112px" />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-2xl">🍜</div>
-        )}
-        <button
-          onClick={() => onToggle(id, type)}
-          className="absolute top-1 right-1 bg-white/80 rounded-full p-1 min-w-[28px] min-h-[28px] flex items-center justify-center"
-          aria-label="Bỏ yêu thích"
-        >
-          <Heart size={12} className="fill-red-500 text-red-500" />
-        </button>
-      </div>
-      <div className="p-2">
-        <p className="text-xs font-medium text-foreground line-clamp-1 leading-snug">{name}</p>
-        <p className="text-xs text-primary font-bold mt-0.5">{formatVND(price)}</p>
-      </div>
+      <Link href="/menu/favourites" className="block">
+        <div className="relative w-full h-20 bg-muted">
+          {imageUrl ? (
+            <Image src={imageUrl} alt={name} fill className="object-cover" sizes="112px" />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center text-2xl">🍜</div>
+          )}
+        </div>
+        <div className="p-2">
+          <p className="text-xs font-medium text-foreground line-clamp-1 leading-snug">{name}</p>
+          <p className="text-xs text-primary font-bold mt-0.5">{formatVND(price)}</p>
+        </div>
+      </Link>
+      <button
+        onClick={() => onToggle(id, type)}
+        className="absolute top-1 right-1 bg-white/80 rounded-full p-1 min-w-[28px] min-h-[28px] flex items-center justify-center"
+        aria-label="Bỏ yêu thích"
+      >
+        <Heart size={12} className="fill-red-500 text-red-500" />
+      </button>
     </div>
   )
 }

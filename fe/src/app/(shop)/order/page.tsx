@@ -88,7 +88,7 @@ export default function OrderListPage() {
 
         {/* ── Order cards ─────────────────────────────────────────────── */}
         {orders.map((order) => {
-          const displayItems = order.items.filter(i => !(i.combo_id && !i.combo_ref_id))
+          const displayItems = (order.items ?? []).filter(i => !(i.combo_id && !i.combo_ref_id))
           const totalQty     = displayItems.reduce((s, i) => s + i.quantity,   0)
           const totalServed  = displayItems.reduce((s, i) => s + i.qty_served, 0)
           const progress     = totalQty > 0 ? Math.round((totalServed / totalQty) * 100) : 0

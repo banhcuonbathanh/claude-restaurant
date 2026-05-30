@@ -1,0 +1,64 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - heading "Theo Dõi Đơn Hàng — Bánh Cuốn" [level=1] [ref=e4]
+      - generic "Kết nối realtime đang hoạt động" [ref=e5]: LIVE
+    - generic [ref=e7]:
+      - generic [ref=e12]:
+        - generic [ref=e13]: "Trạng thái:"
+        - generic [ref=e14]: Chờ xác nhận
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - paragraph [ref=e17]: "Chi tiết đơn hàng: #ORD-20260505-0001"
+          - paragraph [ref=e18]: ORD-20260505-0001 · Bàn · Đặt lúc 21:06:43
+        - generic [ref=e19]:
+          - generic [ref=e21]:
+            - generic [ref=e22]: x6
+            - generic [ref=e23]: p1
+            - generic [ref=e24]: 144 ₫
+          - generic [ref=e26]:
+            - generic [ref=e27]: x2
+            - generic [ref=e28]: Trà đá
+            - generic [ref=e29]: 20.000 ₫
+          - generic [ref=e31]:
+            - generic [ref=e32]: x2
+            - generic [ref=e33]: Bánh cuốn nhân thịt
+            - generic [ref=e34]: 80.000 ₫
+          - generic [ref=e36]:
+            - generic [ref=e37]: x4
+            - generic [ref=e38]: Bánh cuốn nhân tôm
+            - generic [ref=e39]: 180.000 ₫
+          - generic [ref=e41]:
+            - generic [ref=e42]: x1
+            - generic [ref=e43]: Chả lụa thái lát
+            - generic [ref=e44]: 15.000 ₫
+          - generic [ref=e46]:
+            - generic [ref=e47]: x1
+            - generic [ref=e48]: Nước cam
+            - generic [ref=e49]: 25.000 ₫
+          - generic [ref=e51]:
+            - generic [ref=e52]: x6
+            - generic [ref=e53]: Nước cam
+            - generic [ref=e54]: 150.000 ₫
+          - generic [ref=e56]:
+            - generic [ref=e57]: x1
+            - generic [ref=e58]: Bánh cuốn đặc biệt
+            - generic [ref=e59]: 65.000 ₫
+        - generic [ref=e60]:
+          - generic [ref=e61]: Tổng cộng · 23 sản phẩm
+          - generic [ref=e62]: 835.144 ₫
+    - navigation [ref=e63]:
+      - generic [ref=e64]:
+        - link "Menu" [ref=e65] [cursor=pointer]:
+          - /url: /menu
+          - img [ref=e66]
+          - generic [ref=e71]: Menu
+        - link "Yêu Thích" [ref=e72] [cursor=pointer]:
+          - /url: /menu/favourites
+          - img [ref=e73]
+          - generic [ref=e75]: Yêu Thích
+        - button "Làm Mới" [active] [ref=e76] [cursor=pointer]:
+          - img [ref=e77]
+          - generic [ref=e82]: Làm Mới
+  - region "Notifications alt+T"
+  - alert [ref=e83]

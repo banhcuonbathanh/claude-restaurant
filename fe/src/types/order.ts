@@ -48,3 +48,26 @@ export interface Order {
   created_at:     string
   items:          OrderItem[]
 }
+
+// ── Monitor page types (SSE-driven order tracking) ────────────────────────────
+
+export interface QueueItem {
+  orderId: string
+  tableLabel: string
+  status: OrderStatus
+  itemCount: number
+  estimatedMinutes?: number
+}
+
+export interface QueueState {
+  queue: QueueItem[]
+  position: number
+  total: number
+  estimatedMinutes: number
+}
+
+export interface MonitorTableStatus {
+  id: string
+  status: 'serving' | 'waiting' | 'empty'
+  orderCount?: number
+}

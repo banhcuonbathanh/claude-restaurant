@@ -17,7 +17,7 @@ function Stepper({
         >
           <Minus size={14} />
         </button>
-        <span className="text-foreground font-bold text-sm w-6 text-center">{value}</span>
+        <span className="text-foreground font-bold text-sm w-8 text-center tabular-nums">{value}</span>
         <button
           onClick={() => onChange(Math.min(max, value + 1))}
           disabled={value >= max}
@@ -42,36 +42,24 @@ export function DrinkCustomize({ embedded }: { embedded?: boolean }) {
   if (!hasCombo && !hasNuocDung) return null
 
   const { bowls, vegBowls } = drinkConfig
+  const nonVegBowls = bowls - vegBowls
 
-  const setBowls = (n: number) => {
-    const next = Math.max(1, Math.min(99, n))
-    setDrinkConfig({ bowls: next, vegBowls: Math.min(vegBowls, next) })
+  const setVegBowls = (n: number) => {
+    const next = Math.max(0, Math.min(99, n))
+    setDrinkConfig({ bowls: next + nonVegBowls, vegBowls: next })
   }
 
-  const setVegBowls = (n: number) =>
-    setDrinkConfig({ bowls, vegBowls: Math.max(0, Math.min(bowls, n)) })
+  const setNonVegBowls = (n: number) => {
+    const next = Math.max(0, Math.min(99, n))
+    setDrinkConfig({ bowls: vegBowls + next, vegBowls })
+  }
 
   return (
     <section className={embedded ? 'border-t border-border px-5 py-4' : 'mx-4 mt-4 bg-card rounded-xl p-4 shadow-sm'}>
       <h2 className="text-sm font-semibold text-muted-fg uppercase tracking-wide mb-3">Nước dùng</h2>
       <div className="space-y-3">
-        <Stepper label="Số bát" value={bowls} min={1} max={99} onChange={setBowls} />
-        <Stepper
-          label="Bát có rau"
-          value={vegBowls}
-          min={0}
-          max={bowls}
-          onChange={setVegBowls}
-        />
-        {bowls > 0 && (
-          <p className="text-xs text-muted-fg">
-            {vegBowls === 0
-              ? `${bowls} bát không rau`
-              : vegBowls === bowls
-              ? `${bowls} bát có rau`
-              : `${vegBowls} bát có rau · ${bowls - vegBowls} bát không rau`}
-          </p>
-        )}
+        <Stepper label="Bát có rau" value={vegBowls} min={0} max={99} onChange={setVegBowls} />
+        <Stepper label="Bát không rau" value={nonVegBowls} min={0} max={99} onChange={setNonVegBowls} />
       </div>
     </section>
   )

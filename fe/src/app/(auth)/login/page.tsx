@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import Link from 'next/link'
 import { login } from '@/features/auth/auth.api'
 import { useAuthStore } from '@/features/auth/auth.store'
 import { Button } from '@/components/ui/button'
@@ -19,8 +20,8 @@ type FormValues = z.infer<typeof schema>
 const redirectByRole: Record<string, string> = {
   chef:     '/kds',
   cashier:  '/pos',
-  manager:  '/dashboard',
-  admin:    '/dashboard',
+  manager:  '/admin',
+  admin:    '/admin',
   customer: '/menu',
 }
 
@@ -106,6 +107,13 @@ export default function LoginPage() {
             {isSubmitting ? 'Đang đăng nhập…' : 'Đăng nhập'}
           </Button>
         </form>
+
+        <p className="text-muted-fg text-xs text-center mt-6">
+          Chưa có tài khoản?{' '}
+          <Link href="/register" className="text-primary hover:underline">
+            Đăng ký
+          </Link>
+        </p>
       </div>
     </div>
   )

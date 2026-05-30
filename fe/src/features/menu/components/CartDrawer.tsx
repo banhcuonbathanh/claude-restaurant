@@ -10,14 +10,15 @@ import { formatVND } from '@/lib/utils'
 import { addItemsToOrder } from '@/lib/api-client'
 
 interface Props {
-  open:          boolean
-  onClose:       () => void
-  addToOrderId?: string
+  open:              boolean
+  onClose:           () => void
+  addToOrderId?:     string
+  onTableCheckout?:  () => void
 }
 
-export function CartDrawer({ open, onClose, addToOrderId }: Props) {
+export function CartDrawer({ open, onClose, addToOrderId, onTableCheckout }: Props) {
   const router = useRouter()
-  const { items, updateQty, removeItem, total, itemCount, activeOrderId, clearCart } = useCartStore()
+  const { items, updateQty, removeItem, total, itemCount, activeOrderId, clearCart, tableId } = useCartStore()
   const { customerName, tableLabel } = useSettingsStore()
 
   // Track which combos have their dish list expanded
@@ -57,7 +58,11 @@ export function CartDrawer({ open, onClose, addToOrderId }: Props) {
 
   const handleCheckout = () => {
     onClose()
-    router.push('/checkout')
+    if (tableId) {
+      onTableCheckout?.()
+    } else {
+      router.push('/checkout')
+    }
   }
 
   return (
@@ -74,7 +79,7 @@ export function CartDrawer({ open, onClose, addToOrderId }: Props) {
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <div className="flex flex-col leading-none gap-0.5">
             <h2 className="font-display text-lg text-foreground font-semibold">
-              Giỏ hàng ({itemCount()} món)
+              Giỏ hàng
             </h2>
             {(customerName || tableLabel) && (
               <p className="text-xs text-muted-fg">
@@ -101,10 +106,18 @@ export function CartDrawer({ open, onClose, addToOrderId }: Props) {
         {/* Scrollable body */}
         <div className="flex-1 overflow-y-auto">
 
-          {/* Cart items */}
+          {/* Tóm tắt đơn hàng */}
           <div className="px-5 py-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-foreground">Tóm tắt đơn hàng</span>
+              {items.length > 0 && (
+                <span className="text-xs text-muted-fg bg-muted px-2 py-0.5 rounded-full">
+                  {itemCount()} món
+                </span>
+              )}
+            </div>
             {items.length === 0 ? (
-              <p className="text-muted-fg text-sm text-center mt-12">Giỏ hàng trống</p>
+              <p className="text-muted-fg text-sm text-center mt-8">Giỏ hàng trống</p>
             ) : (
               items.map((item) => {
                 const isExpanded = expandedCombos.has(item.id)

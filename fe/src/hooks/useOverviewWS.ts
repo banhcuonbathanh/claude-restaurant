@@ -1,5 +1,5 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import type { Order } from '@/types/order'
 
@@ -13,8 +13,9 @@ interface WsMessage {
   status?:     string
 }
 
-export function useOverviewWS(token: string | null): void {
+export function useOverviewWS(token: string | null): boolean | null {
   const queryClient = useQueryClient()
+  const [connected, setConnected] = useState<boolean | null>(null)
 
   useEffect(() => {
     if (!token) return
@@ -34,7 +35,7 @@ export function useOverviewWS(token: string | null): void {
 
     function connect() {
       ws = new WebSocket(url)
-      ws.onopen = () => { attempts = 0 }
+      ws.onopen = () => { attempts = 0; setConnected(true) }
 
       ws.onmessage = async (evt: MessageEvent) => {
         let msg: WsMessage
@@ -96,6 +97,7 @@ export function useOverviewWS(token: string | null): void {
       }
 
       ws.onclose = () => {
+        setConnected(false)
         if (stopped) return
         attempts++
         retryId = setTimeout(connect, Math.min(1000 * 2 ** (attempts - 1), 30_000))
@@ -106,8 +108,11 @@ export function useOverviewWS(token: string | null): void {
     connect()
     return () => {
       stopped = true
+      setConnected(false)
       clearTimeout(retryId)
       ws?.close()
     }
   }, [token, queryClient])
+
+  return connected
 }

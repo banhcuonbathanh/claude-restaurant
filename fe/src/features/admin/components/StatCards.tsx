@@ -3,11 +3,11 @@ import type { Order } from '@/types/order'
 import type { Table } from '@/features/admin/admin.api'
 import { elapsedMins, itemCounts } from '@/features/admin/overview.helpers'
 
-function StatCard({ label, value, sub }: { label: string; value: number | string; sub?: string }) {
+function StatCard({ label, value, sub, urgent }: { label: string; value: number | string; sub?: string; urgent?: boolean }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex flex-col gap-1">
+    <div className={`rounded-xl border shadow-sm p-4 flex flex-col gap-1 ${urgent ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200'}`}>
       <p className="text-xs text-gray-500">{label}</p>
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
+      <p className={`text-2xl font-bold ${urgent ? 'text-red-700' : 'text-gray-900'}`}>{value}</p>
       {sub && <p className="text-xs text-gray-400">{sub}</p>}
     </div>
   )
@@ -45,6 +45,7 @@ export function StatCards({ orders, tables, now }: StatCardsProps) {
         label="Khẩn cấp / Cảnh báo"
         value={`${urgent} / ${warning}`}
         sub=">20 phút / 10–20 phút"
+        urgent={urgent > 0}
       />
     </div>
   )
