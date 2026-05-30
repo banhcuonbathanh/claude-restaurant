@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"net/http"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -27,19 +28,23 @@ func NewIngredientService(repo repository.IngredientRepository) *IngredientServi
 
 // CreateIngredientInput holds validated input for creating an ingredient.
 type CreateIngredientInput struct {
-	Name         string
-	Unit         string
-	CurrentStock float64
-	MinStock     float64
-	CostPerUnit  int64
+	Name            string
+	Unit            string
+	ImportDate      time.Time
+	ShelfDays       int
+	InitialQuantity float64
+	WarningThreshold float64
+	CostPerUnit     int64
 }
 
 // UpdateIngredientInput holds optional update fields.
 type UpdateIngredientInput struct {
-	Name        *string
-	Unit        *string
-	MinStock    *float64
-	CostPerUnit *int64
+	Name             *string
+	Unit             *string
+	ImportDate       *time.Time
+	ShelfDays        *int
+	WarningThreshold *float64
+	CostPerUnit      *int64
 }
 
 // CreateStockMovementInput holds input for recording a stock movement.
@@ -72,8 +77,10 @@ func (s *IngredientService) CreateIngredient(ctx context.Context, in CreateIngre
 		ID:           uuid.New().String(),
 		Name:         in.Name,
 		Unit:         in.Unit,
-		CurrentStock: in.CurrentStock,
-		MinStock:     in.MinStock,
+		ImportDate:   in.ImportDate,
+		ShelfDays:    in.ShelfDays,
+		CurrentStock: in.InitialQuantity,
+		MinStock:     in.WarningThreshold,
 		CostPerUnit:  in.CostPerUnit,
 	})
 }
@@ -86,7 +93,9 @@ func (s *IngredientService) UpdateIngredient(ctx context.Context, id string, in 
 		ID:          id,
 		Name:        in.Name,
 		Unit:        in.Unit,
-		MinStock:    in.MinStock,
+		ImportDate:  in.ImportDate,
+		ShelfDays:   in.ShelfDays,
+		MinStock:    in.WarningThreshold,
 		CostPerUnit: in.CostPerUnit,
 	})
 	if err == sql.ErrNoRows {

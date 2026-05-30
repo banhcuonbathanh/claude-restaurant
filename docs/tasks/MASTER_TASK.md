@@ -32,7 +32,7 @@
 | P-ORDER-TOPPING — Order Page Topping Display | FE+BE | ✅ COMPLETE | 0 | — |
 | P-FIX-MOCK — Fix order_service_test mockOrderRepo | BE | ✅ COMPLETE | 0 | — |
 | P-ARCH — FE Architecture Groundwork | FE+Docs | ✅ COMPLETE | 0 | — |
-| P-TRAINING — Admin Staff Training Page | FE | ⬜ NOT STARTED | 6 | P-TRAINING-2 (RoleFilterTabs) |
+| P-TRAINING — Admin Staff Training Page | BE+FE | ⬜ NOT STARTED | 8 | P-TRAINING-BE-1 (DB migration) |
 | P-WIRE-ORDER — Client Order Page Wireframe | Docs | 🔄 IN PROGRESS | 1 | P-WIRE-ORDER-4 (conccern + recomment) |
 | P-GRAPH-ENRICH — Enrich Codebase Graphs for /dev-page | Docs | ✅ COMPLETE | 2 | — |
 | P-MON — Client Order Monitoring Page | BE+FE | ⬜ NOT STARTED | 9 | P-MON-BE-1 |
@@ -146,18 +146,20 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 ## Phase P-TRAINING — Admin Staff Training Page
 
-> **Owner:** FE
+> **Owner:** BE+FE
 > **Dependency:** P8 ✅ · P-ARCH-1 ✅
 > **Wireframe:** `docs/fe/wireframes/admin_main/admin_main_training/admin_staff_training_wireframe_v1.md`
 > **Excalidraw:** `docs/fe/wireframes/admin_main/admin_main_training/admin-staff-training.excalidraw` ✅
 > **Route:** `/admin/training/page.tsx`
-> **Order:** P-TRAINING-1 ✅ → 2 → 3 → 4 → 5 → 6 → 7 (strict)
+> **Order:** P-TRAINING-1 ✅ → BE-1 → BE-2 → 2 → 3 → 4 → 5 → 6 → 7 (strict)
 > **Added:** 2026-05-25
 
 | ID | Owner | Task | Deps | Sessions | Status | spec_ref | draw_ref |
 |----|-------|------|------|----------|--------|----------|----------|
 | P-TRAINING-1 | FE | Wireframe + zone table + all scaffold files | — | 1 | ✅ | — | `admin_staff_training_wireframe_v1.md` |
-| P-TRAINING-2 | FE | `types/training.ts` + `hooks/useTrainingQueries.ts` + `store/trainingStore.ts` + `RoleBadge.tsx` | P-TRAINING-1 ✅ | 1 | ⬜ | wireframe §TypeScript Contracts | Zone B |
+| P-TRAINING-BE-1 | BE | `012_training.sql` migration (4 tables) + sqlc queries + `sqlc generate` | P-TRAINING-1 ✅ | 1 | ⬜ | wireframe §Data Sources | — |
+| P-TRAINING-BE-2 | BE | `training_handler.go` + `training_service.go` + `training_repo.go` + register routes in `main.go` | P-TRAINING-BE-1 ✅ | 1 | ⬜ | wireframe §API endpoints | — |
+| P-TRAINING-2 | FE | `types/training.ts` + `hooks/useTrainingQueries.ts` + `store/trainingStore.ts` + `RoleBadge.tsx` | P-TRAINING-BE-2 ✅ | 1 | ⬜ | wireframe §TypeScript Contracts | Zone B |
 | P-TRAINING-3 | FE | `JobGuideCard.tsx` + `JobGuideCardGrid.tsx` — cover img, role badge, KPI chips, YouTube link, 3-dot kebab, Draft overlay | P-TRAINING-2 ✅ | 1 | ⬜ | wireframe §Zone C | Zone C |
 | P-TRAINING-4 | FE | `RoleFilterTabs.tsx` (Zone B) + `CompletionTrackingTable.tsx` (Zone D) — paginated table, status badges | P-TRAINING-3 ✅ | 1 | ⬜ | wireframe §Zone B §Zone D | Zone B + Zone D |
 | P-TRAINING-5 | FE | `CreateEditGuideModal.tsx` — RHF + Zod, 10 fields, POST/PATCH mutation | P-TRAINING-4 ✅ | 1 | ⬜ | wireframe §Modal 1 | Modal 1 |

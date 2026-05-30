@@ -1,0 +1,90 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - button "Quay lại" [ref=e4] [cursor=pointer]:
+        - img [ref=e5]
+      - heading "Thông Tin Khách Hàng" [level=1] [ref=e7]
+      - img [ref=e9]
+    - main [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - img [ref=e17]
+          - generic "Đổi ảnh (chưa khả dụng)" [ref=e20]:
+            - img [ref=e21]
+        - generic:
+          - paragraph
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - generic [ref=e26]: Họ và tên *
+          - textbox "Họ và tên *" [ref=e27]:
+            - /placeholder: Nguyễn Văn A
+        - generic [ref=e28]:
+          - generic [ref=e29]: Số điện thoại *
+          - textbox "Số điện thoại *" [ref=e30]:
+            - /placeholder: 0912 345 678
+        - generic [ref=e31]:
+          - generic [ref=e32]: Số nhà / Địa chỉ *
+          - textbox "Số nhà / Địa chỉ *" [ref=e33]:
+            - /placeholder: 123 Đường Lê Lợi, Q.1, TP.HCM
+        - generic [ref=e34]:
+          - generic [ref=e35]: Email (tùy chọn)
+          - textbox "Email (tùy chọn)" [ref=e36]:
+            - /placeholder: nguyenvana@email.com
+      - generic [ref=e38]:
+        - heading "Khám phá thêm" [level=2] [ref=e39]
+        - generic [ref=e40]:
+          - link "🍽️ Thực Đơn Xem & đặt món" [ref=e41] [cursor=pointer]:
+            - /url: /menu
+            - generic [ref=e42]: 🍽️
+            - generic [ref=e43]:
+              - paragraph [ref=e44]: Thực Đơn
+              - paragraph [ref=e45]: Xem & đặt món
+            - img [ref=e46]
+          - link "❤️ Yêu Thích Món đã lưu" [ref=e48] [cursor=pointer]:
+            - /url: /menu/favourites
+            - generic [ref=e49]: ❤️
+            - generic [ref=e50]:
+              - paragraph [ref=e51]: Yêu Thích
+              - paragraph [ref=e52]: Món đã lưu
+            - img [ref=e53]
+          - link "📋 Lịch Sử Ăn Các lần ghé thăm" [ref=e55] [cursor=pointer]:
+            - /url: /order
+            - generic [ref=e56]: 📋
+            - generic [ref=e57]:
+              - paragraph [ref=e58]: Lịch Sử Ăn
+              - paragraph [ref=e59]: Các lần ghé thăm
+            - img [ref=e60]
+          - link "🏠 Đặt Bàn Đặt bàn về nhà" [ref=e62] [cursor=pointer]:
+            - /url: /menu
+            - generic [ref=e63]: 🏠
+            - generic [ref=e64]:
+              - paragraph [ref=e65]: Đặt Bàn
+              - paragraph [ref=e66]: Đặt bàn về nhà
+            - img [ref=e67]
+      - button "Tạo hồ sơ" [ref=e70] [cursor=pointer]:
+        - img
+        - text: Tạo hồ sơ
+    - navigation [ref=e71]:
+      - generic [ref=e72]:
+        - link "Trang Chủ" [ref=e73] [cursor=pointer]:
+          - /url: /menu
+          - img [ref=e74]
+          - generic [ref=e77]: Trang Chủ
+        - link "Thực Đơn" [ref=e78] [cursor=pointer]:
+          - /url: /menu
+          - img [ref=e79]
+          - generic [ref=e84]: Thực Đơn
+        - link "Yêu Thích" [ref=e85] [cursor=pointer]:
+          - /url: /menu/favourites
+          - img [ref=e86]
+          - generic [ref=e88]: Yêu Thích
+        - link "Lịch Sử" [ref=e89] [cursor=pointer]:
+          - /url: /order
+          - img [ref=e90]
+          - generic [ref=e93]: Lịch Sử
+        - link "Hồ Sơ" [ref=e94] [cursor=pointer]:
+          - /url: /profile
+          - img [ref=e95]
+          - generic [ref=e98]: Hồ Sơ
+  - region "Notifications alt+T"
+  - alert [ref=e99]

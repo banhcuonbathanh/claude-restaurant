@@ -139,6 +139,9 @@ export const listCombos = (): Promise<Combo[]> =>
 export const createCombo = (body: CreateComboInput): Promise<{ id: string }> =>
   api.post('/combos', body).then(r => r.data.data)
 
+export const updateCombo = (id: string, body: CreateComboInput): Promise<void> =>
+  api.patch(`/combos/${id}`, body)
+
 export const deleteCombo = (id: string): Promise<void> =>
   api.delete(`/combos/${id}`)
 
@@ -200,23 +203,37 @@ export const getStaffPerformance = (range: SummaryRange): Promise<StaffPerfRow[]
 
 // ── Ingredients ───────────────────────────────────────────────────────────────
 
+export type IngredientStatus = 'in_stock' | 'low_stock' | 'expiring_soon' | 'out_of_stock'
+
 export interface Ingredient {
-  id:            string
-  name:          string
-  unit:          string
-  current_stock: number
-  min_stock:     number
-  cost_per_unit: number
-  created_at:    string
-  updated_at:    string
+  id:               string
+  name:             string
+  unit:             string
+  quantity:         number
+  warningThreshold: number
+  importDate:       string   // 'YYYY-MM-DD'
+  shelfDays:        number
+  expiryDate:       string   // 'YYYY-MM-DD', computed server-side
+  status:           IngredientStatus
+  createdAt:        string
+  updatedAt:        string
 }
 
 export interface CreateIngredientInput {
-  name:          string
-  unit:          string
-  current_stock: number
-  min_stock:     number
-  cost_per_unit: number
+  name:             string
+  unit:             string
+  importDate:       string   // 'YYYY-MM-DD'
+  shelfDays:        number
+  initialQuantity:  number
+  warningThreshold: number
+}
+
+export interface UpdateIngredientInput {
+  name?:             string
+  unit?:             string
+  importDate?:       string
+  shelfDays?:        number
+  warningThreshold?: number
 }
 
 export interface StockMovementInput {
@@ -235,7 +252,7 @@ export const getLowStock = (): Promise<Ingredient[]> =>
 export const createIngredient = (body: CreateIngredientInput): Promise<Ingredient> =>
   api.post('/admin/ingredients', body).then(r => r.data.data)
 
-export const updateIngredient = (id: string, body: Partial<Omit<CreateIngredientInput, 'current_stock'>>): Promise<Ingredient> =>
+export const updateIngredient = (id: string, body: UpdateIngredientInput): Promise<Ingredient> =>
   api.patch(`/admin/ingredients/${id}`, body).then(r => r.data.data)
 
 export const deleteIngredient = (id: string): Promise<void> =>

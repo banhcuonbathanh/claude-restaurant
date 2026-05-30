@@ -392,6 +392,38 @@ func (h *ProductHandler) CreateCombo(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"data": gin.H{"id": id}})
 }
 
+type updateComboRequest struct {
+	Name        string             `json:"name" binding:"required"`
+	Price       int64              `json:"price" binding:"min=1"`
+	Description string             `json:"description"`
+	SortOrder   int32              `json:"sort_order"`
+	Items       []comboItemRequest `json:"items" binding:"required,min=1"`
+}
+
+// UpdateCombo handles PATCH /combos/:id (Manager+)
+func (h *ProductHandler) UpdateCombo(c *gin.Context) {
+	var req updateComboRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		respondError(c, http.StatusBadRequest, "INVALID_INPUT", "Dữ liệu đầu vào không hợp lệ")
+		return
+	}
+	items := make([]service.ComboItemInput, 0, len(req.Items))
+	for _, item := range req.Items {
+		items = append(items, service.ComboItemInput{ProductID: item.ProductID, Quantity: item.Quantity})
+	}
+	if err := h.svc.UpdateCombo(c.Request.Context(), c.Param("id"), service.UpdateComboInput{
+		Name:        req.Name,
+		Price:       req.Price,
+		Description: req.Description,
+		SortOrder:   req.SortOrder,
+		Items:       items,
+	}); err != nil {
+		handleServiceError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Cập nhật combo thành công"})
+}
+
 // DeleteCombo handles DELETE /combos/:id (Admin)
 func (h *ProductHandler) DeleteCombo(c *gin.Context) {
 	if err := h.svc.DeleteCombo(c.Request.Context(), c.Param("id")); err != nil {

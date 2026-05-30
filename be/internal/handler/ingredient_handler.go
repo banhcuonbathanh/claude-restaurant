@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -10,16 +11,34 @@ import (
 	"banhcuon/be/internal/service"
 )
 
+func ingredientStatus(ing repository.Ingredient, expiryDate time.Time) string {
+	now := time.Now()
+	if ing.CurrentStock == 0 {
+		return "out_of_stock"
+	}
+	if expiryDate.Before(now.AddDate(0, 0, 7)) {
+		return "expiring_soon"
+	}
+	if ing.CurrentStock <= ing.MinStock {
+		return "low_stock"
+	}
+	return "in_stock"
+}
+
 func toIngredientJSON(ing repository.Ingredient) gin.H {
+	expiryDate := ing.ImportDate.AddDate(0, 0, ing.ShelfDays)
 	return gin.H{
-		"id":            ing.ID,
-		"name":          ing.Name,
-		"unit":          ing.Unit,
-		"current_stock": ing.CurrentStock,
-		"min_stock":     ing.MinStock,
-		"cost_per_unit": ing.CostPerUnit,
-		"created_at":    ing.CreatedAt,
-		"updated_at":    ing.UpdatedAt,
+		"id":               ing.ID,
+		"name":             ing.Name,
+		"unit":             ing.Unit,
+		"quantity":         ing.CurrentStock,
+		"warningThreshold": ing.MinStock,
+		"importDate":       ing.ImportDate.Format("2006-01-02"),
+		"shelfDays":        ing.ShelfDays,
+		"expiryDate":       expiryDate.Format("2006-01-02"),
+		"status":           ingredientStatus(ing, expiryDate),
+		"createdAt":        ing.CreatedAt,
+		"updatedAt":        ing.UpdatedAt,
 	}
 }
 
@@ -74,22 +93,29 @@ func (h *IngredientHandler) GetIngredient(c *gin.Context) {
 // CreateIngredient handles POST /api/v1/admin/ingredients
 func (h *IngredientHandler) CreateIngredient(c *gin.Context) {
 	var req struct {
-		Name         string  `json:"name" binding:"required,max=150"`
-		Unit         string  `json:"unit" binding:"required,max=30"`
-		CurrentStock float64 `json:"current_stock"`
-		MinStock     float64 `json:"min_stock"`
-		CostPerUnit  int64   `json:"cost_per_unit"`
+		Name             string  `json:"name" binding:"required,max=150"`
+		Unit             string  `json:"unit" binding:"required,max=30"`
+		ImportDate       string  `json:"importDate" binding:"required"`
+		ShelfDays        int     `json:"shelfDays" binding:"required,min=1"`
+		InitialQuantity  float64 `json:"initialQuantity"`
+		WarningThreshold float64 `json:"warningThreshold"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		respondError(c, http.StatusBadRequest, "INVALID_INPUT", err.Error())
 		return
 	}
+	importDate, err := time.Parse("2006-01-02", req.ImportDate)
+	if err != nil {
+		respondError(c, http.StatusBadRequest, "INVALID_INPUT", "importDate must be YYYY-MM-DD")
+		return
+	}
 	ing, err := h.svc.CreateIngredient(c.Request.Context(), service.CreateIngredientInput{
-		Name:         req.Name,
-		Unit:         req.Unit,
-		CurrentStock: req.CurrentStock,
-		MinStock:     req.MinStock,
-		CostPerUnit:  req.CostPerUnit,
+		Name:             req.Name,
+		Unit:             req.Unit,
+		ImportDate:       importDate,
+		ShelfDays:        req.ShelfDays,
+		InitialQuantity:  req.InitialQuantity,
+		WarningThreshold: req.WarningThreshold,
 	})
 	if err != nil {
 		handleServiceError(c, err)
@@ -101,21 +127,31 @@ func (h *IngredientHandler) CreateIngredient(c *gin.Context) {
 // UpdateIngredient handles PATCH /api/v1/admin/ingredients/:id
 func (h *IngredientHandler) UpdateIngredient(c *gin.Context) {
 	var req struct {
-		Name        *string  `json:"name"`
-		Unit        *string  `json:"unit"`
-		MinStock    *float64 `json:"min_stock"`
-		CostPerUnit *int64   `json:"cost_per_unit"`
+		Name             *string  `json:"name"`
+		Unit             *string  `json:"unit"`
+		ImportDate       *string  `json:"importDate"`
+		ShelfDays        *int     `json:"shelfDays"`
+		WarningThreshold *float64 `json:"warningThreshold"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		respondError(c, http.StatusBadRequest, "INVALID_INPUT", err.Error())
 		return
 	}
-	ing, err := h.svc.UpdateIngredient(c.Request.Context(), c.Param("id"), service.UpdateIngredientInput{
-		Name:        req.Name,
-		Unit:        req.Unit,
-		MinStock:    req.MinStock,
-		CostPerUnit: req.CostPerUnit,
-	})
+	in := service.UpdateIngredientInput{
+		Name:             req.Name,
+		Unit:             req.Unit,
+		ShelfDays:        req.ShelfDays,
+		WarningThreshold: req.WarningThreshold,
+	}
+	if req.ImportDate != nil {
+		parsed, err := time.Parse("2006-01-02", *req.ImportDate)
+		if err != nil {
+			respondError(c, http.StatusBadRequest, "INVALID_INPUT", "importDate must be YYYY-MM-DD")
+			return
+		}
+		in.ImportDate = &parsed
+	}
+	ing, err := h.svc.UpdateIngredient(c.Request.Context(), c.Param("id"), in)
 	if err != nil {
 		handleServiceError(c, err)
 		return

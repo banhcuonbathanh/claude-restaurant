@@ -26,7 +26,7 @@
 | C3 | Order | `/dev-page client_order_page` | ⚠️ | 2026-05-30 | 24/25 ACs. Fixed: 404 error state, Zone 5 status condition. Deferred: qty stepper (no BE endpoint). Visual 10/10 · Func 7/7 tested. |
 | C4 | Monitoring / Servicing Table | `/dev-page client_monitoring_servicing_table` | ⚠️ | 2026-05-30 | Route /tracking (no param). orderId from useCartStore.activeOrderId. Visual 4/6 (D+E hidden until first SSE push — correct). Func 6/7 (F-01 401 env-only in test). itemCount=0 in queue broadcast. |
 | C5 | Favourites | `/dev-page client_favourite_page` | ⚠️ | 2026-05-29 | Visual 10/11 · Func 12/12. Open: product-404 toast missing; S2 ZC combo name blank (API encoding, pre-existing). |
-| C6 | Info | `/dev-page client_info_page` | ⚠️ | 2026-05-30 | All 17 FE ACs covered. BE CI-8+CI-9 (GET/PUT /customer/profile) deferred — blocked by auth model (no customer account system). ClientMainBottomNav built (5-tab). CartCount made optional in CustomerTopNav. |
+| C6 | Info | `/dev-page client_info_page` | ⚠️ | 2026-05-30 | Visual 6/6 · Func 6/6. FE complete. BE CI-8+CI-9 deferred — no customer account system. ClientMainBottomNav (5-tab) built. CustomerTopNav.cartCount optional + cart hidden when undefined. |
 
 ---
 
@@ -35,9 +35,9 @@
 | # | Page | Command | Status | Last Run | Concerns / Notes |
 |---|------|---------|--------|----------|-----------------|
 | A1 | Products | `/dev-page admin_main/admin_main_product` | ✅ | 2026-05-30 | Visual 4/4 · Func 8/8. Extracted 3 components (_components/). Fixed: topping overflow cap (max 2 + "+N more"), price > 0 validation, EmptyState, Badge status, 409 field-level error. BE /availability route confirmed registered. |
-| A2 | Categories | `/dev-page admin_main/admin_main_categories` | ⬜ | — | — |
+| A2 | Categories | `/dev-page admin_main/admin_main_categories` | ✅ | 2026-05-30 | All 14 ACs covered. Fixed: 409 delete (product-attached toast), 409 save (RHF field error), isError retry panel, staleTime 60s, client-side sort. Page was pre-built; no new files needed. Phase 4 skipped (browser locked). |
 | A3 | Toppings | `/dev-page admin_main/admin_main_topping` | ⬜ | — | — |
-| A4 | Combos | `/dev-page admin_main/admin_main_combos` | ⬜ | — | — |
+| A4 | Combos | `/dev-page admin_main/admin_main_combos` | ✅ | 2026-05-30 | 17/17 ACs covered. Added BE PATCH /combos/:id (service+handler+route). FE: Sửa+edit mode pre-fill, role-guarded Xóa, min-2 validation, savings note, disabled submit<2, EmptyState. Phase 4 skipped (Playwright locked). |
 | A5 | Staff | `/dev-page admin_main/admin_main_staff` | ⬜ | — | — |
 | A6 | Marketing | `/dev-page admin_main/admin_main_marketing` | ⬜ | — | — |
 | A7 | Storage | `/dev-page admin_main/admin_main_storage` | ⬜ | — | — |
@@ -78,7 +78,9 @@
 | 2026-05-30 | client_monitoring_servicing_table | ⚠️ | Built 10 files: 5 local components + 2 shared (TableLayoutMap, ClientBottomNav) + hook + page.tsx + BE (monitor_handler.go + publishMonitorBroadcast + route). Route /tracking/[id] (spec omits param). itemCount=0 in queue broadcast. Visual 4/6 · Func 6/7. F-01 401 env-only (guest token from QR flow). |
 | 2026-05-30 | admin_main/admin_overview | ✅ | Audit-only (page existed). Fixed 5 bugs: B1 urgent card red bg; B2 WaitingSection covers all active statuses; B3 duplicate button; B4 PrepPanel always visible; B5 WS disconnect banner. Also fixed pre-existing ESLint error in ServiceQueueItem.tsx. Visual 7/7 · Func 10/10. |
 | 2026-05-30 | admin_main/admin_main_product | ✅ | Extracted page into 3 local components (ProductPageHeader, ProductsTable, ProductFormModal). Fixed: topping overflow cap, price > 0 validation, EmptyState, Badge for status, 409 duplicate-name field error, 409 active-order delete error. Visual 4/4 · Func 8/8. |
-| 2026-05-30 | client_info_page | ⚠️ | Built 8 new files: ClientMainBottomNav, useCustomerProfile hook, ProfileAvatarHeader, PersonalInfoForm, QuickNavGrid, SaveCTABar, ProfilePageSkeleton, profile/page.tsx. Made CustomerTopNav.cartCount optional. All 17 FE ACs covered. BE deferred (auth model blocker). |
+| 2026-05-30 | client_info_page | ⚠️ | Built 8 new files: ClientMainBottomNav, useCustomerProfile hook, ProfileAvatarHeader, PersonalInfoForm, QuickNavGrid, SaveCTABar, ProfilePageSkeleton, profile/page.tsx. CustomerTopNav.cartCount optional; cart icon hidden when undefined. Visual 6/6 · Func 6/6. BE CI-8+CI-9 deferred (auth model blocker). |
+| 2026-05-30 | admin_main/admin_main_categories | ✅ | Audit-only (page existed). Fixed 5 spec gaps: 409 delete → specific toast; 409 save → RHF setError on name; isError → retry panel; staleTime 60s; client-side sort_order. Phase 4 skipped (browser locked by prior session). |
+| 2026-05-30 | admin_main/admin_main_combos | ✅ | 7 gaps filled. BE: PATCH /combos/:id (UpdateCombo service+handler+route+admin.api.ts updateCombo). FE: edit mode with pre-fill, Sửa button, admin-only Xóa, min-2 items guard, savings note, disabled submit, EmptyState shared. Phase 4 skipped (Playwright locked). |
 
 ---
 

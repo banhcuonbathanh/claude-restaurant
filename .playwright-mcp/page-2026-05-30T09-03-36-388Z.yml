@@ -1,0 +1,193 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Tổng quan" [ref=e6] [cursor=pointer]:
+          - /url: /admin/overview
+        - link "Tổng kết" [ref=e7] [cursor=pointer]:
+          - /url: /admin/summary
+        - link "Sản phẩm" [ref=e8] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Combo" [ref=e9] [cursor=pointer]:
+          - /url: /admin/combos
+        - link "Danh mục" [ref=e10] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e11] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e12] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Kho nguyên liệu" [ref=e13] [cursor=pointer]:
+          - /url: /admin/ingredients
+        - link "Marketing" [ref=e14] [cursor=pointer]:
+          - /url: /admin/marketing
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - heading "Marketing — Khai trương nhà hàng mới" [level=2] [ref=e19]
+          - paragraph [ref=e20]: Theo dõi ngân sách & hiệu quả chiến dịch marketing
+        - generic [ref=e21]:
+          - button "30/04/2026 – 30/05/2026" [ref=e23] [cursor=pointer]:
+            - img [ref=e24]
+            - text: 30/04/2026 – 30/05/2026
+          - button "Xuất BC" [ref=e26] [cursor=pointer]:
+            - img [ref=e27]
+            - text: Xuất BC
+          - button "Nhập chi tiêu" [ref=e30] [cursor=pointer]:
+            - img [ref=e31]
+            - text: Nhập chi tiêu
+      - generic [ref=e32]:
+        - generic [ref=e33]:
+          - paragraph [ref=e34]: Tổng ngân sách
+          - paragraph [ref=e35]: 50.000.000 ₫
+          - generic [ref=e37]: Kế hoạch
+        - generic [ref=e38]:
+          - paragraph [ref=e39]: Đã chi tiêu
+          - paragraph [ref=e40]: 18.500.000 ₫
+          - generic [ref=e42]: 37%
+        - generic [ref=e43]:
+          - paragraph [ref=e44]: Còn lại
+          - paragraph [ref=e45]: 31.500.000 ₫
+          - generic [ref=e47]: 63% ngân sách
+        - generic [ref=e48]:
+          - paragraph [ref=e49]: ROI dự kiến
+          - paragraph [ref=e50]: 3.2×
+          - generic [ref=e52]: Dựa trên 2.000 khách/tháng
+      - generic [ref=e53]:
+        - table [ref=e56]:
+          - rowgroup [ref=e57]:
+            - row "Hạng mục Ngân sách Đã chi Còn lại Tiến độ" [ref=e58]:
+              - columnheader "Hạng mục" [ref=e59]
+              - columnheader "Ngân sách" [ref=e60]
+              - columnheader "Đã chi" [ref=e61]
+              - columnheader "Còn lại" [ref=e62]
+              - columnheader "Tiến độ" [ref=e63]
+          - rowgroup [ref=e64]:
+            - row "📱 Social Media Ads Facebook · Instagram · TikTok 15.0M 8.0M 7.0M" [ref=e65]:
+              - cell "📱 Social Media Ads Facebook · Instagram · TikTok" [ref=e66]:
+                - generic [ref=e67]:
+                  - generic [ref=e68]: 📱
+                  - generic [ref=e69]:
+                    - paragraph [ref=e70]: Social Media Ads
+                    - paragraph [ref=e71]: Facebook · Instagram · TikTok
+              - cell "15.0M" [ref=e72]
+              - cell "8.0M" [ref=e73]
+              - cell "7.0M" [ref=e74]
+              - cell [ref=e75]
+            - row "🖨️ In ấn & Tờ rơi Tờ rơi · Banner 5.0M 3.5M 1.5M" [ref=e78]:
+              - cell "🖨️ In ấn & Tờ rơi Tờ rơi · Banner" [ref=e79]:
+                - generic [ref=e80]:
+                  - generic [ref=e81]: 🖨️
+                  - generic [ref=e82]:
+                    - paragraph [ref=e83]: In ấn & Tờ rơi
+                    - paragraph [ref=e84]: Tờ rơi · Banner
+              - cell "5.0M" [ref=e85]
+              - cell "3.5M" [ref=e86]
+              - cell "1.5M" [ref=e87]
+              - cell [ref=e88]
+            - row "🌟 Influencer/KOL Food blogger 10.0M 4.0M 6.0M" [ref=e91]:
+              - cell "🌟 Influencer/KOL Food blogger" [ref=e92]:
+                - generic [ref=e93]:
+                  - generic [ref=e94]: 🌟
+                  - generic [ref=e95]:
+                    - paragraph [ref=e96]: Influencer/KOL
+                    - paragraph [ref=e97]: Food blogger
+              - cell "10.0M" [ref=e98]
+              - cell "4.0M" [ref=e99]
+              - cell "6.0M" [ref=e100]
+              - cell [ref=e101]
+            - row "🎁 Khuyến mãi khai trương Giảm 20% · Voucher 10.0M 2.0M 8.0M" [ref=e104]:
+              - cell "🎁 Khuyến mãi khai trương Giảm 20% · Voucher" [ref=e105]:
+                - generic [ref=e106]:
+                  - generic [ref=e107]: 🎁
+                  - generic [ref=e108]:
+                    - paragraph [ref=e109]: Khuyến mãi khai trương
+                    - paragraph [ref=e110]: Giảm 20% · Voucher
+              - cell "10.0M" [ref=e111]
+              - cell "2.0M" [ref=e112]
+              - cell "8.0M" [ref=e113]
+              - cell [ref=e114]
+            - row "🎊 Sự kiện khai trương Grand opening 10.0M 1.0M 9.0M" [ref=e117]:
+              - cell "🎊 Sự kiện khai trương Grand opening" [ref=e118]:
+                - generic [ref=e119]:
+                  - generic [ref=e120]: 🎊
+                  - generic [ref=e121]:
+                    - paragraph [ref=e122]: Sự kiện khai trương
+                    - paragraph [ref=e123]: Grand opening
+              - cell "10.0M" [ref=e124]
+              - cell "1.0M" [ref=e125]
+              - cell "9.0M" [ref=e126]
+              - cell [ref=e127]
+          - rowgroup [ref=e130]:
+            - row "Tổng cộng 50.0M 18.5M 31.5M" [ref=e131]:
+              - cell "Tổng cộng" [ref=e132]
+              - cell "50.0M" [ref=e133]
+              - cell "18.5M" [ref=e134]
+              - cell "31.5M" [ref=e135]
+              - cell [ref=e136]
+        - generic [ref=e138]:
+          - paragraph [ref=e139]: Phân bổ ngân sách
+          - 'img "Biểu đồ phân bổ ngân sách: 37% đã chi" [ref=e141]':
+            - generic [ref=e148]: 37%
+            - generic [ref=e149]: đã chi
+          - generic [ref=e150]:
+            - generic [ref=e151]:
+              - generic [ref=e154]: 📱 Social Media Ads
+              - generic [ref=e155]: 30%
+            - generic [ref=e156]:
+              - generic [ref=e159]: 🖨️ In ấn & Tờ rơi
+              - generic [ref=e160]: 10%
+            - generic [ref=e161]:
+              - generic [ref=e164]: 🌟 Influencer
+              - generic [ref=e165]: 20%
+            - generic [ref=e166]:
+              - generic [ref=e169]: 🎁 Khuyến mãi khai trương
+              - generic [ref=e170]: 20%
+            - generic [ref=e171]:
+              - generic [ref=e174]: 🎊 Sự kiện khai trương
+              - generic [ref=e175]: 20%
+      - generic [ref=e176]:
+        - generic [ref=e177]:
+          - paragraph [ref=e178]: 💰 Chi phí/Khách mới
+          - paragraph [ref=e179]: 9.250 ₫/khách
+          - generic [ref=e180]:
+            - paragraph [ref=e181]: "Mục tiêu: 2.000/tháng"
+            - paragraph [ref=e182]: Chi 18.500.000 ₫
+        - generic [ref=e183]:
+          - paragraph [ref=e184]: ❤️ Mục tiêu Followers
+          - paragraph [ref=e185]: "5.000"
+          - paragraph [ref=e188]: "Đã đạt: 1.500 (30%)"
+        - generic [ref=e189]:
+          - paragraph [ref=e190]: ⭐ Điểm hài lòng
+          - paragraph [ref=e191]: 4.5 / 5 ⭐
+          - paragraph [ref=e192]: chất lượng + KM + UX
+      - generic [ref=e193]:
+        - heading "Lộ trình chiến dịch — 5 tuần khai trương" [level=3] [ref=e194]
+        - generic [ref=e197]:
+          - generic [ref=e198]:
+            - paragraph [ref=e200]: Tuần 1-2
+            - generic [ref=e201]:
+              - paragraph [ref=e202]: Social Ads
+              - paragraph [ref=e203]: Tờ rơi
+          - generic [ref=e204]:
+            - paragraph [ref=e206]: Tuần 3
+            - generic [ref=e207]:
+              - paragraph [ref=e208]: Seeding KOL
+              - paragraph [ref=e209]: Influencer
+          - generic [ref=e210]:
+            - paragraph [ref=e212]: Tuần 4
+            - generic [ref=e213]:
+              - paragraph [ref=e214]: Tạo buzz
+              - paragraph [ref=e215]: Teaser video
+          - generic [ref=e216]:
+            - paragraph [ref=e218]: 🎊 Khai trương
+            - generic [ref=e219]:
+              - paragraph [ref=e220]: Sự kiện lớn
+              - paragraph [ref=e221]: Khuyến mãi
+          - generic [ref=e222]:
+            - paragraph [ref=e224]: Sau khai trương
+            - generic [ref=e225]:
+              - paragraph [ref=e226]: Retargeting
+              - paragraph [ref=e227]: Loyalty + Review
+  - region "Notifications alt+T"
+  - alert [ref=e228]

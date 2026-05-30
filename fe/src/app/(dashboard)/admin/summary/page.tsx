@@ -318,8 +318,8 @@ function StockAlertList() {
       ) : (
         <ul className="space-y-2">
           {data.map(ing => {
-            const isCritical = ing.current_stock < ing.min_stock
-            const pct = ing.min_stock > 0 ? Math.min((ing.current_stock / ing.min_stock) * 100, 100) : 100
+            const isCritical = ing.quantity < ing.warningThreshold
+            const pct = ing.warningThreshold > 0 ? Math.min((ing.quantity / ing.warningThreshold) * 100, 100) : 100
             return (
               <li
                 key={ing.id}
@@ -332,7 +332,7 @@ function StockAlertList() {
                   <div className="flex items-center justify-between text-sm">
                     <span className="font-medium text-gray-800">{ing.name}</span>
                     <span className={`text-xs font-medium ${isCritical ? 'text-red-600' : 'text-yellow-700'}`}>
-                      còn {ing.current_stock} {ing.unit} / min {ing.min_stock} {ing.unit}
+                      còn {ing.quantity} {ing.unit} / min {ing.warningThreshold} {ing.unit}
                     </span>
                   </div>
                   <div className="mt-1.5 h-1.5 w-full rounded-full bg-gray-200">

@@ -14,6 +14,8 @@ type Ingredient struct {
 	ID           string
 	Name         string
 	Unit         string
+	ImportDate   time.Time
+	ShelfDays    int
 	CurrentStock float64
 	MinStock     float64
 	CostPerUnit  int64
@@ -37,6 +39,8 @@ type CreateIngredientParams struct {
 	ID           string
 	Name         string
 	Unit         string
+	ImportDate   time.Time
+	ShelfDays    int
 	CurrentStock float64
 	MinStock     float64
 	CostPerUnit  int64
@@ -47,6 +51,8 @@ type UpdateIngredientParams struct {
 	ID           string
 	Name         *string
 	Unit         *string
+	ImportDate   *time.Time
+	ShelfDays    *int
 	MinStock     *float64
 	CostPerUnit  *int64
 }
@@ -82,14 +88,14 @@ func NewIngredientRepo(dbtx db.DBTX) IngredientRepository {
 	return &ingredientRepo{dbtx: dbtx}
 }
 
-const ingredientCols = `id, name, unit, current_stock, min_stock, cost_per_unit, created_at, updated_at`
+const ingredientCols = `id, name, unit, import_date, shelf_days, current_stock, min_stock, cost_per_unit, created_at, updated_at`
 
 func scanIngredient(row interface {
 	Scan(dest ...any) error
 }) (Ingredient, error) {
 	var ing Ingredient
-	err := row.Scan(&ing.ID, &ing.Name, &ing.Unit, &ing.CurrentStock,
-		&ing.MinStock, &ing.CostPerUnit, &ing.CreatedAt, &ing.UpdatedAt)
+	err := row.Scan(&ing.ID, &ing.Name, &ing.Unit, &ing.ImportDate, &ing.ShelfDays,
+		&ing.CurrentStock, &ing.MinStock, &ing.CostPerUnit, &ing.CreatedAt, &ing.UpdatedAt)
 	return ing, err
 }
 
@@ -144,10 +150,10 @@ func (r *ingredientRepo) GetIngredientByID(ctx context.Context, id string) (Ingr
 }
 
 func (r *ingredientRepo) CreateIngredient(ctx context.Context, arg CreateIngredientParams) (Ingredient, error) {
-	const q = `INSERT INTO ingredients (id, name, unit, current_stock, min_stock, cost_per_unit, created_at, updated_at)
-	           VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())`
+	const q = `INSERT INTO ingredients (id, name, unit, import_date, shelf_days, current_stock, min_stock, cost_per_unit, created_at, updated_at)
+	           VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`
 	if _, err := r.dbtx.ExecContext(ctx, q,
-		arg.ID, arg.Name, arg.Unit, arg.CurrentStock, arg.MinStock, arg.CostPerUnit,
+		arg.ID, arg.Name, arg.Unit, arg.ImportDate, arg.ShelfDays, arg.CurrentStock, arg.MinStock, arg.CostPerUnit,
 	); err != nil {
 		return Ingredient{}, fmt.Errorf("ingredient: create: %w", err)
 	}
@@ -164,6 +170,14 @@ func (r *ingredientRepo) UpdateIngredient(ctx context.Context, arg UpdateIngredi
 	if arg.Unit != nil {
 		sets = append(sets, "unit = ?")
 		args = append(args, *arg.Unit)
+	}
+	if arg.ImportDate != nil {
+		sets = append(sets, "import_date = ?")
+		args = append(args, *arg.ImportDate)
+	}
+	if arg.ShelfDays != nil {
+		sets = append(sets, "shelf_days = ?")
+		args = append(args, *arg.ShelfDays)
 	}
 	if arg.MinStock != nil {
 		sets = append(sets, "min_stock = ?")

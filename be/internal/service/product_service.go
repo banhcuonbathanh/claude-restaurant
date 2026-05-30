@@ -551,6 +551,52 @@ func (s *ProductService) DeleteCombo(ctx context.Context, id string) error {
 	return nil
 }
 
+type UpdateComboInput struct {
+	Name        string
+	Price       int64
+	CategoryID  string
+	Description string
+	SortOrder   int32
+	Items       []ComboItemInput
+}
+
+func (s *ProductService) UpdateCombo(ctx context.Context, id string, in UpdateComboInput) error {
+	if _, err := s.repo.GetComboByID(ctx, id); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrNotFound
+		}
+		return fmt.Errorf("combo: get: %w", err)
+	}
+	catID := sql.NullString{}
+	if in.CategoryID != "" {
+		catID = sql.NullString{String: in.CategoryID, Valid: true}
+	}
+	desc := sql.NullString{}
+	if in.Description != "" {
+		desc = sql.NullString{String: in.Description, Valid: true}
+	}
+	if err := s.repo.UpdateCombo(ctx, db.UpdateComboParams{
+		ID:          id,
+		CategoryID:  catID,
+		Name:        in.Name,
+		Description: desc,
+		Price:       formatPrice(in.Price),
+		SortOrder:   in.SortOrder,
+	}); err != nil {
+		return fmt.Errorf("combo: update: %w", err)
+	}
+	if err := s.repo.DeleteComboItemsByComboID(ctx, id); err != nil {
+		return fmt.Errorf("combo: delete items: %w", err)
+	}
+	for _, item := range in.Items {
+		if err := s.repo.CreateComboItem(ctx, newUUID(), id, item.ProductID, item.Quantity); err != nil {
+			slog.WarnContext(ctx, "combo: update item failed", "err", err)
+		}
+	}
+	s.invalidateComboCaches(ctx)
+	return nil
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 func (s *ProductService) enrichProduct(p db.Product, cats map[string]db.Category, toppings []db.Topping) ProductDetails {

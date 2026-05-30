@@ -19,12 +19,13 @@ export default function CategoriesPage() {
   const [editItem, setEditItem] = useState<Category | null>(null)
   const [showModal, setShowModal] = useState(false)
 
-  const { data: categories = [], isLoading } = useQuery<Category[]>({
+  const { data: categories = [], isLoading, isError, refetch } = useQuery<Category[]>({
     queryKey: ['admin', 'categories'],
     queryFn:  listCategories,
+    staleTime: 60_000,
   })
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
+  const { register, handleSubmit, reset, setError, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
   })
 
@@ -49,7 +50,14 @@ export default function CategoriesPage() {
       toast.success(editItem ? 'Đã cập nhật danh mục' : 'Đã thêm danh mục')
       setShowModal(false)
     },
-    onError: () => toast.error('Có lỗi xảy ra'),
+    onError: (err: unknown) => {
+      const status = (err as { response?: { status: number } }).response?.status
+      if (status === 409) {
+        setError('name', { message: 'Tên danh mục đã tồn tại.' })
+      } else {
+        toast.error('Có lỗi xảy ra')
+      }
+    },
   })
 
   const deleteMut = useMutation({
@@ -58,7 +66,14 @@ export default function CategoriesPage() {
       qc.invalidateQueries({ queryKey: ['admin', 'categories'] })
       toast.success('Đã xóa danh mục')
     },
-    onError: () => toast.error('Không thể xóa danh mục'),
+    onError: (err: unknown) => {
+      const status = (err as { response?: { status: number } }).response?.status
+      if (status === 409) {
+        toast.error('Không thể xóa — danh mục đang có sản phẩm.')
+      } else {
+        toast.error('Không thể xóa danh mục')
+      }
+    },
   })
 
   const handleDelete = (id: string, name: string) => {
@@ -80,6 +95,16 @@ export default function CategoriesPage() {
 
       {isLoading ? (
         <p className="text-gray-500 text-sm">Đang tải...</p>
+      ) : isError ? (
+        <div className="bg-white rounded-xl shadow-sm p-10 text-center">
+          <p className="text-gray-500 text-sm mb-3">Không thể tải danh mục. Vui lòng thử lại.</p>
+          <button
+            onClick={() => refetch()}
+            className="px-4 py-2 text-sm border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50"
+          >
+            Thử lại
+          </button>
+        </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           <table className="w-full text-sm">
@@ -91,7 +116,7 @@ export default function CategoriesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {categories.map(c => (
+              {[...categories].sort((a, b) => a.sort_order - b.sort_order).map(c => (
                 <tr key={c.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 font-medium text-gray-900">{c.name}</td>
                   <td className="px-4 py-3 text-center text-gray-500">{c.sort_order}</td>
