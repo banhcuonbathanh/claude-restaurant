@@ -104,9 +104,9 @@ func (h *OrderHandler) Get(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": orderJSON(o)})
 }
 
-// ListLive handles GET /orders/live (Staff+)
+// ListLive handles GET /orders/live?q= (Staff+)
 func (h *OrderHandler) ListLive(c *gin.Context) {
-	orders, err := h.svc.ListActiveOrders(c.Request.Context())
+	orders, err := h.svc.SearchActiveOrders(c.Request.Context(), c.Query("q"))
 	if err != nil {
 		handleServiceError(c, err)
 		return

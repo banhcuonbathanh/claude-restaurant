@@ -156,6 +156,29 @@ func (s *OrderService) ListActiveOrders(ctx context.Context) ([]OrderDetails, er
 	return result, nil
 }
 
+// SearchActiveOrders filters active orders by q (order_number, id, customer_name, table_name).
+// Empty q returns all active orders.
+func (s *OrderService) SearchActiveOrders(ctx context.Context, q string) ([]OrderDetails, error) {
+	all, err := s.ListActiveOrders(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if q == "" {
+		return all, nil
+	}
+	q = strings.ToLower(q)
+	var out []OrderDetails
+	for _, o := range all {
+		if strings.Contains(strings.ToLower(o.OrderNumber), q) ||
+			strings.Contains(strings.ToLower(o.ID), q) ||
+			(o.CustomerName.Valid && strings.Contains(strings.ToLower(o.CustomerName.String), q)) ||
+			strings.Contains(strings.ToLower(o.TableName), q) {
+			out = append(out, o)
+		}
+	}
+	return out, nil
+}
+
 // ─── CreateOrder ─────────────────────────────────────────────────────────────
 
 // CreateOrderInput is the validated input from the handler.

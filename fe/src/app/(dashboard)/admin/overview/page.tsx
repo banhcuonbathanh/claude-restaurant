@@ -105,6 +105,7 @@ export default function OverviewPage() {
   const [checkedTableIds, setCheckedTableIds] = useState<Set<string>>(new Set())
   const [popupOrder,      setPopupOrder]      = useState<Order | null>(null)
   const [popupLoading,    setPopupLoading]    = useState(false)
+  const [searchQuery,     setSearchQuery]     = useState('')
 
   // 30s timer — keeps elapsed-time urgency display fresh
   useEffect(() => {
@@ -121,7 +122,7 @@ export default function OverviewPage() {
 
   const { data: rawOrders = [] } = useQuery<Order[]>({
     queryKey: ['orders', 'live'],
-    queryFn:  listLiveOrders,
+    queryFn:  () => listLiveOrders(),
     staleTime: 15_000,
   })
   const orders = rawOrders.filter(o => ACTIVE.has(o.status))
@@ -184,6 +185,33 @@ export default function OverviewPage() {
 
   const tableMap = new Map(tables.map(t => [t.id, t]))
 
+  const q = searchQuery.toLowerCase().trim()
+
+  const filteredOrders = q
+    ? orders.filter(o => {
+        if (o.order_number.toLowerCase().includes(q)) return true
+        if (o.id.toLowerCase().includes(q)) return true
+        if (o.customer_name?.toLowerCase().includes(q)) return true
+        if (o.table_id) {
+          const name = tableMap.get(o.table_id)?.name?.toLowerCase() ?? ''
+          if (name.includes(q)) return true
+        }
+        return false
+      })
+    : orders
+
+  const filteredTables = q
+    ? tables.filter(t => {
+        if (t.name.toLowerCase().includes(q)) return true
+        const order = orders.find(o => o.table_id === t.id)
+        if (!order) return false
+        if (order.order_number.toLowerCase().includes(q)) return true
+        if (order.id.toLowerCase().includes(q)) return true
+        if (order.customer_name?.toLowerCase().includes(q)) return true
+        return false
+      })
+    : tables
+
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
@@ -214,12 +242,45 @@ export default function OverviewPage() {
         </div>
       </div>
 
+      {/* Search bar */}
+      <div className="relative">
+        <svg
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+          fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+            d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+        </svg>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          placeholder="Tìm theo mã đơn, số bàn, tên khách..."
+          className="w-full pl-9 pr-9 py-2.5 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 placeholder:text-gray-400"
+        />
+        {searchQuery && (
+          <button
+            onClick={() => setSearchQuery('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
+      </div>
+      {q && (
+        <p className="text-xs text-gray-400 -mt-2">
+          {filteredOrders.length} đơn · {filteredTables.length} bàn phù hợp với &ldquo;{q}&rdquo;
+        </p>
+      )}
+
       {/* Zone A — 4 stat cards */}
       <StatCards orders={orders} tables={tables} now={now} />
 
       {/* Zone B — pending orders awaiting confirmation */}
       <WaitingSection
-        orders={orders}
+        orders={filteredOrders}
         tables={tables}
         now={now}
         loadingIds={loadingIds}
@@ -229,12 +290,12 @@ export default function OverviewPage() {
       />
 
       {/* Zone C — dish summary panel (always visible) */}
-      <PrepPanel orders={orders} tableMap={tableMap} />
+      <PrepPanel orders={filteredOrders} tableMap={tableMap} />
 
       {/* Zone D — full table grid (occupied first, then empty) */}
       <TableGrid
-        tables={tables}
-        orders={orders}
+        tables={filteredTables}
+        orders={filteredOrders}
         now={now}
         loadingIds={loadingIds}
         checkedTableIds={checkedTableIds}

@@ -192,6 +192,8 @@ docs/workflow.excalidraw                  ← Claude workflow diagram v1.1 (FE P
 | RBAC roles + hierarchy | `docs/core/MASTER_v1.2.md §3` | BE + FE |
 | JWT config + auth rules | `docs/core/MASTER_v1.2.md §6` | BE + FE |
 | Realtime (SSE/WS config) | `docs/core/MASTER_v1.2.md §5` + `docs/contract/API_CONTRACT_v1.2.md §10` | BE + FE + DevOps |
+| **Client QR flow** (scan → menu → order → tracking) | **`docs/work_flow/CLIENT_QR_FLOW.md`** | **BE + FE — MUST READ before touching this flow** |
+| **Staff order flow** (login → KDS → POS → confirm → cancel → bill → payment) | **`docs/work_flow/STAFF_ORDER_FLOW.md`** | **BE + FE — MUST READ before touching staff order management** |
 
 ## Commands
 

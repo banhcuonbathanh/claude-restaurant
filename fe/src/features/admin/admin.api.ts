@@ -169,8 +169,8 @@ export const listTables = (): Promise<Table[]> =>
 
 // ── Orders Live ───────────────────────────────────────────────────────────────
 
-export const listLiveOrders = (): Promise<import('@/types/order').Order[]> =>
-  api.get('/orders/live').then(r => r.data?.data ?? r.data ?? [])
+export const listLiveOrders = (q?: string): Promise<import('@/types/order').Order[]> =>
+  api.get('/orders/live', { params: q ? { q } : undefined }).then(r => r.data?.data ?? r.data ?? [])
 
 export const updateOrderStatus = (id: string, status: string): Promise<void> =>
   api.patch(`/orders/${id}/status`, { status })

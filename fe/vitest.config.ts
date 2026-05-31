@@ -5,5 +5,10 @@ export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
     environment: 'node',
+    include: [
+      'src/lib/**/*.test.ts',
+      'src/store/**/*.test.ts',
+      '../docs/work_flow/*.test.ts',
+    ],
   },
 })
