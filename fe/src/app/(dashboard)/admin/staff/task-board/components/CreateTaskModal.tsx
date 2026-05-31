@@ -1,6 +1,6 @@
 'use client'
 import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -44,7 +44,7 @@ export function CreateTaskModal({ open, defaultStaffId, onClose, onSuccess }: Pr
   })
   const staffList = staffData?.data ?? []
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormValues>({
+  const { register, handleSubmit, reset, setValue, control, formState: { errors, isSubmitting } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       staffId:  defaultStaffId ?? '',
@@ -68,6 +68,13 @@ export function CreateTaskModal({ open, defaultStaffId, onClose, onSuccess }: Pr
       return () => window.removeEventListener('keydown', handleKey)
     }
   }, [open, defaultStaffId, reset, onClose])
+
+  // Re-apply pre-selection once staff list loads (list is fetched async after modal opens)
+  useEffect(() => {
+    if (open && defaultStaffId && staffList.length > 0) {
+      setValue('staffId', defaultStaffId)
+    }
+  }, [open, defaultStaffId, staffList.length, setValue])
 
   const mutation = useMutation({
     mutationFn: (v: FormValues) => createTask({
@@ -111,16 +118,22 @@ export function CreateTaskModal({ open, defaultStaffId, onClose, onSuccess }: Pr
           {/* Staff */}
           <div className="space-y-1">
             <Label htmlFor="staffId">Nhân viên *</Label>
-            <select
-              id="staffId"
-              {...register('staffId')}
-              className="w-full min-h-[44px] rounded-md border border-gray-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-            >
-              <option value="">Chọn nhân viên…</option>
-              {staffList.map(s => (
-                <option key={s.id} value={s.id}>{s.full_name}</option>
-              ))}
-            </select>
+            <Controller
+              name="staffId"
+              control={control}
+              render={({ field }) => (
+                <select
+                  {...field}
+                  id="staffId"
+                  className="w-full min-h-[44px] rounded-md border border-gray-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                >
+                  <option value="">Chọn nhân viên…</option>
+                  {staffList.map(s => (
+                    <option key={s.id} value={s.id}>{s.full_name}</option>
+                  ))}
+                </select>
+              )}
+            />
             {errors.staffId && <p className="text-xs text-red-500">{errors.staffId.message}</p>}
           </div>
 

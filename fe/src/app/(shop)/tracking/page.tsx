@@ -1,4 +1,5 @@
 'use client'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { AlertTriangle } from 'lucide-react'
@@ -18,7 +19,7 @@ export default function TrackingPage() {
   const router  = useRouter()
   const orderId = useCartStore(s => s.activeOrderId)
 
-  const { data: order, isLoading, isError } = useQuery<Order>({
+  const { data: order, isLoading, isError, refetch } = useQuery<Order>({
     queryKey: ['order', orderId],
     queryFn: async () => {
       const { data } = await api.get(`/orders/${orderId}`)
@@ -33,8 +34,13 @@ export default function TrackingPage() {
     },
   })
 
-  const { orderStatus, queueData, tableStatuses, sseConnected, reconnect } =
+  const { orderStatus, queueData, tableStatuses, sseConnected, isUnauthorized, itemsChangedAt, reconnect } =
     useOrderMonitorSSE(orderId ?? '')
+
+  // Refetch order detail when items are added/updated/cancelled from POS or staff.
+  useEffect(() => {
+    if (itemsChangedAt) refetch()
+  }, [itemsChangedAt, refetch])
 
   const effectiveStatus = orderStatus ?? order?.status
   const tableLabel      = order?.table_name ?? order?.table_id ?? '?'
@@ -70,6 +76,27 @@ export default function TrackingPage() {
         <div>
           <p className="text-base font-semibold text-foreground">Đơn hàng không tồn tại</p>
           <p className="text-sm text-muted-fg mt-1">Vui lòng quét lại mã QR để đặt đơn mới.</p>
+        </div>
+        <button
+          onClick={() => router.push('/menu')}
+          className="bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-sm font-semibold min-h-[44px]"
+        >
+          Về trang menu
+        </button>
+      </div>
+    )
+  }
+
+  // 401 — guest session expired or never established (e.g. navigated directly)
+  if (isUnauthorized) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4 px-6 text-center">
+        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+          <AlertTriangle size={28} className="text-muted-fg" />
+        </div>
+        <div>
+          <p className="text-base font-semibold text-foreground">Phiên làm việc hết hạn</p>
+          <p className="text-sm text-muted-fg mt-1">Vui lòng quét lại mã QR để tiếp tục.</p>
         </div>
         <button
           onClick={() => router.push('/menu')}

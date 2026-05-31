@@ -92,7 +92,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name:       STORAGE_KEYS.CART_CONFIG,
-      partialize: (s) => ({ drinkConfig: s.drinkConfig, orderNote: s.orderNote }),
+      partialize: (s) => ({ drinkConfig: s.drinkConfig, orderNote: s.orderNote, activeOrderId: s.activeOrderId }),
     },
   ),
 )

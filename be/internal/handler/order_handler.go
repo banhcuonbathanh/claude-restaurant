@@ -164,6 +164,29 @@ func (h *OrderHandler) CancelItem(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+type updateItemQuantityReq struct {
+	Quantity int32 `json:"quantity" binding:"required,min=1"`
+}
+
+// UpdateItemQuantity handles PATCH /orders/items/:id/quantity (auth — guest or cashier+)
+func (h *OrderHandler) UpdateItemQuantity(c *gin.Context) {
+	var req updateItemQuantityReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		respondError(c, http.StatusBadRequest, "INVALID_INPUT", "Dữ liệu đầu vào không hợp lệ")
+		return
+	}
+	claims := middleware.ClaimsFromContext(c)
+	callerID := claims.Subject
+	if claims.Role == "customer" {
+		callerID = claims.TableID
+	}
+	if err := h.svc.UpdateOrderItemQuantity(c.Request.Context(), c.Param("id"), callerID, claims.Role, req.Quantity); err != nil {
+		handleServiceError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Cập nhật số lượng thành công"})
+}
+
 type updateItemServedReq struct {
 	QtyServed int32 `json:"qty_served" binding:"min=0"`
 }
@@ -301,6 +324,7 @@ func orderJSON(o service.OrderDetails) gin.H {
 		"id":             o.Order.ID,
 		"order_number":   o.Order.OrderNumber,
 		"table_id":       tableID,
+		"table_name":     o.TableName,
 		"status":         string(o.Order.Status),
 		"source":         string(o.Order.Source),
 		"customer_name":  customerName,

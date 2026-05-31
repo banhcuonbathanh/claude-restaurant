@@ -7,9 +7,12 @@ import {
   listCategories, createCategory, createTopping, createProduct, createStaff,
 } from '@/features/admin/admin.api'
 import type { Product, Category, Topping } from '@/types/product'
+import dynamic from 'next/dynamic'
 import { ProductPageHeader } from './_components/ProductPageHeader'
 import { ProductsTable }     from './_components/ProductsTable'
-import { ProductFormModal }  from './_components/ProductFormModal'
+const ProductFormModal = dynamic(() =>
+  import('./_components/ProductFormModal').then(m => ({ default: m.ProductFormModal }))
+)
 
 export default function ProductsPage() {
   const qc = useQueryClient()

@@ -270,6 +270,7 @@ func (s *OrderService) CreateOrder(ctx context.Context, in CreateOrderInput) (st
 
 	s.publishOrderEvent(ctx, "new_order", orderID)
 	s.publishAdminOrderEvent(ctx, orderID, orderNumber, in.TableID)
+	go s.publishMonitorBroadcast(context.Background())
 
 	return orderID, nil
 }
@@ -530,6 +531,60 @@ func (s *OrderService) CancelOrderItem(ctx context.Context, itemID, callerID, ca
 	return nil
 }
 
+// UpdateOrderItemQuantity changes the ordered quantity for an item that has not yet been served.
+// Callers: guest customer (owns the table) or cashier+.
+func (s *OrderService) UpdateOrderItemQuantity(ctx context.Context, itemID, callerID, callerRole string, qty int32) error {
+	if qty < 1 {
+		return ErrInvalidInput
+	}
+
+	item, err := s.repo.GetOrderItemByID(ctx, itemID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrNotFound
+		}
+		return fmt.Errorf("order: get item for qty update: %w", err)
+	}
+
+	order, err := s.repo.GetOrderByID(ctx, item.OrderID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrNotFound
+		}
+		return fmt.Errorf("order: get order for qty update: %w", err)
+	}
+
+	// Ownership check — guests identify by table_id
+	if callerRole == "customer" {
+		if !order.TableID.Valid || order.TableID.String != callerID {
+			return ErrForbidden
+		}
+	}
+
+	// Only allowed on active orders
+	switch order.Status {
+	case db.OrdersStatusPending, db.OrdersStatusConfirmed, db.OrdersStatusPreparing:
+	default:
+		return ErrCancelThreshold
+	}
+
+	// Cannot change quantity after the item has started being served
+	if item.QtyServed > 0 {
+		return ErrCancelThreshold
+	}
+
+	if err := s.repo.UpdateItemQuantity(ctx, qty, itemID); err != nil {
+		return fmt.Errorf("order: update item quantity: %w", err)
+	}
+
+	if err := s.repo.RecalculateTotalAmount(ctx, item.OrderID); err != nil {
+		return fmt.Errorf("order: recalculate after qty update: %w", err)
+	}
+
+	s.publishOrderEvent(ctx, "item_updated", item.OrderID)
+	return nil
+}
+
 // UpdateItemServed increments qty_served for an order item (chef click).
 func (s *OrderService) UpdateItemServed(ctx context.Context, itemID string, newQtyServed int32) error {
 	item, err := s.repo.GetOrderItemByID(ctx, itemID)
@@ -671,13 +726,31 @@ func (s *OrderService) publishMonitorBroadcast(ctx context.Context) {
 		return
 	}
 
+	// Fetch tables first so we can resolve table names for the queue broadcast.
+	tables, err := s.tableRepo.ListTables(ctx)
+	if err != nil {
+		slog.WarnContext(ctx, "monitor: list tables failed", "err", err)
+		return
+	}
+	tableNames := make(map[string]string, len(tables))
+	for _, t := range tables {
+		tableNames[t.ID] = t.Name
+	}
+
+	// Single batch query — no N+1.
+	itemCounts, err := s.repo.CountActiveOrderItems(ctx)
+	if err != nil {
+		slog.WarnContext(ctx, "monitor: count items failed", "err", err)
+		itemCounts = map[string]int{}
+	}
+
 	// ── Queue broadcast ───────────────────────────────────────────────────────
 	type queueItem struct {
-		Type      string `json:"type"`
-		OrderID   string `json:"orderId"`
+		Type       string `json:"type"`
+		OrderID    string `json:"orderId"`
 		TableLabel string `json:"tableLabel"`
-		Status    string `json:"status"`
-		ItemCount int    `json:"itemCount"`
+		Status     string `json:"status"`
+		ItemCount  int    `json:"itemCount"`
 	}
 	type queuePayload struct {
 		Type             string      `json:"type"`
@@ -691,13 +764,17 @@ func (s *OrderService) publishMonitorBroadcast(ctx context.Context) {
 	for _, o := range orders {
 		label := ""
 		if o.TableID.Valid {
-			label = o.TableID.String
+			if name, ok := tableNames[o.TableID.String]; ok {
+				label = name
+			} else {
+				label = o.TableID.String
+			}
 		}
 		queueItems = append(queueItems, queueItem{
 			OrderID:    o.ID,
 			TableLabel: label,
 			Status:     string(o.Status),
-			ItemCount:  0, // item count not fetched to avoid N+1; FE hides when 0
+			ItemCount:  itemCounts[o.ID],
 		})
 	}
 
@@ -707,13 +784,6 @@ func (s *OrderService) publishMonitorBroadcast(ctx context.Context) {
 		Total: len(queueItems),
 	})
 	s.rdb.Publish(ctx, "queue:broadcast", string(qp))
-
-	// ── Tables broadcast ──────────────────────────────────────────────────────
-	tables, err := s.tableRepo.ListTables(ctx)
-	if err != nil {
-		slog.WarnContext(ctx, "monitor: list tables failed", "err", err)
-		return
-	}
 
 	// Map table_id → order status (to derive serving/waiting/empty)
 	tableStatus := make(map[string]string, len(orders))

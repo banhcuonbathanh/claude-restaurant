@@ -47,8 +47,12 @@ type OrderRepository interface {
 	GetActiveOrderByTable(ctx context.Context, tableID sql.NullString) (db.Order, error)
 	ListAllOrders(ctx context.Context, limit, offset int32) ([]db.Order, error)
 	ListActiveOrders(ctx context.Context) ([]db.Order, error)
+	// CountActiveOrderItems returns a map of order_id → item count for all active orders.
+	// Single query — safe to call alongside ListActiveOrders.
+	CountActiveOrderItems(ctx context.Context) (map[string]int, error)
 	UpdateOrderStatus(ctx context.Context, status db.OrdersStatus, id string) error
 	UpdateQtyServed(ctx context.Context, qtyServed int32, id string) error
+	UpdateItemQuantity(ctx context.Context, quantity int32, id string) error
 	RecalculateTotalAmount(ctx context.Context, id string) error
 	SoftDeleteOrder(ctx context.Context, id string) error
 	SumQtyServedAndQuantity(ctx context.Context, orderID string) (served int64, total int64, err error)
@@ -209,6 +213,10 @@ func (r *orderRepo) UpdateQtyServed(ctx context.Context, qtyServed int32, id str
 	return r.q.UpdateQtyServed(ctx, qtyServed, id)
 }
 
+func (r *orderRepo) UpdateItemQuantity(ctx context.Context, quantity int32, id string) error {
+	return r.q.UpdateItemQuantity(ctx, quantity, id)
+}
+
 func (r *orderRepo) RecalculateTotalAmount(ctx context.Context, id string) error {
 	return r.q.RecalculateTotalAmount(ctx, id)
 }
@@ -242,6 +250,29 @@ func (r *orderRepo) ListOrdersByGroupID(ctx context.Context, groupID string) ([]
 func (r *orderRepo) DeleteOrderItem(ctx context.Context, itemID string) error {
 	_, err := r.sqlDB.ExecContext(ctx, `DELETE FROM order_items WHERE id = ?`, itemID)
 	return err
+}
+
+func (r *orderRepo) CountActiveOrderItems(ctx context.Context) (map[string]int, error) {
+	rows, err := r.sqlDB.QueryContext(ctx, `
+		SELECT oi.order_id, COUNT(*) AS cnt
+		FROM order_items oi
+		JOIN orders o ON o.id = oi.order_id
+		WHERE o.status IN ('pending','confirmed','preparing','ready') AND o.deleted_at IS NULL
+		GROUP BY oi.order_id`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	counts := make(map[string]int)
+	for rows.Next() {
+		var orderID string
+		var cnt int
+		if err := rows.Scan(&orderID, &cnt); err != nil {
+			return nil, err
+		}
+		counts[orderID] = cnt
+	}
+	return counts, rows.Err()
 }
 
 func toInt64(v interface{}) int64 {

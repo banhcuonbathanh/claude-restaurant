@@ -15,4 +15,6 @@ sql:
         query_parameter_limit: 4
         overrides:
           - column: "staff.shifts"
-            go_type: "[]byte"
+            go_type:
+              import: "encoding/json"
+              type: "RawMessage"

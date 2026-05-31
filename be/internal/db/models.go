@@ -674,7 +674,7 @@ type Staff struct {
 	UpdatedAt        time.Time       `json:"updated_at"`
 	DeletedAt        sql.NullTime    `json:"deleted_at"`
 	JobTitle         sql.NullString  `json:"job_title"`
-	Shifts           []byte          `json:"shifts"`
+	Shifts           json.RawMessage `json:"shifts"`
 	Responsibilities sql.NullString  `json:"responsibilities"`
 }
 

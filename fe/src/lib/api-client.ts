@@ -71,3 +71,7 @@ export async function addItemsToOrder(orderId: string, items: AddItemInput[]): P
   const { data } = await api.post(`/orders/${orderId}/items`, { items })
   return data.data
 }
+
+export async function patchOrderItemQty(itemId: string, quantity: number): Promise<void> {
+  await api.patch(`/orders/items/${itemId}/quantity`, { quantity })
+}

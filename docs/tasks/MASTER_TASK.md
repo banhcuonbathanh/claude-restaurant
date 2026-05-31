@@ -27,15 +27,15 @@
 | P-PD — Product Detail Page | FE | ✅ COMPLETE | 0 | — |
 | P-UX2 — Customer UX Enhancements | FE | ✅ COMPLETE | 0 | — |
 | P-DIAGRAM — Full System Interaction Map | Docs | ✅ COMPLETE | 0 | — |
-| P-MENU — Menu Page Wireframe + Grid Redesign | FE | 🔄 IN PROGRESS | ~1 | P-MENU-2 |
+| P-MENU — Menu Page Wireframe + Grid Redesign | FE | ✅ COMPLETE | 0 | — |
 | P11 — Add Items to Existing Order | Full | ✅ COMPLETE | 0 | — |
 | P-ORDER-TOPPING — Order Page Topping Display | FE+BE | ✅ COMPLETE | 0 | — |
 | P-FIX-MOCK — Fix order_service_test mockOrderRepo | BE | ✅ COMPLETE | 0 | — |
 | P-ARCH — FE Architecture Groundwork | FE+Docs | ✅ COMPLETE | 0 | — |
 | P-TRAINING — Admin Staff Training Page | BE+FE | ✅ COMPLETE | 0 | — |
-| P-WIRE-ORDER — Client Order Page Wireframe | Docs | 🔄 IN PROGRESS | 1 | P-WIRE-ORDER-4 (conccern + recomment) |
+| P-WIRE-ORDER — Client Order Page Wireframe | Docs | ✅ COMPLETE | 0 | — |
 | P-GRAPH-ENRICH — Enrich Codebase Graphs for /dev-page | Docs | ✅ COMPLETE | 2 | — |
-| P-MON — Client Order Monitoring Page | BE+FE | ⬜ NOT STARTED | 9 | P-MON-BE-1 |
+| P-MON — Client Order Monitoring Page | BE+FE | ✅ COMPLETE | 0 | — |
 
 ---
 
@@ -97,19 +97,19 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P7-10 | DevOps | DNS A record → VPS IP · Caddy SSL auto-cert · prod env vars · `goose up` · seed · smoke test | P7-5 ✅ · P7-7 ✅ | 1 | ⬜ | — |
+| P7-10 | DevOps | DNS A record → VPS IP · Caddy SSL auto-cert · prod env vars · `goose up` · seed · smoke test | P7-5 ✅ · P7-7 ✅ | 1 | ✅ | `docs/GOLIVE_RUNBOOK.md` |
 
 ### P7-11 — Monitoring
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P7-11 | DevOps | Error rate alert >5% · response time alert >500ms · log aggregation (Docker logs → Loki or CloudWatch) | P7-10 ✅ | 1 | ⬜ | — |
+| P7-11 | DevOps | Error rate alert >5% · response time alert >500ms · log aggregation (Docker logs → Loki or CloudWatch) | P7-10 ✅ | 1 | ✅ | Prometheus middleware + /metrics · alert-rules.yml · Loki+Promtail+Grafana in compose |
 
 ### P7-12 — Rollback Plan
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P7-12 | DevOps | Document rollback: `docker pull {previous-tag} && docker compose up -d` · post-launch SLA: P0=4h, P1=24h, P2=72h | P7-10 ✅ | 1 | ⬜ | — |
+| P7-12 | DevOps | Document rollback: `docker pull {previous-tag} && docker compose up -d` · post-launch SLA: P0=4h, P1=24h, P2=72h | P7-10 ✅ | 1 | ✅ | `docs/devops/ROLLBACK_PLAN.md` |
 
 ---
 
@@ -124,7 +124,7 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 | ID | Owner | Task | Deps | Sessions | Status | spec_ref | draw_ref |
 |---|---|---|---|---|---|---|---|
 | P-MENU-1 | FE | Wireframe + zone table (menu.excalidraw + menu.md) | — | 1 | ✅ | `Spec_3 §4` | `wireframes/menu.excalidraw` |
-| P-MENU-2 | FE | `ProductGridCard` component + update menu/page.tsx to 2-col grid | P-MENU-1 ✅ | 1 | ⬜ | `Spec_3 §4.1 §4.3` | `wireframes/menu.md Zone E` |
+| P-MENU-2 | FE | `ProductGridCard` component + update menu/page.tsx to 2-col grid | P-MENU-1 ✅ | 1 | ✅ | `Spec_3 §4.1 §4.3` | `wireframes/menu.md Zone E` |
 
 ---
 
@@ -140,7 +140,7 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 | P-WIRE-ORDER-1 | Docs | `client_order_page_wireframe_v1.md` — full zone tables from excalidraw; update WIREFRAME_INDEX.md | — | 1 | ✅ | All 8 zones + 2 modals documented |
 | P-WIRE-ORDER-2 | Docs | `business_description.md` + `how_to_use.md` — Vietnamese copy, zone-by-zone user guide | P-WIRE-ORDER-1 ✅ | 1 | ✅ | Every zone covered; standard 4-step flow |
 | P-WIRE-ORDER-3 | Docs | `tech_description.md` — RBAC, Pattern B, TypeScript interfaces, query hook stubs, file org tree | P-WIRE-ORDER-1 ✅ | 1 | ✅ | Pattern B declared; skeleton defined; query keys registered |
-| P-WIRE-ORDER-4 | Docs | `conccern.md` + `recomment/recommend.md` + `recomment/recomment_claude.md`; update `_INDEX_SHARING_COMPONENT.md` | P-WIRE-ORDER-1 ✅ | 1 | ⬜ | ≥ 5 open questions in conccern; UX recommendations table filled |
+| P-WIRE-ORDER-4 | Docs | `conccern.md` + `recomment/recommend.md` + `recomment/recomment_claude.md`; update `_INDEX_SHARING_COMPONENT.md` | P-WIRE-ORDER-1 ✅ | 1 | ✅ | ≥ 5 open questions in conccern; UX recommendations table filled |
 
 ---
 
@@ -172,11 +172,16 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 > **Owner:** BE + FE
 > **Dependency:** P5 ✅ · P4 ✅
-> **Status:** ⬜ NOT STARTED — 9 sessions estimated
+> **Status:** ✅ COMPLETE
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P-MON-BE-1 | BE | TBD | — | — | ⬜ | — |
+| P-MON-BE-1 | BE | `CountActiveOrderItems` batch query + `UpdateItemQuantity` SQL+repo+service+handler | — | 1 | ✅ | No N+1; PATCH /orders/items/:id/quantity works |
+| P-MON-BE-2 | BE | `publishMonitorBroadcast` enhanced (table names + item counts); triggered on CreateOrder + UpdateOrderStatus | P-MON-BE-1 | 1 | ✅ | Queue/table broadcasts fire on order create + status change |
+| P-MON-BE-3 | BE | SSE endpoint `/sse/order-monitor/:id` subscribed to `order:{id}` + `queue:broadcast` + `tables:broadcast` | P-MON-BE-2 | 1 | ✅ | 401/403 rejected; keep-alive heartbeat |
+| P-MON-FE-1 | FE | `useOrderMonitorSSE` hook: reconnect + AuthError + `isUnauthorized` + `itemsChangedAt` | P-MON-BE-3 | 1 | ✅ | Auth failure stops retry; itemsChangedAt fires on items_added/updated/cancelled |
+| P-MON-FE-2 | FE | Queue position derivation FE-side (`findIndex` on queue array); estimatedMinutes = position × 3 | P-MON-FE-1 | 1 | ✅ | TableInfoBanner shows correct position; ETA shown |
+| P-MON-FE-3 | FE | Tracking page: all zones (A–F) + 401 error screen + order refetch on itemsChangedAt | P-MON-FE-2 | 1 | ✅ | Zone C refreshes when staff adds items from POS |
 
 ---
 

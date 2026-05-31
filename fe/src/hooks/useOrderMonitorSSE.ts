@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { fetchEventSource } from '@microsoft/fetch-event-source'
 import { useAuthStore } from '@/features/auth/auth.store'
-import type { MonitorTableStatus, OrderStatus, QueueState } from '@/types/order'
+import type { MonitorTableStatus, OrderStatus, QueueItem, QueueState } from '@/types/order'
 
 const RECONNECT = {
   maxAttempts:     5,
@@ -11,11 +11,16 @@ const RECONNECT = {
   showBannerAfter: 3,
 }
 
+// Sentinel thrown inside onopen to signal a permanent auth failure — not retryable.
+class AuthError extends Error {}
+
 export function useOrderMonitorSSE(orderId: string) {
   const [orderStatus, setOrderStatus]       = useState<OrderStatus | null>(null)
   const [queueData, setQueueData]           = useState<QueueState | null>(null)
   const [tableStatuses, setTableStatuses]   = useState<MonitorTableStatus[]>([])
   const [sseConnected, setSseConnected]     = useState(false)
+  const [isUnauthorized, setIsUnauthorized] = useState(false)
+  const [itemsChangedAt, setItemsChangedAt] = useState<number | null>(null)
 
   const token        = useAuthStore(state => state.accessToken)
   const attemptsRef  = useRef(0)
@@ -26,6 +31,7 @@ export function useOrderMonitorSSE(orderId: string) {
     abortRef.current?.abort()
     attemptsRef.current = 0
     setSseConnected(false)
+    setIsUnauthorized(false)
     setReconnectKey(k => k + 1)
   }, [])
 
@@ -45,6 +51,11 @@ export function useOrderMonitorSSE(orderId: string) {
               headers: { Authorization: `Bearer ${token ?? ''}` },
               signal:  ctrl.signal,
               async onopen(res) {
+                if (res.status === 401 || res.status === 403) {
+                  setIsUnauthorized(true)
+                  setSseConnected(false)
+                  throw new AuthError(`SSE auth failed: ${res.status}`)
+                }
                 if (!res.ok) throw new Error(`SSE ${res.status}`)
                 attemptsRef.current = 0
                 setSseConnected(true)
@@ -56,16 +67,24 @@ export function useOrderMonitorSSE(orderId: string) {
                     case 'order.status':
                       if (data.status) setOrderStatus(data.status as OrderStatus)
                       break
-                    case 'queue.update':
+                    case 'queue.update': {
+                      const queue = (data.queue ?? []) as QueueItem[]
+                      const idx   = queue.findIndex(q => q.orderId === orderId)
                       setQueueData({
-                        queue:            data.queue ?? [],
-                        position:         data.position ?? 0,
+                        queue,
+                        position:         idx >= 0 ? idx + 1 : 0,
                         total:            data.total ?? 0,
-                        estimatedMinutes: data.estimatedMinutes ?? 0,
+                        estimatedMinutes: idx > 0 ? idx * 3 : 0,
                       })
                       break
+                    }
                     case 'tables.status':
                       if (Array.isArray(data.tables)) setTableStatuses(data.tables)
+                      break
+                    case 'items_added':
+                    case 'item_updated':
+                    case 'item_cancelled':
+                      setItemsChangedAt(Date.now())
                       break
                   }
                 } catch { /* ignore parse errors */ }
@@ -75,8 +94,9 @@ export function useOrderMonitorSSE(orderId: string) {
               },
             }
           )
-        } catch {
-          if (stopped || ctrl.signal.aborted) break
+        } catch (err) {
+          // Auth failures are permanent — stop the retry loop immediately.
+          if (err instanceof AuthError || stopped || ctrl.signal.aborted) break
           attemptsRef.current++
           setSseConnected(false)
           if (attemptsRef.current >= RECONNECT.maxAttempts) break
@@ -97,5 +117,5 @@ export function useOrderMonitorSSE(orderId: string) {
     }
   }, [orderId, token, reconnectKey])
 
-  return { orderStatus, queueData, tableStatuses, sseConnected, reconnect }
+  return { orderStatus, queueData, tableStatuses, sseConnected, isUnauthorized, itemsChangedAt, reconnect }
 }

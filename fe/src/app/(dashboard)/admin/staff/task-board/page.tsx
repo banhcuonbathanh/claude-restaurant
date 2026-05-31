@@ -6,7 +6,10 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { BreadcrumbPageHeader } from './components/BreadcrumbPageHeader'
 import { StaffTaskFilterBar } from './components/StaffTaskFilterBar'
 import { StaffTaskTable } from './components/StaffTaskTable'
-import { CreateTaskModal } from './components/CreateTaskModal'
+import dynamic from 'next/dynamic'
+const CreateTaskModal = dynamic(() =>
+  import('./components/CreateTaskModal').then(m => ({ default: m.CreateTaskModal }))
+)
 import { getTaskStats, getStaffTasks } from '@/features/admin/admin.api'
 import type { TaskBoardFilters } from '@/types/task'
 
@@ -123,13 +126,15 @@ export default function StaffTaskBoardPage() {
         />
       )}
 
-      {/* Modal M1 */}
-      <CreateTaskModal
-        open={modalOpen}
-        defaultStaffId={defaultStaffId}
-        onClose={() => setModalOpen(false)}
-        onSuccess={() => {}}
-      />
+      {/* Modal M1 — conditionally mounted so useForm re-initialises with correct defaultStaffId each open */}
+      {modalOpen && (
+        <CreateTaskModal
+          open={modalOpen}
+          defaultStaffId={defaultStaffId}
+          onClose={() => setModalOpen(false)}
+          onSuccess={() => {}}
+        />
+      )}
     </div>
   )
 }

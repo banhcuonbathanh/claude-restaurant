@@ -1,13 +1,13 @@
 'use client'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { api } from '@/lib/api-client'
-import { useAuthStore } from '@/features/auth/auth.store'
 import { AuthGuard } from '@/components/guards/AuthGuard'
 import { RoleGuard } from '@/components/guards/RoleGuard'
 import { CategoryTabs } from '@/features/menu/components/CategoryTabs'
+import { useOrdersWSContext } from '@/context/OrdersWSContext'
 import { Role } from '@/types/auth'
 import { formatVND } from '@/lib/utils'
 import type { Category, Product } from '@/types/product'
@@ -18,11 +18,6 @@ interface PosCartItem {
   name:       string
   quantity:   number
   price:      number
-}
-
-interface WsMsg {
-  type:     string
-  order_id: string
 }
 
 export default function POSPage() {
@@ -37,7 +32,6 @@ export default function POSPage() {
 
 function POSContent() {
   const router   = useRouter()
-  const token    = useAuthStore(s => s.accessToken)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [cart,        setCart]        = useState<PosCartItem[]>([])
   const [activeOrder, setActiveOrder] = useState<Order | null>(null)
@@ -56,59 +50,24 @@ function POSContent() {
     staleTime: 5 * 60 * 1000,
   })
 
-  // WS — monitor order status when an active order exists
+  // Subscribe to shared WS — watch for active order reaching 'ready' status
+  const { subscribe } = useOrdersWSContext()
   useEffect(() => {
-    if (!token || !activeOrder) return
-
-    const orderId = activeOrder.id  // capture for closure
-
-    const base = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1')
-      .replace(/^https/, 'wss')
-      .replace(/^http/, 'ws')
-    const url = `${base}/ws/orders-live?token=${encodeURIComponent(token)}`
-
-    let stopped  = false
-    let attempts = 0
-    let retryId: ReturnType<typeof setTimeout>
-    let ws: WebSocket
-
-    function connect() {
-      ws = new WebSocket(url)
-
-      ws.onopen = () => { attempts = 0 }
-
-      ws.onmessage = async (evt: MessageEvent) => {
-        let msg: WsMsg
-        try { msg = JSON.parse(evt.data as string) } catch { return }
-
-        if (msg.type !== 'order_status_changed') return
-        if (msg.order_id !== orderId)            return
-
-        // No status in WS payload — fetch to check
-        try {
-          const { data } = await api.get(`/orders/${orderId}`)
-          const order: Order = data?.data ?? data
-          if (order.status === 'ready') {
-            toast.success('Đơn đã sẵn sàng — chuyển sang thanh toán')
-            router.push(`/cashier/payment/${orderId}`)
-          }
-        } catch { /* skip */ }
-      }
-
-      ws.onclose = () => {
-        if (stopped) return
-        attempts++
-        retryId = setTimeout(connect, Math.min(1000 * 2 ** attempts, 30_000))
-      }
-    }
-
-    connect()
-    return () => {
-      stopped = true
-      clearTimeout(retryId)
-      ws?.close()
-    }
-  }, [token, activeOrder, router])
+    if (!activeOrder) return
+    const orderId = activeOrder.id
+    return subscribe(async msg => {
+      if (msg.type !== 'order_status_changed') return
+      if (msg.order_id !== orderId)            return
+      try {
+        const { data } = await api.get(`/orders/${orderId}`)
+        const order: Order = data?.data ?? data
+        if (order.status === 'ready') {
+          toast.success('Đơn đã sẵn sàng — chuyển sang thanh toán')
+          router.push(`/cashier/payment/${orderId}`)
+        }
+      } catch { /* skip */ }
+    })
+  }, [subscribe, activeOrder, router])
 
   const addToCart = useCallback((product: Product) => {
     if (!product.is_available) return

@@ -11,8 +11,13 @@ import { StaffPageHeader }   from './components/StaffPageHeader'
 import { StaffStatsBar }     from './components/StaffStatsBar'
 import { StaffFilterBar }    from './components/StaffFilterBar'
 import { StaffTable }        from './components/StaffTable'
-import { AddEditStaffModal } from './components/AddEditStaffModal'
-import { StaffDetailDrawer } from './components/StaffDetailDrawer'
+import dynamic from 'next/dynamic'
+const AddEditStaffModal = dynamic(() =>
+  import('./components/AddEditStaffModal').then(m => ({ default: m.AddEditStaffModal }))
+)
+const StaffDetailDrawer = dynamic(() =>
+  import('./components/StaffDetailDrawer').then(m => ({ default: m.StaffDetailDrawer }))
+)
 import { Pagination }        from '@/components/shared/Pagination'
 import { EmptyState }        from '@/components/shared/EmptyState'
 

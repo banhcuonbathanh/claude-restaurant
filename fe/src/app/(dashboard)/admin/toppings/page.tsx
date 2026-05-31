@@ -4,9 +4,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { listToppings, listProducts, deleteTopping } from '@/features/admin/admin.api'
 import type { Topping, Product } from '@/types/product'
+import dynamic from 'next/dynamic'
 import { ToppingPageHeader } from './_components/ToppingPageHeader'
 import { ToppingTable }      from './_components/ToppingTable'
-import { ToppingFormModal }  from './_components/ToppingFormModal'
+const ToppingFormModal = dynamic(() =>
+  import('./_components/ToppingFormModal').then(m => ({ default: m.ToppingFormModal }))
+)
 
 export default function ToppingsPage() {
   const qc = useQueryClient()

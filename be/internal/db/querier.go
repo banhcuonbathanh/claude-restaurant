@@ -97,6 +97,7 @@ type Querier interface {
 	ToggleProductAvailability(ctx context.Context, isAvailable bool, iD string) error
 	UpdateCategory(ctx context.Context, name string, description sql.NullString, sortOrder int32, iD string) error
 	UpdateCombo(ctx context.Context, arg UpdateComboParams) error
+	UpdateItemQuantity(ctx context.Context, quantity int32, iD string) error
 	UpdateManagerNotes(ctx context.Context, managerNotes sql.NullString, guideID string, staffID string) error
 	UpdateOrderStatus(ctx context.Context, status OrdersStatus, iD string) error
 	UpdatePaymentStatus(ctx context.Context, arg UpdatePaymentStatusParams) error

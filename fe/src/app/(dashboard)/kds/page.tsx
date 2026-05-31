@@ -3,16 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { api } from '@/lib/api-client'
-import { useAuthStore } from '@/features/auth/auth.store'
+import { useOrdersWSContext } from '@/context/OrdersWSContext'
 import type { Order, OrderItem } from '@/types/order'
-
-interface WsMessage {
-  type:        string
-  order_id:    string
-  item_id?:    string
-  qty_served?: number
-  status?:     string
-}
 
 function useBeep() {
   const ctxRef = useRef<AudioContext | null>(null)
@@ -87,10 +79,8 @@ function isKitchenItem(item: OrderItem): boolean {
 const ACTIVE_STATUSES = new Set(['pending', 'confirmed', 'preparing'])
 
 export default function KDSPage() {
-  const token = useAuthStore(state => state.accessToken)
   const beep  = useBeep()
   const [orders, setOrders] = useState<Order[]>([])
-  const wsRef = useRef<WebSocket | null>(null)
 
   const [collapsed,   setCollapsed]   = useState<Set<string>>(new Set())
   const [statusMenus, setStatusMenus] = useState<Set<string>>(new Set())
@@ -107,88 +97,51 @@ export default function KDSPage() {
     setOrders((initial as Order[]).filter(o => ACTIVE_STATUSES.has(o.status)))
   }, [initial])
 
+  // Subscribe to shared WS connection (one connection per browser session)
+  const { subscribe } = useOrdersWSContext()
   useEffect(() => {
-    if (!token) return
-
-    const base = (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1')
-      .replace(/^https/, 'wss')
-      .replace(/^http/, 'ws')
-    const url = `${base}/ws/kds?token=${encodeURIComponent(token)}`
-
-    let stopped  = false
-    let attempts = 0
-    let retryId: ReturnType<typeof setTimeout>
-    let ws: WebSocket
-
-    function connect() {
-      ws = new WebSocket(url)
-      wsRef.current = ws
-
-      ws.onopen = () => { attempts = 0 }
-
-      ws.onmessage = async (evt: MessageEvent) => {
-        let msg: WsMessage
-        try { msg = JSON.parse(evt.data as string) }
-        catch { return }
-
-        switch (msg.type) {
-          case 'new_order': {
-            try {
-              const { data } = await api.get(`/orders/${msg.order_id}`)
-              const order: Order = data?.data ?? data
-              setOrders(prev =>
-                prev.find(o => o.id === order.id) ? prev : [order, ...prev]
-              )
-              beep()
-            } catch { /* skip */ }
-            break
-          }
-          case 'item_progress': {
-            if (!msg.item_id) break
+    return subscribe(async msg => {
+      switch (msg.type) {
+        case 'new_order': {
+          try {
+            const { data } = await api.get(`/orders/${msg.order_id}`)
+            const order: Order = data?.data ?? data
             setOrders(prev =>
-              prev.map(o =>
-                o.id !== msg.order_id ? o : {
-                  ...o,
-                  items: o.items.map(i =>
-                    i.id === msg.item_id
-                      ? { ...i, qty_served: msg.qty_served ?? i.qty_served }
-                      : i
-                  ),
-                }
-              )
+              prev.find(o => o.id === order.id) ? prev : [order, ...prev]
             )
-            break
-          }
-          case 'order_cancelled': {
+            beep()
+          } catch { /* skip */ }
+          break
+        }
+        case 'item_progress': {
+          if (!msg.item_id) break
+          setOrders(prev =>
+            prev.map(o =>
+              o.id !== msg.order_id ? o : {
+                ...o,
+                items: o.items.map(i =>
+                  i.id === msg.item_id
+                    ? { ...i, qty_served: msg.qty_served ?? i.qty_served }
+                    : i
+                ),
+              }
+            )
+          )
+          break
+        }
+        case 'order_cancelled': {
+          setOrders(prev => prev.filter(o => o.id !== msg.order_id))
+          break
+        }
+        case 'order_status_changed': {
+          if (msg.status && !ACTIVE_STATUSES.has(msg.status)) {
             setOrders(prev => prev.filter(o => o.id !== msg.order_id))
-            break
           }
-          case 'order_status_changed': {
-            if (msg.status && !ACTIVE_STATUSES.has(msg.status)) {
-              setOrders(prev => prev.filter(o => o.id !== msg.order_id))
-            }
-            break
-          }
+          break
         }
       }
-
-      ws.onclose = () => {
-        if (stopped) return
-        attempts++
-        const delay = Math.min(1000 * Math.pow(2, attempts - 1), 30_000)
-        retryId = setTimeout(connect, delay)
-      }
-
-      ws.onerror = () => ws.close()
-    }
-
-    connect()
-    return () => {
-      stopped = true
-      clearTimeout(retryId)
-      ws?.close()
-    }
-  }, [token, beep])
+    })
+  }, [subscribe, beep])
 
   const patchItemStatus = useMutation({
     mutationFn: ({ orderId, itemId }: { orderId: string; itemId: string }) =>
@@ -313,7 +266,6 @@ export default function KDSPage() {
 
               {/* Action buttons */}
               <div className="flex gap-1.5">
-                {/* Kiểm tra — flag card for attention */}
                 <button
                   onClick={() => setFlagged(prev => toggle(prev, order.id))}
                   className={`flex-1 py-1.5 text-xs rounded-lg font-medium border transition-colors ${
@@ -325,7 +277,6 @@ export default function KDSPage() {
                   🔍 Kiểm tra
                 </button>
 
-                {/* Status change toggle */}
                 <button
                   onClick={() => setStatusMenus(prev => toggle(prev, order.id))}
                   className={`flex-1 py-1.5 text-xs rounded-lg font-medium border transition-colors ${
@@ -337,7 +288,6 @@ export default function KDSPage() {
                   Trạng thái {isStatusOpen ? '▲' : '▼'}
                 </button>
 
-                {/* Show/hide dishes */}
                 <button
                   onClick={() => setCollapsed(prev => toggle(prev, order.id))}
                   className="px-3 py-1.5 text-xs rounded-lg font-medium border bg-muted text-foreground border-border hover:bg-muted/70 transition-colors"

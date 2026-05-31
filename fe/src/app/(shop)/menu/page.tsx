@@ -11,6 +11,7 @@ import { api } from '@/lib/api-client'
 import { useCartStore } from '@/store/cart'
 import { CategoryTabs } from '@/features/menu/components/CategoryTabs'
 import { ProductCard } from '@/features/menu/components/ProductCard'
+import { ProductGridCard } from '@/features/menu/components/ProductGridCard'
 import { ComboCard } from '@/features/menu/components/ComboCard'
 import { CartDrawer } from '@/features/menu/components/CartDrawer'
 import { SearchBar } from '@/features/menu/components/SearchBar'
@@ -200,13 +201,13 @@ function MenuContent() {
     <div className="min-h-screen bg-background">
       {/* Zone A — Header */}
       <header className="sticky top-0 z-20 bg-background border-b border-border px-4 py-3 flex items-center justify-between">
-        <div className="flex flex-col leading-none">
-          <h1 className="font-display text-xl text-foreground font-semibold">Quán Bánh Cuốn</h1>
+        <div className="flex flex-col leading-none min-w-0">
+          <h1 className="font-display text-xl text-foreground font-semibold truncate">Quán Bánh Cuốn</h1>
           {tableLabel && (
-            <span className="text-xs text-muted-fg mt-0.5">{tableLabel}</span>
+            <span className="text-xs text-muted-fg mt-0.5 truncate">{tableLabel}</span>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <Link
             href="/menu/favourites"
             className="relative flex items-center justify-center w-8 h-8 rounded-full hover:bg-muted transition-colors"
@@ -234,7 +235,7 @@ function MenuContent() {
             className="relative flex items-center gap-1.5 bg-muted text-foreground px-3 py-1.5 rounded-full text-sm font-medium"
           >
             <ClipboardList size={16} />
-            <span>Đơn hàng</span>
+            <span className="hidden sm:inline">Đơn hàng</span>
             {hasOrders && (
               <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-primary rounded-full" />
             )}
@@ -343,11 +344,20 @@ function MenuContent() {
             </button>
           </div>
         ) : loadingProducts ? (
-          <div className="flex flex-col gap-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="bg-card rounded-xl h-24 animate-pulse" />
-            ))}
-          </div>
+          <>
+            {/* Mobile skeleton — 1 col */}
+            <div className="flex flex-col gap-3 sm:hidden">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="bg-card rounded-xl h-24 animate-pulse" />
+              ))}
+            </div>
+            {/* Tablet / Desktop skeleton — responsive grid */}
+            <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="bg-card rounded-xl aspect-square animate-pulse" />
+              ))}
+            </div>
+          </>
         ) : products.length === 0 && !showCombos ? (
           <EmptyState message={searchQuery.length >= 2
             ? 'Không tìm thấy món nào · Thử từ khóa khác nhé!'
@@ -377,9 +387,16 @@ function MenuContent() {
                     Món lẻ
                   </h2>
                 )}
-                <div className="flex flex-col gap-3">
+                {/* Mobile: 1-col list */}
+                <div className="flex flex-col gap-3 sm:hidden">
                   {products.map(product => (
                     <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+                {/* Tablet / Desktop: responsive grid (2 → 3 → 4 cols) */}
+                <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {products.map(product => (
+                    <ProductGridCard key={product.id} product={product} />
                   ))}
                 </div>
               </section>

@@ -1,0 +1,33 @@
+groups:
+  - name: banhcuon-alerts
+    interval: 30s
+    rules:
+      # Fire when 5xx responses exceed 5% of all requests over 5 minutes.
+      # Excludes /metrics and /health from the calculation.
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5..", path!~"/metrics|/health"}[5m]))
+            /
+            sum(rate(http_requests_total{path!~"/metrics|/health"}[5m]))
+          ) > 0.05
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "HTTP error rate exceeded 5%"
+          description: "5xx rate is {{ $value | humanizePercentage }} over the last 5 minutes."
+
+      # Fire when p95 latency across all API paths exceeds 500 ms.
+      - alert: SlowResponseTime
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum(rate(http_request_duration_seconds_bucket{path!~"/metrics|/health"}[5m])) by (le)
+          ) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API p95 response time exceeded 500 ms"
+          description: "p95 latency is {{ $value | humanizeDuration }}."

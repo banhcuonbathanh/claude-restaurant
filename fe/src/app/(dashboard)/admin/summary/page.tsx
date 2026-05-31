@@ -6,11 +6,12 @@ import { z } from 'zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { formatVND } from '@/lib/utils'
-import { useSummaryStore } from '@/features/admin/summary.store'
 import {
   getSummary, getTopDishes, getStaffPerformance, getLowStock, postStockMovement,
 } from '@/features/admin/admin.api'
 import type { SummaryRange, Ingredient } from '@/features/admin/admin.api'
+
+type RangeProps = { range: SummaryRange; setRange?: (r: SummaryRange) => void }
 
 // ── Range selector ────────────────────────────────────────────────────────────
 
@@ -20,8 +21,7 @@ const RANGE_LABELS: Record<SummaryRange, string> = {
   month: 'Tháng này',
 }
 
-function RangeSelector() {
-  const { range, setRange } = useSummaryStore()
+function RangeSelector({ range, setRange }: Required<RangeProps>) {
   return (
     <div className="flex gap-1 rounded-lg border border-gray-200 bg-white p-1">
       {(Object.keys(RANGE_LABELS) as SummaryRange[]).map(r => (
@@ -55,8 +55,7 @@ function KPICard({
   )
 }
 
-function SummaryKPICards() {
-  const range = useSummaryStore(s => s.range)
+function SummaryKPICards({ range }: RangeProps) {
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'summary', range],
     queryFn:  () => getSummary(range),
@@ -105,8 +104,7 @@ function SummaryKPICards() {
 
 // ── Top dishes ────────────────────────────────────────────────────────────────
 
-function TopDishesList() {
-  const range = useSummaryStore(s => s.range)
+function TopDishesList({ range }: RangeProps) {
   const { data = [], isLoading } = useQuery({
     queryKey: ['admin', 'top-dishes', range],
     queryFn:  () => getTopDishes(range, 5),
@@ -158,8 +156,7 @@ const ROLE_LABELS: Record<string, string> = {
   admin:    'Admin',
 }
 
-function StaffPerfTable() {
-  const range = useSummaryStore(s => s.range)
+function StaffPerfTable({ range }: RangeProps) {
   const { data = [], isLoading } = useQuery({
     queryKey: ['admin', 'staff-performance', range],
     queryFn:  () => getStaffPerformance(range),
@@ -366,18 +363,19 @@ function StockAlertList() {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function SummaryPage() {
+  const [range, setRange] = useState<SummaryRange>('today')
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-bold text-gray-900">Tổng kết nhà hàng</h1>
-        <RangeSelector />
+        <RangeSelector range={range} setRange={setRange} />
       </div>
 
-      <SummaryKPICards />
+      <SummaryKPICards range={range} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <TopDishesList />
-        <StaffPerfTable />
+        <TopDishesList range={range} />
+        <StaffPerfTable range={range} />
       </div>
 
       <StockAlertList />

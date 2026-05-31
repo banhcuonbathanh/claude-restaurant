@@ -1,13 +1,14 @@
 'use client'
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { ChevronDown, ChevronUp, AlertTriangle, CheckCircle, Bell, XCircle, Plus, ArrowLeft } from 'lucide-react'
+import { ChevronDown, ChevronUp, AlertTriangle, CheckCircle, Bell, XCircle, Plus, ArrowLeft, MapPin } from 'lucide-react'
 import { useOrderSSE } from '@/hooks/useOrderSSE'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { ConnectionErrorBanner } from '@/components/shared/ConnectionErrorBanner'
-import { api } from '@/lib/api-client'
+import { QuantityStepper } from '@/components/shared/QuantityStepper'
+import { api, patchOrderItemQty } from '@/lib/api-client'
 import { formatVND } from '@/lib/utils'
 import { useCartStore } from '@/store/cart'
 import type { OrderItem, ToppingSnapshotEntry } from '@/types/order'
@@ -35,6 +36,7 @@ interface SummaryRow {
 
 export default function OrderPage({ params }: { params: { id: string } }) {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { order, progress, connectionError, isNotFound, notification, clearNotification } = useOrderSSE(params.id)
   const setTableId       = useCartStore(s => s.setTableId)
   const setActiveOrderId = useCartStore(s => s.setActiveOrderId)
@@ -48,6 +50,13 @@ export default function OrderPage({ params }: { params: { id: string } }) {
       next.has(refId) ? next.delete(refId) : next.add(refId)
       return next
     })
+
+  const updateQtyMutation = useMutation({
+    mutationFn: ({ itemId, qty }: { itemId: string; qty: number }) =>
+      patchOrderItemQty(itemId, qty),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['order', params.id] }),
+    onError: (err: unknown) => toast.error(errMsg(err) ?? 'Không thể cập nhật số lượng'),
+  })
 
   const cancelOrderMutation = useMutation({
     mutationFn: () => api.delete(`/orders/${params.id}`),
@@ -334,6 +343,7 @@ export default function OrderPage({ params }: { params: { id: string } }) {
                               isActive={isActive}
                               indent
                               onCancel={() => setCancelTarget({ type: 'item', itemId: item.id, itemName: item.name })}
+                              onQtyChange={(qty) => updateQtyMutation.mutate({ itemId: item.id, qty })}
                             />
                           ))}
                           {remaining.length > 0 && isActive && (
@@ -357,6 +367,7 @@ export default function OrderPage({ params }: { params: { id: string } }) {
                     item={section.item}
                     isActive={isActive}
                     onCancel={() => setCancelTarget({ type: 'item', itemId: section.item.id, itemName: section.item.name })}
+                    onQtyChange={(qty) => updateQtyMutation.mutate({ itemId: section.item.id, qty })}
                   />
                 )
               })}
@@ -511,17 +522,28 @@ export default function OrderPage({ params }: { params: { id: string } }) {
 
         {/* ── Add more dishes ─────────────────────────────────────────── */}
         {order.table_id && (
-          <button
-            onClick={() => {
-              setTableId(order.table_id!)
-              setActiveOrderId(isActive ? params.id : null)
-              router.push(isActive ? `/menu?add_to_order=${params.id}` : '/menu')
-            }}
-            className="w-full bg-primary text-primary-foreground py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
-          >
-            <Plus size={16} />
-            {isActive ? 'Thêm món' : 'Đặt thêm món'}
-          </button>
+          <div className="flex gap-2">
+            {isActive && (
+              <button
+                onClick={() => { setActiveOrderId(params.id); router.push('/tracking') }}
+                className="flex-1 border border-primary text-primary py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:bg-primary/10 transition-colors"
+              >
+                <MapPin size={16} />
+                Theo dõi bàn
+              </button>
+            )}
+            <button
+              onClick={() => {
+                setTableId(order.table_id!)
+                setActiveOrderId(isActive ? params.id : null)
+                router.push(isActive ? `/menu?add_to_order=${params.id}` : '/menu')
+              }}
+              className="flex-1 bg-primary text-primary-foreground py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+            >
+              <Plus size={16} />
+              {isActive ? 'Thêm món' : 'Đặt thêm món'}
+            </button>
+          </div>
         )}
       </div>
 
@@ -625,24 +647,27 @@ function DishRow({
   isActive,
   indent = false,
   onCancel,
+  onQtyChange,
 }: {
-  item:     OrderItem
-  isActive: boolean
-  indent?:  boolean
-  onCancel: () => void
+  item:        OrderItem
+  isActive:    boolean
+  indent?:     boolean
+  onCancel:    () => void
+  onQtyChange: (qty: number) => void
 }) {
-  const remaining = item.quantity - item.qty_served
-  const toppings  = (item.toppings_snapshot ?? []).filter(
+  const remaining   = item.quantity - item.qty_served
+  const canStepper  = isActive && item.qty_served === 0
+  const toppings    = (item.toppings_snapshot ?? []).filter(
     (t: ToppingSnapshotEntry) => t.name && t.name.trim() !== ''
   )
 
   return (
     <div className={`border-t border-border/40 ${indent ? 'pl-6' : ''}`}>
-      <div className="flex items-center gap-2 px-4 py-2.5">
+      <div className="flex items-start gap-2 px-4 py-2.5">
         {/* Bullet */}
-        <span className="w-1.5 h-1.5 rounded-full bg-muted-fg shrink-0 mt-0.5" />
+        <span className="w-1.5 h-1.5 rounded-full bg-muted-fg shrink-0 mt-2" />
 
-        {/* Dish name + toppings */}
+        {/* Dish name + toppings + optional stepper */}
         <div className="flex-1 min-w-0">
           <span className="text-sm text-foreground leading-snug block truncate">
             {item.name}
@@ -662,13 +687,26 @@ function DishRow({
               ))}
             </div>
           )}
+          {canStepper && (
+            <div className="flex items-center gap-2 mt-1.5">
+              <span className="text-[11px] text-muted-fg">Số lượng:</span>
+              <QuantityStepper
+                value={item.quantity}
+                min={1}
+                onChange={onQtyChange}
+                size="sm"
+              />
+            </div>
+          )}
         </div>
 
         {/* tổng / ra / còn — inline */}
-        <div className="flex items-center gap-2 shrink-0 text-xs whitespace-nowrap">
-          <span className="text-muted-fg">
-            tổng <span className="text-foreground font-medium">×{item.quantity}</span>
-          </span>
+        <div className="flex items-center gap-2 shrink-0 text-xs whitespace-nowrap mt-0.5">
+          {!canStepper && (
+            <span className="text-muted-fg">
+              tổng <span className="text-foreground font-medium">×{item.quantity}</span>
+            </span>
+          )}
           <span className="text-muted-fg">
             ra <span className="text-success font-medium">×{item.qty_served}</span>
           </span>
@@ -681,11 +719,11 @@ function DishRow({
           )}
         </div>
 
-        {/* Cancel button — same row, only when còn > 0 */}
+        {/* Cancel button — only when còn > 0 */}
         {remaining > 0 && isActive ? (
           <button
             onClick={onCancel}
-            className="shrink-0 min-h-[44px] min-w-[44px] text-xs text-urgent border border-urgent/50 px-2 rounded-md hover:bg-red-900/20 transition-colors font-medium"
+            className="shrink-0 min-h-[44px] min-w-[44px] text-xs text-urgent border border-urgent/50 px-2 rounded-md hover:bg-red-900/20 transition-colors font-medium mt-0.5"
           >
             Huỷ
           </button>

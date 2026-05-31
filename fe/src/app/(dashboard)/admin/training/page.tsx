@@ -1,16 +1,20 @@
 'use client'
 import { useState } from 'react'
-import { useTrainingStore } from '@/store/trainingStore'
 import { useJobGuides, useCreateGuide, useUpdateGuide, useDeleteGuide, useStaffProgressDetail } from '@/hooks/useTrainingQueries'
 import { RoleFilterTabs } from '@/components/admin/training/RoleFilterTabs'
 import { JobGuideCardGrid } from '@/components/admin/training/JobGuideCardGrid'
 import { CompletionTrackingTable } from '@/components/admin/training/CompletionTrackingTable'
-import { CreateEditGuideModal } from '@/components/admin/training/CreateEditGuideModal'
-import { TrainingProgressModal } from '@/components/admin/training/TrainingProgressModal'
+import dynamic from 'next/dynamic'
+const CreateEditGuideModal = dynamic(() =>
+  import('@/components/admin/training/CreateEditGuideModal').then(m => ({ default: m.CreateEditGuideModal }))
+)
+const TrainingProgressModal = dynamic(() =>
+  import('@/components/admin/training/TrainingProgressModal').then(m => ({ default: m.TrainingProgressModal }))
+)
 import type { JobGuide, StaffRole } from '@/types/training'
 
 export default function TrainingPage() {
-  const { activeRole, setActiveRole } = useTrainingStore()
+  const [activeRole, setActiveRole] = useState<StaffRole | 'all'>('all')
 
   // Modal 1 state
   const [guideModalOpen, setGuideModalOpen] = useState(false)
@@ -35,10 +39,7 @@ export default function TrainingPage() {
     progressModalOpen,
   )
 
-  const handleViewProgress = (guide: JobGuide) => {
-    // Open progress for the guide — CompletionTrackingTable handles per-staff click
-    // This is called from the card CTA — auto-select guide in the tracking table
-    useTrainingStore.setState({ selectedGuideId: guide.id })
+  const handleViewProgress = (_guide: JobGuide) => {
     document.getElementById('completion-tracking')?.scrollIntoView({ behavior: 'smooth' })
   }
 

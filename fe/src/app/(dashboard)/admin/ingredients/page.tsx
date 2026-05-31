@@ -9,9 +9,12 @@ import {
   listIngredients, createIngredient, updateIngredient, deleteIngredient, postStockMovement,
 } from '@/features/admin/admin.api'
 import type { Ingredient, CreateIngredientInput, UpdateIngredientInput } from '@/features/admin/admin.api'
+import dynamic from 'next/dynamic'
 import { StoragePageHeader } from './_components/StoragePageHeader'
 import { IngredientTable } from './_components/IngredientTable'
-import { IngredientFormModal } from './_components/IngredientFormModal'
+const IngredientFormModal = dynamic(() =>
+  import('./_components/IngredientFormModal').then(m => ({ default: m.IngredientFormModal }))
+)
 
 // ── Stock movement modal (kept for Nhập/Xuất flow, outside main spec) ─────────
 

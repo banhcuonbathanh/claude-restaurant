@@ -13,6 +13,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gin-gonic/gin"
 	"github.com/pressly/goose/v3"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redis/go-redis/v9"
 
 	"banhcuon/be/internal/handler"
@@ -113,7 +114,10 @@ func main() {
 
 	// ── 8. Router ─────────────────────────────────────────────────────────────
 	r := gin.New()
-	r.Use(gin.Logger(), gin.Recovery())
+	r.Use(gin.Logger(), gin.Recovery(), middleware.Metrics())
+
+	// Prometheus metrics — scraped by Prometheus, not proxied through Caddy
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	corsOrigins := os.Getenv("CORS_ORIGINS")
 	if corsOrigins == "" {
@@ -240,6 +244,7 @@ func main() {
 	orderR.GET("/group/:id/events", sse.StreamGroup(rdb, groupSvc))
 
 	// Order items
+	v1.PATCH("/orders/items/:id/quantity", authMW, orderH.UpdateItemQuantity)
 	v1.PATCH("/orders/items/:id", authMW, middleware.AtLeast("chef"), orderH.UpdateItemServed)
 	v1.DELETE("/orders/items/:id", authMW, orderH.CancelItem)
 

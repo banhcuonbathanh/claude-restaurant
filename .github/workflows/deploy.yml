@@ -91,19 +91,24 @@ jobs:
             docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_BE }}:${{ github.sha }}
             docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_FE }}:${{ github.sha }}
 
-            # Update image tags in compose
+            # Export image refs consumed by docker-compose.prod.yml
             export BE_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_BE }}:${{ github.sha }}
             export FE_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_FE }}:${{ github.sha }}
 
-            # Zero-downtime restart
-            docker compose up -d --no-build be fe caddy
+            # Bring up with production overlay (pre-built images, no swagger)
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-build be fe caddy
 
-            # Health check — rollback if BE doesn't respond in 30s
-            sleep 10
+            # Health check — rollback to last good images if BE fails within 30s
+            sleep 15
             if ! curl -sf http://localhost:8080/health > /dev/null; then
-              echo "Health check failed — rolling back"
-              docker compose up -d --no-build be fe
+              echo "Health check failed — rolling back to previous images"
+              if [ -f .env.deployed ]; then
+                set -a && . .env.deployed && set +a
+                docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-build be fe caddy
+              fi
               exit 1
             fi
 
+            # Persist image refs for rollback on next failed deploy
+            printf 'BE_IMAGE=%s\nFE_IMAGE=%s\n' "$BE_IMAGE" "$FE_IMAGE" > .env.deployed
             echo "Deploy successful: ${{ github.sha }}"

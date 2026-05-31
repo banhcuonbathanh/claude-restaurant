@@ -1,0 +1,23 @@
+# docker-compose.prod.yml — Production overlay
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-build
+#
+# Required env vars (set in .env or exported by CI/CD):
+#   BE_IMAGE   — ghcr.io/owner/repo/be:<sha>
+#   FE_IMAGE   — ghcr.io/owner/repo/fe:<sha>
+#   CADDY_HOST — yourdomain.com  (Caddy auto-provisions TLS)
+#   ACME_EMAIL — admin@yourdomain.com
+#
+# Security: block ports 3306, 6379, 8001, 8080, 3000 at VPS firewall (ufw).
+# Only ports 80 and 443 (Caddy) should be publicly accessible.
+
+services:
+  be:
+    image: ${BE_IMAGE:?BE_IMAGE is required — export BE_IMAGE=ghcr.io/owner/repo/be:tag}
+
+  fe:
+    image: ${FE_IMAGE:?FE_IMAGE is required — export FE_IMAGE=ghcr.io/owner/repo/fe:tag}
+
+  swagger:
+    profiles: [dev]

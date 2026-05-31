@@ -127,7 +127,7 @@ export default function OverviewPage() {
   const orders = rawOrders.filter(o => ACTIVE.has(o.status))
 
   // WS — mutates ['orders','live'] TanStack Query cache on every push event
-  const wsConnected = useOverviewWS(token)
+  const wsConnected = useOverviewWS()
 
   // SSE — fires popup when a new order arrives
   const handleNewOrder = useCallback(async (evt: { order_id: string }) => {

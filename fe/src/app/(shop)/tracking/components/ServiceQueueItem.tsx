@@ -16,7 +16,7 @@ export function ServiceQueueItem({ item, isCurrentOrder }: Props) {
       <StatusBadge status={item.status} className="shrink-0" />
 
       <span className="text-xs font-semibold text-foreground shrink-0">
-        #{item.orderId}
+        #{item.orderId.slice(0, 8)}
       </span>
 
       <span className="text-xs text-muted-fg shrink-0">

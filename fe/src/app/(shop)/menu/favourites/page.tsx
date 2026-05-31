@@ -1,7 +1,8 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { api } from '@/lib/api-client'
 import { useFavouritesStore } from '@/store/favourites'
 import { useCartStore } from '@/store/cart'
@@ -21,17 +22,32 @@ export default function FavouritesPage() {
   const { items, sets, removeItem, updateQty } = useFavouritesStore()
   const addToCart = useCartStore(s => s.addItem)
 
-  const { data: allProducts = [] } = useQuery<Product[]>({
+  const { data: allProducts = [], isSuccess: productsLoaded } = useQuery<Product[]>({
     queryKey: ['products-all'],
     queryFn: () => api.get('/products').then(r => r.data.data),
     staleTime: 5 * 60 * 1000,
   })
 
-  const { data: allCombos = [] } = useQuery<ComboRaw[]>({
+  const { data: allCombos = [], isSuccess: combosLoaded } = useQuery<ComboRaw[]>({
     queryKey: ['combos'],
     queryFn: () => api.get('/combos').then(r => r.data.data),
     staleTime: 5 * 60 * 1000,
   })
+
+  // Auto-remove favourited items that no longer exist on the menu and notify the user
+  useEffect(() => {
+    if (!productsLoaded || !combosLoaded) return
+    const currentItems = useFavouritesStore.getState().items
+    const stale = currentItems.filter(item =>
+      item.type === 'product'
+        ? !allProducts.some(p => p.id === item.id)
+        : !allCombos.some(c => c.id === item.id)
+    )
+    if (stale.length === 0) return
+    stale.forEach(item => removeItem(item.id))
+    toast.warning('Một số món không còn phục vụ đã được xoá khỏi danh sách yêu thích')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productsLoaded, combosLoaded])
 
   const resolvedItems: FavouriteItemResolved[] = items.flatMap(item => {
     if (item.type === 'product') {
@@ -54,11 +70,11 @@ export default function FavouritesPage() {
       if (!c) return []
       const comboItems = c.combo_items.map(ci => {
         const p = allProducts.find(x => x.id === ci.product_id)
-        return { name: p?.name ?? ci.product_id, qty: ci.quantity }
+        return { name: p?.name || 'Món không rõ tên', qty: ci.quantity }
       })
       return [{
         ...item,
-        name: c.name,
+        name: c.name || 'Combo không có tên',
         imageUrl: c.image_path ? `${process.env.NEXT_PUBLIC_STORAGE_URL ?? ''}/${c.image_path}` : null,
         basePrice: c.price,
         selectedToppings: [] as Array<{ id: string; name: string; price: number }>,

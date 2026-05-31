@@ -30,3 +30,6 @@ fe/build/
 
 # Docker
 *.log
+
+# Playwright MCP snapshots
+.playwright-mcp/

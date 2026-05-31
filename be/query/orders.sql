@@ -67,6 +67,11 @@ UPDATE order_items
 SET qty_served = ?, updated_at = NOW()
 WHERE id = ?;
 
+-- name: UpdateItemQuantity :exec
+UPDATE order_items
+SET quantity = ?, updated_at = NOW()
+WHERE id = ?;
+
 -- name: SumQtyServedAndQuantity :one
 SELECT
     COALESCE(SUM(qty_served), 0) AS total_served,

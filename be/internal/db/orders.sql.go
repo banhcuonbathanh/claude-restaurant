@@ -420,6 +420,17 @@ func (q *Queries) SumQtyServedAndQuantity(ctx context.Context, orderID string) (
 	return i, err
 }
 
+const updateItemQuantity = `-- name: UpdateItemQuantity :exec
+UPDATE order_items
+SET quantity = ?, updated_at = NOW()
+WHERE id = ?
+`
+
+func (q *Queries) UpdateItemQuantity(ctx context.Context, quantity int32, iD string) error {
+	_, err := q.db.ExecContext(ctx, updateItemQuantity, quantity, iD)
+	return err
+}
+
 const updateOrderStatus = `-- name: UpdateOrderStatus :exec
 UPDATE orders
 SET status = ?, updated_at = NOW()

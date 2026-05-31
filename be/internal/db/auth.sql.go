@@ -107,7 +107,8 @@ func (q *Queries) GetRefreshToken(ctx context.Context, tokenHash string) (Refres
 }
 
 const getStaffByID = `-- name: GetStaffByID :one
-SELECT id, username, password_hash, email, role, full_name, phone, is_active, created_at, updated_at, deleted_at, job_title, shifts, responsibilities FROM staff
+SELECT id, username, password_hash, email, role, full_name, phone, is_active, created_at, updated_at, deleted_at, job_title, COALESCE(shifts, '[]') AS shifts, responsibilities
+FROM staff
 WHERE id = ? AND deleted_at IS NULL
 LIMIT 1
 `
@@ -135,7 +136,8 @@ func (q *Queries) GetStaffByID(ctx context.Context, id string) (Staff, error) {
 }
 
 const getStaffByUsername = `-- name: GetStaffByUsername :one
-SELECT id, username, password_hash, email, role, full_name, phone, is_active, created_at, updated_at, deleted_at, job_title, shifts, responsibilities FROM staff
+SELECT id, username, password_hash, email, role, full_name, phone, is_active, created_at, updated_at, deleted_at, job_title, COALESCE(shifts, '[]') AS shifts, responsibilities
+FROM staff
 WHERE username = ? AND deleted_at IS NULL
 LIMIT 1
 `

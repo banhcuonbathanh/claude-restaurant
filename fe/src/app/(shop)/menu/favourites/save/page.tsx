@@ -56,11 +56,11 @@ export default function SaveSetPage() {
       if (!c) return []
       const comboItems = c.combo_items.map(ci => {
         const p = allProducts.find(x => x.id === ci.product_id)
-        return { name: p?.name ?? ci.product_id, qty: ci.quantity }
+        return { name: p?.name || 'Món không rõ tên', qty: ci.quantity }
       })
       return [{
         ...item,
-        name: c.name,
+        name: c.name || 'Combo không có tên',
         imageUrl: c.image_path ? `${process.env.NEXT_PUBLIC_STORAGE_URL ?? ''}/${c.image_path}` : null,
         basePrice: c.price,
         selectedToppings: [],
