@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -102,6 +102,13 @@ export default function CombosPage() {
     setModalMode(null)
     setEditingCombo(null)
   }
+
+  useEffect(() => {
+    if (modalMode === null) return
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') closeModal() }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [modalMode])
 
   // ── Product selection ──────────────────────────────────────────────────────
   const toggleProduct = (productId: string) => {

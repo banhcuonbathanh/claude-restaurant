@@ -1,0 +1,205 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Tổng quan" [ref=e6] [cursor=pointer]:
+          - /url: /admin/overview
+        - link "Tổng kết" [ref=e7] [cursor=pointer]:
+          - /url: /admin/summary
+        - link "Sản phẩm" [ref=e8] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Combo" [ref=e9] [cursor=pointer]:
+          - /url: /admin/combos
+        - link "Danh mục" [ref=e10] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e11] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e12] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Công việc" [ref=e13] [cursor=pointer]:
+          - /url: /admin/todo-list
+        - link "Kho nguyên liệu" [ref=e14] [cursor=pointer]:
+          - /url: /admin/ingredients
+        - link "Marketing" [ref=e15] [cursor=pointer]:
+          - /url: /admin/marketing
+        - link "Đào tạo" [ref=e16] [cursor=pointer]:
+          - /url: /admin/training
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - heading "Combo (2)" [level=2] [ref=e20]
+        - generic [ref=e21]:
+          - button "🎲 Random combo" [ref=e22] [cursor=pointer]
+          - button "+ Thêm combo" [ref=e23] [cursor=pointer]
+      - table [ref=e25]:
+        - rowgroup [ref=e26]:
+          - row "Tên combo Sản phẩm trong combo Giá combo Giá lẻ Tiết kiệm" [ref=e27]:
+            - columnheader "Tên combo" [ref=e28]
+            - columnheader "Sản phẩm trong combo" [ref=e29]
+            - columnheader "Giá combo" [ref=e30]
+            - columnheader "Giá lẻ" [ref=e31]
+            - columnheader "Tiết kiệm" [ref=e32]
+            - columnheader [ref=e33]
+        - rowgroup [ref=e34]:
+          - row "Combo Gia Đình banh cuon ×2 gio ×2 160.000 ₫ 26.000 ₫ — Sửa" [ref=e35]:
+            - cell "Combo Gia Đình" [ref=e36]:
+              - paragraph [ref=e37]: Combo Gia Đình
+            - cell "banh cuon ×2 gio ×2" [ref=e38]:
+              - generic [ref=e39]:
+                - generic [ref=e40]: banh cuon ×2
+                - generic [ref=e41]: gio ×2
+            - cell "160.000 ₫" [ref=e42]
+            - cell "26.000 ₫" [ref=e43]
+            - cell "—" [ref=e44]
+            - cell "Sửa" [ref=e45]:
+              - button "Sửa" [ref=e47] [cursor=pointer]
+          - 'row "Combo ÄÆ¡n BÃ¡nh Cuá»‘n TÃ´m Ã—1 + NÆ°á»›c Chanh Ã—1 â€” suáº¥t Äƒn nhanh BÃ¡nh Cuá»‘n TÃ´m ×1 NÆ°á»›c Chanh ×1 60.000 ₫ 70.000 ₫ -10.000 ₫ Sửa" [ref=e48]':
+            - 'cell "Combo ÄÆ¡n BÃ¡nh Cuá»‘n TÃ´m Ã—1 + NÆ°á»›c Chanh Ã—1 â€” suáº¥t Äƒn nhanh" [ref=e49]':
+              - paragraph [ref=e50]: "Combo Ä\x90Æ¡n"
+              - paragraph [ref=e51]: BÃ¡nh Cuá»‘n TÃ´m Ã—1 + NÆ°á»›c Chanh Ã—1 â€” suáº¥t Äƒn nhanh
+            - cell "BÃ¡nh Cuá»‘n TÃ´m ×1 NÆ°á»›c Chanh ×1" [ref=e52]:
+              - generic [ref=e53]:
+                - generic [ref=e54]: BÃ¡nh Cuá»‘n TÃ´m ×1
+                - generic [ref=e55]: NÆ°á»›c Chanh ×1
+            - cell "60.000 ₫" [ref=e56]
+            - cell "70.000 ₫" [ref=e57]
+            - cell "-10.000 ₫" [ref=e58]:
+              - generic [ref=e59]: "-10.000 ₫"
+            - cell "Sửa" [ref=e60]:
+              - button "Sửa" [ref=e62] [cursor=pointer]
+      - generic [ref=e65]:
+        - generic [ref=e66]:
+          - heading "Sửa combo" [level=3] [ref=e67]
+          - button "×" [ref=e68] [cursor=pointer]
+        - generic [ref=e69]:
+          - generic [ref=e70]:
+            - generic [ref=e71]:
+              - generic [ref=e72]:
+                - generic [ref=e73]: Tên combo *
+                - 'textbox "VD: Combo Gia Đình" [ref=e74]': Combo Gia Đình
+              - generic [ref=e75]:
+                - generic [ref=e76]: Mô tả (tuỳ chọn)
+                - textbox "Mô tả ngắn về combo (tuỳ chọn)" [ref=e77]
+            - generic [ref=e78]:
+              - generic [ref=e79]:
+                - generic [ref=e80]:
+                  - text: Sản phẩm trong combo *
+                  - generic [ref=e81]: (2 món đã chọn)
+                - button "Bỏ chọn tất cả" [ref=e82] [cursor=pointer]
+              - generic [ref=e83]:
+                - generic [ref=e84] [cursor=pointer]:
+                  - img [ref=e87]
+                  - generic [ref=e89]:
+                    - generic [ref=e90]:
+                      - generic [ref=e91]: banh cuon
+                      - generic [ref=e92]: 4.000 ₫
+                    - paragraph [ref=e93]: banh cuon nhan thit
+                  - generic [ref=e94]:
+                    - button "−" [ref=e95]
+                    - generic [ref=e96]: "2"
+                    - button "+" [ref=e97]
+                - generic [ref=e98] [cursor=pointer]:
+                  - img [ref=e101]
+                  - generic [ref=e103]:
+                    - generic [ref=e104]:
+                      - generic [ref=e105]: gio
+                      - generic [ref=e106]: 9.000 ₫
+                    - paragraph [ref=e107]: gio
+                  - generic [ref=e108]:
+                    - button "−" [ref=e109]
+                    - generic [ref=e110]: "2"
+                    - button "+" [ref=e111]
+                - generic [ref=e115] [cursor=pointer]:
+                  - generic [ref=e116]:
+                    - generic [ref=e117]: trung
+                    - generic [ref=e118]: 9.000 ₫
+                  - paragraph [ref=e119]: nhan thit
+                - generic [ref=e123] [cursor=pointer]:
+                  - generic [ref=e124]:
+                    - generic [ref=e125]: BÃ¡nh Cuá»‘n Thá»‹t
+                    - generic [ref=e126]: 45.000 ₫
+                  - paragraph [ref=e127]: BÃ¡nh cuá»‘n nhÃ¢n thá»‹t heo xay, hÃ nh phi
+                - generic [ref=e131] [cursor=pointer]:
+                  - generic [ref=e132]:
+                    - generic [ref=e133]: Nem RÃ¡n
+                    - generic [ref=e134]: 35.000 ₫
+                  - paragraph [ref=e135]: Nem rÃ¡n giÃ²n, nhÃ¢n thá»‹t + miáº¿n
+                - generic [ref=e139] [cursor=pointer]:
+                  - generic [ref=e140]:
+                    - generic [ref=e141]: "TrÃ Ä\x90Ã¡"
+                    - generic [ref=e142]: 10.000 ₫
+                  - paragraph [ref=e143]: TrÃ Ä‘Ã¡ miá»…n phÃ (1 bÃ¬nh)
+                - generic [ref=e147] [cursor=pointer]:
+                  - generic [ref=e148]:
+                    - generic [ref=e149]: BÃ¡nh Cuá»‘n TÃ´m
+                    - generic [ref=e150]: 50.000 ₫
+                  - paragraph [ref=e151]: BÃ¡nh cuá»‘n nhÃ¢n tÃ´m tÆ°Æ¡i, náº¥m mÃ¨o
+                - generic [ref=e155] [cursor=pointer]:
+                  - generic [ref=e156]:
+                    - generic [ref=e157]: Cháº£ GiÃ²
+                    - generic [ref=e158]: 35.000 ₫
+                  - paragraph [ref=e159]: Cháº£ giÃ² chiÃªn vÃ ng giÃ²n
+                - generic [ref=e163] [cursor=pointer]:
+                  - generic [ref=e164]:
+                    - generic [ref=e165]: NÆ°á»›c Chanh
+                    - generic [ref=e166]: 20.000 ₫
+                  - paragraph [ref=e167]: NÆ°á»›c chanh tÆ°Æ¡i pha máºt ong
+                - generic [ref=e171] [cursor=pointer]:
+                  - generic [ref=e172]:
+                    - generic [ref=e173]: BÃ¡nh Cuá»‘n Tháºp Cáº©m
+                    - generic [ref=e174]: 55.000 ₫
+                  - paragraph [ref=e175]: NhÃ¢n thá»‹t + tÃ´m + náº¥m mÃ¨o
+                - generic [ref=e179] [cursor=pointer]:
+                  - generic [ref=e180]:
+                    - generic [ref=e181]: Cháº£ Lá»¥a
+                    - generic [ref=e182]: 25.000 ₫
+                  - paragraph [ref=e183]: "Cháº£ lá»¥a Huáº¿ truyá»\x81n thá»‘ng (1 khoanh)"
+                - generic [ref=e187] [cursor=pointer]:
+                  - generic [ref=e188]:
+                    - generic [ref=e189]: NÆ°á»›c Cam
+                    - generic [ref=e190]: 25.000 ₫
+                  - paragraph [ref=e191]: NÆ°á»›c cam váº¯t tÆ°Æ¡i nguyÃªn cháº¥t
+                - generic [ref=e195] [cursor=pointer]:
+                  - generic [ref=e196]:
+                    - generic [ref=e197]: BÃ¡nh Cuá»‘n Trá»©ng
+                    - generic [ref=e198]: 40.000 ₫
+                  - paragraph [ref=e199]: BÃ¡nh cuá»‘n nhÃ¢n trá»©ng gÃ
+                - generic [ref=e203] [cursor=pointer]:
+                  - generic [ref=e204]:
+                    - generic [ref=e205]: CÃ PhÃª Sá»¯a
+                    - generic [ref=e206]: 30.000 ₫
+                  - paragraph [ref=e207]: CÃ phÃª phin + sá»¯a Ä‘áº·c
+                - generic [ref=e211] [cursor=pointer]:
+                  - generic [ref=e212]:
+                    - generic [ref=e213]: "Gá»\x8fi Cuá»‘n"
+                    - generic [ref=e214]: 40.000 ₫
+                  - paragraph [ref=e215]: "Gá»\x8fi cuá»‘n tÃ´m thá»‹t, bÃºn, rau sá»‘ng"
+            - generic [ref=e216]:
+              - paragraph [ref=e217]: "Các món đã chọn:"
+              - generic [ref=e218]:
+                - generic [ref=e219]:
+                  - text: banh cuon
+                  - generic [ref=e220]: ×2
+                - generic [ref=e221]: 8.000 ₫
+              - generic [ref=e222]:
+                - generic [ref=e223]:
+                  - text: gio
+                  - generic [ref=e224]: ×2
+                - generic [ref=e225]: 18.000 ₫
+              - generic [ref=e226]:
+                - generic [ref=e227]: Tổng giá lẻ
+                - generic [ref=e228]: 26.000 ₫
+            - generic [ref=e229]:
+              - generic [ref=e230]:
+                - generic [ref=e231]:
+                  - text: Giá combo * (₫)
+                  - generic [ref=e232]: "— gợi ý: 23.000 ₫"
+                - spinbutton [active] [ref=e233]: "160000"
+              - generic [ref=e234]:
+                - generic [ref=e235]: Thứ tự
+                - spinbutton [ref=e236]: "0"
+          - generic [ref=e237]:
+            - button "Huỷ bỏ" [ref=e238] [cursor=pointer]
+            - button "Lưu combo" [ref=e239] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e63]

@@ -13,3 +13,6 @@ sql:
         emit_exact_table_names: false
         emit_empty_slices: true
         query_parameter_limit: 4
+        overrides:
+          - column: "staff.shifts"
+            go_type: "[]byte"

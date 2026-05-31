@@ -1,0 +1,149 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Tổng quan" [ref=e6] [cursor=pointer]:
+          - /url: /admin/overview
+        - link "Tổng kết" [ref=e7] [cursor=pointer]:
+          - /url: /admin/summary
+        - link "Sản phẩm" [ref=e8] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Combo" [ref=e9] [cursor=pointer]:
+          - /url: /admin/combos
+        - link "Danh mục" [ref=e10] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e11] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e12] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Công việc" [ref=e13] [cursor=pointer]:
+          - /url: /admin/todo-list
+        - link "Kho nguyên liệu" [ref=e14] [cursor=pointer]:
+          - /url: /admin/ingredients
+        - link "Marketing" [ref=e15] [cursor=pointer]:
+          - /url: /admin/marketing
+        - link "Đào tạo" [ref=e16] [cursor=pointer]:
+          - /url: /admin/training
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - heading "Đào tạo nhân viên" [level=1] [ref=e21]
+          - paragraph [ref=e22]: Quản lý hướng dẫn và theo dõi tiến trình
+        - button "+ New Guide" [ref=e23] [cursor=pointer]
+      - generic [ref=e24]:
+        - button "Tất cả" [pressed] [ref=e25] [cursor=pointer]
+        - button "Bếp" [ref=e26] [cursor=pointer]
+        - button "Thu ngân" [ref=e27] [cursor=pointer]
+        - button "Nhân viên" [ref=e28] [cursor=pointer]
+        - button "Quản lý" [ref=e29] [cursor=pointer]
+        - generic [ref=e30]: 4 hướng dẫn
+      - generic [ref=e32]:
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - generic [ref=e35]: 📚
+            - 'generic "Vai trò: Bếp" [ref=e37]': Bếp
+            - button "Tuỳ chọn" [ref=e39] [cursor=pointer]: ⋮
+          - generic [ref=e40]:
+            - heading "Kỹ Thuật v2 Updated" [level=3] [ref=e41]
+            - 'generic "Vai trò: Bếp" [ref=e43]': Bếp
+            - button "Xem tiến trình →" [ref=e44] [cursor=pointer]
+        - generic [ref=e45]:
+          - generic [ref=e46]:
+            - generic [ref=e47]: 📚
+            - 'generic "Vai trò: Bếp" [ref=e49]': Bếp
+            - button "Tuỳ chọn" [ref=e51] [cursor=pointer]: ⋮
+          - generic [ref=e52]:
+            - heading "Kỹ Thuật Làm Bánh Cuốn" [level=3] [ref=e53]
+            - generic [ref=e54]:
+              - 'generic "Vai trò: Bếp" [ref=e55]': Bếp
+              - 'generic "Vai trò: Nhân viên" [ref=e56]': Nhân viên
+            - button "Xem tiến trình →" [ref=e57] [cursor=pointer]
+        - generic [ref=e58]:
+          - generic [ref=e59]:
+            - generic [ref=e60]: 📚
+            - 'generic "Vai trò: Bếp" [ref=e62]': Bếp
+            - button "Tuỳ chọn" [ref=e64] [cursor=pointer]: ⋮
+          - generic [ref=e65]:
+            - heading "Kỹ Thuật Làm Bánh Cuốn" [level=3] [ref=e66]
+            - paragraph [ref=e67]: Hướng dẫn kỹ thuật cơ bản
+            - generic [ref=e68]:
+              - 'generic "Vai trò: Bếp" [ref=e69]': Bếp
+              - 'generic "Vai trò: Nhân viên" [ref=e70]': Nhân viên
+            - button "Xem tiến trình →" [ref=e71] [cursor=pointer]
+        - generic [ref=e72]:
+          - generic [ref=e73]:
+            - generic [ref=e74]: 📚
+            - 'generic "Vai trò: Bếp" [ref=e76]': Bếp
+            - button "Tuỳ chọn" [ref=e78] [cursor=pointer]: ⋮
+          - generic [ref=e79]:
+            - heading "Kỹ Thuật Làm Bánh Cuốn (Updated)" [level=3] [ref=e80]
+            - generic [ref=e81]:
+              - 'generic "Vai trò: Bếp" [ref=e82]': Bếp
+              - 'generic "Vai trò: Nhân viên" [ref=e83]': Nhân viên
+            - button "Xem tiến trình →" [ref=e84] [cursor=pointer]
+      - generic [ref=e86]:
+        - generic [ref=e87]:
+          - heading "Completion Tracking— Kỹ Thuật v2 Updated" [level=2] [ref=e88]:
+            - text: Completion Tracking
+            - generic [ref=e89]: — Kỹ Thuật v2 Updated
+          - combobox [ref=e90]:
+            - option "Kỹ Thuật v2 Updated" [selected]
+            - option "Kỹ Thuật Làm Bánh Cuốn"
+            - option "Kỹ Thuật Làm Bánh Cuốn"
+            - option "Kỹ Thuật Làm Bánh Cuốn (Updated)"
+        - generic [ref=e91]: Chưa có nhân viên nào được giao hướng dẫn này.
+      - dialog "Chỉnh sửa hướng dẫn" [ref=e97]:
+        - generic [ref=e98]:
+          - heading "Chỉnh sửa hướng dẫn" [level=2] [ref=e99]
+          - button "Đóng" [ref=e100] [cursor=pointer]: ✕
+        - generic [ref=e101]:
+          - generic [ref=e102]:
+            - generic [ref=e103]: Tiêu đề *
+            - textbox "Tên hướng dẫn đào tạo" [ref=e104]: Kỹ Thuật v2 Updated
+          - generic [ref=e105]:
+            - generic [ref=e106]: Vai trò chính *
+            - combobox [ref=e107]:
+              - option "Chọn vai trò..."
+              - option "Bếp" [selected]
+              - option "Thu ngân"
+              - option "Nhân viên"
+              - option "Quản lý"
+          - generic [ref=e108]:
+            - generic [ref=e109]: Mô tả
+            - textbox "Mô tả nội dung hướng dẫn..." [ref=e110]
+          - generic [ref=e111]:
+            - generic [ref=e112]: URL ảnh bìa
+            - textbox "https://..." [ref=e113]
+          - generic [ref=e114]:
+            - generic [ref=e115]: URL YouTube
+            - textbox "https://youtube.com/..." [ref=e116]
+          - generic [ref=e117]:
+            - generic [ref=e118]:
+              - generic [ref=e119]: KPI Chất lượng
+              - textbox "≥ 95% rating" [ref=e120]
+            - generic [ref=e121]:
+              - generic [ref=e122]: KPI Số lượng
+              - textbox "≥ 80 bánh/ca" [ref=e123]
+          - generic [ref=e124]:
+            - generic [ref=e125]:
+              - generic [ref=e126]: Điểm đậu (%)
+              - spinbutton [ref=e127]: "80"
+            - generic [ref=e128]:
+              - generic [ref=e129]: Số lần thi tối đa
+              - spinbutton [ref=e130]: "5"
+          - generic [ref=e131]:
+            - generic [ref=e132]: Vai trò phụ trách *
+            - generic [ref=e133]:
+              - button "Bếp ×" [ref=e134] [cursor=pointer]
+              - button "Thu ngân +" [ref=e135] [cursor=pointer]
+              - button "Nhân viên +" [ref=e136] [cursor=pointer]
+              - button "Quản lý +" [ref=e137] [cursor=pointer]
+          - generic [ref=e138]:
+            - generic [ref=e139]: Đã xuất bản
+            - button "Đã xuất bản" [ref=e140] [cursor=pointer]
+          - generic [ref=e142]:
+            - button "Huỷ" [ref=e143] [cursor=pointer]
+            - button "Lưu hướng dẫn" [ref=e144] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e92]

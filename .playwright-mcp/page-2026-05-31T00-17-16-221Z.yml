@@ -1,0 +1,164 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Tổng quan" [ref=e6] [cursor=pointer]:
+          - /url: /admin/overview
+        - link "Tổng kết" [ref=e7] [cursor=pointer]:
+          - /url: /admin/summary
+        - link "Sản phẩm" [ref=e8] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Combo" [ref=e9] [cursor=pointer]:
+          - /url: /admin/combos
+        - link "Danh mục" [ref=e10] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e11] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e12] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Công việc" [ref=e13] [cursor=pointer]:
+          - /url: /admin/todo-list
+        - link "Kho nguyên liệu" [ref=e14] [cursor=pointer]:
+          - /url: /admin/ingredients
+        - link "Marketing" [ref=e15] [cursor=pointer]:
+          - /url: /admin/marketing
+        - link "Đào tạo" [ref=e16] [cursor=pointer]:
+          - /url: /admin/training
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - heading "Danh sách Công Việc" [level=2] [ref=e20]
+        - button "+ Tạo công việc" [ref=e21] [cursor=pointer]
+      - generic [ref=e23]:
+        - generic [ref=e24]:
+          - generic [ref=e25]: Nhân viên
+          - combobox [ref=e26]:
+            - option "Tất cả" [selected]
+            - option "Kiểm Tra Verify"
+            - option "Nhân Viên"
+            - option "Quản Lý"
+            - option "Đầu Bếp"
+            - option "Thu Ngân"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "E2E Test Chef"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "E2E Test Chef"
+            - option "Original Name"
+            - option "E2E Test Chef"
+            - option "E2E Test Chef"
+            - option "Original Name"
+            - option "E2E Test Chef"
+            - option "Original Name"
+            - option "Original Name"
+            - option "E2E Test Chef"
+            - option "Original Name"
+            - option "Original Name"
+            - option "E2E Test Chef"
+            - option "Original Name"
+            - option "E2E Test Chef"
+            - 'option "LÃª Äáº§u Báº¿p"'
+            - option "Pháº¡m Thu NgÃ¢n"
+            - option "Tráº§n Quáº£n LÃ½"
+            - option "Trần Thị Thu"
+            - option "Lê Văn Phục"
+            - option "Nguyễn Văn Bếp"
+            - option "Quản Trị Viên"
+        - generic [ref=e27]:
+          - generic [ref=e28]: Từ ngày
+          - textbox [ref=e29]
+        - generic [ref=e30]:
+          - generic [ref=e31]: Đến ngày
+          - textbox [ref=e32]
+        - generic [ref=e33]:
+          - generic [ref=e34]: Trạng thái
+          - combobox [ref=e35]:
+            - option "Tất cả" [selected]
+            - option "Chờ"
+            - option "Hoàn thành"
+            - option "Quá hạn"
+        - button "Lọc" [ref=e36] [cursor=pointer]
+        - button "Xóa lọc" [ref=e37] [cursor=pointer]
+      - table [ref=e592]:
+        - rowgroup [ref=e593]:
+          - row "Tên Ưu tiên Khung giờ Trạng thái Hành động" [ref=e594]:
+            - columnheader "Tên" [ref=e595]
+            - columnheader "Ưu tiên" [ref=e596]
+            - columnheader "Khung giờ" [ref=e597]
+            - columnheader "Trạng thái" [ref=e598]
+            - columnheader "Hành động" [ref=e599]
+        - rowgroup [ref=e600]:
+          - 'row "Verify task v2 🔴 Cao 09:00 – 10:00 Trạng thái: Chờ Sửa: Verify task v2" [ref=e601]':
+            - cell "Verify task v2" [ref=e602]
+            - cell "🔴 Cao" [ref=e603]
+            - cell "09:00 – 10:00" [ref=e604]
+            - 'cell "Trạng thái: Chờ" [ref=e605]':
+              - 'generic "Trạng thái: Chờ" [ref=e606]': Chờ
+            - 'cell "Sửa: Verify task v2" [ref=e607]':
+              - 'button "Sửa: Verify task v2" [ref=e608] [cursor=pointer]': ✏️
+  - region "Notifications alt+T"
+  - alert [ref=e588]

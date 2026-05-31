@@ -3,16 +3,14 @@ package service
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"net/http"
 	"time"
 
-	"github.com/google/uuid"
-
+	"banhcuon/be/internal/db"
 	"banhcuon/be/internal/repository"
 )
 
-// TaskService handles business logic for staff tasks.
+// TaskService handles business logic for the staff task board.
 type TaskService struct {
 	repo repository.TaskRepository
 }
@@ -22,288 +20,187 @@ func NewTaskService(repo repository.TaskRepository) *TaskService {
 	return &TaskService{repo: repo}
 }
 
-// TodoTask is the service-layer DTO for a staff task.
-type TodoTask struct {
-	ID              string
-	Title           string
-	Description     string
-	AssignedTo      string
-	AssignedToName  string
-	AssignedBy      string
-	AssignedByName  string
-	Status          string
-	DueDate         string // "YYYY-MM-DD"
-	DueTime         string // "HH:MM"
-	CompletedAt     string // ISO 8601 or ""
-	CreatedAt       string // ISO 8601
+// ── DTOs ──────────────────────────────────────────────────────────────────────
+
+type DailyMetricsDTO struct {
+	Date            string `json:"date"`
+	TotalTasks      int64  `json:"totalTasks"`
+	CompletedTasks  int64  `json:"completedTasks"`
+	InProgressTasks int64  `json:"inProgressTasks"`
+	OverdueTasks    int64  `json:"overdueTasks"`
 }
 
-// TaskListResult is returned by ListTasks.
-type TaskListResult struct {
-	Tasks    []TodoTask
-	Total    int64
-	Page     int
-	PageSize int
+type StaffTaskStatDTO struct {
+	StaffID        string  `json:"staffId"`
+	StaffName      string  `json:"staffName"`
+	Role           string  `json:"role"`
+	AssignedCount  int64   `json:"assignedCount"`
+	CompletedCount int64   `json:"completedCount"`
+	CompletionRate float64 `json:"completionRate"`
+	QualityScore   float64 `json:"qualityScore"`
+	HasOverdue     bool    `json:"hasOverdue"`
 }
 
-// CreateTaskInput holds the data for creating a new task.
-type CreateTaskInput struct {
-	Title       string
-	Description string
-	AssignedTo  string
-	DueDate     string // "YYYY-MM-DD"
-	DueTime     string // "HH:MM"
-	CallerID    string
-	CallerRole  string
+type StaffTaskStatsResponse struct {
+	Metrics   DailyMetricsDTO    `json:"metrics"`
+	StaffStats []StaffTaskStatDTO `json:"staffStats"`
 }
 
-// UpdateTaskInput holds the data for editing a task.
-type UpdateTaskInput struct {
-	ID          string
-	Title       *string
-	Description *string
-	AssignedTo  *string
-	DueDate     *string
-	DueTime     *string
-	CallerID    string
-	CallerRole  string
+type TaskDTO struct {
+	ID           string `json:"id"`
+	StaffID      string `json:"staffId"`
+	Name         string `json:"name"`
+	Description  string `json:"description,omitempty"`
+	Priority     string `json:"priority"`
+	DueDate      string `json:"dueDate"`
+	DueTimeStart string `json:"dueTimeStart"`
+	DueTimeEnd   string `json:"dueTimeEnd"`
+	Status       string `json:"status"`
+	Notes        string `json:"notes,omitempty"`
+	CreatedAt    string `json:"createdAt"`
+	UpdatedAt    string `json:"updatedAt"`
 }
 
-// ListTasksInput holds filter params for listing tasks.
-type ListTasksInput struct {
-	CallerID   string
-	CallerRole string
-	AssignedTo string // "" = all (manager only)
-	StartDate  string // "YYYY-MM-DD"
-	EndDate    string // "YYYY-MM-DD"
-	Status     string
-	Page       int
-	PageSize   int
+type CreateTaskSvcInput struct {
+	CallerID     string
+	AssignedTo   string
+	Name         string
+	Description  string
+	Priority     string
+	DueDateTime  string // ISO 8601: "2006-01-02T15:04:05Z"
+	DueTimeStart string // "HH:mm" — optional display window start
+	DueTimeEnd   string // "HH:mm" — optional display window end
+	Notes        string
 }
 
-// ToggleTaskInput holds params for toggling task status.
-type ToggleTaskInput struct {
-	ID         string
-	Status     string // "completed" or "pending"
-	CallerID   string
-	CallerRole string
-}
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-func toDTO(t repository.StaffTask) TodoTask {
-	dto := TodoTask{
-		ID:             t.ID,
-		Title:          t.Title,
-		AssignedTo:     t.AssignedTo,
-		AssignedToName: t.AssignedToName,
-		AssignedBy:     t.AssignedBy,
-		AssignedByName: t.AssignedByName,
-		Status:         t.Status,
-		DueDate:        t.DueAt.UTC().Format("2006-01-02"),
-		DueTime:        t.DueAt.UTC().Format("15:04"),
-		CreatedAt:      t.CreatedAt.UTC().Format(time.RFC3339),
+func taskToDTO(t db.StaffTask) TaskDTO {
+	dto := TaskDTO{
+		ID:        t.ID,
+		StaffID:   t.AssignedTo,
+		Name:      t.Title,
+		Priority:  string(t.Priority),
+		DueDate:   t.DueAt.UTC().Format("2006-01-02"),
+		Status:    string(t.Status),
+		CreatedAt: t.CreatedAt.UTC().Format(time.RFC3339),
+		UpdatedAt: t.UpdatedAt.UTC().Format(time.RFC3339),
 	}
 	if t.Description.Valid {
 		dto.Description = t.Description.String
 	}
-	if t.CompletedAt.Valid {
-		dto.CompletedAt = t.CompletedAt.Time.UTC().Format(time.RFC3339)
+	if t.DueTimeStart.Valid {
+		dto.DueTimeStart = t.DueTimeStart.String
+	}
+	if t.DueTimeEnd.Valid {
+		dto.DueTimeEnd = t.DueTimeEnd.String
+	}
+	if t.Notes.Valid {
+		dto.Notes = t.Notes.String
 	}
 	return dto
 }
 
-func parseDueAt(date, timeStr string) (time.Time, error) {
-	combined := date + "T" + timeStr + ":00Z"
-	t, err := time.Parse("2006-01-02T15:04:05Z", combined)
-	if err != nil {
-		return time.Time{}, NewAppError(http.StatusBadRequest, "INVALID_INPUT", "Định dạng ngày giờ không hợp lệ")
-	}
-	return t, nil
+func validPriority(p string) bool {
+	return p == "high" || p == "medium" || p == "low"
 }
 
-func isManagerOrAdmin(role string) bool {
-	return role == "manager" || role == "admin"
-}
+// ── Methods ───────────────────────────────────────────────────────────────────
 
-func (s *TaskService) CreateTask(ctx context.Context, in CreateTaskInput) (TodoTask, error) {
-	if !isManagerOrAdmin(in.CallerRole) {
-		return TodoTask{}, ErrForbidden
-	}
-	dueAt, err := parseDueAt(in.DueDate, in.DueTime)
+// GetTaskStats returns daily metrics + per-staff stats for the given date.
+func (s *TaskService) GetTaskStats(ctx context.Context, date string) (StaffTaskStatsResponse, error) {
+	d, err := time.Parse("2006-01-02", date)
 	if err != nil {
-		return TodoTask{}, err
+		return StaffTaskStatsResponse{}, NewAppError(http.StatusBadRequest, "INVALID_INPUT", "Định dạng ngày không hợp lệ (YYYY-MM-DD)")
 	}
-	arg := repository.CreateTaskParams{
-		ID:         uuid.New().String(),
-		Title:      in.Title,
-		AssignedTo: in.AssignedTo,
-		AssignedBy: in.CallerID,
-		DueAt:      dueAt,
-	}
-	if in.Description != "" {
-		arg.Description = sql.NullString{String: in.Description, Valid: true}
-	}
-	t, err := s.repo.CreateTask(ctx, arg)
+
+	metrics, err := s.repo.GetDailyMetrics(ctx, d)
 	if err != nil {
-		return TodoTask{}, ErrInternalError
-	}
-	return toDTO(t), nil
-}
-
-func (s *TaskService) ListTasks(ctx context.Context, in ListTasksInput) (TaskListResult, error) {
-	f := repository.ListTasksFilter{
-		Status:   in.Status,
-		Page:     in.Page,
-		PageSize: in.PageSize,
+		return StaffTaskStatsResponse{}, ErrInternalError
 	}
 
-	// Staff can only see their own tasks; manager/admin can filter freely.
-	if !isManagerOrAdmin(in.CallerRole) {
-		f.AssignedTo = &in.CallerID
-	} else if in.AssignedTo != "" {
-		f.AssignedTo = &in.AssignedTo
-	}
-
-	if in.StartDate != "" {
-		t, err := time.Parse("2006-01-02", in.StartDate)
-		if err == nil {
-			f.StartDate = &t
-		}
-	}
-	if in.EndDate != "" {
-		t, err := time.Parse("2006-01-02", in.EndDate)
-		if err == nil {
-			f.EndDate = &t
-		}
-	}
-
-	list, total, err := s.repo.ListTasks(ctx, f)
+	staffRows, err := s.repo.GetStaffStats(ctx, d)
 	if err != nil {
-		return TaskListResult{}, ErrInternalError
+		return StaffTaskStatsResponse{}, ErrInternalError
 	}
 
-	dtos := make([]TodoTask, len(list))
-	for i, t := range list {
-		dtos[i] = toDTO(t)
+	staffDTOs := make([]StaffTaskStatDTO, 0, len(staffRows))
+	for _, row := range staffRows {
+		rate := float64(row.CompletionRate)
+		// Quality score derived from completion rate on a 0–5.0 scale.
+		quality := rate / 20.0
+		staffDTOs = append(staffDTOs, StaffTaskStatDTO{
+			StaffID:        row.StaffID,
+			StaffName:      row.StaffName,
+			Role:           row.Role,
+			AssignedCount:  row.AssignedCount,
+			CompletedCount: row.CompletedCount,
+			CompletionRate: rate,
+			QualityScore:   quality,
+			HasOverdue:     row.HasOverdue,
+		})
 	}
-	return TaskListResult{
-		Tasks:    dtos,
-		Total:    total,
-		Page:     in.Page,
-		PageSize: in.PageSize,
+
+	return StaffTaskStatsResponse{
+		Metrics: DailyMetricsDTO{
+			Date:            date,
+			TotalTasks:      metrics.TotalTasks,
+			CompletedTasks:  metrics.CompletedTasks,
+			InProgressTasks: metrics.InProgressTasks,
+			OverdueTasks:    metrics.OverdueTasks,
+		},
+		StaffStats: staffDTOs,
 	}, nil
 }
 
-func (s *TaskService) GetTask(ctx context.Context, id, callerID, callerRole string) (TodoTask, error) {
-	t, err := s.repo.GetTaskByID(ctx, id)
+// GetStaffTasks returns tasks for a specific staff member on a given date.
+func (s *TaskService) GetStaffTasks(ctx context.Context, staffID, date string) ([]TaskDTO, error) {
+	d, err := time.Parse("2006-01-02", date)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return TodoTask{}, ErrNotFound
-		}
-		return TodoTask{}, ErrInternalError
+		return nil, NewAppError(http.StatusBadRequest, "INVALID_INPUT", "Định dạng ngày không hợp lệ (YYYY-MM-DD)")
 	}
-	if !isManagerOrAdmin(callerRole) && t.AssignedTo != callerID {
-		return TodoTask{}, ErrForbidden
+	tasks, err := s.repo.GetTasksByStaffDate(ctx, staffID, d)
+	if err != nil {
+		return nil, ErrInternalError
 	}
-	return toDTO(t), nil
+	dtos := make([]TaskDTO, 0, len(tasks))
+	for _, t := range tasks {
+		dtos = append(dtos, taskToDTO(t))
+	}
+	return dtos, nil
 }
 
-func (s *TaskService) UpdateTask(ctx context.Context, in UpdateTaskInput) (TodoTask, error) {
-	if !isManagerOrAdmin(in.CallerRole) {
-		return TodoTask{}, ErrForbidden
+// CreateTask inserts a new staff task and returns its DTO.
+func (s *TaskService) CreateTask(ctx context.Context, in CreateTaskSvcInput) (TaskDTO, error) {
+	if !validPriority(in.Priority) {
+		return TaskDTO{}, NewAppError(http.StatusBadRequest, "INVALID_INPUT", "Priority phải là high, medium hoặc low")
 	}
-	existing, err := s.repo.GetTaskByID(ctx, in.ID)
+	dueAt, err := time.Parse(time.RFC3339, in.DueDateTime)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return TodoTask{}, ErrNotFound
-		}
-		return TodoTask{}, ErrInternalError
-	}
-	// Only the creator or admin may edit.
-	if existing.AssignedBy != in.CallerID && in.CallerRole != "admin" {
-		return TodoTask{}, ErrForbidden
-	}
-
-	arg := repository.UpdateTaskParams{
-		ID:         in.ID,
-		Title:      in.Title,
-		AssignedTo: in.AssignedTo,
-	}
-	if in.Description != nil {
-		arg.Description = in.Description
-	}
-	// Recalculate due_at if either date or time changed.
-	if in.DueDate != nil || in.DueTime != nil {
-		dateStr := existing.DueAt.UTC().Format("2006-01-02")
-		timeStr := existing.DueAt.UTC().Format("15:04")
-		if in.DueDate != nil {
-			dateStr = *in.DueDate
-		}
-		if in.DueTime != nil {
-			timeStr = *in.DueTime
-		}
-		dueAt, err := parseDueAt(dateStr, timeStr)
+		// Try without timezone.
+		dueAt, err = time.Parse("2006-01-02T15:04", in.DueDateTime)
 		if err != nil {
-			return TodoTask{}, err
+			return TaskDTO{}, NewAppError(http.StatusBadRequest, "INVALID_INPUT", "Định dạng dueDateTime không hợp lệ")
 		}
-		arg.DueAt = &dueAt
 	}
 
-	t, err := s.repo.UpdateTask(ctx, arg)
+	arg := repository.CreateTaskInput{
+		AssignedTo:   in.AssignedTo,
+		AssignedBy:   in.CallerID,
+		Title:        in.Name,
+		Description:  in.Description,
+		Priority:     in.Priority,
+		DueAt:        dueAt,
+		DueTimeStart: in.DueTimeStart,
+		DueTimeEnd:   in.DueTimeEnd,
+		Notes:        in.Notes,
+	}
+	task, err := s.repo.CreateTask(ctx, arg)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return TodoTask{}, ErrNotFound
+		if err == sql.ErrNoRows {
+			return TaskDTO{}, ErrNotFound
 		}
-		return TodoTask{}, ErrInternalError
+		return TaskDTO{}, ErrInternalError
 	}
-	return toDTO(t), nil
-}
-
-func (s *TaskService) ToggleStatus(ctx context.Context, in ToggleTaskInput) error {
-	t, err := s.repo.GetTaskByID(ctx, in.ID)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return ErrNotFound
-		}
-		return ErrInternalError
-	}
-	// Staff may only toggle their own tasks.
-	if !isManagerOrAdmin(in.CallerRole) && t.AssignedTo != in.CallerID {
-		return ErrForbidden
-	}
-	if in.Status != "completed" && in.Status != "pending" {
-		return NewAppError(http.StatusBadRequest, "INVALID_INPUT", "Trạng thái không hợp lệ — chỉ cho phép: completed, pending")
-	}
-
-	var completedAt sql.NullTime
-	if in.Status == "completed" {
-		completedAt = sql.NullTime{Time: time.Now().UTC(), Valid: true}
-	}
-	if err := s.repo.UpdateTaskStatus(ctx, in.ID, in.Status, completedAt); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return ErrNotFound
-		}
-		return ErrInternalError
-	}
-	return nil
-}
-
-func (s *TaskService) DeleteTask(ctx context.Context, id, callerID, callerRole string) error {
-	if !isManagerOrAdmin(callerRole) {
-		return ErrForbidden
-	}
-	t, err := s.repo.GetTaskByID(ctx, id)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return ErrNotFound
-		}
-		return ErrInternalError
-	}
-	// Only the creator or admin may delete.
-	if t.AssignedBy != callerID && callerRole != "admin" {
-		return ErrForbidden
-	}
-	if err := s.repo.SoftDeleteTask(ctx, id); err != nil {
-		return ErrInternalError
-	}
-	return nil
+	return taskToDTO(task), nil
 }

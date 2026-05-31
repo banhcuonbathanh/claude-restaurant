@@ -59,7 +59,7 @@ export const listToppings = (): Promise<Topping[]> =>
 export const createTopping = (body: { name: string; price: number }): Promise<Topping> =>
   api.post('/toppings', body).then(r => r.data.data)
 
-export const updateTopping = (id: string, body: { name?: string; price?: number }): Promise<Topping> =>
+export const updateTopping = (id: string, body: { name?: string; price?: number; is_available?: boolean }): Promise<Topping> =>
   api.patch(`/toppings/${id}`, body).then(r => r.data.data)
 
 export const deleteTopping = (id: string): Promise<void> =>
@@ -68,23 +68,32 @@ export const deleteTopping = (id: string): Promise<void> =>
 // ── Staff ─────────────────────────────────────────────────────────────────────
 
 export interface CreateStaffInput {
-  username:  string
-  password:  string
-  full_name: string
-  role:      string
-  phone?:    string
-  email?:    string
+  username:         string
+  password:         string
+  full_name:        string
+  role:             string
+  job_title?:       string
+  shifts?:          string[]
+  responsibilities?: string
+  phone?:           string
+  email?:           string
 }
 
 export interface UpdateStaffInput {
-  full_name?: string
-  role?:      string
-  phone?:     string
-  email?:     string
+  full_name?:        string
+  role?:             string
+  job_title?:        string
+  shifts?:           string[]
+  responsibilities?: string
+  phone?:            string
+  email?:            string
 }
 
 export const listStaff = (): Promise<StaffListResponse> =>
   api.get('/staff?limit=100').then(r => r.data)
+
+export const fetchStaffDetail = (id: string): Promise<Staff> =>
+  api.get(`/staff/${id}`).then(r => r.data.data)
 
 export const createStaff = (body: CreateStaffInput): Promise<Staff> =>
   api.post('/staff', body).then(r => r.data.data)
@@ -260,3 +269,16 @@ export const deleteIngredient = (id: string): Promise<void> =>
 
 export const postStockMovement = (body: StockMovementInput): Promise<void> =>
   api.post('/admin/stock-movements', body).then(r => r.data.data)
+
+// ── Tasks ─────────────────────────────────────────────────────────────────────
+
+import type { StaffTaskStatsResponse, Task, CreateTaskPayload } from '@/types/task'
+
+export const getTaskStats = (date: string): Promise<StaffTaskStatsResponse> =>
+  api.get(`/admin/tasks/stats?date=${date}`).then(r => r.data.data)
+
+export const getStaffTasks = (staffId: string, date: string): Promise<Task[]> =>
+  api.get(`/admin/tasks?staffId=${staffId}&date=${date}`).then(r => r.data.data)
+
+export const createTask = (body: CreateTaskPayload): Promise<Task> =>
+  api.post('/admin/tasks', body).then(r => r.data.data)

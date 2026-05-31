@@ -21,23 +21,29 @@ type ListStaffFilter struct {
 
 // CreateStaffParams holds the data needed to insert a new staff row.
 type CreateStaffParams struct {
-	ID           string
-	Username     string
-	PasswordHash string
-	FullName     string
-	Role         string
-	Phone        sql.NullString
-	Email        sql.NullString
+	ID              string
+	Username        string
+	PasswordHash    string
+	FullName        string
+	Role            string
+	JobTitle        sql.NullString
+	Shifts          []byte // raw JSON, nil → NULL
+	Responsibilities sql.NullString
+	Phone           sql.NullString
+	Email           sql.NullString
 }
 
 // UpdateStaffParams holds the data needed to update a staff row.
 // Only non-nil pointer fields are applied.
 type UpdateStaffParams struct {
-	ID       string
-	FullName *string
-	Role     *string
-	Phone    *string
-	Email    *string
+	ID              string
+	FullName        *string
+	Role            *string
+	JobTitle        *string
+	Shifts          *string
+	Responsibilities *string
+	Phone           *string
+	Email           *string
 }
 
 // StaffRepository provides CRUD access for the staff table.
@@ -98,7 +104,7 @@ func (r *staffRepo) ListStaff(ctx context.Context, f ListStaffFilter) ([]db.Staf
 	// Fetch page
 	offset := (f.Page - 1) * f.Limit
 	query := fmt.Sprintf(
-		`SELECT id, username, password_hash, email, role, full_name, phone, is_active, created_at, updated_at, deleted_at
+		`SELECT id, username, password_hash, email, role, full_name, phone, is_active, created_at, updated_at, deleted_at, job_title, COALESCE(shifts, '[]') AS shifts, responsibilities
 		 FROM staff WHERE %s ORDER BY created_at DESC LIMIT ? OFFSET ?`, cond)
 	pageArgs := append(args, f.Limit, offset)
 	rows, err := r.dbtx.QueryContext(ctx, query, pageArgs...)
@@ -111,7 +117,8 @@ func (r *staffRepo) ListStaff(ctx context.Context, f ListStaffFilter) ([]db.Staf
 	for rows.Next() {
 		var s db.Staff
 		if err := rows.Scan(&s.ID, &s.Username, &s.PasswordHash, &s.Email, &s.Role,
-			&s.FullName, &s.Phone, &s.IsActive, &s.CreatedAt, &s.UpdatedAt, &s.DeletedAt); err != nil {
+			&s.FullName, &s.Phone, &s.IsActive, &s.CreatedAt, &s.UpdatedAt, &s.DeletedAt,
+			&s.JobTitle, &s.Shifts, &s.Responsibilities); err != nil {
 			return nil, 0, fmt.Errorf("staff: scan: %w", err)
 		}
 		list = append(list, s)
@@ -123,12 +130,13 @@ func (r *staffRepo) ListStaff(ctx context.Context, f ListStaffFilter) ([]db.Staf
 }
 
 func (r *staffRepo) GetStaffByID(ctx context.Context, id string) (db.Staff, error) {
-	const q = `SELECT id, username, password_hash, email, role, full_name, phone, is_active, created_at, updated_at, deleted_at
+	const q = `SELECT id, username, password_hash, email, role, full_name, phone, is_active, created_at, updated_at, deleted_at, job_title, COALESCE(shifts, '[]') AS shifts, responsibilities
 	           FROM staff WHERE id = ? AND deleted_at IS NULL LIMIT 1`
 	var s db.Staff
 	err := r.dbtx.QueryRowContext(ctx, q, id).Scan(
 		&s.ID, &s.Username, &s.PasswordHash, &s.Email, &s.Role,
-		&s.FullName, &s.Phone, &s.IsActive, &s.CreatedAt, &s.UpdatedAt, &s.DeletedAt)
+		&s.FullName, &s.Phone, &s.IsActive, &s.CreatedAt, &s.UpdatedAt, &s.DeletedAt,
+		&s.JobTitle, &s.Shifts, &s.Responsibilities)
 	if err != nil {
 		return db.Staff{}, err
 	}
@@ -136,12 +144,13 @@ func (r *staffRepo) GetStaffByID(ctx context.Context, id string) (db.Staff, erro
 }
 
 func (r *staffRepo) GetStaffByUsername(ctx context.Context, username string) (db.Staff, error) {
-	const q = `SELECT id, username, password_hash, email, role, full_name, phone, is_active, created_at, updated_at, deleted_at
+	const q = `SELECT id, username, password_hash, email, role, full_name, phone, is_active, created_at, updated_at, deleted_at, job_title, COALESCE(shifts, '[]') AS shifts, responsibilities
 	           FROM staff WHERE username = ? AND deleted_at IS NULL LIMIT 1`
 	var s db.Staff
 	err := r.dbtx.QueryRowContext(ctx, q, username).Scan(
 		&s.ID, &s.Username, &s.PasswordHash, &s.Email, &s.Role,
-		&s.FullName, &s.Phone, &s.IsActive, &s.CreatedAt, &s.UpdatedAt, &s.DeletedAt)
+		&s.FullName, &s.Phone, &s.IsActive, &s.CreatedAt, &s.UpdatedAt, &s.DeletedAt,
+		&s.JobTitle, &s.Shifts, &s.Responsibilities)
 	if err != nil {
 		return db.Staff{}, err
 	}
@@ -149,10 +158,11 @@ func (r *staffRepo) GetStaffByUsername(ctx context.Context, username string) (db
 }
 
 func (r *staffRepo) CreateStaff(ctx context.Context, arg CreateStaffParams) (db.Staff, error) {
-	const q = `INSERT INTO staff (id, username, password_hash, full_name, role, phone, email, is_active, created_at, updated_at)
-	           VALUES (?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`
+	const q = `INSERT INTO staff (id, username, password_hash, full_name, role, job_title, shifts, responsibilities, phone, email, is_active, created_at, updated_at)
+	           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW(), NOW())`
 	if _, err := r.dbtx.ExecContext(ctx, q,
-		arg.ID, arg.Username, arg.PasswordHash, arg.FullName, arg.Role, arg.Phone, arg.Email,
+		arg.ID, arg.Username, arg.PasswordHash, arg.FullName, arg.Role,
+		arg.JobTitle, arg.Shifts, arg.Responsibilities, arg.Phone, arg.Email,
 	); err != nil {
 		return db.Staff{}, fmt.Errorf("staff: insert: %w", err)
 	}
@@ -170,6 +180,22 @@ func (r *staffRepo) UpdateStaff(ctx context.Context, arg UpdateStaffParams) (db.
 	if arg.Role != nil {
 		setClauses = append(setClauses, "role = ?")
 		args = append(args, *arg.Role)
+	}
+	if arg.JobTitle != nil {
+		setClauses = append(setClauses, "job_title = ?")
+		args = append(args, nullableStr(*arg.JobTitle))
+	}
+	if arg.Shifts != nil {
+		setClauses = append(setClauses, "shifts = ?")
+		if *arg.Shifts == "" {
+			args = append(args, nil)
+		} else {
+			args = append(args, []byte(*arg.Shifts))
+		}
+	}
+	if arg.Responsibilities != nil {
+		setClauses = append(setClauses, "responsibilities = ?")
+		args = append(args, nullableStr(*arg.Responsibilities))
 	}
 	if arg.Phone != nil {
 		setClauses = append(setClauses, "phone = ?")

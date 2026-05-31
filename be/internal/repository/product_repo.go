@@ -26,6 +26,8 @@ type ProductRepository interface {
 	// Categories
 	CreateCategory(ctx context.Context, id, name string, description sql.NullString, sortOrder int32) error
 	GetCategoryByID(ctx context.Context, id string) (db.Category, error)
+	GetCategoryByName(ctx context.Context, name string) (db.Category, error)
+	CountProductsByCategory(ctx context.Context, categoryID string) (int64, error)
 	UpdateCategory(ctx context.Context, name string, description sql.NullString, sortOrder int32, id string) error
 	SoftDeleteCategory(ctx context.Context, id string) error
 	ListCategories(ctx context.Context) ([]db.Category, error)
@@ -34,6 +36,7 @@ type ProductRepository interface {
 	CreateTopping(ctx context.Context, id, name, price string) error
 	GetToppingByID(ctx context.Context, id string) (db.Topping, error)
 	UpdateTopping(ctx context.Context, name, price, id string) error
+	UpdateToppingAvailability(ctx context.Context, id string, isAvailable bool) error
 	SoftDeleteTopping(ctx context.Context, id string) error
 	ListToppings(ctx context.Context) ([]db.Topping, error)
 	ListToppingsAvailable(ctx context.Context) ([]db.Topping, error)
@@ -113,6 +116,23 @@ func (r *productRepo) UpdateCategory(ctx context.Context, name string, descripti
 	return r.q.UpdateCategory(ctx, name, description, sortOrder, id)
 }
 
+func (r *productRepo) GetCategoryByName(ctx context.Context, name string) (db.Category, error) {
+	var c db.Category
+	err := r.dbtx.QueryRowContext(ctx,
+		`SELECT id, name, description, sort_order, is_active, created_at, updated_at, deleted_at
+		 FROM categories WHERE name = ? AND deleted_at IS NULL LIMIT 1`, name,
+	).Scan(&c.ID, &c.Name, &c.Description, &c.SortOrder, &c.IsActive, &c.CreatedAt, &c.UpdatedAt, &c.DeletedAt)
+	return c, err
+}
+
+func (r *productRepo) CountProductsByCategory(ctx context.Context, categoryID string) (int64, error) {
+	var count int64
+	err := r.dbtx.QueryRowContext(ctx,
+		`SELECT COUNT(*) FROM products WHERE category_id = ? AND deleted_at IS NULL`, categoryID,
+	).Scan(&count)
+	return count, err
+}
+
 func (r *productRepo) SoftDeleteCategory(ctx context.Context, id string) error {
 	return r.q.SoftDeleteCategory(ctx, id)
 }
@@ -131,6 +151,11 @@ func (r *productRepo) GetToppingByID(ctx context.Context, id string) (db.Topping
 
 func (r *productRepo) UpdateTopping(ctx context.Context, name, price, id string) error {
 	return r.q.UpdateTopping(ctx, name, price, id)
+}
+
+func (r *productRepo) UpdateToppingAvailability(ctx context.Context, id string, isAvailable bool) error {
+	_, err := r.dbtx.ExecContext(ctx, `UPDATE toppings SET is_available = ?, updated_at = NOW() WHERE id = ? AND deleted_at IS NULL`, isAvailable, id)
+	return err
 }
 
 func (r *productRepo) SoftDeleteTopping(ctx context.Context, id string) error {

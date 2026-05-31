@@ -1,10 +1,12 @@
 -- name: GetStaffByUsername :one
-SELECT * FROM staff
+SELECT id, username, password_hash, email, role, full_name, phone, is_active, created_at, updated_at, deleted_at, job_title, COALESCE(shifts, '[]') AS shifts, responsibilities
+FROM staff
 WHERE username = ? AND deleted_at IS NULL
 LIMIT 1;
 
 -- name: GetStaffByID :one
-SELECT * FROM staff
+SELECT id, username, password_hash, email, role, full_name, phone, is_active, created_at, updated_at, deleted_at, job_title, COALESCE(shifts, '[]') AS shifts, responsibilities
+FROM staff
 WHERE id = ? AND deleted_at IS NULL
 LIMIT 1;
 

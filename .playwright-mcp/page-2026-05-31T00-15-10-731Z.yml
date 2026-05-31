@@ -1,0 +1,695 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Tổng quan" [ref=e6] [cursor=pointer]:
+          - /url: /admin/overview
+        - link "Tổng kết" [ref=e7] [cursor=pointer]:
+          - /url: /admin/summary
+        - link "Sản phẩm" [ref=e8] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Combo" [ref=e9] [cursor=pointer]:
+          - /url: /admin/combos
+        - link "Danh mục" [ref=e10] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e11] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e12] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Công việc" [ref=e13] [cursor=pointer]:
+          - /url: /admin/todo-list
+        - link "Kho nguyên liệu" [ref=e14] [cursor=pointer]:
+          - /url: /admin/ingredients
+        - link "Marketing" [ref=e15] [cursor=pointer]:
+          - /url: /admin/marketing
+        - link "Đào tạo" [ref=e16] [cursor=pointer]:
+          - /url: /admin/training
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - heading "Danh sách Công Việc" [level=2] [ref=e20]
+        - button "+ Tạo công việc" [ref=e21] [cursor=pointer]
+      - generic [ref=e23]:
+        - generic [ref=e24]:
+          - generic [ref=e25]: Nhân viên
+          - combobox [ref=e26]:
+            - option "Tất cả" [selected]
+            - option "Kiểm Tra Verify"
+            - option "Nhân Viên"
+            - option "Quản Lý"
+            - option "Đầu Bếp"
+            - option "Thu Ngân"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "E2E Test Chef"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "Status Toggle Test"
+            - option "Updated Name"
+            - option "E2E Test Chef"
+            - option "E2E Test Chef"
+            - option "Original Name"
+            - option "E2E Test Chef"
+            - option "E2E Test Chef"
+            - option "Original Name"
+            - option "E2E Test Chef"
+            - option "Original Name"
+            - option "Original Name"
+            - option "E2E Test Chef"
+            - option "Original Name"
+            - option "Original Name"
+            - option "E2E Test Chef"
+            - option "Original Name"
+            - option "E2E Test Chef"
+            - 'option "LÃª Äáº§u Báº¿p"'
+            - option "Pháº¡m Thu NgÃ¢n"
+            - option "Tráº§n Quáº£n LÃ½"
+            - option "Trần Thị Thu"
+            - option "Lê Văn Phục"
+            - option "Nguyễn Văn Bếp"
+            - option "Quản Trị Viên"
+        - generic [ref=e27]:
+          - generic [ref=e28]: Từ ngày
+          - textbox [ref=e29]
+        - generic [ref=e30]:
+          - generic [ref=e31]: Đến ngày
+          - textbox [ref=e32]
+        - generic [ref=e33]:
+          - generic [ref=e34]: Trạng thái
+          - combobox [ref=e35]:
+            - option "Tất cả" [selected]
+            - option "Chờ"
+            - option "Hoàn thành"
+            - option "Quá hạn"
+        - button "Lọc" [ref=e36] [cursor=pointer]
+        - button "Xóa lọc" [ref=e37] [cursor=pointer]
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - generic [ref=e41]:
+            - paragraph [ref=e42]: "1"
+            - paragraph [ref=e43]: Tổng
+          - generic [ref=e44]:
+            - paragraph [ref=e45]: "0"
+            - paragraph [ref=e46]: Hoàn thành
+          - generic [ref=e47]:
+            - paragraph [ref=e48]: "0"
+            - paragraph [ref=e49]: Đang làm
+          - generic [ref=e50]:
+            - paragraph [ref=e51]: "0"
+            - paragraph [ref=e52]: Quá hạn
+        - table [ref=e54]:
+          - rowgroup [ref=e55]:
+            - row "Nhân viên Được giao Xong Tỉ lệ Quá hạn" [ref=e56]:
+              - columnheader "Nhân viên" [ref=e57]
+              - columnheader "Được giao" [ref=e58]
+              - columnheader "Xong" [ref=e59]
+              - columnheader "Tỉ lệ" [ref=e60]
+              - columnheader "Quá hạn" [ref=e61]
+          - rowgroup [ref=e62]:
+            - row "Đầu Bếp 1 0 0% —" [ref=e63] [cursor=pointer]:
+              - cell "Đầu Bếp" [ref=e64]
+              - cell "1" [ref=e65]
+              - cell "0" [ref=e66]
+              - cell "0%" [ref=e67]:
+                - generic [ref=e68]: 0%
+              - cell "—" [ref=e69]
+            - row "E2E Test Chef 0 0 0% —" [ref=e70] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e71]
+              - cell "0" [ref=e72]
+              - cell "0" [ref=e73]
+              - cell "0%" [ref=e74]:
+                - generic [ref=e75]: 0%
+              - cell "—" [ref=e76]
+            - row "E2E Test Chef 0 0 0% —" [ref=e77] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e78]
+              - cell "0" [ref=e79]
+              - cell "0" [ref=e80]
+              - cell "0%" [ref=e81]:
+                - generic [ref=e82]: 0%
+              - cell "—" [ref=e83]
+            - row "E2E Test Chef 0 0 0% —" [ref=e84] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e85]
+              - cell "0" [ref=e86]
+              - cell "0" [ref=e87]
+              - cell "0%" [ref=e88]:
+                - generic [ref=e89]: 0%
+              - cell "—" [ref=e90]
+            - row "E2E Test Chef 0 0 0% —" [ref=e91] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e92]
+              - cell "0" [ref=e93]
+              - cell "0" [ref=e94]
+              - cell "0%" [ref=e95]:
+                - generic [ref=e96]: 0%
+              - cell "—" [ref=e97]
+            - row "E2E Test Chef 0 0 0% —" [ref=e98] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e99]
+              - cell "0" [ref=e100]
+              - cell "0" [ref=e101]
+              - cell "0%" [ref=e102]:
+                - generic [ref=e103]: 0%
+              - cell "—" [ref=e104]
+            - row "E2E Test Chef 0 0 0% —" [ref=e105] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e106]
+              - cell "0" [ref=e107]
+              - cell "0" [ref=e108]
+              - cell "0%" [ref=e109]:
+                - generic [ref=e110]: 0%
+              - cell "—" [ref=e111]
+            - row "E2E Test Chef 0 0 0% —" [ref=e112] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e113]
+              - cell "0" [ref=e114]
+              - cell "0" [ref=e115]
+              - cell "0%" [ref=e116]:
+                - generic [ref=e117]: 0%
+              - cell "—" [ref=e118]
+            - row "E2E Test Chef 0 0 0% —" [ref=e119] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e120]
+              - cell "0" [ref=e121]
+              - cell "0" [ref=e122]
+              - cell "0%" [ref=e123]:
+                - generic [ref=e124]: 0%
+              - cell "—" [ref=e125]
+            - row "E2E Test Chef 0 0 0% —" [ref=e126] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e127]
+              - cell "0" [ref=e128]
+              - cell "0" [ref=e129]
+              - cell "0%" [ref=e130]:
+                - generic [ref=e131]: 0%
+              - cell "—" [ref=e132]
+            - row "E2E Test Chef 0 0 0% —" [ref=e133] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e134]
+              - cell "0" [ref=e135]
+              - cell "0" [ref=e136]
+              - cell "0%" [ref=e137]:
+                - generic [ref=e138]: 0%
+              - cell "—" [ref=e139]
+            - row "E2E Test Chef 0 0 0% —" [ref=e140] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e141]
+              - cell "0" [ref=e142]
+              - cell "0" [ref=e143]
+              - cell "0%" [ref=e144]:
+                - generic [ref=e145]: 0%
+              - cell "—" [ref=e146]
+            - row "E2E Test Chef 0 0 0% —" [ref=e147] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e148]
+              - cell "0" [ref=e149]
+              - cell "0" [ref=e150]
+              - cell "0%" [ref=e151]:
+                - generic [ref=e152]: 0%
+              - cell "—" [ref=e153]
+            - row "E2E Test Chef 0 0 0% —" [ref=e154] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e155]
+              - cell "0" [ref=e156]
+              - cell "0" [ref=e157]
+              - cell "0%" [ref=e158]:
+                - generic [ref=e159]: 0%
+              - cell "—" [ref=e160]
+            - row "E2E Test Chef 0 0 0% —" [ref=e161] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e162]
+              - cell "0" [ref=e163]
+              - cell "0" [ref=e164]
+              - cell "0%" [ref=e165]:
+                - generic [ref=e166]: 0%
+              - cell "—" [ref=e167]
+            - row "E2E Test Chef 0 0 0% —" [ref=e168] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e169]
+              - cell "0" [ref=e170]
+              - cell "0" [ref=e171]
+              - cell "0%" [ref=e172]:
+                - generic [ref=e173]: 0%
+              - cell "—" [ref=e174]
+            - row "E2E Test Chef 0 0 0% —" [ref=e175] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e176]
+              - cell "0" [ref=e177]
+              - cell "0" [ref=e178]
+              - cell "0%" [ref=e179]:
+                - generic [ref=e180]: 0%
+              - cell "—" [ref=e181]
+            - row "E2E Test Chef 0 0 0% —" [ref=e182] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e183]
+              - cell "0" [ref=e184]
+              - cell "0" [ref=e185]
+              - cell "0%" [ref=e186]:
+                - generic [ref=e187]: 0%
+              - cell "—" [ref=e188]
+            - row "E2E Test Chef 0 0 0% —" [ref=e189] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e190]
+              - cell "0" [ref=e191]
+              - cell "0" [ref=e192]
+              - cell "0%" [ref=e193]:
+                - generic [ref=e194]: 0%
+              - cell "—" [ref=e195]
+            - row "E2E Test Chef 0 0 0% —" [ref=e196] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e197]
+              - cell "0" [ref=e198]
+              - cell "0" [ref=e199]
+              - cell "0%" [ref=e200]:
+                - generic [ref=e201]: 0%
+              - cell "—" [ref=e202]
+            - row "E2E Test Chef 0 0 0% —" [ref=e203] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e204]
+              - cell "0" [ref=e205]
+              - cell "0" [ref=e206]
+              - cell "0%" [ref=e207]:
+                - generic [ref=e208]: 0%
+              - cell "—" [ref=e209]
+            - row "E2E Test Chef 0 0 0% —" [ref=e210] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e211]
+              - cell "0" [ref=e212]
+              - cell "0" [ref=e213]
+              - cell "0%" [ref=e214]:
+                - generic [ref=e215]: 0%
+              - cell "—" [ref=e216]
+            - row "E2E Test Chef 0 0 0% —" [ref=e217] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e218]
+              - cell "0" [ref=e219]
+              - cell "0" [ref=e220]
+              - cell "0%" [ref=e221]:
+                - generic [ref=e222]: 0%
+              - cell "—" [ref=e223]
+            - row "E2E Test Chef 0 0 0% —" [ref=e224] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e225]
+              - cell "0" [ref=e226]
+              - cell "0" [ref=e227]
+              - cell "0%" [ref=e228]:
+                - generic [ref=e229]: 0%
+              - cell "—" [ref=e230]
+            - row "E2E Test Chef 0 0 0% —" [ref=e231] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e232]
+              - cell "0" [ref=e233]
+              - cell "0" [ref=e234]
+              - cell "0%" [ref=e235]:
+                - generic [ref=e236]: 0%
+              - cell "—" [ref=e237]
+            - row "E2E Test Chef 0 0 0% —" [ref=e238] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e239]
+              - cell "0" [ref=e240]
+              - cell "0" [ref=e241]
+              - cell "0%" [ref=e242]:
+                - generic [ref=e243]: 0%
+              - cell "—" [ref=e244]
+            - row "E2E Test Chef 0 0 0% —" [ref=e245] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e246]
+              - cell "0" [ref=e247]
+              - cell "0" [ref=e248]
+              - cell "0%" [ref=e249]:
+                - generic [ref=e250]: 0%
+              - cell "—" [ref=e251]
+            - row "E2E Test Chef 0 0 0% —" [ref=e252] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e253]
+              - cell "0" [ref=e254]
+              - cell "0" [ref=e255]
+              - cell "0%" [ref=e256]:
+                - generic [ref=e257]: 0%
+              - cell "—" [ref=e258]
+            - row "E2E Test Chef 0 0 0% —" [ref=e259] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e260]
+              - cell "0" [ref=e261]
+              - cell "0" [ref=e262]
+              - cell "0%" [ref=e263]:
+                - generic [ref=e264]: 0%
+              - cell "—" [ref=e265]
+            - row "E2E Test Chef 0 0 0% —" [ref=e266] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e267]
+              - cell "0" [ref=e268]
+              - cell "0" [ref=e269]
+              - cell "0%" [ref=e270]:
+                - generic [ref=e271]: 0%
+              - cell "—" [ref=e272]
+            - row "E2E Test Chef 0 0 0% —" [ref=e273] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e274]
+              - cell "0" [ref=e275]
+              - cell "0" [ref=e276]
+              - cell "0%" [ref=e277]:
+                - generic [ref=e278]: 0%
+              - cell "—" [ref=e279]
+            - row "E2E Test Chef 0 0 0% —" [ref=e280] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e281]
+              - cell "0" [ref=e282]
+              - cell "0" [ref=e283]
+              - cell "0%" [ref=e284]:
+                - generic [ref=e285]: 0%
+              - cell "—" [ref=e286]
+            - row "E2E Test Chef 0 0 0% —" [ref=e287] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e288]
+              - cell "0" [ref=e289]
+              - cell "0" [ref=e290]
+              - cell "0%" [ref=e291]:
+                - generic [ref=e292]: 0%
+              - cell "—" [ref=e293]
+            - row "E2E Test Chef 0 0 0% —" [ref=e294] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e295]
+              - cell "0" [ref=e296]
+              - cell "0" [ref=e297]
+              - cell "0%" [ref=e298]:
+                - generic [ref=e299]: 0%
+              - cell "—" [ref=e300]
+            - row "E2E Test Chef 0 0 0% —" [ref=e301] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e302]
+              - cell "0" [ref=e303]
+              - cell "0" [ref=e304]
+              - cell "0%" [ref=e305]:
+                - generic [ref=e306]: 0%
+              - cell "—" [ref=e307]
+            - row "E2E Test Chef 0 0 0% —" [ref=e308] [cursor=pointer]:
+              - cell "E2E Test Chef" [ref=e309]
+              - cell "0" [ref=e310]
+              - cell "0" [ref=e311]
+              - cell "0%" [ref=e312]:
+                - generic [ref=e313]: 0%
+              - cell "—" [ref=e314]
+            - row "Kiểm Tra Verify 0 0 0% —" [ref=e315] [cursor=pointer]:
+              - cell "Kiểm Tra Verify" [ref=e316]
+              - cell "0" [ref=e317]
+              - cell "0" [ref=e318]
+              - cell "0%" [ref=e319]:
+                - generic [ref=e320]: 0%
+              - cell "—" [ref=e321]
+            - 'row "LÃª Äáº§u Báº¿p 0 0 0% —" [ref=e322] [cursor=pointer]':
+              - 'cell "LÃª Äáº§u Báº¿p" [ref=e323]'
+              - cell "0" [ref=e324]
+              - cell "0" [ref=e325]
+              - cell "0%" [ref=e326]:
+                - generic [ref=e327]: 0%
+              - cell "—" [ref=e328]
+            - row "Lê Văn Phục 0 0 0% —" [ref=e329] [cursor=pointer]:
+              - cell "Lê Văn Phục" [ref=e330]
+              - cell "0" [ref=e331]
+              - cell "0" [ref=e332]
+              - cell "0%" [ref=e333]:
+                - generic [ref=e334]: 0%
+              - cell "—" [ref=e335]
+            - row "Nguyễn Văn Bếp 0 0 0% —" [ref=e336] [cursor=pointer]:
+              - cell "Nguyễn Văn Bếp" [ref=e337]
+              - cell "0" [ref=e338]
+              - cell "0" [ref=e339]
+              - cell "0%" [ref=e340]:
+                - generic [ref=e341]: 0%
+              - cell "—" [ref=e342]
+            - row "Nhân Viên 0 0 0% —" [ref=e343] [cursor=pointer]:
+              - cell "Nhân Viên" [ref=e344]
+              - cell "0" [ref=e345]
+              - cell "0" [ref=e346]
+              - cell "0%" [ref=e347]:
+                - generic [ref=e348]: 0%
+              - cell "—" [ref=e349]
+            - row "Original Name 0 0 0% —" [ref=e350] [cursor=pointer]:
+              - cell "Original Name" [ref=e351]
+              - cell "0" [ref=e352]
+              - cell "0" [ref=e353]
+              - cell "0%" [ref=e354]:
+                - generic [ref=e355]: 0%
+              - cell "—" [ref=e356]
+            - row "Original Name 0 0 0% —" [ref=e357] [cursor=pointer]:
+              - cell "Original Name" [ref=e358]
+              - cell "0" [ref=e359]
+              - cell "0" [ref=e360]
+              - cell "0%" [ref=e361]:
+                - generic [ref=e362]: 0%
+              - cell "—" [ref=e363]
+            - row "Original Name 0 0 0% —" [ref=e364] [cursor=pointer]:
+              - cell "Original Name" [ref=e365]
+              - cell "0" [ref=e366]
+              - cell "0" [ref=e367]
+              - cell "0%" [ref=e368]:
+                - generic [ref=e369]: 0%
+              - cell "—" [ref=e370]
+            - row "Original Name 0 0 0% —" [ref=e371] [cursor=pointer]:
+              - cell "Original Name" [ref=e372]
+              - cell "0" [ref=e373]
+              - cell "0" [ref=e374]
+              - cell "0%" [ref=e375]:
+                - generic [ref=e376]: 0%
+              - cell "—" [ref=e377]
+            - row "Original Name 0 0 0% —" [ref=e378] [cursor=pointer]:
+              - cell "Original Name" [ref=e379]
+              - cell "0" [ref=e380]
+              - cell "0" [ref=e381]
+              - cell "0%" [ref=e382]:
+                - generic [ref=e383]: 0%
+              - cell "—" [ref=e384]
+            - row "Original Name 0 0 0% —" [ref=e385] [cursor=pointer]:
+              - cell "Original Name" [ref=e386]
+              - cell "0" [ref=e387]
+              - cell "0" [ref=e388]
+              - cell "0%" [ref=e389]:
+                - generic [ref=e390]: 0%
+              - cell "—" [ref=e391]
+            - row "Original Name 0 0 0% —" [ref=e392] [cursor=pointer]:
+              - cell "Original Name" [ref=e393]
+              - cell "0" [ref=e394]
+              - cell "0" [ref=e395]
+              - cell "0%" [ref=e396]:
+                - generic [ref=e397]: 0%
+              - cell "—" [ref=e398]
+            - row "Pháº¡m Thu NgÃ¢n 0 0 0% —" [ref=e399] [cursor=pointer]:
+              - cell "Pháº¡m Thu NgÃ¢n" [ref=e400]
+              - cell "0" [ref=e401]
+              - cell "0" [ref=e402]
+              - cell "0%" [ref=e403]:
+                - generic [ref=e404]: 0%
+              - cell "—" [ref=e405]
+            - row "Quản Lý 0 0 0% —" [ref=e406] [cursor=pointer]:
+              - cell "Quản Lý" [ref=e407]
+              - cell "0" [ref=e408]
+              - cell "0" [ref=e409]
+              - cell "0%" [ref=e410]:
+                - generic [ref=e411]: 0%
+              - cell "—" [ref=e412]
+            - row "Quản Trị Viên 0 0 0% —" [ref=e413] [cursor=pointer]:
+              - cell "Quản Trị Viên" [ref=e414]
+              - cell "0" [ref=e415]
+              - cell "0" [ref=e416]
+              - cell "0%" [ref=e417]:
+                - generic [ref=e418]: 0%
+              - cell "—" [ref=e419]
+            - row "Thu Ngân 0 0 0% —" [ref=e420] [cursor=pointer]:
+              - cell "Thu Ngân" [ref=e421]
+              - cell "0" [ref=e422]
+              - cell "0" [ref=e423]
+              - cell "0%" [ref=e424]:
+                - generic [ref=e425]: 0%
+              - cell "—" [ref=e426]
+            - row "Trần Thị Thu 0 0 0% —" [ref=e427] [cursor=pointer]:
+              - cell "Trần Thị Thu" [ref=e428]
+              - cell "0" [ref=e429]
+              - cell "0" [ref=e430]
+              - cell "0%" [ref=e431]:
+                - generic [ref=e432]: 0%
+              - cell "—" [ref=e433]
+            - row "Tráº§n Quáº£n LÃ½ 0 0 0% —" [ref=e434] [cursor=pointer]:
+              - cell "Tráº§n Quáº£n LÃ½" [ref=e435]
+              - cell "0" [ref=e436]
+              - cell "0" [ref=e437]
+              - cell "0%" [ref=e438]:
+                - generic [ref=e439]: 0%
+              - cell "—" [ref=e440]
+            - row "Updated Name 0 0 0% —" [ref=e441] [cursor=pointer]:
+              - cell "Updated Name" [ref=e442]
+              - cell "0" [ref=e443]
+              - cell "0" [ref=e444]
+              - cell "0%" [ref=e445]:
+                - generic [ref=e446]: 0%
+              - cell "—" [ref=e447]
+            - row "Updated Name 0 0 0% —" [ref=e448] [cursor=pointer]:
+              - cell "Updated Name" [ref=e449]
+              - cell "0" [ref=e450]
+              - cell "0" [ref=e451]
+              - cell "0%" [ref=e452]:
+                - generic [ref=e453]: 0%
+              - cell "—" [ref=e454]
+            - row "Updated Name 0 0 0% —" [ref=e455] [cursor=pointer]:
+              - cell "Updated Name" [ref=e456]
+              - cell "0" [ref=e457]
+              - cell "0" [ref=e458]
+              - cell "0%" [ref=e459]:
+                - generic [ref=e460]: 0%
+              - cell "—" [ref=e461]
+            - row "Updated Name 0 0 0% —" [ref=e462] [cursor=pointer]:
+              - cell "Updated Name" [ref=e463]
+              - cell "0" [ref=e464]
+              - cell "0" [ref=e465]
+              - cell "0%" [ref=e466]:
+                - generic [ref=e467]: 0%
+              - cell "—" [ref=e468]
+            - row "Updated Name 0 0 0% —" [ref=e469] [cursor=pointer]:
+              - cell "Updated Name" [ref=e470]
+              - cell "0" [ref=e471]
+              - cell "0" [ref=e472]
+              - cell "0%" [ref=e473]:
+                - generic [ref=e474]: 0%
+              - cell "—" [ref=e475]
+            - row "Updated Name 0 0 0% —" [ref=e476] [cursor=pointer]:
+              - cell "Updated Name" [ref=e477]
+              - cell "0" [ref=e478]
+              - cell "0" [ref=e479]
+              - cell "0%" [ref=e480]:
+                - generic [ref=e481]: 0%
+              - cell "—" [ref=e482]
+            - row "Updated Name 0 0 0% —" [ref=e483] [cursor=pointer]:
+              - cell "Updated Name" [ref=e484]
+              - cell "0" [ref=e485]
+              - cell "0" [ref=e486]
+              - cell "0%" [ref=e487]:
+                - generic [ref=e488]: 0%
+              - cell "—" [ref=e489]
+            - row "Updated Name 0 0 0% —" [ref=e490] [cursor=pointer]:
+              - cell "Updated Name" [ref=e491]
+              - cell "0" [ref=e492]
+              - cell "0" [ref=e493]
+              - cell "0%" [ref=e494]:
+                - generic [ref=e495]: 0%
+              - cell "—" [ref=e496]
+            - row "Updated Name 0 0 0% —" [ref=e497] [cursor=pointer]:
+              - cell "Updated Name" [ref=e498]
+              - cell "0" [ref=e499]
+              - cell "0" [ref=e500]
+              - cell "0%" [ref=e501]:
+                - generic [ref=e502]: 0%
+              - cell "—" [ref=e503]
+            - row "Updated Name 0 0 0% —" [ref=e504] [cursor=pointer]:
+              - cell "Updated Name" [ref=e505]
+              - cell "0" [ref=e506]
+              - cell "0" [ref=e507]
+              - cell "0%" [ref=e508]:
+                - generic [ref=e509]: 0%
+              - cell "—" [ref=e510]
+            - row "Updated Name 0 0 0% —" [ref=e511] [cursor=pointer]:
+              - cell "Updated Name" [ref=e512]
+              - cell "0" [ref=e513]
+              - cell "0" [ref=e514]
+              - cell "0%" [ref=e515]:
+                - generic [ref=e516]: 0%
+              - cell "—" [ref=e517]
+            - row "Updated Name 0 0 0% —" [ref=e518] [cursor=pointer]:
+              - cell "Updated Name" [ref=e519]
+              - cell "0" [ref=e520]
+              - cell "0" [ref=e521]
+              - cell "0%" [ref=e522]:
+                - generic [ref=e523]: 0%
+              - cell "—" [ref=e524]
+            - row "Updated Name 0 0 0% —" [ref=e525] [cursor=pointer]:
+              - cell "Updated Name" [ref=e526]
+              - cell "0" [ref=e527]
+              - cell "0" [ref=e528]
+              - cell "0%" [ref=e529]:
+                - generic [ref=e530]: 0%
+              - cell "—" [ref=e531]
+            - row "Updated Name 0 0 0% —" [ref=e532] [cursor=pointer]:
+              - cell "Updated Name" [ref=e533]
+              - cell "0" [ref=e534]
+              - cell "0" [ref=e535]
+              - cell "0%" [ref=e536]:
+                - generic [ref=e537]: 0%
+              - cell "—" [ref=e538]
+            - row "Updated Name 0 0 0% —" [ref=e539] [cursor=pointer]:
+              - cell "Updated Name" [ref=e540]
+              - cell "0" [ref=e541]
+              - cell "0" [ref=e542]
+              - cell "0%" [ref=e543]:
+                - generic [ref=e544]: 0%
+              - cell "—" [ref=e545]
+            - row "Updated Name 0 0 0% —" [ref=e546] [cursor=pointer]:
+              - cell "Updated Name" [ref=e547]
+              - cell "0" [ref=e548]
+              - cell "0" [ref=e549]
+              - cell "0%" [ref=e550]:
+                - generic [ref=e551]: 0%
+              - cell "—" [ref=e552]
+            - row "Updated Name 0 0 0% —" [ref=e553] [cursor=pointer]:
+              - cell "Updated Name" [ref=e554]
+              - cell "0" [ref=e555]
+              - cell "0" [ref=e556]
+              - cell "0%" [ref=e557]:
+                - generic [ref=e558]: 0%
+              - cell "—" [ref=e559]
+            - row "Updated Name 0 0 0% —" [ref=e560] [cursor=pointer]:
+              - cell "Updated Name" [ref=e561]
+              - cell "0" [ref=e562]
+              - cell "0" [ref=e563]
+              - cell "0%" [ref=e564]:
+                - generic [ref=e565]: 0%
+              - cell "—" [ref=e566]
+            - row "Updated Name 0 0 0% —" [ref=e567] [cursor=pointer]:
+              - cell "Updated Name" [ref=e568]
+              - cell "0" [ref=e569]
+              - cell "0" [ref=e570]
+              - cell "0%" [ref=e571]:
+                - generic [ref=e572]: 0%
+              - cell "—" [ref=e573]
+            - row "Updated Name 0 0 0% —" [ref=e574] [cursor=pointer]:
+              - cell "Updated Name" [ref=e575]
+              - cell "0" [ref=e576]
+              - cell "0" [ref=e577]
+              - cell "0%" [ref=e578]:
+                - generic [ref=e579]: 0%
+              - cell "—" [ref=e580]
+            - row "Updated Name 0 0 0% —" [ref=e581] [cursor=pointer]:
+              - cell "Updated Name" [ref=e582]
+              - cell "0" [ref=e583]
+              - cell "0" [ref=e584]
+              - cell "0%" [ref=e585]:
+                - generic [ref=e586]: 0%
+              - cell "—" [ref=e587]
+  - region "Notifications alt+T"
+  - alert [ref=e588]

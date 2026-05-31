@@ -14,6 +14,8 @@ type Querier interface {
 	AttachToppingToProduct(ctx context.Context, productID string, toppingID string) error
 	ClearOrderGroupID(ctx context.Context, id string) error
 	CountActiveSessionsByStaff(ctx context.Context, staffID string) (int64, error)
+	CountGuideProgress(ctx context.Context, guideID string) (int64, error)
+	CountQuizAttempts(ctx context.Context, progressID string) (int64, error)
 	CreateCategory(ctx context.Context, iD string, name string, description sql.NullString, sortOrder int32) error
 	CreateCombo(ctx context.Context, arg CreateComboParams) error
 	CreateComboItem(ctx context.Context, iD string, comboID string, productID string, quantity int32) error
@@ -23,8 +25,11 @@ type Querier interface {
 	CreatePayment(ctx context.Context, arg CreatePaymentParams) error
 	CreateProduct(ctx context.Context, arg CreateProductParams) error
 	CreateRefreshToken(ctx context.Context, arg CreateRefreshTokenParams) error
+	CreateStaffTask(ctx context.Context, arg CreateStaffTaskParams) error
 	CreateTopping(ctx context.Context, iD string, name string, price string) error
+	CreateTrainingGuide(ctx context.Context, arg CreateTrainingGuideParams) error
 	DeleteComboItemsByComboID(ctx context.Context, comboID string) error
+	DeleteGuideRoles(ctx context.Context, guideID string) error
 	DeleteOldestSessionByStaff(ctx context.Context, staffID string) error
 	DeleteOrphanFilesOlderThan24h(ctx context.Context) error
 	DeleteRefreshToken(ctx context.Context, tokenHash string) error
@@ -34,7 +39,9 @@ type Querier interface {
 	GetCategoryByID(ctx context.Context, id string) (Category, error)
 	GetComboByID(ctx context.Context, id string) (Combo, error)
 	GetComboItems(ctx context.Context, comboID string) ([]ComboItem, error)
+	GetDailyTaskMetrics(ctx context.Context, dueAt time.Time) (GetDailyTaskMetricsRow, error)
 	GetFileAttachmentByID(ctx context.Context, id string) (FileAttachment, error)
+	GetGuideRoles(ctx context.Context, guideID string) ([]TrainingGuideRolesRole, error)
 	GetOrderByID(ctx context.Context, id string) (Order, error)
 	GetOrderItemByID(ctx context.Context, id string) (OrderItem, error)
 	GetOrderItemsByOrderID(ctx context.Context, orderID string) ([]OrderItem, error)
@@ -45,23 +52,34 @@ type Querier interface {
 	GetRefreshToken(ctx context.Context, tokenHash string) (RefreshToken, error)
 	GetStaffByID(ctx context.Context, id string) (Staff, error)
 	GetStaffByUsername(ctx context.Context, username string) (Staff, error)
+	GetStaffProgress(ctx context.Context, guideID string, staffID string) (TrainingProgress, error)
+	GetStaffTaskByID(ctx context.Context, id string) (StaffTask, error)
+	GetStaffTaskStats(ctx context.Context, dueAt time.Time) ([]GetStaffTaskStatsRow, error)
+	GetStaffTasksByDate(ctx context.Context, assignedTo string, dueAt time.Time) ([]StaffTask, error)
 	GetToppingByID(ctx context.Context, id string) (Topping, error)
 	GetToppingsByProductID(ctx context.Context, productID string) ([]Topping, error)
+	GetTrainingGuide(ctx context.Context, id string) (TrainingGuide, error)
 	IncrementPaymentAttempt(ctx context.Context, id string) error
+	InsertGuideRole(ctx context.Context, guideID string, role TrainingGuideRolesRole) error
+	InsertQuizAttempt(ctx context.Context, iD string, progressID string, score int32, passed bool) error
 	LinkFileToEntity(ctx context.Context, entityType sql.NullString, entityID sql.NullString, iD string) error
 	ListActiveSessionsByStaff(ctx context.Context, staffID string) ([]RefreshToken, error)
 	ListAllOrders(ctx context.Context, limit int32, offset int32) ([]Order, error)
 	ListCategories(ctx context.Context) ([]Category, error)
 	ListCombos(ctx context.Context) ([]Combo, error)
 	ListCombosAvailable(ctx context.Context) ([]Combo, error)
+	ListGuideProgress(ctx context.Context, guideID string, limit int32, offset int32) ([]ListGuideProgressRow, error)
 	ListOrdersByGroupID(ctx context.Context, groupID sql.NullString) ([]Order, error)
 	ListOrdersByStatus(ctx context.Context, status OrdersStatus, limit int32, offset int32) ([]Order, error)
 	ListOrphanFilesOlderThan24h(ctx context.Context) ([]FileAttachment, error)
 	ListProducts(ctx context.Context) ([]Product, error)
 	ListProductsAvailable(ctx context.Context) ([]Product, error)
 	ListProductsByCategoryAvailable(ctx context.Context, categoryID string) ([]Product, error)
+	ListQuizAttempts(ctx context.Context, progressID string) ([]QuizAttempt, error)
 	ListToppings(ctx context.Context) ([]Topping, error)
 	ListToppingsAvailable(ctx context.Context) ([]Topping, error)
+	ListTrainingGuides(ctx context.Context) ([]TrainingGuide, error)
+	ListTrainingGuidesByRole(ctx context.Context, role TrainingGuidesRole) ([]TrainingGuide, error)
 	// recalculateTotalAmount MUST be called after every order_items mutation.
 	// Skipping this causes total_amount drift and wrong payment charges.
 	RecalculateTotalAmount(ctx context.Context, id string) error
@@ -74,17 +92,21 @@ type Querier interface {
 	SoftDeletePayment(ctx context.Context, id string) error
 	SoftDeleteProduct(ctx context.Context, id string) error
 	SoftDeleteTopping(ctx context.Context, id string) error
+	SoftDeleteTrainingGuide(ctx context.Context, id string) error
 	SumQtyServedAndQuantity(ctx context.Context, orderID string) (SumQtyServedAndQuantityRow, error)
 	ToggleProductAvailability(ctx context.Context, isAvailable bool, iD string) error
 	UpdateCategory(ctx context.Context, name string, description sql.NullString, sortOrder int32, iD string) error
 	UpdateCombo(ctx context.Context, arg UpdateComboParams) error
+	UpdateManagerNotes(ctx context.Context, managerNotes sql.NullString, guideID string, staffID string) error
 	UpdateOrderStatus(ctx context.Context, status OrdersStatus, iD string) error
 	UpdatePaymentStatus(ctx context.Context, arg UpdatePaymentStatusParams) error
 	UpdateProduct(ctx context.Context, arg UpdateProductParams) error
 	UpdateQtyServed(ctx context.Context, qtyServed int32, iD string) error
 	UpdateRefreshTokenLastUsed(ctx context.Context, tokenHash string) error
 	UpdateTopping(ctx context.Context, name string, price string, iD string) error
+	UpdateTrainingGuide(ctx context.Context, arg UpdateTrainingGuideParams) error
 	UpsertOrderSequence(ctx context.Context, dateKey time.Time) error
+	UpsertStaffProgress(ctx context.Context, iD string, guideID string, staffID string, watchedPercent int32) error
 }
 
 var _ Querier = (*Queries)(nil)

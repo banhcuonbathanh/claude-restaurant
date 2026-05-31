@@ -1,0 +1,304 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Tổng quan" [ref=e6] [cursor=pointer]:
+          - /url: /admin/overview
+        - link "Tổng kết" [ref=e7] [cursor=pointer]:
+          - /url: /admin/summary
+        - link "Sản phẩm" [ref=e8] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Combo" [ref=e9] [cursor=pointer]:
+          - /url: /admin/combos
+        - link "Danh mục" [ref=e10] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e11] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e12] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Kho nguyên liệu" [ref=e13] [cursor=pointer]:
+          - /url: /admin/ingredients
+        - link "Marketing" [ref=e14] [cursor=pointer]:
+          - /url: /admin/marketing
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - heading "Nhân viên (93)" [level=2] [ref=e18]:
+          - text: Nhân viên
+          - generic [ref=e19]: (93)
+        - button "+ Thêm nhân viên" [ref=e20] [cursor=pointer]
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - paragraph [ref=e23]: Tổng nhân viên
+          - paragraph [ref=e24]: "93"
+        - generic [ref=e25]:
+          - paragraph [ref=e26]: Đang hoạt động
+          - paragraph [ref=e27]: "74"
+          - generic [ref=e29]: Đang HĐ
+        - generic [ref=e30]:
+          - paragraph [ref=e31]: Vô hiệu hóa
+          - paragraph [ref=e32]: "19"
+          - generic [ref=e34]: Vô hiệu
+        - generic [ref=e35]:
+          - paragraph [ref=e36]: Theo vai trò
+          - paragraph [ref=e37]: "93"
+          - generic [ref=e39]: NV:2 · QL:2 · Bếp:66 · Thu ngân:22 · Admin:1
+      - generic [ref=e40]:
+        - textbox "🔍 Tìm tên / username..." [ref=e41]
+        - combobox [ref=e42]:
+          - option "Tất cả vai trò" [selected]
+          - option "Bếp"
+          - option "Thu ngân"
+          - option "Nhân viên"
+          - option "Quản lý"
+          - option "Admin"
+        - combobox [ref=e43]:
+          - option "Tất cả trạng thái" [selected]
+          - option "Đang hoạt động"
+          - option "Vô hiệu hóa"
+      - table [ref=e45]:
+        - rowgroup [ref=e46]:
+          - row "Nhân viên Username Vai trò Ca làm Hiệu suất Trạng thái" [ref=e47]:
+            - columnheader "Nhân viên" [ref=e48]
+            - columnheader "Username" [ref=e49]
+            - columnheader "Vai trò" [ref=e50]
+            - columnheader "Ca làm" [ref=e51]
+            - columnheader "Hiệu suất" [ref=e52]
+            - columnheader "Trạng thái" [ref=e53]
+            - columnheader [ref=e54]
+        - rowgroup [ref=e55]:
+          - 'row "NV Nhân Viên staff Vai trò: Nhân viên — 0% Đang HĐ Chi tiết Sửa Xóa" [ref=e844]':
+            - cell "NV Nhân Viên" [ref=e845]:
+              - generic [ref=e846]:
+                - generic [ref=e847]: NV
+                - paragraph [ref=e849]: Nhân Viên
+            - cell "staff" [ref=e850]
+            - 'cell "Vai trò: Nhân viên" [ref=e851]':
+              - 'generic "Vai trò: Nhân viên" [ref=e852]': Nhân viên
+            - cell "—" [ref=e853]:
+              - generic [ref=e855]: —
+            - cell "0%" [ref=e856]:
+              - paragraph [ref=e859]: 0%
+            - cell "Đang HĐ" [ref=e860]:
+              - button "Đang HĐ" [ref=e861] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e862]:
+              - generic [ref=e863]:
+                - button "Chi tiết" [active] [ref=e864] [cursor=pointer]
+                - button "Sửa" [ref=e865] [cursor=pointer]
+                - button "Xóa" [ref=e866] [cursor=pointer]
+          - 'row "QL Quản Lý manager Vai trò: Quản lý — 0% Đang HĐ Chi tiết Sửa" [ref=e867]':
+            - cell "QL Quản Lý" [ref=e868]:
+              - generic [ref=e869]:
+                - generic [ref=e870]: QL
+                - paragraph [ref=e872]: Quản Lý
+            - cell "manager" [ref=e873]
+            - 'cell "Vai trò: Quản lý" [ref=e874]':
+              - 'generic "Vai trò: Quản lý" [ref=e875]': Quản lý
+            - cell "—" [ref=e876]:
+              - generic [ref=e878]: —
+            - cell "0%" [ref=e879]:
+              - paragraph [ref=e882]: 0%
+            - cell "Đang HĐ" [ref=e883]:
+              - button "Đang HĐ" [ref=e884] [cursor=pointer]
+            - cell "Chi tiết Sửa" [ref=e885]:
+              - generic [ref=e886]:
+                - button "Chi tiết" [ref=e887] [cursor=pointer]
+                - button "Sửa" [ref=e888] [cursor=pointer]
+          - 'row "ĐB Đầu Bếp chef Vai trò: Bếp — 0% Đang HĐ Chi tiết Sửa Xóa" [ref=e889]':
+            - cell "ĐB Đầu Bếp" [ref=e890]:
+              - generic [ref=e891]:
+                - generic [ref=e892]: ĐB
+                - paragraph [ref=e894]: Đầu Bếp
+            - cell "chef" [ref=e895]
+            - 'cell "Vai trò: Bếp" [ref=e896]':
+              - 'generic "Vai trò: Bếp" [ref=e897]': Bếp
+            - cell "—" [ref=e898]:
+              - generic [ref=e900]: —
+            - cell "0%" [ref=e901]:
+              - paragraph [ref=e904]: 0%
+            - cell "Đang HĐ" [ref=e905]:
+              - button "Đang HĐ" [ref=e906] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e907]:
+              - generic [ref=e908]:
+                - button "Chi tiết" [ref=e909] [cursor=pointer]
+                - button "Sửa" [ref=e910] [cursor=pointer]
+                - button "Xóa" [ref=e911] [cursor=pointer]
+          - 'row "TN Thu Ngân cashier Vai trò: Thu ngân — 0% Đang HĐ Chi tiết Sửa Xóa" [ref=e912]':
+            - cell "TN Thu Ngân" [ref=e913]:
+              - generic [ref=e914]:
+                - generic [ref=e915]: TN
+                - paragraph [ref=e917]: Thu Ngân
+            - cell "cashier" [ref=e918]
+            - 'cell "Vai trò: Thu ngân" [ref=e919]':
+              - 'generic "Vai trò: Thu ngân" [ref=e920]': Thu ngân
+            - cell "—" [ref=e921]:
+              - generic [ref=e923]: —
+            - cell "0%" [ref=e924]:
+              - paragraph [ref=e927]: 0%
+            - cell "Đang HĐ" [ref=e928]:
+              - button "Đang HĐ" [ref=e929] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e930]:
+              - generic [ref=e931]:
+                - button "Chi tiết" [ref=e932] [cursor=pointer]
+                - button "Sửa" [ref=e933] [cursor=pointer]
+                - button "Xóa" [ref=e934] [cursor=pointer]
+          - 'row "TT Status Toggle Test e2e_chef_1778886183825 Vai trò: Thu ngân — 0% Vô hiệu Chi tiết Sửa Xóa" [ref=e518]':
+            - cell "TT Status Toggle Test" [ref=e519]:
+              - generic [ref=e520]:
+                - generic [ref=e521]: TT
+                - paragraph [ref=e523]: Status Toggle Test
+            - cell "e2e_chef_1778886183825" [ref=e524]
+            - 'cell "Vai trò: Thu ngân" [ref=e525]':
+              - 'generic "Vai trò: Thu ngân" [ref=e526]': Thu ngân
+            - cell "—" [ref=e527]:
+              - generic [ref=e529]: —
+            - cell "0%" [ref=e530]:
+              - paragraph [ref=e533]: 0%
+            - cell "Vô hiệu" [ref=e534]:
+              - button "Vô hiệu" [ref=e535] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e536]:
+              - generic [ref=e537]:
+                - button "Chi tiết" [ref=e538] [cursor=pointer]
+                - button "Sửa" [ref=e539] [cursor=pointer]
+                - button "Xóa" [ref=e540] [cursor=pointer]
+          - 'row "UN Updated Name e2e_chef_1778886182467 Vai trò: Bếp — 0% Đang HĐ Chi tiết Sửa Xóa" [ref=e935]':
+            - cell "UN Updated Name" [ref=e936]:
+              - generic [ref=e937]:
+                - generic [ref=e938]: UN
+                - paragraph [ref=e940]: Updated Name
+            - cell "e2e_chef_1778886182467" [ref=e941]
+            - 'cell "Vai trò: Bếp" [ref=e942]':
+              - 'generic "Vai trò: Bếp" [ref=e943]': Bếp
+            - cell "—" [ref=e944]:
+              - generic [ref=e946]: —
+            - cell "0%" [ref=e947]:
+              - paragraph [ref=e950]: 0%
+            - cell "Đang HĐ" [ref=e951]:
+              - button "Đang HĐ" [ref=e952] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e953]:
+              - generic [ref=e954]:
+                - button "Chi tiết" [ref=e955] [cursor=pointer]
+                - button "Sửa" [ref=e956] [cursor=pointer]
+                - button "Xóa" [ref=e957] [cursor=pointer]
+          - 'row "TC E2E Test Chef e2e_chef_1778886181245 Vai trò: Bếp — 0% Đang HĐ Chi tiết Sửa Xóa" [ref=e958]':
+            - cell "TC E2E Test Chef" [ref=e959]:
+              - generic [ref=e960]:
+                - generic [ref=e961]: TC
+                - paragraph [ref=e963]: E2E Test Chef
+            - cell "e2e_chef_1778886181245" [ref=e964]
+            - 'cell "Vai trò: Bếp" [ref=e965]':
+              - 'generic "Vai trò: Bếp" [ref=e966]': Bếp
+            - cell "—" [ref=e967]:
+              - generic [ref=e969]: —
+            - cell "0%" [ref=e970]:
+              - paragraph [ref=e973]: 0%
+            - cell "Đang HĐ" [ref=e974]:
+              - button "Đang HĐ" [ref=e975] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e976]:
+              - generic [ref=e977]:
+                - button "Chi tiết" [ref=e978] [cursor=pointer]
+                - button "Sửa" [ref=e979] [cursor=pointer]
+                - button "Xóa" [ref=e980] [cursor=pointer]
+          - 'row "TT Status Toggle Test e2e_chef_1778886087376 Vai trò: Thu ngân — 0% Vô hiệu Chi tiết Sửa Xóa" [ref=e587]':
+            - cell "TT Status Toggle Test" [ref=e588]:
+              - generic [ref=e589]:
+                - generic [ref=e590]: TT
+                - paragraph [ref=e592]: Status Toggle Test
+            - cell "e2e_chef_1778886087376" [ref=e593]
+            - 'cell "Vai trò: Thu ngân" [ref=e594]':
+              - 'generic "Vai trò: Thu ngân" [ref=e595]': Thu ngân
+            - cell "—" [ref=e596]:
+              - generic [ref=e598]: —
+            - cell "0%" [ref=e599]:
+              - paragraph [ref=e602]: 0%
+            - cell "Vô hiệu" [ref=e603]:
+              - button "Vô hiệu" [ref=e604] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e605]:
+              - generic [ref=e606]:
+                - button "Chi tiết" [ref=e607] [cursor=pointer]
+                - button "Sửa" [ref=e608] [cursor=pointer]
+                - button "Xóa" [ref=e609] [cursor=pointer]
+          - 'row "UN Updated Name e2e_chef_1778886086047 Vai trò: Bếp — 0% Đang HĐ Chi tiết Sửa Xóa" [ref=e981]':
+            - cell "UN Updated Name" [ref=e982]:
+              - generic [ref=e983]:
+                - generic [ref=e984]: UN
+                - paragraph [ref=e986]: Updated Name
+            - cell "e2e_chef_1778886086047" [ref=e987]
+            - 'cell "Vai trò: Bếp" [ref=e988]':
+              - 'generic "Vai trò: Bếp" [ref=e989]': Bếp
+            - cell "—" [ref=e990]:
+              - generic [ref=e992]: —
+            - cell "0%" [ref=e993]:
+              - paragraph [ref=e996]: 0%
+            - cell "Đang HĐ" [ref=e997]:
+              - button "Đang HĐ" [ref=e998] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e999]:
+              - generic [ref=e1000]:
+                - button "Chi tiết" [ref=e1001] [cursor=pointer]
+                - button "Sửa" [ref=e1002] [cursor=pointer]
+                - button "Xóa" [ref=e1003] [cursor=pointer]
+          - 'row "TC E2E Test Chef e2e_chef_1778886084765 Vai trò: Bếp — 0% Đang HĐ Chi tiết Sửa Xóa" [ref=e1004]':
+            - cell "TC E2E Test Chef" [ref=e1005]:
+              - generic [ref=e1006]:
+                - generic [ref=e1007]: TC
+                - paragraph [ref=e1009]: E2E Test Chef
+            - cell "e2e_chef_1778886084765" [ref=e1010]
+            - 'cell "Vai trò: Bếp" [ref=e1011]':
+              - 'generic "Vai trò: Bếp" [ref=e1012]': Bếp
+            - cell "—" [ref=e1013]:
+              - generic [ref=e1015]: —
+            - cell "0%" [ref=e1016]:
+              - paragraph [ref=e1019]: 0%
+            - cell "Đang HĐ" [ref=e1020]:
+              - button "Đang HĐ" [ref=e1021] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e1022]:
+              - generic [ref=e1023]:
+                - button "Chi tiết" [ref=e1024] [cursor=pointer]
+                - button "Sửa" [ref=e1025] [cursor=pointer]
+                - button "Xóa" [ref=e1026] [cursor=pointer]
+      - generic [ref=e656]:
+        - button "← Trang trước" [disabled] [ref=e657]
+        - generic [ref=e658]: Trang 1 / 10
+        - button "Trang tiếp →" [ref=e659] [cursor=pointer]
+      - generic [ref=e1028]:
+        - generic [ref=e1029]:
+          - generic [ref=e1030]: NV
+          - generic [ref=e1031]:
+            - paragraph [ref=e1032]: Nhân Viên
+            - generic [ref=e1033]:
+              - generic [ref=e1034]: Nhân viên
+              - generic [ref=e1035]: ● Đang HĐ
+          - button "✕" [ref=e1036] [cursor=pointer]
+        - generic [ref=e1037]:
+          - button "Thông tin" [ref=e1038] [cursor=pointer]
+          - button "Hiệu suất" [ref=e1039] [cursor=pointer]
+          - button "Lịch làm việc" [ref=e1040] [cursor=pointer]
+          - button "Trách nhiệm" [ref=e1041] [cursor=pointer]
+        - generic [ref=e1043]:
+          - generic [ref=e1044]:
+            - term [ref=e1045]: Username
+            - definition [ref=e1046]: staff
+          - generic [ref=e1047]:
+            - term [ref=e1048]: Vai trò
+            - definition [ref=e1049]: Nhân viên
+          - generic [ref=e1050]:
+            - term [ref=e1051]: Vị trí
+            - definition [ref=e1052]: —
+          - generic [ref=e1053]:
+            - term [ref=e1054]: Ca làm
+            - definition [ref=e1055]:
+              - generic [ref=e1056]: —
+          - generic [ref=e1057]:
+            - term [ref=e1058]: SĐT
+            - definition [ref=e1059]: "0900000005"
+          - generic [ref=e1060]:
+            - term [ref=e1061]: Email
+            - definition [ref=e1062]: —
+          - generic [ref=e1063]:
+            - term [ref=e1064]: Ngày tạo
+            - definition [ref=e1065]: 30/5/2026
+        - generic [ref=e1066]:
+          - button "Sửa thông tin" [ref=e1067] [cursor=pointer]
+          - button "Đóng" [ref=e1068] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e289]

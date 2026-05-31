@@ -69,13 +69,16 @@ fe/src/
 │   │   ├── button.tsx
 │   │   ├── card.tsx
 │   │   ├── input.tsx
-│   │   └── label.tsx
+│   │   ├── label.tsx
+│   │   └── progress-bar.tsx
 │   │
 │   ├── shared/                       ← Cross-page shared components
 │   │   ├── ConnectionErrorBanner.tsx
 │   │   ├── CookieConsent.tsx
 │   │   ├── CustomerTopNav.tsx
+│   │   ├── DateRangePicker.tsx
 │   │   ├── EmptyState.tsx
+│   │   ├── KPICard.tsx
 │   │   ├── QuantityStepper.tsx
 │   │   └── StatusBadge.tsx
 │   │
@@ -85,6 +88,14 @@ fe/src/
 │   │   ├── ProductHeroImage.tsx
 │   │   ├── ProductInfo.tsx
 │   │   └── ToppingSelector.tsx
+│   │
+│   ├── marketing/                    ← Marketing dashboard components
+│   │   ├── BudgetDonutChart.tsx
+│   │   ├── BudgetSummaryCards.tsx
+│   │   ├── CampaignTimeline.tsx
+│   │   ├── LoveScoreSection.tsx
+│   │   ├── MarketingPageHeader.tsx
+│   │   └── SpendBreakdownTable.tsx
 │   │
 │   └── guards/                       ← Route protection
 │       ├── AuthGuard.tsx
@@ -118,6 +129,7 @@ fe/src/
 │
 ├── hooks/                            ← Shared realtime hooks
 │   ├── useAdminSSE.ts                ← SSE: GET /sse/admin
+│   ├── useMarketingSpend.ts          ← TanStack Query: GET /admin/marketing/spend
 │   ├── useOrderSSE.ts                ← SSE: GET /orders/:id/events (5-retry)
 │   └── useOverviewWS.ts             ← WS: /ws/kds
 │
@@ -135,6 +147,7 @@ fe/src/
 └── types/                            ← Shared TypeScript interfaces
     ├── auth.ts
     ├── cart.ts
+    ├── marketing.ts
     ├── order.ts
     ├── product.ts
     └── staff.ts

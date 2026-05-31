@@ -289,18 +289,23 @@ func (h *ProductHandler) CreateTopping(c *gin.Context) {
 }
 
 type updateToppingRequest struct {
-	Name  string `json:"name" binding:"required"`
-	Price int64  `json:"price" binding:"min=0"`
+	Name        string `json:"name" binding:"required"`
+	Price       int64  `json:"price" binding:"min=0"`
+	IsAvailable *bool  `json:"is_available"`
 }
 
-// UpdateTopping handles PUT /toppings/:id (Manager+)
+// UpdateTopping handles PATCH /toppings/:id (Manager+)
 func (h *ProductHandler) UpdateTopping(c *gin.Context) {
 	var req updateToppingRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		respondError(c, http.StatusBadRequest, "INVALID_INPUT", "Dữ liệu đầu vào không hợp lệ")
 		return
 	}
-	if err := h.svc.UpdateTopping(c.Request.Context(), c.Param("id"), service.UpdateToppingInput{Name: req.Name, Price: req.Price}); err != nil {
+	if err := h.svc.UpdateTopping(c.Request.Context(), c.Param("id"), service.UpdateToppingInput{
+		Name:        req.Name,
+		Price:       req.Price,
+		IsAvailable: req.IsAvailable,
+	}); err != nil {
 		handleServiceError(c, err)
 		return
 	}
@@ -397,7 +402,7 @@ type updateComboRequest struct {
 	Price       int64              `json:"price" binding:"min=1"`
 	Description string             `json:"description"`
 	SortOrder   int32              `json:"sort_order"`
-	Items       []comboItemRequest `json:"items" binding:"required,min=1"`
+	Items       []comboItemRequest `json:"items" binding:"required,min=2"`
 }
 
 // UpdateCombo handles PATCH /combos/:id (Manager+)

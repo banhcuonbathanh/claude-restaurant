@@ -34,6 +34,8 @@ var (
 	ErrInternalError         = &AppError{Status: http.StatusInternalServerError, Code: "INTERNAL_ERROR", Message: "Lỗi máy chủ nội bộ"}
 	ErrInvalidInput          = &AppError{Status: http.StatusBadRequest, Code: "INVALID_INPUT", Message: "Dữ liệu đầu vào không hợp lệ"}
 	ErrAlreadyGrouped        = &AppError{Status: http.StatusConflict, Code: "ORDER_ALREADY_GROUPED", Message: "Đơn hàng đã thuộc nhóm khác"}
+	ErrCategoryHasProducts   = &AppError{Status: http.StatusConflict, Code: "CATEGORY_HAS_PRODUCTS", Message: "Không thể xóa — danh mục đang có sản phẩm."}
+	ErrCategoryNameConflict  = &AppError{Status: http.StatusConflict, Code: "DUPLICATE_NAME", Message: "Tên danh mục đã tồn tại."}
 )
 
 // NewAppError creates a new AppError.

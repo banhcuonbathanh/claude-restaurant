@@ -21,10 +21,11 @@ const CAMPAIGN_MILESTONES: CampaignMilestone[] = [
 
 function getCurrentMonthRange(): DateRange {
   const now = new Date()
-  const from = new Date(now.getFullYear(), now.getMonth(), 1)
-  const to   = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-  const fmt  = (d: Date) => d.toISOString().split('T')[0]
-  return { from: fmt(from), to: fmt(to) }
+  const y   = now.getFullYear()
+  const m   = now.getMonth() + 1
+  const pad = (n: number) => String(n).padStart(2, '0')
+  const lastDay = new Date(y, m, 0).getDate()
+  return { from: `${y}-${pad(m)}-01`, to: `${y}-${pad(m)}-${pad(lastDay)}` }
 }
 
 export default function MarketingDashboardPage() {

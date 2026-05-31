@@ -41,6 +41,7 @@ be/
 │   │   ├── staff_handler.go           ← ListStaff · CreateStaff · GetStaff · UpdateStaff · SetStatus · Delete
 │   │   ├── table_handler.go           ← ListTables · CreateTable · UpdateTable · DecodeQR
 │   │   ├── analytics_handler.go       ← GetSummary · GetTopDishes · GetStaffPerformance
+│   │   ├── marketing_handler.go       ← GetSpend (static campaign data — no DB)
 │   │   ├── ingredient_handler.go      ← Ingredient + StockMovement CRUD
 │   │   └── file_handler.go            ← Upload (multipart)
 │   │
@@ -185,6 +186,7 @@ handler → service → repository → db (sqlc)
 | GET | `/api/v1/admin/summary` | manager+ | `analyticsH.GetSummary` |
 | GET | `/api/v1/admin/top-dishes` | manager+ | `analyticsH.GetTopDishes` |
 | GET | `/api/v1/admin/staff-performance` | manager+ | `analyticsH.GetStaffPerformance` |
+| GET | `/api/v1/admin/marketing/spend` | manager+ | `marketingH.GetSpend` |
 | GET | `/api/v1/admin/ingredients` | manager+ | `ingredientH.ListIngredients` |
 | GET | `/api/v1/admin/ingredients/low-stock` | manager+ | `ingredientH.ListLowStock` |
 | POST | `/api/v1/admin/ingredients` | manager+ | `ingredientH.CreateIngredient` |

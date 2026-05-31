@@ -1,0 +1,72 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Tổng quan" [ref=e6] [cursor=pointer]:
+          - /url: /admin/overview
+        - link "Tổng kết" [ref=e7] [cursor=pointer]:
+          - /url: /admin/summary
+        - link "Sản phẩm" [ref=e8] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Combo" [ref=e9] [cursor=pointer]:
+          - /url: /admin/combos
+        - link "Danh mục" [ref=e10] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e11] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e12] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Công việc" [ref=e13] [cursor=pointer]:
+          - /url: /admin/todo-list
+        - link "Kho nguyên liệu" [ref=e14] [cursor=pointer]:
+          - /url: /admin/ingredients
+        - link "Marketing" [ref=e15] [cursor=pointer]:
+          - /url: /admin/marketing
+        - link "Đào tạo" [ref=e16] [cursor=pointer]:
+          - /url: /admin/training
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - heading "Kho nguyên liệu" [level=1] [ref=e20]
+        - generic [ref=e22]:
+          - img [ref=e23]
+          - textbox "Tìm nguyên liệu..." [ref=e25]
+        - button "+ Thêm NL" [ref=e26] [cursor=pointer]
+      - table [ref=e28]:
+        - rowgroup [ref=e29]:
+          - row "STT Tên nguyên liệu Đơn vị Số lượng tồn Ngày nhập Hạn SD Trạng thái Thao tác" [ref=e30]:
+            - columnheader "STT" [ref=e31]
+            - columnheader "Tên nguyên liệu" [ref=e32]
+            - columnheader "Đơn vị" [ref=e33]
+            - columnheader "Số lượng tồn" [ref=e34]
+            - columnheader "Ngày nhập" [ref=e35]
+            - columnheader "Hạn SD" [ref=e36]
+            - columnheader "Trạng thái" [ref=e37]
+            - columnheader "Thao tác" [ref=e38]
+        - rowgroup [ref=e39]:
+          - row "1 Gạo tẻ kg 50 15/05/2026 13/08/2026 Còn hàng ✓ Sửa Xóa" [ref=e40]:
+            - cell "1" [ref=e41]
+            - cell "Gạo tẻ" [ref=e42]
+            - cell "kg" [ref=e43]
+            - cell "50" [ref=e44]
+            - cell "15/05/2026" [ref=e45]
+            - cell "13/08/2026" [ref=e46]
+            - cell "Còn hàng ✓" [ref=e47]
+            - cell "Sửa Xóa" [ref=e48]:
+              - generic [ref=e49]:
+                - button "Sửa" [ref=e50] [cursor=pointer]
+                - button "Xóa" [ref=e51] [cursor=pointer]
+          - row "⚠2 Tôm tươi kg 2 25/05/2026 30/05/2026 Sắp hết hạn Sửa Xóa" [ref=e52]:
+            - cell "⚠2" [ref=e53]
+            - cell "Tôm tươi" [ref=e54]
+            - cell "kg" [ref=e55]
+            - cell "2" [ref=e56]
+            - cell "25/05/2026" [ref=e57]
+            - cell "30/05/2026" [ref=e58]
+            - cell "Sắp hết hạn" [ref=e59]
+            - cell "Sửa Xóa" [ref=e60]:
+              - generic [ref=e61]:
+                - button "Sửa" [ref=e62] [cursor=pointer]
+                - button "Xóa" [ref=e63] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e64]

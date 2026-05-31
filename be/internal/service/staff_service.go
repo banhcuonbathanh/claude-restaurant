@@ -88,12 +88,15 @@ func (s *StaffService) GetStaff(ctx context.Context, id string) (db.Staff, error
 
 // CreateStaffInput holds data for creating a new staff account.
 type CreateStaffInput struct {
-	Username string
-	Password string
-	FullName string
-	Role     string
-	Phone    string
-	Email    string
+	Username        string
+	Password        string
+	FullName        string
+	Role            string
+	JobTitle        string
+	Shifts          string // JSON-encoded array, e.g. `["sang","chieu"]`
+	Responsibilities string
+	Phone           string
+	Email           string
 }
 
 // CreateStaff creates a new staff account, enforcing hierarchy rules.
@@ -120,14 +123,21 @@ func (s *StaffService) CreateStaff(ctx context.Context, callerRole string, input
 		return db.Staff{}, fmt.Errorf("staff: hash password: %w", err)
 	}
 
+	var shiftsBytes []byte
+	if input.Shifts != "" && input.Shifts != "[]" {
+		shiftsBytes = []byte(input.Shifts)
+	}
 	created, err := s.repo.CreateStaff(ctx, repository.CreateStaffParams{
-		ID:           uuid.NewString(),
-		Username:     input.Username,
-		PasswordHash: hash,
-		FullName:     input.FullName,
-		Role:         input.Role,
-		Phone:        sql.NullString{String: input.Phone, Valid: input.Phone != ""},
-		Email:        sql.NullString{String: input.Email, Valid: input.Email != ""},
+		ID:              uuid.NewString(),
+		Username:        input.Username,
+		PasswordHash:    hash,
+		FullName:        input.FullName,
+		Role:            input.Role,
+		JobTitle:        sql.NullString{String: input.JobTitle, Valid: input.JobTitle != ""},
+		Shifts:          shiftsBytes,
+		Responsibilities: sql.NullString{String: input.Responsibilities, Valid: input.Responsibilities != ""},
+		Phone:           sql.NullString{String: input.Phone, Valid: input.Phone != ""},
+		Email:           sql.NullString{String: input.Email, Valid: input.Email != ""},
 	})
 	if err != nil {
 		return db.Staff{}, fmt.Errorf("staff: create: %w", err)
@@ -137,10 +147,13 @@ func (s *StaffService) CreateStaff(ctx context.Context, callerRole string, input
 
 // UpdateStaffInput holds the optional fields that can be updated.
 type UpdateStaffInput struct {
-	FullName *string
-	Role     *string
-	Phone    *string
-	Email    *string
+	FullName        *string
+	Role            *string
+	JobTitle        *string
+	Shifts          *string // JSON-encoded array when provided
+	Responsibilities *string
+	Phone           *string
+	Email           *string
 }
 
 // UpdateStaff updates a staff record. callerRole enforces hierarchy on role changes.
@@ -167,11 +180,14 @@ func (s *StaffService) UpdateStaff(ctx context.Context, callerRole, targetID str
 	}
 
 	updated, err := s.repo.UpdateStaff(ctx, repository.UpdateStaffParams{
-		ID:       targetID,
-		FullName: input.FullName,
-		Role:     input.Role,
-		Phone:    input.Phone,
-		Email:    input.Email,
+		ID:              targetID,
+		FullName:        input.FullName,
+		Role:            input.Role,
+		JobTitle:        input.JobTitle,
+		Shifts:          input.Shifts,
+		Responsibilities: input.Responsibilities,
+		Phone:           input.Phone,
+		Email:           input.Email,
 	})
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

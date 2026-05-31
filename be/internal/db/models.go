@@ -235,6 +235,136 @@ func (ns NullStaffRole) Value() (driver.Value, error) {
 	return string(ns.StaffRole), nil
 }
 
+type StaffTasksPriority string
+
+const (
+	StaffTasksPriorityHigh   StaffTasksPriority = "high"
+	StaffTasksPriorityMedium StaffTasksPriority = "medium"
+	StaffTasksPriorityLow    StaffTasksPriority = "low"
+)
+
+func (e *StaffTasksPriority) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = StaffTasksPriority(s)
+	case string:
+		*e = StaffTasksPriority(s)
+	default:
+		return fmt.Errorf("unsupported scan type for StaffTasksPriority: %T", src)
+	}
+	return nil
+}
+
+type NullStaffTasksPriority struct {
+	StaffTasksPriority StaffTasksPriority `json:"staff_tasks_priority"`
+	Valid              bool               `json:"valid"` // Valid is true if StaffTasksPriority is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullStaffTasksPriority) Scan(value interface{}) error {
+	if value == nil {
+		ns.StaffTasksPriority, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.StaffTasksPriority.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullStaffTasksPriority) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.StaffTasksPriority), nil
+}
+
+type StaffTasksStatus string
+
+const (
+	StaffTasksStatusPending    StaffTasksStatus = "pending"
+	StaffTasksStatusInProgress StaffTasksStatus = "in_progress"
+	StaffTasksStatusCompleted  StaffTasksStatus = "completed"
+	StaffTasksStatusOverdue    StaffTasksStatus = "overdue"
+)
+
+func (e *StaffTasksStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = StaffTasksStatus(s)
+	case string:
+		*e = StaffTasksStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for StaffTasksStatus: %T", src)
+	}
+	return nil
+}
+
+type NullStaffTasksStatus struct {
+	StaffTasksStatus StaffTasksStatus `json:"staff_tasks_status"`
+	Valid            bool             `json:"valid"` // Valid is true if StaffTasksStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullStaffTasksStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.StaffTasksStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.StaffTasksStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullStaffTasksStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.StaffTasksStatus), nil
+}
+
+type StockMovementsType string
+
+const (
+	StockMovementsTypeIn         StockMovementsType = "in"
+	StockMovementsTypeOut        StockMovementsType = "out"
+	StockMovementsTypeAdjustment StockMovementsType = "adjustment"
+)
+
+func (e *StockMovementsType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = StockMovementsType(s)
+	case string:
+		*e = StockMovementsType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for StockMovementsType: %T", src)
+	}
+	return nil
+}
+
+type NullStockMovementsType struct {
+	StockMovementsType StockMovementsType `json:"stock_movements_type"`
+	Valid              bool               `json:"valid"` // Valid is true if StockMovementsType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullStockMovementsType) Scan(value interface{}) error {
+	if value == nil {
+		ns.StockMovementsType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.StockMovementsType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullStockMovementsType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.StockMovementsType), nil
+}
+
 type TablesStatus string
 
 const (
@@ -277,6 +407,94 @@ func (ns NullTablesStatus) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(ns.TablesStatus), nil
+}
+
+type TrainingGuideRolesRole string
+
+const (
+	TrainingGuideRolesRoleChef    TrainingGuideRolesRole = "chef"
+	TrainingGuideRolesRoleCashier TrainingGuideRolesRole = "cashier"
+	TrainingGuideRolesRoleStaff   TrainingGuideRolesRole = "staff"
+	TrainingGuideRolesRoleManager TrainingGuideRolesRole = "manager"
+)
+
+func (e *TrainingGuideRolesRole) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = TrainingGuideRolesRole(s)
+	case string:
+		*e = TrainingGuideRolesRole(s)
+	default:
+		return fmt.Errorf("unsupported scan type for TrainingGuideRolesRole: %T", src)
+	}
+	return nil
+}
+
+type NullTrainingGuideRolesRole struct {
+	TrainingGuideRolesRole TrainingGuideRolesRole `json:"training_guide_roles_role"`
+	Valid                  bool                   `json:"valid"` // Valid is true if TrainingGuideRolesRole is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullTrainingGuideRolesRole) Scan(value interface{}) error {
+	if value == nil {
+		ns.TrainingGuideRolesRole, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.TrainingGuideRolesRole.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullTrainingGuideRolesRole) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.TrainingGuideRolesRole), nil
+}
+
+type TrainingGuidesRole string
+
+const (
+	TrainingGuidesRoleChef    TrainingGuidesRole = "chef"
+	TrainingGuidesRoleCashier TrainingGuidesRole = "cashier"
+	TrainingGuidesRoleStaff   TrainingGuidesRole = "staff"
+	TrainingGuidesRoleManager TrainingGuidesRole = "manager"
+)
+
+func (e *TrainingGuidesRole) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = TrainingGuidesRole(s)
+	case string:
+		*e = TrainingGuidesRole(s)
+	default:
+		return fmt.Errorf("unsupported scan type for TrainingGuidesRole: %T", src)
+	}
+	return nil
+}
+
+type NullTrainingGuidesRole struct {
+	TrainingGuidesRole TrainingGuidesRole `json:"training_guides_role"`
+	Valid              bool               `json:"valid"` // Valid is true if TrainingGuidesRole is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullTrainingGuidesRole) Scan(value interface{}) error {
+	if value == nil {
+		ns.TrainingGuidesRole, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.TrainingGuidesRole.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullTrainingGuidesRole) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.TrainingGuidesRole), nil
 }
 
 type Category struct {
@@ -325,6 +543,20 @@ type FileAttachment struct {
 	EntityID     sql.NullString `json:"entity_id"`
 	CreatedAt    time.Time      `json:"created_at"`
 	UpdatedAt    time.Time      `json:"updated_at"`
+}
+
+type Ingredient struct {
+	ID           string       `json:"id"`
+	Name         string       `json:"name"`
+	Unit         string       `json:"unit"`
+	CurrentStock string       `json:"current_stock"`
+	MinStock     string       `json:"min_stock"`
+	CostPerUnit  string       `json:"cost_per_unit"`
+	CreatedAt    time.Time    `json:"created_at"`
+	UpdatedAt    time.Time    `json:"updated_at"`
+	DeletedAt    sql.NullTime `json:"deleted_at"`
+	ImportDate   time.Time    `json:"import_date"`
+	ShelfDays    int32        `json:"shelf_days"`
 }
 
 type Order struct {
@@ -398,9 +630,24 @@ type Product struct {
 	DeletedAt   sql.NullTime   `json:"deleted_at"`
 }
 
+type ProductIngredient struct {
+	ProductID    string `json:"product_id"`
+	IngredientID string `json:"ingredient_id"`
+	QtyUsed      string `json:"qty_used"`
+}
+
 type ProductTopping struct {
 	ProductID string `json:"product_id"`
 	ToppingID string `json:"topping_id"`
+}
+
+type QuizAttempt struct {
+	ID          string    `json:"id"`
+	ProgressID  string    `json:"progress_id"`
+	Score       int32     `json:"score"`
+	Passed      bool      `json:"passed"`
+	AttemptedAt time.Time `json:"attempted_at"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type RefreshToken struct {
@@ -415,17 +662,48 @@ type RefreshToken struct {
 }
 
 type Staff struct {
-	ID           string         `json:"id"`
-	Username     string         `json:"username"`
-	PasswordHash string         `json:"password_hash"`
-	Email        sql.NullString `json:"email"`
-	Role         StaffRole      `json:"role"`
-	FullName     string         `json:"full_name"`
-	Phone        sql.NullString `json:"phone"`
-	IsActive     bool           `json:"is_active"`
-	CreatedAt    time.Time      `json:"created_at"`
-	UpdatedAt    time.Time      `json:"updated_at"`
-	DeletedAt    sql.NullTime   `json:"deleted_at"`
+	ID               string          `json:"id"`
+	Username         string          `json:"username"`
+	PasswordHash     string          `json:"password_hash"`
+	Email            sql.NullString  `json:"email"`
+	Role             StaffRole       `json:"role"`
+	FullName         string          `json:"full_name"`
+	Phone            sql.NullString  `json:"phone"`
+	IsActive         bool            `json:"is_active"`
+	CreatedAt        time.Time       `json:"created_at"`
+	UpdatedAt        time.Time       `json:"updated_at"`
+	DeletedAt        sql.NullTime    `json:"deleted_at"`
+	JobTitle         sql.NullString  `json:"job_title"`
+	Shifts           []byte          `json:"shifts"`
+	Responsibilities sql.NullString  `json:"responsibilities"`
+}
+
+type StaffTask struct {
+	ID           string             `json:"id"`
+	Title        string             `json:"title"`
+	Description  sql.NullString     `json:"description"`
+	AssignedTo   string             `json:"assigned_to"`
+	AssignedBy   string             `json:"assigned_by"`
+	DueAt        time.Time          `json:"due_at"`
+	CompletedAt  sql.NullTime       `json:"completed_at"`
+	CreatedAt    time.Time          `json:"created_at"`
+	UpdatedAt    time.Time          `json:"updated_at"`
+	DeletedAt    sql.NullTime       `json:"deleted_at"`
+	Priority     StaffTasksPriority `json:"priority"`
+	Notes        sql.NullString     `json:"notes"`
+	DueTimeStart sql.NullString     `json:"due_time_start"`
+	DueTimeEnd   sql.NullString     `json:"due_time_end"`
+	Status       StaffTasksStatus   `json:"status"`
+}
+
+type StockMovement struct {
+	ID           string             `json:"id"`
+	IngredientID string             `json:"ingredient_id"`
+	Type         StockMovementsType `json:"type"`
+	Quantity     string             `json:"quantity"`
+	Note         sql.NullString     `json:"note"`
+	CreatedBy    sql.NullString     `json:"created_by"`
+	CreatedAt    time.Time          `json:"created_at"`
 }
 
 type Table struct {
@@ -448,4 +726,37 @@ type Topping struct {
 	CreatedAt   time.Time    `json:"created_at"`
 	UpdatedAt   time.Time    `json:"updated_at"`
 	DeletedAt   sql.NullTime `json:"deleted_at"`
+}
+
+type TrainingGuide struct {
+	ID                string             `json:"id"`
+	Title             string             `json:"title"`
+	Role              TrainingGuidesRole `json:"role"`
+	Description       sql.NullString     `json:"description"`
+	CoverImageUrl     sql.NullString     `json:"cover_image_url"`
+	YoutubeUrl        sql.NullString     `json:"youtube_url"`
+	QualityKpiTarget  sql.NullString     `json:"quality_kpi_target"`
+	QuantityKpiTarget sql.NullString     `json:"quantity_kpi_target"`
+	PassThreshold     int32              `json:"pass_threshold"`
+	MaxAttempts       int32              `json:"max_attempts"`
+	Published         bool               `json:"published"`
+	CreatedBy         sql.NullString     `json:"created_by"`
+	CreatedAt         time.Time          `json:"created_at"`
+	UpdatedAt         time.Time          `json:"updated_at"`
+	DeletedAt         sql.NullTime       `json:"deleted_at"`
+}
+
+type TrainingGuideRole struct {
+	GuideID string                 `json:"guide_id"`
+	Role    TrainingGuideRolesRole `json:"role"`
+}
+
+type TrainingProgress struct {
+	ID             string         `json:"id"`
+	GuideID        string         `json:"guide_id"`
+	StaffID        string         `json:"staff_id"`
+	WatchedPercent int32          `json:"watched_percent"`
+	ManagerNotes   sql.NullString `json:"manager_notes"`
+	CreatedAt      time.Time      `json:"created_at"`
+	UpdatedAt      time.Time      `json:"updated_at"`
 }

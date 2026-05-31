@@ -1,0 +1,1519 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Tổng quan" [ref=e6] [cursor=pointer]:
+          - /url: /admin/overview
+        - link "Tổng kết" [ref=e7] [cursor=pointer]:
+          - /url: /admin/summary
+        - link "Sản phẩm" [ref=e8] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Combo" [ref=e9] [cursor=pointer]:
+          - /url: /admin/combos
+        - link "Danh mục" [ref=e10] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e11] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e12] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Công việc" [ref=e13] [cursor=pointer]:
+          - /url: /admin/todo-list
+        - link "Kho nguyên liệu" [ref=e14] [cursor=pointer]:
+          - /url: /admin/ingredients
+        - link "Marketing" [ref=e15] [cursor=pointer]:
+          - /url: /admin/marketing
+        - link "Đào tạo" [ref=e16] [cursor=pointer]:
+          - /url: /admin/training
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - navigation [ref=e20]:
+          - generic [ref=e22]: Admin
+          - generic [ref=e23]:
+            - img [ref=e24]
+            - generic [ref=e26]: Nhân viên
+          - generic [ref=e27]:
+            - img [ref=e28]
+            - generic [ref=e30]: Bảng công việc
+        - button "Thêm công việc" [ref=e31] [cursor=pointer]:
+          - img
+          - text: Thêm công việc
+      - generic [ref=e32]:
+        - textbox [ref=e33]: 2026-05-30
+        - combobox [ref=e34]:
+          - option "Tất cả vai trò" [selected]
+          - option "Bếp"
+          - option "Thu ngân"
+          - option "Phục vụ"
+          - option "Đầu bếp"
+          - option "Nhân viên"
+        - combobox [ref=e35]:
+          - option "Tất cả trạng thái" [selected]
+          - option "Chờ"
+          - option "Đang làm"
+          - option "Hoàn thành"
+          - option "Quá hạn"
+        - textbox "Tìm tên nhân viên…" [ref=e36]
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - paragraph [ref=e39]: Tổng công việc hôm nay
+          - paragraph [ref=e40]: "1"
+        - generic [ref=e41]:
+          - paragraph [ref=e42]: Hoàn thành
+          - paragraph [ref=e43]: "0"
+          - generic [ref=e45]: ✓
+        - generic [ref=e46]:
+          - paragraph [ref=e47]: Đang thực hiện
+          - paragraph [ref=e48]: "0"
+        - generic [ref=e49]:
+          - paragraph [ref=e50]: Quá hạn
+          - paragraph [ref=e51]: "0"
+          - generic [ref=e53]: "!"
+      - table [ref=e55]:
+        - rowgroup [ref=e56]:
+          - row "Nhân viên Vai trò Được giao Hoàn thành Tỷ lệ % Chất lượng Thao tác" [ref=e57]:
+            - columnheader "Nhân viên" [ref=e58]
+            - columnheader "Vai trò" [ref=e59]
+            - columnheader "Được giao" [ref=e60]
+            - columnheader "Hoàn thành" [ref=e61]
+            - columnheader "Tỷ lệ %" [ref=e62]
+            - columnheader "Chất lượng" [ref=e63]
+            - columnheader "Thao tác" [ref=e64]
+        - rowgroup [ref=e65]:
+          - row "Đầu Bếp Đầu bếp 1 0 0% ★ 0.0 / 5.0 Ẩn Giao việc" [ref=e1342]:
+            - cell "Đầu Bếp" [ref=e67]:
+              - button [expanded] [ref=e68] [cursor=pointer]:
+                - img [ref=e1343]
+              - text: Đầu Bếp
+            - cell "Đầu bếp" [ref=e71]:
+              - generic [ref=e72]: Đầu bếp
+            - cell "1" [ref=e73]
+            - cell "0" [ref=e74]
+            - cell "0%" [ref=e75]:
+              - generic [ref=e76]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e77]:
+              - generic [ref=e78]: ★ 0.0 / 5.0
+            - cell "Ẩn Giao việc" [ref=e1345]:
+              - generic [ref=e80]:
+                - button "Ẩn" [ref=e1346] [cursor=pointer]
+                - button "Giao việc" [ref=e82] [cursor=pointer]
+          - 'row "Tên công việc Ưu tiên Giờ Trạng thái Ghi chú Verify test task Ưu tiên: CAO 08:00–09:00 Trạng thái: Chờ —" [ref=e1347]':
+            - 'cell "Tên công việc Ưu tiên Giờ Trạng thái Ghi chú Verify test task Ưu tiên: CAO 08:00–09:00 Trạng thái: Chờ —" [ref=e1348]':
+              - table [ref=e1350]:
+                - rowgroup [ref=e1351]:
+                  - row "Tên công việc Ưu tiên Giờ Trạng thái Ghi chú" [ref=e1352]:
+                    - columnheader "Tên công việc" [ref=e1353]
+                    - columnheader "Ưu tiên" [ref=e1354]
+                    - columnheader "Giờ" [ref=e1355]
+                    - columnheader "Trạng thái" [ref=e1356]
+                    - columnheader "Ghi chú" [ref=e1357]
+                - rowgroup [ref=e1358]:
+                  - 'row "Verify test task Ưu tiên: CAO 08:00–09:00 Trạng thái: Chờ —" [ref=e1359]':
+                    - cell "Verify test task" [ref=e1360]
+                    - 'cell "Ưu tiên: CAO" [ref=e1361]':
+                      - 'generic "Ưu tiên: CAO" [ref=e1362]': CAO
+                    - cell "08:00–09:00" [ref=e1363]
+                    - 'cell "Trạng thái: Chờ" [ref=e1364]':
+                      - 'generic "Trạng thái: Chờ" [ref=e1365]': Chờ
+                    - cell "—" [ref=e1366]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e83]:
+            - cell "E2E Test Chef" [ref=e84]:
+              - button [ref=e85] [cursor=pointer]:
+                - img [ref=e86]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e88]:
+              - generic [ref=e89]: Đầu bếp
+            - cell "0" [ref=e90]
+            - cell "0" [ref=e91]
+            - cell "0%" [ref=e92]:
+              - generic [ref=e93]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e94]:
+              - generic [ref=e95]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e96]:
+              - generic [ref=e97]:
+                - button "Xem công việc" [ref=e98] [cursor=pointer]
+                - button "Giao việc" [ref=e99] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e100]:
+            - cell "E2E Test Chef" [ref=e101]:
+              - button [ref=e102] [cursor=pointer]:
+                - img [ref=e103]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e105]:
+              - generic [ref=e106]: Đầu bếp
+            - cell "0" [ref=e107]
+            - cell "0" [ref=e108]
+            - cell "0%" [ref=e109]:
+              - generic [ref=e110]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e111]:
+              - generic [ref=e112]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e113]:
+              - generic [ref=e114]:
+                - button "Xem công việc" [ref=e115] [cursor=pointer]
+                - button "Giao việc" [ref=e116] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e117]:
+            - cell "E2E Test Chef" [ref=e118]:
+              - button [ref=e119] [cursor=pointer]:
+                - img [ref=e120]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e122]:
+              - generic [ref=e123]: Đầu bếp
+            - cell "0" [ref=e124]
+            - cell "0" [ref=e125]
+            - cell "0%" [ref=e126]:
+              - generic [ref=e127]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e128]:
+              - generic [ref=e129]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e130]:
+              - generic [ref=e131]:
+                - button "Xem công việc" [ref=e132] [cursor=pointer]
+                - button "Giao việc" [ref=e133] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e134]:
+            - cell "E2E Test Chef" [ref=e135]:
+              - button [ref=e136] [cursor=pointer]:
+                - img [ref=e137]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e139]:
+              - generic [ref=e140]: Đầu bếp
+            - cell "0" [ref=e141]
+            - cell "0" [ref=e142]
+            - cell "0%" [ref=e143]:
+              - generic [ref=e144]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e145]:
+              - generic [ref=e146]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e147]:
+              - generic [ref=e148]:
+                - button "Xem công việc" [ref=e149] [cursor=pointer]
+                - button "Giao việc" [ref=e150] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e151]:
+            - cell "E2E Test Chef" [ref=e152]:
+              - button [ref=e153] [cursor=pointer]:
+                - img [ref=e154]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e156]:
+              - generic [ref=e157]: Đầu bếp
+            - cell "0" [ref=e158]
+            - cell "0" [ref=e159]
+            - cell "0%" [ref=e160]:
+              - generic [ref=e161]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e162]:
+              - generic [ref=e163]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e164]:
+              - generic [ref=e165]:
+                - button "Xem công việc" [ref=e166] [cursor=pointer]
+                - button "Giao việc" [ref=e167] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e168]:
+            - cell "E2E Test Chef" [ref=e169]:
+              - button [ref=e170] [cursor=pointer]:
+                - img [ref=e171]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e173]:
+              - generic [ref=e174]: Đầu bếp
+            - cell "0" [ref=e175]
+            - cell "0" [ref=e176]
+            - cell "0%" [ref=e177]:
+              - generic [ref=e178]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e179]:
+              - generic [ref=e180]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e181]:
+              - generic [ref=e182]:
+                - button "Xem công việc" [ref=e183] [cursor=pointer]
+                - button "Giao việc" [ref=e184] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e185]:
+            - cell "E2E Test Chef" [ref=e186]:
+              - button [ref=e187] [cursor=pointer]:
+                - img [ref=e188]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e190]:
+              - generic [ref=e191]: Đầu bếp
+            - cell "0" [ref=e192]
+            - cell "0" [ref=e193]
+            - cell "0%" [ref=e194]:
+              - generic [ref=e195]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e196]:
+              - generic [ref=e197]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e198]:
+              - generic [ref=e199]:
+                - button "Xem công việc" [ref=e200] [cursor=pointer]
+                - button "Giao việc" [ref=e201] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e202]:
+            - cell "E2E Test Chef" [ref=e203]:
+              - button [ref=e204] [cursor=pointer]:
+                - img [ref=e205]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e207]:
+              - generic [ref=e208]: Đầu bếp
+            - cell "0" [ref=e209]
+            - cell "0" [ref=e210]
+            - cell "0%" [ref=e211]:
+              - generic [ref=e212]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e213]:
+              - generic [ref=e214]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e215]:
+              - generic [ref=e216]:
+                - button "Xem công việc" [ref=e217] [cursor=pointer]
+                - button "Giao việc" [ref=e218] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e219]:
+            - cell "E2E Test Chef" [ref=e220]:
+              - button [ref=e221] [cursor=pointer]:
+                - img [ref=e222]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e224]:
+              - generic [ref=e225]: Đầu bếp
+            - cell "0" [ref=e226]
+            - cell "0" [ref=e227]
+            - cell "0%" [ref=e228]:
+              - generic [ref=e229]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e230]:
+              - generic [ref=e231]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e232]:
+              - generic [ref=e233]:
+                - button "Xem công việc" [ref=e234] [cursor=pointer]
+                - button "Giao việc" [ref=e235] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e236]:
+            - cell "E2E Test Chef" [ref=e237]:
+              - button [ref=e238] [cursor=pointer]:
+                - img [ref=e239]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e241]:
+              - generic [ref=e242]: Đầu bếp
+            - cell "0" [ref=e243]
+            - cell "0" [ref=e244]
+            - cell "0%" [ref=e245]:
+              - generic [ref=e246]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e247]:
+              - generic [ref=e248]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e249]:
+              - generic [ref=e250]:
+                - button "Xem công việc" [ref=e251] [cursor=pointer]
+                - button "Giao việc" [ref=e252] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e253]:
+            - cell "E2E Test Chef" [ref=e254]:
+              - button [ref=e255] [cursor=pointer]:
+                - img [ref=e256]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e258]:
+              - generic [ref=e259]: Đầu bếp
+            - cell "0" [ref=e260]
+            - cell "0" [ref=e261]
+            - cell "0%" [ref=e262]:
+              - generic [ref=e263]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e264]:
+              - generic [ref=e265]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e266]:
+              - generic [ref=e267]:
+                - button "Xem công việc" [ref=e268] [cursor=pointer]
+                - button "Giao việc" [ref=e269] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e270]:
+            - cell "E2E Test Chef" [ref=e271]:
+              - button [ref=e272] [cursor=pointer]:
+                - img [ref=e273]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e275]:
+              - generic [ref=e276]: Đầu bếp
+            - cell "0" [ref=e277]
+            - cell "0" [ref=e278]
+            - cell "0%" [ref=e279]:
+              - generic [ref=e280]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e281]:
+              - generic [ref=e282]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e283]:
+              - generic [ref=e284]:
+                - button "Xem công việc" [ref=e285] [cursor=pointer]
+                - button "Giao việc" [ref=e286] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e287]:
+            - cell "E2E Test Chef" [ref=e288]:
+              - button [ref=e289] [cursor=pointer]:
+                - img [ref=e290]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e292]:
+              - generic [ref=e293]: Đầu bếp
+            - cell "0" [ref=e294]
+            - cell "0" [ref=e295]
+            - cell "0%" [ref=e296]:
+              - generic [ref=e297]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e298]:
+              - generic [ref=e299]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e300]:
+              - generic [ref=e301]:
+                - button "Xem công việc" [ref=e302] [cursor=pointer]
+                - button "Giao việc" [ref=e303] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e304]:
+            - cell "E2E Test Chef" [ref=e305]:
+              - button [ref=e306] [cursor=pointer]:
+                - img [ref=e307]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e309]:
+              - generic [ref=e310]: Đầu bếp
+            - cell "0" [ref=e311]
+            - cell "0" [ref=e312]
+            - cell "0%" [ref=e313]:
+              - generic [ref=e314]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e315]:
+              - generic [ref=e316]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e317]:
+              - generic [ref=e318]:
+                - button "Xem công việc" [ref=e319] [cursor=pointer]
+                - button "Giao việc" [ref=e320] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e321]:
+            - cell "E2E Test Chef" [ref=e322]:
+              - button [ref=e323] [cursor=pointer]:
+                - img [ref=e324]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e326]:
+              - generic [ref=e327]: Đầu bếp
+            - cell "0" [ref=e328]
+            - cell "0" [ref=e329]
+            - cell "0%" [ref=e330]:
+              - generic [ref=e331]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e332]:
+              - generic [ref=e333]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e334]:
+              - generic [ref=e335]:
+                - button "Xem công việc" [ref=e336] [cursor=pointer]
+                - button "Giao việc" [ref=e337] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e338]:
+            - cell "E2E Test Chef" [ref=e339]:
+              - button [ref=e340] [cursor=pointer]:
+                - img [ref=e341]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e343]:
+              - generic [ref=e344]: Đầu bếp
+            - cell "0" [ref=e345]
+            - cell "0" [ref=e346]
+            - cell "0%" [ref=e347]:
+              - generic [ref=e348]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e349]:
+              - generic [ref=e350]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e351]:
+              - generic [ref=e352]:
+                - button "Xem công việc" [ref=e353] [cursor=pointer]
+                - button "Giao việc" [ref=e354] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e355]:
+            - cell "E2E Test Chef" [ref=e356]:
+              - button [ref=e357] [cursor=pointer]:
+                - img [ref=e358]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e360]:
+              - generic [ref=e361]: Đầu bếp
+            - cell "0" [ref=e362]
+            - cell "0" [ref=e363]
+            - cell "0%" [ref=e364]:
+              - generic [ref=e365]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e366]:
+              - generic [ref=e367]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e368]:
+              - generic [ref=e369]:
+                - button "Xem công việc" [ref=e370] [cursor=pointer]
+                - button "Giao việc" [ref=e371] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e372]:
+            - cell "E2E Test Chef" [ref=e373]:
+              - button [ref=e374] [cursor=pointer]:
+                - img [ref=e375]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e377]:
+              - generic [ref=e378]: Đầu bếp
+            - cell "0" [ref=e379]
+            - cell "0" [ref=e380]
+            - cell "0%" [ref=e381]:
+              - generic [ref=e382]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e383]:
+              - generic [ref=e384]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e385]:
+              - generic [ref=e386]:
+                - button "Xem công việc" [ref=e387] [cursor=pointer]
+                - button "Giao việc" [ref=e388] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e389]:
+            - cell "E2E Test Chef" [ref=e390]:
+              - button [ref=e391] [cursor=pointer]:
+                - img [ref=e392]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e394]:
+              - generic [ref=e395]: Đầu bếp
+            - cell "0" [ref=e396]
+            - cell "0" [ref=e397]
+            - cell "0%" [ref=e398]:
+              - generic [ref=e399]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e400]:
+              - generic [ref=e401]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e402]:
+              - generic [ref=e403]:
+                - button "Xem công việc" [ref=e404] [cursor=pointer]
+                - button "Giao việc" [ref=e405] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e406]:
+            - cell "E2E Test Chef" [ref=e407]:
+              - button [ref=e408] [cursor=pointer]:
+                - img [ref=e409]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e411]:
+              - generic [ref=e412]: Đầu bếp
+            - cell "0" [ref=e413]
+            - cell "0" [ref=e414]
+            - cell "0%" [ref=e415]:
+              - generic [ref=e416]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e417]:
+              - generic [ref=e418]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e419]:
+              - generic [ref=e420]:
+                - button "Xem công việc" [ref=e421] [cursor=pointer]
+                - button "Giao việc" [ref=e422] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e423]:
+            - cell "E2E Test Chef" [ref=e424]:
+              - button [ref=e425] [cursor=pointer]:
+                - img [ref=e426]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e428]:
+              - generic [ref=e429]: Đầu bếp
+            - cell "0" [ref=e430]
+            - cell "0" [ref=e431]
+            - cell "0%" [ref=e432]:
+              - generic [ref=e433]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e434]:
+              - generic [ref=e435]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e436]:
+              - generic [ref=e437]:
+                - button "Xem công việc" [ref=e438] [cursor=pointer]
+                - button "Giao việc" [ref=e439] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e440]:
+            - cell "E2E Test Chef" [ref=e441]:
+              - button [ref=e442] [cursor=pointer]:
+                - img [ref=e443]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e445]:
+              - generic [ref=e446]: Đầu bếp
+            - cell "0" [ref=e447]
+            - cell "0" [ref=e448]
+            - cell "0%" [ref=e449]:
+              - generic [ref=e450]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e451]:
+              - generic [ref=e452]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e453]:
+              - generic [ref=e454]:
+                - button "Xem công việc" [ref=e455] [cursor=pointer]
+                - button "Giao việc" [ref=e456] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e457]:
+            - cell "E2E Test Chef" [ref=e458]:
+              - button [ref=e459] [cursor=pointer]:
+                - img [ref=e460]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e462]:
+              - generic [ref=e463]: Đầu bếp
+            - cell "0" [ref=e464]
+            - cell "0" [ref=e465]
+            - cell "0%" [ref=e466]:
+              - generic [ref=e467]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e468]:
+              - generic [ref=e469]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e470]:
+              - generic [ref=e471]:
+                - button "Xem công việc" [ref=e472] [cursor=pointer]
+                - button "Giao việc" [ref=e473] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e474]:
+            - cell "E2E Test Chef" [ref=e475]:
+              - button [ref=e476] [cursor=pointer]:
+                - img [ref=e477]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e479]:
+              - generic [ref=e480]: Đầu bếp
+            - cell "0" [ref=e481]
+            - cell "0" [ref=e482]
+            - cell "0%" [ref=e483]:
+              - generic [ref=e484]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e485]:
+              - generic [ref=e486]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e487]:
+              - generic [ref=e488]:
+                - button "Xem công việc" [ref=e489] [cursor=pointer]
+                - button "Giao việc" [ref=e490] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e491]:
+            - cell "E2E Test Chef" [ref=e492]:
+              - button [ref=e493] [cursor=pointer]:
+                - img [ref=e494]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e496]:
+              - generic [ref=e497]: Đầu bếp
+            - cell "0" [ref=e498]
+            - cell "0" [ref=e499]
+            - cell "0%" [ref=e500]:
+              - generic [ref=e501]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e502]:
+              - generic [ref=e503]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e504]:
+              - generic [ref=e505]:
+                - button "Xem công việc" [ref=e506] [cursor=pointer]
+                - button "Giao việc" [ref=e507] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e508]:
+            - cell "E2E Test Chef" [ref=e509]:
+              - button [ref=e510] [cursor=pointer]:
+                - img [ref=e511]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e513]:
+              - generic [ref=e514]: Đầu bếp
+            - cell "0" [ref=e515]
+            - cell "0" [ref=e516]
+            - cell "0%" [ref=e517]:
+              - generic [ref=e518]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e519]:
+              - generic [ref=e520]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e521]:
+              - generic [ref=e522]:
+                - button "Xem công việc" [ref=e523] [cursor=pointer]
+                - button "Giao việc" [ref=e524] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e525]:
+            - cell "E2E Test Chef" [ref=e526]:
+              - button [ref=e527] [cursor=pointer]:
+                - img [ref=e528]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e530]:
+              - generic [ref=e531]: Đầu bếp
+            - cell "0" [ref=e532]
+            - cell "0" [ref=e533]
+            - cell "0%" [ref=e534]:
+              - generic [ref=e535]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e536]:
+              - generic [ref=e537]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e538]:
+              - generic [ref=e539]:
+                - button "Xem công việc" [ref=e540] [cursor=pointer]
+                - button "Giao việc" [ref=e541] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e542]:
+            - cell "E2E Test Chef" [ref=e543]:
+              - button [ref=e544] [cursor=pointer]:
+                - img [ref=e545]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e547]:
+              - generic [ref=e548]: Đầu bếp
+            - cell "0" [ref=e549]
+            - cell "0" [ref=e550]
+            - cell "0%" [ref=e551]:
+              - generic [ref=e552]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e553]:
+              - generic [ref=e554]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e555]:
+              - generic [ref=e556]:
+                - button "Xem công việc" [ref=e557] [cursor=pointer]
+                - button "Giao việc" [ref=e558] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e559]:
+            - cell "E2E Test Chef" [ref=e560]:
+              - button [ref=e561] [cursor=pointer]:
+                - img [ref=e562]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e564]:
+              - generic [ref=e565]: Đầu bếp
+            - cell "0" [ref=e566]
+            - cell "0" [ref=e567]
+            - cell "0%" [ref=e568]:
+              - generic [ref=e569]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e570]:
+              - generic [ref=e571]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e572]:
+              - generic [ref=e573]:
+                - button "Xem công việc" [ref=e574] [cursor=pointer]
+                - button "Giao việc" [ref=e575] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e576]:
+            - cell "E2E Test Chef" [ref=e577]:
+              - button [ref=e578] [cursor=pointer]:
+                - img [ref=e579]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e581]:
+              - generic [ref=e582]: Đầu bếp
+            - cell "0" [ref=e583]
+            - cell "0" [ref=e584]
+            - cell "0%" [ref=e585]:
+              - generic [ref=e586]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e587]:
+              - generic [ref=e588]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e589]:
+              - generic [ref=e590]:
+                - button "Xem công việc" [ref=e591] [cursor=pointer]
+                - button "Giao việc" [ref=e592] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e593]:
+            - cell "E2E Test Chef" [ref=e594]:
+              - button [ref=e595] [cursor=pointer]:
+                - img [ref=e596]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e598]:
+              - generic [ref=e599]: Đầu bếp
+            - cell "0" [ref=e600]
+            - cell "0" [ref=e601]
+            - cell "0%" [ref=e602]:
+              - generic [ref=e603]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e604]:
+              - generic [ref=e605]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e606]:
+              - generic [ref=e607]:
+                - button "Xem công việc" [ref=e608] [cursor=pointer]
+                - button "Giao việc" [ref=e609] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e610]:
+            - cell "E2E Test Chef" [ref=e611]:
+              - button [ref=e612] [cursor=pointer]:
+                - img [ref=e613]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e615]:
+              - generic [ref=e616]: Đầu bếp
+            - cell "0" [ref=e617]
+            - cell "0" [ref=e618]
+            - cell "0%" [ref=e619]:
+              - generic [ref=e620]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e621]:
+              - generic [ref=e622]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e623]:
+              - generic [ref=e624]:
+                - button "Xem công việc" [ref=e625] [cursor=pointer]
+                - button "Giao việc" [ref=e626] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e627]:
+            - cell "E2E Test Chef" [ref=e628]:
+              - button [ref=e629] [cursor=pointer]:
+                - img [ref=e630]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e632]:
+              - generic [ref=e633]: Đầu bếp
+            - cell "0" [ref=e634]
+            - cell "0" [ref=e635]
+            - cell "0%" [ref=e636]:
+              - generic [ref=e637]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e638]:
+              - generic [ref=e639]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e640]:
+              - generic [ref=e641]:
+                - button "Xem công việc" [ref=e642] [cursor=pointer]
+                - button "Giao việc" [ref=e643] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e644]:
+            - cell "E2E Test Chef" [ref=e645]:
+              - button [ref=e646] [cursor=pointer]:
+                - img [ref=e647]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e649]:
+              - generic [ref=e650]: Đầu bếp
+            - cell "0" [ref=e651]
+            - cell "0" [ref=e652]
+            - cell "0%" [ref=e653]:
+              - generic [ref=e654]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e655]:
+              - generic [ref=e656]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e657]:
+              - generic [ref=e658]:
+                - button "Xem công việc" [ref=e659] [cursor=pointer]
+                - button "Giao việc" [ref=e660] [cursor=pointer]
+          - row "E2E Test Chef Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e661]:
+            - cell "E2E Test Chef" [ref=e662]:
+              - button [ref=e663] [cursor=pointer]:
+                - img [ref=e664]
+              - text: E2E Test Chef
+            - cell "Đầu bếp" [ref=e666]:
+              - generic [ref=e667]: Đầu bếp
+            - cell "0" [ref=e668]
+            - cell "0" [ref=e669]
+            - cell "0%" [ref=e670]:
+              - generic [ref=e671]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e672]:
+              - generic [ref=e673]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e674]:
+              - generic [ref=e675]:
+                - button "Xem công việc" [ref=e676] [cursor=pointer]
+                - button "Giao việc" [ref=e677] [cursor=pointer]
+          - row "Kiểm Tra Verify Thu ngân 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e678]:
+            - cell "Kiểm Tra Verify" [ref=e679]:
+              - button [ref=e680] [cursor=pointer]:
+                - img [ref=e681]
+              - text: Kiểm Tra Verify
+            - cell "Thu ngân" [ref=e683]:
+              - generic [ref=e684]: Thu ngân
+            - cell "0" [ref=e685]
+            - cell "0" [ref=e686]
+            - cell "0%" [ref=e687]:
+              - generic [ref=e688]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e689]:
+              - generic [ref=e690]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e691]:
+              - generic [ref=e692]:
+                - button "Xem công việc" [ref=e693] [cursor=pointer]
+                - button "Giao việc" [ref=e694] [cursor=pointer]
+          - 'row "LÃª Äáº§u Báº¿p Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e695]':
+            - 'cell "LÃª Äáº§u Báº¿p" [ref=e696]':
+              - button [ref=e697] [cursor=pointer]:
+                - img [ref=e698]
+              - text: "LÃª Ä\x90áº§u Báº¿p"
+            - cell "Đầu bếp" [ref=e700]:
+              - generic [ref=e701]: Đầu bếp
+            - cell "0" [ref=e702]
+            - cell "0" [ref=e703]
+            - cell "0%" [ref=e704]:
+              - generic [ref=e705]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e706]:
+              - generic [ref=e707]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e708]:
+              - generic [ref=e709]:
+                - button "Xem công việc" [ref=e710] [cursor=pointer]
+                - button "Giao việc" [ref=e711] [cursor=pointer]
+          - row "Lê Văn Phục Nhân viên 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e712]:
+            - cell "Lê Văn Phục" [ref=e713]:
+              - button [ref=e714] [cursor=pointer]:
+                - img [ref=e715]
+              - text: Lê Văn Phục
+            - cell "Nhân viên" [ref=e717]:
+              - generic [ref=e718]: Nhân viên
+            - cell "0" [ref=e719]
+            - cell "0" [ref=e720]
+            - cell "0%" [ref=e721]:
+              - generic [ref=e722]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e723]:
+              - generic [ref=e724]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e725]:
+              - generic [ref=e726]:
+                - button "Xem công việc" [ref=e727] [cursor=pointer]
+                - button "Giao việc" [ref=e728] [cursor=pointer]
+          - row "Nguyễn Văn Bếp Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e729]:
+            - cell "Nguyễn Văn Bếp" [ref=e730]:
+              - button [ref=e731] [cursor=pointer]:
+                - img [ref=e732]
+              - text: Nguyễn Văn Bếp
+            - cell "Đầu bếp" [ref=e734]:
+              - generic [ref=e735]: Đầu bếp
+            - cell "0" [ref=e736]
+            - cell "0" [ref=e737]
+            - cell "0%" [ref=e738]:
+              - generic [ref=e739]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e740]:
+              - generic [ref=e741]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e742]:
+              - generic [ref=e743]:
+                - button "Xem công việc" [ref=e744] [cursor=pointer]
+                - button "Giao việc" [ref=e745] [cursor=pointer]
+          - row "Nhân Viên Nhân viên 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e746]:
+            - cell "Nhân Viên" [ref=e747]:
+              - button [ref=e748] [cursor=pointer]:
+                - img [ref=e749]
+              - text: Nhân Viên
+            - cell "Nhân viên" [ref=e751]:
+              - generic [ref=e752]: Nhân viên
+            - cell "0" [ref=e753]
+            - cell "0" [ref=e754]
+            - cell "0%" [ref=e755]:
+              - generic [ref=e756]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e757]:
+              - generic [ref=e758]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e759]:
+              - generic [ref=e760]:
+                - button "Xem công việc" [ref=e761] [cursor=pointer]
+                - button "Giao việc" [ref=e762] [cursor=pointer]
+          - row "Original Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e763]:
+            - cell "Original Name" [ref=e764]:
+              - button [ref=e765] [cursor=pointer]:
+                - img [ref=e766]
+              - text: Original Name
+            - cell "Đầu bếp" [ref=e768]:
+              - generic [ref=e769]: Đầu bếp
+            - cell "0" [ref=e770]
+            - cell "0" [ref=e771]
+            - cell "0%" [ref=e772]:
+              - generic [ref=e773]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e774]:
+              - generic [ref=e775]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e776]:
+              - generic [ref=e777]:
+                - button "Xem công việc" [ref=e778] [cursor=pointer]
+                - button "Giao việc" [ref=e779] [cursor=pointer]
+          - row "Original Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e780]:
+            - cell "Original Name" [ref=e781]:
+              - button [ref=e782] [cursor=pointer]:
+                - img [ref=e783]
+              - text: Original Name
+            - cell "Đầu bếp" [ref=e785]:
+              - generic [ref=e786]: Đầu bếp
+            - cell "0" [ref=e787]
+            - cell "0" [ref=e788]
+            - cell "0%" [ref=e789]:
+              - generic [ref=e790]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e791]:
+              - generic [ref=e792]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e793]:
+              - generic [ref=e794]:
+                - button "Xem công việc" [ref=e795] [cursor=pointer]
+                - button "Giao việc" [ref=e796] [cursor=pointer]
+          - row "Original Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e797]:
+            - cell "Original Name" [ref=e798]:
+              - button [ref=e799] [cursor=pointer]:
+                - img [ref=e800]
+              - text: Original Name
+            - cell "Đầu bếp" [ref=e802]:
+              - generic [ref=e803]: Đầu bếp
+            - cell "0" [ref=e804]
+            - cell "0" [ref=e805]
+            - cell "0%" [ref=e806]:
+              - generic [ref=e807]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e808]:
+              - generic [ref=e809]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e810]:
+              - generic [ref=e811]:
+                - button "Xem công việc" [ref=e812] [cursor=pointer]
+                - button "Giao việc" [ref=e813] [cursor=pointer]
+          - row "Original Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e814]:
+            - cell "Original Name" [ref=e815]:
+              - button [ref=e816] [cursor=pointer]:
+                - img [ref=e817]
+              - text: Original Name
+            - cell "Đầu bếp" [ref=e819]:
+              - generic [ref=e820]: Đầu bếp
+            - cell "0" [ref=e821]
+            - cell "0" [ref=e822]
+            - cell "0%" [ref=e823]:
+              - generic [ref=e824]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e825]:
+              - generic [ref=e826]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e827]:
+              - generic [ref=e828]:
+                - button "Xem công việc" [ref=e829] [cursor=pointer]
+                - button "Giao việc" [ref=e830] [cursor=pointer]
+          - row "Original Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e831]:
+            - cell "Original Name" [ref=e832]:
+              - button [ref=e833] [cursor=pointer]:
+                - img [ref=e834]
+              - text: Original Name
+            - cell "Đầu bếp" [ref=e836]:
+              - generic [ref=e837]: Đầu bếp
+            - cell "0" [ref=e838]
+            - cell "0" [ref=e839]
+            - cell "0%" [ref=e840]:
+              - generic [ref=e841]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e842]:
+              - generic [ref=e843]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e844]:
+              - generic [ref=e845]:
+                - button "Xem công việc" [ref=e846] [cursor=pointer]
+                - button "Giao việc" [ref=e847] [cursor=pointer]
+          - row "Original Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e848]:
+            - cell "Original Name" [ref=e849]:
+              - button [ref=e850] [cursor=pointer]:
+                - img [ref=e851]
+              - text: Original Name
+            - cell "Đầu bếp" [ref=e853]:
+              - generic [ref=e854]: Đầu bếp
+            - cell "0" [ref=e855]
+            - cell "0" [ref=e856]
+            - cell "0%" [ref=e857]:
+              - generic [ref=e858]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e859]:
+              - generic [ref=e860]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e861]:
+              - generic [ref=e862]:
+                - button "Xem công việc" [ref=e863] [cursor=pointer]
+                - button "Giao việc" [ref=e864] [cursor=pointer]
+          - row "Original Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e865]:
+            - cell "Original Name" [ref=e866]:
+              - button [ref=e867] [cursor=pointer]:
+                - img [ref=e868]
+              - text: Original Name
+            - cell "Đầu bếp" [ref=e870]:
+              - generic [ref=e871]: Đầu bếp
+            - cell "0" [ref=e872]
+            - cell "0" [ref=e873]
+            - cell "0%" [ref=e874]:
+              - generic [ref=e875]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e876]:
+              - generic [ref=e877]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e878]:
+              - generic [ref=e879]:
+                - button "Xem công việc" [ref=e880] [cursor=pointer]
+                - button "Giao việc" [ref=e881] [cursor=pointer]
+          - row "Pháº¡m Thu NgÃ¢n Thu ngân 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e882]:
+            - cell "Pháº¡m Thu NgÃ¢n" [ref=e883]:
+              - button [ref=e884] [cursor=pointer]:
+                - img [ref=e885]
+              - text: Pháº¡m Thu NgÃ¢n
+            - cell "Thu ngân" [ref=e887]:
+              - generic [ref=e888]: Thu ngân
+            - cell "0" [ref=e889]
+            - cell "0" [ref=e890]
+            - cell "0%" [ref=e891]:
+              - generic [ref=e892]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e893]:
+              - generic [ref=e894]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e895]:
+              - generic [ref=e896]:
+                - button "Xem công việc" [ref=e897] [cursor=pointer]
+                - button "Giao việc" [ref=e898] [cursor=pointer]
+          - row "Quản Lý Quản lý 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e899]:
+            - cell "Quản Lý" [ref=e900]:
+              - button [ref=e901] [cursor=pointer]:
+                - img [ref=e902]
+              - text: Quản Lý
+            - cell "Quản lý" [ref=e904]:
+              - generic [ref=e905]: Quản lý
+            - cell "0" [ref=e906]
+            - cell "0" [ref=e907]
+            - cell "0%" [ref=e908]:
+              - generic [ref=e909]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e910]:
+              - generic [ref=e911]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e912]:
+              - generic [ref=e913]:
+                - button "Xem công việc" [ref=e914] [cursor=pointer]
+                - button "Giao việc" [ref=e915] [cursor=pointer]
+          - row "Quản Trị Viên Admin 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e916]:
+            - cell "Quản Trị Viên" [ref=e917]:
+              - button [ref=e918] [cursor=pointer]:
+                - img [ref=e919]
+              - text: Quản Trị Viên
+            - cell "Admin" [ref=e921]:
+              - generic [ref=e922]: Admin
+            - cell "0" [ref=e923]
+            - cell "0" [ref=e924]
+            - cell "0%" [ref=e925]:
+              - generic [ref=e926]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e927]:
+              - generic [ref=e928]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e929]:
+              - generic [ref=e930]:
+                - button "Xem công việc" [ref=e931] [cursor=pointer]
+                - button "Giao việc" [ref=e932] [cursor=pointer]
+          - row "Thu Ngân Thu ngân 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e933]:
+            - cell "Thu Ngân" [ref=e934]:
+              - button [ref=e935] [cursor=pointer]:
+                - img [ref=e936]
+              - text: Thu Ngân
+            - cell "Thu ngân" [ref=e938]:
+              - generic [ref=e939]: Thu ngân
+            - cell "0" [ref=e940]
+            - cell "0" [ref=e941]
+            - cell "0%" [ref=e942]:
+              - generic [ref=e943]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e944]:
+              - generic [ref=e945]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e946]:
+              - generic [ref=e947]:
+                - button "Xem công việc" [ref=e948] [cursor=pointer]
+                - button "Giao việc" [ref=e949] [cursor=pointer]
+          - row "Trần Thị Thu Thu ngân 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e950]:
+            - cell "Trần Thị Thu" [ref=e951]:
+              - button [ref=e952] [cursor=pointer]:
+                - img [ref=e953]
+              - text: Trần Thị Thu
+            - cell "Thu ngân" [ref=e955]:
+              - generic [ref=e956]: Thu ngân
+            - cell "0" [ref=e957]
+            - cell "0" [ref=e958]
+            - cell "0%" [ref=e959]:
+              - generic [ref=e960]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e961]:
+              - generic [ref=e962]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e963]:
+              - generic [ref=e964]:
+                - button "Xem công việc" [ref=e965] [cursor=pointer]
+                - button "Giao việc" [ref=e966] [cursor=pointer]
+          - row "Tráº§n Quáº£n LÃ½ Quản lý 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e967]:
+            - cell "Tráº§n Quáº£n LÃ½" [ref=e968]:
+              - button [ref=e969] [cursor=pointer]:
+                - img [ref=e970]
+              - text: Tráº§n Quáº£n LÃ½
+            - cell "Quản lý" [ref=e972]:
+              - generic [ref=e973]: Quản lý
+            - cell "0" [ref=e974]
+            - cell "0" [ref=e975]
+            - cell "0%" [ref=e976]:
+              - generic [ref=e977]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e978]:
+              - generic [ref=e979]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e980]:
+              - generic [ref=e981]:
+                - button "Xem công việc" [ref=e982] [cursor=pointer]
+                - button "Giao việc" [ref=e983] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e984]:
+            - cell "Updated Name" [ref=e985]:
+              - button [ref=e986] [cursor=pointer]:
+                - img [ref=e987]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e989]:
+              - generic [ref=e990]: Đầu bếp
+            - cell "0" [ref=e991]
+            - cell "0" [ref=e992]
+            - cell "0%" [ref=e993]:
+              - generic [ref=e994]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e995]:
+              - generic [ref=e996]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e997]:
+              - generic [ref=e998]:
+                - button "Xem công việc" [ref=e999] [cursor=pointer]
+                - button "Giao việc" [ref=e1000] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1001]:
+            - cell "Updated Name" [ref=e1002]:
+              - button [ref=e1003] [cursor=pointer]:
+                - img [ref=e1004]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1006]:
+              - generic [ref=e1007]: Đầu bếp
+            - cell "0" [ref=e1008]
+            - cell "0" [ref=e1009]
+            - cell "0%" [ref=e1010]:
+              - generic [ref=e1011]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1012]:
+              - generic [ref=e1013]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1014]:
+              - generic [ref=e1015]:
+                - button "Xem công việc" [ref=e1016] [cursor=pointer]
+                - button "Giao việc" [ref=e1017] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1018]:
+            - cell "Updated Name" [ref=e1019]:
+              - button [ref=e1020] [cursor=pointer]:
+                - img [ref=e1021]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1023]:
+              - generic [ref=e1024]: Đầu bếp
+            - cell "0" [ref=e1025]
+            - cell "0" [ref=e1026]
+            - cell "0%" [ref=e1027]:
+              - generic [ref=e1028]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1029]:
+              - generic [ref=e1030]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1031]:
+              - generic [ref=e1032]:
+                - button "Xem công việc" [ref=e1033] [cursor=pointer]
+                - button "Giao việc" [ref=e1034] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1035]:
+            - cell "Updated Name" [ref=e1036]:
+              - button [ref=e1037] [cursor=pointer]:
+                - img [ref=e1038]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1040]:
+              - generic [ref=e1041]: Đầu bếp
+            - cell "0" [ref=e1042]
+            - cell "0" [ref=e1043]
+            - cell "0%" [ref=e1044]:
+              - generic [ref=e1045]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1046]:
+              - generic [ref=e1047]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1048]:
+              - generic [ref=e1049]:
+                - button "Xem công việc" [ref=e1050] [cursor=pointer]
+                - button "Giao việc" [ref=e1051] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1052]:
+            - cell "Updated Name" [ref=e1053]:
+              - button [ref=e1054] [cursor=pointer]:
+                - img [ref=e1055]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1057]:
+              - generic [ref=e1058]: Đầu bếp
+            - cell "0" [ref=e1059]
+            - cell "0" [ref=e1060]
+            - cell "0%" [ref=e1061]:
+              - generic [ref=e1062]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1063]:
+              - generic [ref=e1064]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1065]:
+              - generic [ref=e1066]:
+                - button "Xem công việc" [ref=e1067] [cursor=pointer]
+                - button "Giao việc" [ref=e1068] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1069]:
+            - cell "Updated Name" [ref=e1070]:
+              - button [ref=e1071] [cursor=pointer]:
+                - img [ref=e1072]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1074]:
+              - generic [ref=e1075]: Đầu bếp
+            - cell "0" [ref=e1076]
+            - cell "0" [ref=e1077]
+            - cell "0%" [ref=e1078]:
+              - generic [ref=e1079]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1080]:
+              - generic [ref=e1081]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1082]:
+              - generic [ref=e1083]:
+                - button "Xem công việc" [ref=e1084] [cursor=pointer]
+                - button "Giao việc" [ref=e1085] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1086]:
+            - cell "Updated Name" [ref=e1087]:
+              - button [ref=e1088] [cursor=pointer]:
+                - img [ref=e1089]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1091]:
+              - generic [ref=e1092]: Đầu bếp
+            - cell "0" [ref=e1093]
+            - cell "0" [ref=e1094]
+            - cell "0%" [ref=e1095]:
+              - generic [ref=e1096]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1097]:
+              - generic [ref=e1098]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1099]:
+              - generic [ref=e1100]:
+                - button "Xem công việc" [ref=e1101] [cursor=pointer]
+                - button "Giao việc" [ref=e1102] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1103]:
+            - cell "Updated Name" [ref=e1104]:
+              - button [ref=e1105] [cursor=pointer]:
+                - img [ref=e1106]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1108]:
+              - generic [ref=e1109]: Đầu bếp
+            - cell "0" [ref=e1110]
+            - cell "0" [ref=e1111]
+            - cell "0%" [ref=e1112]:
+              - generic [ref=e1113]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1114]:
+              - generic [ref=e1115]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1116]:
+              - generic [ref=e1117]:
+                - button "Xem công việc" [ref=e1118] [cursor=pointer]
+                - button "Giao việc" [ref=e1119] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1120]:
+            - cell "Updated Name" [ref=e1121]:
+              - button [ref=e1122] [cursor=pointer]:
+                - img [ref=e1123]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1125]:
+              - generic [ref=e1126]: Đầu bếp
+            - cell "0" [ref=e1127]
+            - cell "0" [ref=e1128]
+            - cell "0%" [ref=e1129]:
+              - generic [ref=e1130]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1131]:
+              - generic [ref=e1132]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1133]:
+              - generic [ref=e1134]:
+                - button "Xem công việc" [ref=e1135] [cursor=pointer]
+                - button "Giao việc" [ref=e1136] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1137]:
+            - cell "Updated Name" [ref=e1138]:
+              - button [ref=e1139] [cursor=pointer]:
+                - img [ref=e1140]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1142]:
+              - generic [ref=e1143]: Đầu bếp
+            - cell "0" [ref=e1144]
+            - cell "0" [ref=e1145]
+            - cell "0%" [ref=e1146]:
+              - generic [ref=e1147]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1148]:
+              - generic [ref=e1149]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1150]:
+              - generic [ref=e1151]:
+                - button "Xem công việc" [ref=e1152] [cursor=pointer]
+                - button "Giao việc" [ref=e1153] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1154]:
+            - cell "Updated Name" [ref=e1155]:
+              - button [ref=e1156] [cursor=pointer]:
+                - img [ref=e1157]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1159]:
+              - generic [ref=e1160]: Đầu bếp
+            - cell "0" [ref=e1161]
+            - cell "0" [ref=e1162]
+            - cell "0%" [ref=e1163]:
+              - generic [ref=e1164]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1165]:
+              - generic [ref=e1166]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1167]:
+              - generic [ref=e1168]:
+                - button "Xem công việc" [ref=e1169] [cursor=pointer]
+                - button "Giao việc" [ref=e1170] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1171]:
+            - cell "Updated Name" [ref=e1172]:
+              - button [ref=e1173] [cursor=pointer]:
+                - img [ref=e1174]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1176]:
+              - generic [ref=e1177]: Đầu bếp
+            - cell "0" [ref=e1178]
+            - cell "0" [ref=e1179]
+            - cell "0%" [ref=e1180]:
+              - generic [ref=e1181]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1182]:
+              - generic [ref=e1183]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1184]:
+              - generic [ref=e1185]:
+                - button "Xem công việc" [ref=e1186] [cursor=pointer]
+                - button "Giao việc" [ref=e1187] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1188]:
+            - cell "Updated Name" [ref=e1189]:
+              - button [ref=e1190] [cursor=pointer]:
+                - img [ref=e1191]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1193]:
+              - generic [ref=e1194]: Đầu bếp
+            - cell "0" [ref=e1195]
+            - cell "0" [ref=e1196]
+            - cell "0%" [ref=e1197]:
+              - generic [ref=e1198]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1199]:
+              - generic [ref=e1200]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1201]:
+              - generic [ref=e1202]:
+                - button "Xem công việc" [ref=e1203] [cursor=pointer]
+                - button "Giao việc" [ref=e1204] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1205]:
+            - cell "Updated Name" [ref=e1206]:
+              - button [ref=e1207] [cursor=pointer]:
+                - img [ref=e1208]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1210]:
+              - generic [ref=e1211]: Đầu bếp
+            - cell "0" [ref=e1212]
+            - cell "0" [ref=e1213]
+            - cell "0%" [ref=e1214]:
+              - generic [ref=e1215]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1216]:
+              - generic [ref=e1217]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1218]:
+              - generic [ref=e1219]:
+                - button "Xem công việc" [ref=e1220] [cursor=pointer]
+                - button "Giao việc" [ref=e1221] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1222]:
+            - cell "Updated Name" [ref=e1223]:
+              - button [ref=e1224] [cursor=pointer]:
+                - img [ref=e1225]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1227]:
+              - generic [ref=e1228]: Đầu bếp
+            - cell "0" [ref=e1229]
+            - cell "0" [ref=e1230]
+            - cell "0%" [ref=e1231]:
+              - generic [ref=e1232]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1233]:
+              - generic [ref=e1234]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1235]:
+              - generic [ref=e1236]:
+                - button "Xem công việc" [ref=e1237] [cursor=pointer]
+                - button "Giao việc" [ref=e1238] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1239]:
+            - cell "Updated Name" [ref=e1240]:
+              - button [ref=e1241] [cursor=pointer]:
+                - img [ref=e1242]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1244]:
+              - generic [ref=e1245]: Đầu bếp
+            - cell "0" [ref=e1246]
+            - cell "0" [ref=e1247]
+            - cell "0%" [ref=e1248]:
+              - generic [ref=e1249]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1250]:
+              - generic [ref=e1251]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1252]:
+              - generic [ref=e1253]:
+                - button "Xem công việc" [ref=e1254] [cursor=pointer]
+                - button "Giao việc" [ref=e1255] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1256]:
+            - cell "Updated Name" [ref=e1257]:
+              - button [ref=e1258] [cursor=pointer]:
+                - img [ref=e1259]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1261]:
+              - generic [ref=e1262]: Đầu bếp
+            - cell "0" [ref=e1263]
+            - cell "0" [ref=e1264]
+            - cell "0%" [ref=e1265]:
+              - generic [ref=e1266]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1267]:
+              - generic [ref=e1268]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1269]:
+              - generic [ref=e1270]:
+                - button "Xem công việc" [ref=e1271] [cursor=pointer]
+                - button "Giao việc" [ref=e1272] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1273]:
+            - cell "Updated Name" [ref=e1274]:
+              - button [ref=e1275] [cursor=pointer]:
+                - img [ref=e1276]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1278]:
+              - generic [ref=e1279]: Đầu bếp
+            - cell "0" [ref=e1280]
+            - cell "0" [ref=e1281]
+            - cell "0%" [ref=e1282]:
+              - generic [ref=e1283]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1284]:
+              - generic [ref=e1285]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1286]:
+              - generic [ref=e1287]:
+                - button "Xem công việc" [ref=e1288] [cursor=pointer]
+                - button "Giao việc" [ref=e1289] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1290]:
+            - cell "Updated Name" [ref=e1291]:
+              - button [ref=e1292] [cursor=pointer]:
+                - img [ref=e1293]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1295]:
+              - generic [ref=e1296]: Đầu bếp
+            - cell "0" [ref=e1297]
+            - cell "0" [ref=e1298]
+            - cell "0%" [ref=e1299]:
+              - generic [ref=e1300]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1301]:
+              - generic [ref=e1302]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1303]:
+              - generic [ref=e1304]:
+                - button "Xem công việc" [ref=e1305] [cursor=pointer]
+                - button "Giao việc" [ref=e1306] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1307]:
+            - cell "Updated Name" [ref=e1308]:
+              - button [ref=e1309] [cursor=pointer]:
+                - img [ref=e1310]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1312]:
+              - generic [ref=e1313]: Đầu bếp
+            - cell "0" [ref=e1314]
+            - cell "0" [ref=e1315]
+            - cell "0%" [ref=e1316]:
+              - generic [ref=e1317]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1318]:
+              - generic [ref=e1319]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1320]:
+              - generic [ref=e1321]:
+                - button "Xem công việc" [ref=e1322] [cursor=pointer]
+                - button "Giao việc" [ref=e1323] [cursor=pointer]
+          - row "Updated Name Đầu bếp 0 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e1324]:
+            - cell "Updated Name" [ref=e1325]:
+              - button [ref=e1326] [cursor=pointer]:
+                - img [ref=e1327]
+              - text: Updated Name
+            - cell "Đầu bếp" [ref=e1329]:
+              - generic [ref=e1330]: Đầu bếp
+            - cell "0" [ref=e1331]
+            - cell "0" [ref=e1332]
+            - cell "0%" [ref=e1333]:
+              - generic [ref=e1334]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e1335]:
+              - generic [ref=e1336]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e1337]:
+              - generic [ref=e1338]:
+                - button "Xem công việc" [ref=e1339] [cursor=pointer]
+                - button "Giao việc" [ref=e1340] [cursor=pointer]
+      - generic [ref=e1368]:
+        - generic [ref=e1369]:
+          - heading "Tạo công việc mới" [level=2] [ref=e1370]
+          - button [ref=e1371] [cursor=pointer]:
+            - img [ref=e1372]
+        - generic [ref=e1375]:
+          - generic [ref=e1376]:
+            - text: Nhân viên *
+            - combobox "Nhân viên *" [active] [ref=e1377]:
+              - option "Chọn nhân viên…" [selected]
+              - option "Kiểm Tra Verify"
+              - option "Nhân Viên"
+              - option "Quản Lý"
+              - option "Đầu Bếp"
+              - option "Thu Ngân"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "E2E Test Chef"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "E2E Test Chef"
+              - option "Original Name"
+              - option "E2E Test Chef"
+              - option "E2E Test Chef"
+              - option "Original Name"
+              - option "E2E Test Chef"
+              - option "Original Name"
+              - option "Original Name"
+              - option "E2E Test Chef"
+              - option "Original Name"
+              - option "Original Name"
+              - option "E2E Test Chef"
+              - option "Original Name"
+              - option "E2E Test Chef"
+              - 'option "LÃª Äáº§u Báº¿p"'
+              - option "Pháº¡m Thu NgÃ¢n"
+              - option "Tráº§n Quáº£n LÃ½"
+              - option "Trần Thị Thu"
+              - option "Lê Văn Phục"
+              - option "Nguyễn Văn Bếp"
+              - option "Quản Trị Viên"
+            - paragraph [ref=e1399]: Chọn nhân viên
+          - generic [ref=e1378]:
+            - text: Tên công việc *
+            - textbox "Tên công việc *" [ref=e1379]:
+              - /placeholder: "Ví dụ: Dọn dẹp bếp sau ca sáng"
+            - paragraph [ref=e1400]: Nhập tên công việc
+          - generic [ref=e1380]:
+            - text: Mô tả
+            - textbox "Mô tả" [ref=e1381]:
+              - /placeholder: Hướng dẫn hoặc ghi chú thêm…
+          - generic [ref=e1382]:
+            - generic [ref=e1383]:
+              - text: Ưu tiên *
+              - combobox "Ưu tiên *" [ref=e1384]:
+                - option "Cao"
+                - option "Trung bình" [selected]
+                - option "Thấp"
+            - generic [ref=e1385]:
+              - text: Ngày hạn *
+              - textbox "Ngày hạn *" [ref=e1386]: 2026-05-30
+          - generic [ref=e1387]:
+            - generic [ref=e1388]:
+              - text: Giờ hoàn thành *
+              - textbox "Giờ hoàn thành *" [ref=e1389]: 08:00
+            - generic [ref=e1390]:
+              - text: Giờ bắt đầu
+              - textbox "Giờ bắt đầu" [ref=e1391]
+            - generic [ref=e1392]:
+              - text: Giờ kết thúc
+              - textbox "Giờ kết thúc" [ref=e1393]
+          - generic [ref=e1394]:
+            - text: Ghi chú
+            - textbox "Ghi chú" [ref=e1395]:
+              - /placeholder: Ghi chú thêm (tùy chọn)…
+          - generic [ref=e1396]:
+            - button "Hủy" [ref=e1397] [cursor=pointer]
+            - button "Tạo công việc" [ref=e1398] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e1341]

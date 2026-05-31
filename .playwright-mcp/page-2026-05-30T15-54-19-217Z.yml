@@ -1,0 +1,265 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Tổng quan" [ref=e6] [cursor=pointer]:
+          - /url: /admin/overview
+        - link "Tổng kết" [ref=e7] [cursor=pointer]:
+          - /url: /admin/summary
+        - link "Sản phẩm" [ref=e8] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Combo" [ref=e9] [cursor=pointer]:
+          - /url: /admin/combos
+        - link "Danh mục" [ref=e10] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e11] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e12] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Kho nguyên liệu" [ref=e13] [cursor=pointer]:
+          - /url: /admin/ingredients
+        - link "Marketing" [ref=e14] [cursor=pointer]:
+          - /url: /admin/marketing
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - heading "Nhân viên (93)" [level=2] [ref=e18]:
+          - text: Nhân viên
+          - generic [ref=e19]: (93)
+        - button "+ Thêm nhân viên" [ref=e20] [cursor=pointer]
+      - generic [ref=e21]:
+        - generic [ref=e22]:
+          - paragraph [ref=e23]: Tổng nhân viên
+          - paragraph [ref=e24]: "93"
+        - generic [ref=e25]:
+          - paragraph [ref=e26]: Đang hoạt động
+          - paragraph [ref=e27]: "74"
+          - generic [ref=e29]: Đang HĐ
+        - generic [ref=e30]:
+          - paragraph [ref=e31]: Vô hiệu hóa
+          - paragraph [ref=e32]: "19"
+          - generic [ref=e34]: Vô hiệu
+        - generic [ref=e35]:
+          - paragraph [ref=e36]: Theo vai trò
+          - paragraph [ref=e37]: "93"
+          - generic [ref=e39]: NV:2 · QL:2 · Bếp:66 · Thu ngân:22 · Admin:1
+      - generic [ref=e40]:
+        - textbox "🔍 Tìm tên / username..." [active] [ref=e41]
+        - combobox [ref=e42]:
+          - option "Tất cả vai trò" [selected]
+          - option "Bếp"
+          - option "Thu ngân"
+          - option "Nhân viên"
+          - option "Quản lý"
+          - option "Admin"
+        - combobox [ref=e43]:
+          - option "Tất cả trạng thái"
+          - option "Đang hoạt động"
+          - option "Vô hiệu hóa" [selected]
+      - table [ref=e45]:
+        - rowgroup [ref=e46]:
+          - row "Nhân viên Username Vai trò Ca làm Hiệu suất Trạng thái" [ref=e47]:
+            - columnheader "Nhân viên" [ref=e48]
+            - columnheader "Username" [ref=e49]
+            - columnheader "Vai trò" [ref=e50]
+            - columnheader "Ca làm" [ref=e51]
+            - columnheader "Hiệu suất" [ref=e52]
+            - columnheader "Trạng thái" [ref=e53]
+            - columnheader [ref=e54]
+        - rowgroup [ref=e55]:
+          - 'row "TT Status Toggle Test e2e_chef_1778886183825 Vai trò: Thu ngân — 0% Vô hiệu Chi tiết Sửa Xóa" [ref=e518]':
+            - cell "TT Status Toggle Test" [ref=e519]:
+              - generic [ref=e520]:
+                - generic [ref=e521]: TT
+                - paragraph [ref=e523]: Status Toggle Test
+            - cell "e2e_chef_1778886183825" [ref=e524]
+            - 'cell "Vai trò: Thu ngân" [ref=e525]':
+              - 'generic "Vai trò: Thu ngân" [ref=e526]': Thu ngân
+            - cell "—" [ref=e527]:
+              - generic [ref=e529]: —
+            - cell "0%" [ref=e530]:
+              - paragraph [ref=e533]: 0%
+            - cell "Vô hiệu" [ref=e534]:
+              - button "Vô hiệu" [ref=e535] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e536]:
+              - generic [ref=e537]:
+                - button "Chi tiết" [ref=e538] [cursor=pointer]
+                - button "Sửa" [ref=e539] [cursor=pointer]
+                - button "Xóa" [ref=e540] [cursor=pointer]
+          - 'row "TT Status Toggle Test e2e_chef_1778886087376 Vai trò: Thu ngân — 0% Vô hiệu Chi tiết Sửa Xóa" [ref=e587]':
+            - cell "TT Status Toggle Test" [ref=e588]:
+              - generic [ref=e589]:
+                - generic [ref=e590]: TT
+                - paragraph [ref=e592]: Status Toggle Test
+            - cell "e2e_chef_1778886087376" [ref=e593]
+            - 'cell "Vai trò: Thu ngân" [ref=e594]':
+              - 'generic "Vai trò: Thu ngân" [ref=e595]': Thu ngân
+            - cell "—" [ref=e596]:
+              - generic [ref=e598]: —
+            - cell "0%" [ref=e599]:
+              - paragraph [ref=e602]: 0%
+            - cell "Vô hiệu" [ref=e603]:
+              - button "Vô hiệu" [ref=e604] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e605]:
+              - generic [ref=e606]:
+                - button "Chi tiết" [ref=e607] [cursor=pointer]
+                - button "Sửa" [ref=e608] [cursor=pointer]
+                - button "Xóa" [ref=e609] [cursor=pointer]
+          - 'row "TT Status Toggle Test e2e_chef_1778885779170 Vai trò: Thu ngân — 0% Vô hiệu Chi tiết Sửa Xóa" [ref=e660]':
+            - cell "TT Status Toggle Test" [ref=e661]:
+              - generic [ref=e662]:
+                - generic [ref=e663]: TT
+                - paragraph [ref=e665]: Status Toggle Test
+            - cell "e2e_chef_1778885779170" [ref=e666]
+            - 'cell "Vai trò: Thu ngân" [ref=e667]':
+              - 'generic "Vai trò: Thu ngân" [ref=e668]': Thu ngân
+            - cell "—" [ref=e669]:
+              - generic [ref=e671]: —
+            - cell "0%" [ref=e672]:
+              - paragraph [ref=e675]: 0%
+            - cell "Vô hiệu" [ref=e676]:
+              - button "Vô hiệu" [ref=e677] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e678]:
+              - generic [ref=e679]:
+                - button "Chi tiết" [ref=e680] [cursor=pointer]
+                - button "Sửa" [ref=e681] [cursor=pointer]
+                - button "Xóa" [ref=e682] [cursor=pointer]
+          - 'row "TT Status Toggle Test e2e_chef_1778885431371 Vai trò: Thu ngân — 0% Vô hiệu Chi tiết Sửa Xóa" [ref=e683]':
+            - cell "TT Status Toggle Test" [ref=e684]:
+              - generic [ref=e685]:
+                - generic [ref=e686]: TT
+                - paragraph [ref=e688]: Status Toggle Test
+            - cell "e2e_chef_1778885431371" [ref=e689]
+            - 'cell "Vai trò: Thu ngân" [ref=e690]':
+              - 'generic "Vai trò: Thu ngân" [ref=e691]': Thu ngân
+            - cell "—" [ref=e692]:
+              - generic [ref=e694]: —
+            - cell "0%" [ref=e695]:
+              - paragraph [ref=e698]: 0%
+            - cell "Vô hiệu" [ref=e699]:
+              - button "Vô hiệu" [ref=e700] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e701]:
+              - generic [ref=e702]:
+                - button "Chi tiết" [ref=e703] [cursor=pointer]
+                - button "Sửa" [ref=e704] [cursor=pointer]
+                - button "Xóa" [ref=e705] [cursor=pointer]
+          - 'row "TT Status Toggle Test e2e_chef_1778885218757 Vai trò: Thu ngân — 0% Vô hiệu Chi tiết Sửa Xóa" [ref=e706]':
+            - cell "TT Status Toggle Test" [ref=e707]:
+              - generic [ref=e708]:
+                - generic [ref=e709]: TT
+                - paragraph [ref=e711]: Status Toggle Test
+            - cell "e2e_chef_1778885218757" [ref=e712]
+            - 'cell "Vai trò: Thu ngân" [ref=e713]':
+              - 'generic "Vai trò: Thu ngân" [ref=e714]': Thu ngân
+            - cell "—" [ref=e715]:
+              - generic [ref=e717]: —
+            - cell "0%" [ref=e718]:
+              - paragraph [ref=e721]: 0%
+            - cell "Vô hiệu" [ref=e722]:
+              - button "Vô hiệu" [ref=e723] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e724]:
+              - generic [ref=e725]:
+                - button "Chi tiết" [ref=e726] [cursor=pointer]
+                - button "Sửa" [ref=e727] [cursor=pointer]
+                - button "Xóa" [ref=e728] [cursor=pointer]
+          - 'row "TT Status Toggle Test e2e_chef_1778885174180 Vai trò: Thu ngân — 0% Vô hiệu Chi tiết Sửa Xóa" [ref=e729]':
+            - cell "TT Status Toggle Test" [ref=e730]:
+              - generic [ref=e731]:
+                - generic [ref=e732]: TT
+                - paragraph [ref=e734]: Status Toggle Test
+            - cell "e2e_chef_1778885174180" [ref=e735]
+            - 'cell "Vai trò: Thu ngân" [ref=e736]':
+              - 'generic "Vai trò: Thu ngân" [ref=e737]': Thu ngân
+            - cell "—" [ref=e738]:
+              - generic [ref=e740]: —
+            - cell "0%" [ref=e741]:
+              - paragraph [ref=e744]: 0%
+            - cell "Vô hiệu" [ref=e745]:
+              - button "Vô hiệu" [ref=e746] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e747]:
+              - generic [ref=e748]:
+                - button "Chi tiết" [ref=e749] [cursor=pointer]
+                - button "Sửa" [ref=e750] [cursor=pointer]
+                - button "Xóa" [ref=e751] [cursor=pointer]
+          - 'row "TT Status Toggle Test e2e_chef_1778854363334 Vai trò: Thu ngân — 0% Vô hiệu Chi tiết Sửa Xóa" [ref=e752]':
+            - cell "TT Status Toggle Test" [ref=e753]:
+              - generic [ref=e754]:
+                - generic [ref=e755]: TT
+                - paragraph [ref=e757]: Status Toggle Test
+            - cell "e2e_chef_1778854363334" [ref=e758]
+            - 'cell "Vai trò: Thu ngân" [ref=e759]':
+              - 'generic "Vai trò: Thu ngân" [ref=e760]': Thu ngân
+            - cell "—" [ref=e761]:
+              - generic [ref=e763]: —
+            - cell "0%" [ref=e764]:
+              - paragraph [ref=e767]: 0%
+            - cell "Vô hiệu" [ref=e768]:
+              - button "Vô hiệu" [ref=e769] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e770]:
+              - generic [ref=e771]:
+                - button "Chi tiết" [ref=e772] [cursor=pointer]
+                - button "Sửa" [ref=e773] [cursor=pointer]
+                - button "Xóa" [ref=e774] [cursor=pointer]
+          - 'row "TT Status Toggle Test e2e_chef_1778854002386 Vai trò: Thu ngân — 0% Vô hiệu Chi tiết Sửa Xóa" [ref=e775]':
+            - cell "TT Status Toggle Test" [ref=e776]:
+              - generic [ref=e777]:
+                - generic [ref=e778]: TT
+                - paragraph [ref=e780]: Status Toggle Test
+            - cell "e2e_chef_1778854002386" [ref=e781]
+            - 'cell "Vai trò: Thu ngân" [ref=e782]':
+              - 'generic "Vai trò: Thu ngân" [ref=e783]': Thu ngân
+            - cell "—" [ref=e784]:
+              - generic [ref=e786]: —
+            - cell "0%" [ref=e787]:
+              - paragraph [ref=e790]: 0%
+            - cell "Vô hiệu" [ref=e791]:
+              - button "Vô hiệu" [ref=e792] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e793]:
+              - generic [ref=e794]:
+                - button "Chi tiết" [ref=e795] [cursor=pointer]
+                - button "Sửa" [ref=e796] [cursor=pointer]
+                - button "Xóa" [ref=e797] [cursor=pointer]
+          - 'row "TT Status Toggle Test e2e_chef_1778853190304 Vai trò: Thu ngân — 0% Vô hiệu Chi tiết Sửa Xóa" [ref=e798]':
+            - cell "TT Status Toggle Test" [ref=e799]:
+              - generic [ref=e800]:
+                - generic [ref=e801]: TT
+                - paragraph [ref=e803]: Status Toggle Test
+            - cell "e2e_chef_1778853190304" [ref=e804]
+            - 'cell "Vai trò: Thu ngân" [ref=e805]':
+              - 'generic "Vai trò: Thu ngân" [ref=e806]': Thu ngân
+            - cell "—" [ref=e807]:
+              - generic [ref=e809]: —
+            - cell "0%" [ref=e810]:
+              - paragraph [ref=e813]: 0%
+            - cell "Vô hiệu" [ref=e814]:
+              - button "Vô hiệu" [ref=e815] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e816]:
+              - generic [ref=e817]:
+                - button "Chi tiết" [ref=e818] [cursor=pointer]
+                - button "Sửa" [ref=e819] [cursor=pointer]
+                - button "Xóa" [ref=e820] [cursor=pointer]
+          - 'row "TT Status Toggle Test e2e_chef_1778853051314 Vai trò: Thu ngân — 0% Vô hiệu Chi tiết Sửa Xóa" [ref=e821]':
+            - cell "TT Status Toggle Test" [ref=e822]:
+              - generic [ref=e823]:
+                - generic [ref=e824]: TT
+                - paragraph [ref=e826]: Status Toggle Test
+            - cell "e2e_chef_1778853051314" [ref=e827]
+            - 'cell "Vai trò: Thu ngân" [ref=e828]':
+              - 'generic "Vai trò: Thu ngân" [ref=e829]': Thu ngân
+            - cell "—" [ref=e830]:
+              - generic [ref=e832]: —
+            - cell "0%" [ref=e833]:
+              - paragraph [ref=e836]: 0%
+            - cell "Vô hiệu" [ref=e837]:
+              - button "Vô hiệu" [ref=e838] [cursor=pointer]
+            - cell "Chi tiết Sửa Xóa" [ref=e839]:
+              - generic [ref=e840]:
+                - button "Chi tiết" [ref=e841] [cursor=pointer]
+                - button "Sửa" [ref=e842] [cursor=pointer]
+                - button "Xóa" [ref=e843] [cursor=pointer]
+      - generic [ref=e656]:
+        - button "← Trang trước" [disabled] [ref=e657]
+        - generic [ref=e658]: Trang 1 / 2
+        - button "Trang tiếp →" [ref=e659] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e289]

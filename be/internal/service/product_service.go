@@ -363,6 +363,9 @@ type CreateCategoryInput struct {
 }
 
 func (s *ProductService) CreateCategory(ctx context.Context, in CreateCategoryInput) (string, error) {
+	if _, err := s.repo.GetCategoryByName(ctx, in.Name); err == nil {
+		return "", ErrCategoryNameConflict
+	}
 	id := newUUID()
 	desc := sql.NullString{}
 	if in.Description != "" {
@@ -388,6 +391,9 @@ func (s *ProductService) UpdateCategory(ctx context.Context, id string, in Updat
 		}
 		return fmt.Errorf("category: get for update: %w", err)
 	}
+	if existing, err := s.repo.GetCategoryByName(ctx, in.Name); err == nil && existing.ID != id {
+		return ErrCategoryNameConflict
+	}
 	desc := sql.NullString{}
 	if in.Description != "" {
 		desc = sql.NullString{String: in.Description, Valid: true}
@@ -400,6 +406,19 @@ func (s *ProductService) UpdateCategory(ctx context.Context, id string, in Updat
 }
 
 func (s *ProductService) DeleteCategory(ctx context.Context, id string) error {
+	if _, err := s.repo.GetCategoryByID(ctx, id); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrNotFound
+		}
+		return fmt.Errorf("category: get for delete: %w", err)
+	}
+	count, err := s.repo.CountProductsByCategory(ctx, id)
+	if err != nil {
+		return fmt.Errorf("category: count products: %w", err)
+	}
+	if count > 0 {
+		return ErrCategoryHasProducts
+	}
 	if err := s.repo.SoftDeleteCategory(ctx, id); err != nil {
 		return fmt.Errorf("category: delete: %w", err)
 	}
@@ -440,8 +459,9 @@ func (s *ProductService) CreateTopping(ctx context.Context, in CreateToppingInpu
 }
 
 type UpdateToppingInput struct {
-	Name  string
-	Price int64
+	Name        string
+	Price       int64
+	IsAvailable *bool
 }
 
 func (s *ProductService) UpdateTopping(ctx context.Context, id string, in UpdateToppingInput) error {
@@ -453,6 +473,11 @@ func (s *ProductService) UpdateTopping(ctx context.Context, id string, in Update
 	}
 	if err := s.repo.UpdateTopping(ctx, in.Name, formatPrice(in.Price), id); err != nil {
 		return fmt.Errorf("topping: update: %w", err)
+	}
+	if in.IsAvailable != nil {
+		if err := s.repo.UpdateToppingAvailability(ctx, id, *in.IsAvailable); err != nil {
+			return fmt.Errorf("topping: update availability: %w", err)
+		}
 	}
 	s.invalidateToppingCaches(ctx)
 	return nil

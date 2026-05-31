@@ -13,8 +13,10 @@ const tabs = [
   { href: '/admin/categories',   label: 'Danh mục' },
   { href: '/admin/toppings',     label: 'Topping' },
   { href: '/admin/staff',        label: 'Nhân viên' },
+  { href: '/admin/todo-list',    label: 'Công việc' },
   { href: '/admin/ingredients',  label: 'Kho nguyên liệu' },
   { href: '/admin/marketing',    label: 'Marketing' },
+  { href: '/admin/training',     label: 'Đào tạo' },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -26,13 +28,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="min-h-screen bg-gray-50">
           <div className="bg-white border-b px-6 py-4 shadow-sm">
             <h1 className="text-xl font-bold text-gray-900">Quản trị hệ thống</h1>
-            <nav className="mt-3 flex gap-6">
+            <nav className="mt-3 flex gap-6 overflow-x-auto pb-0.5">
               {tabs.map(tab => (
                 <Link
                   key={tab.href}
                   href={tab.href}
                   className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
-                    pathname === tab.href
+                    pathname === tab.href || (tab.href !== '/admin' && pathname.startsWith(tab.href))
                       ? 'border-orange-500 text-orange-600'
                       : 'border-transparent text-gray-500 hover:text-gray-800'
                   }`}

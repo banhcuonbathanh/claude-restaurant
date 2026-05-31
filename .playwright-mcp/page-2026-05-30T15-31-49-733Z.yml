@@ -1,0 +1,71 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Tổng quan" [ref=e6] [cursor=pointer]:
+          - /url: /admin/overview
+        - link "Tổng kết" [ref=e7] [cursor=pointer]:
+          - /url: /admin/summary
+        - link "Sản phẩm" [ref=e8] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Combo" [ref=e9] [cursor=pointer]:
+          - /url: /admin/combos
+        - link "Danh mục" [ref=e10] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e11] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e12] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Kho nguyên liệu" [ref=e13] [cursor=pointer]:
+          - /url: /admin/ingredients
+        - link "Marketing" [ref=e14] [cursor=pointer]:
+          - /url: /admin/marketing
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - heading "Marketing — Khai trương nhà hàng mới" [level=2] [ref=e19]
+          - paragraph [ref=e20]: Theo dõi ngân sách & hiệu quả chiến dịch marketing
+        - generic [ref=e21]:
+          - button "01/04/2026 – 31/05/2026" [ref=e237] [cursor=pointer]:
+            - img [ref=e24]
+            - text: 01/04/2026 – 31/05/2026
+          - button "Xuất BC" [ref=e26] [cursor=pointer]:
+            - img [ref=e27]
+            - text: Xuất BC
+          - button "Nhập chi tiêu" [ref=e30] [cursor=pointer]:
+            - img [ref=e31]
+            - text: Nhập chi tiêu
+      - generic [ref=e248]:
+        - text: Không thể tải dữ liệu.
+        - button "Thử lại" [ref=e249] [cursor=pointer]
+      - generic [ref=e193]:
+        - heading "Lộ trình chiến dịch — 5 tuần khai trương" [level=3] [ref=e194]
+        - generic [ref=e197]:
+          - generic [ref=e198]:
+            - paragraph [ref=e200]: Tuần 1-2
+            - generic [ref=e201]:
+              - paragraph [ref=e202]: Social Ads
+              - paragraph [ref=e203]: Tờ rơi
+          - generic [ref=e204]:
+            - paragraph [ref=e206]: Tuần 3
+            - generic [ref=e207]:
+              - paragraph [ref=e208]: Seeding KOL
+              - paragraph [ref=e209]: Influencer
+          - generic [ref=e210]:
+            - paragraph [ref=e212]: Tuần 4
+            - generic [ref=e213]:
+              - paragraph [ref=e214]: Tạo buzz
+              - paragraph [ref=e215]: Teaser video
+          - generic [ref=e216]:
+            - paragraph [ref=e218]: 🎊 Khai trương
+            - generic [ref=e219]:
+              - paragraph [ref=e220]: Sự kiện lớn
+              - paragraph [ref=e221]: Khuyến mãi
+          - generic [ref=e222]:
+            - paragraph [ref=e224]: Sau khai trương
+            - generic [ref=e225]:
+              - paragraph [ref=e226]: Retargeting
+              - paragraph [ref=e227]: Loyalty + Review
+  - region "Notifications alt+T"
+  - alert [ref=e228]

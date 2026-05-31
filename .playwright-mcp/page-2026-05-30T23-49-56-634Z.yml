@@ -1,0 +1,240 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Quản trị hệ thống" [level=1] [ref=e4]
+      - navigation [ref=e5]:
+        - link "Tổng quan" [ref=e6] [cursor=pointer]:
+          - /url: /admin/overview
+        - link "Tổng kết" [ref=e7] [cursor=pointer]:
+          - /url: /admin/summary
+        - link "Sản phẩm" [ref=e8] [cursor=pointer]:
+          - /url: /admin/products
+        - link "Combo" [ref=e9] [cursor=pointer]:
+          - /url: /admin/combos
+        - link "Danh mục" [ref=e10] [cursor=pointer]:
+          - /url: /admin/categories
+        - link "Topping" [ref=e11] [cursor=pointer]:
+          - /url: /admin/toppings
+        - link "Nhân viên" [ref=e12] [cursor=pointer]:
+          - /url: /admin/staff
+        - link "Công việc" [ref=e13] [cursor=pointer]:
+          - /url: /admin/todo-list
+        - link "Kho nguyên liệu" [ref=e14] [cursor=pointer]:
+          - /url: /admin/ingredients
+        - link "Marketing" [ref=e15] [cursor=pointer]:
+          - /url: /admin/marketing
+        - link "Đào tạo" [ref=e16] [cursor=pointer]:
+          - /url: /admin/training
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - navigation [ref=e20]:
+          - generic [ref=e22]: Admin
+          - generic [ref=e23]:
+            - img [ref=e24]
+            - generic [ref=e26]: Nhân viên
+          - generic [ref=e27]:
+            - img [ref=e28]
+            - generic [ref=e30]: Bảng công việc
+        - button "Thêm công việc" [active] [ref=e31] [cursor=pointer]:
+          - img
+          - text: Thêm công việc
+      - generic [ref=e32]:
+        - textbox [ref=e33]: 2026-05-30
+        - combobox [ref=e34]:
+          - option "Tất cả vai trò" [selected]
+          - option "Bếp"
+          - option "Thu ngân"
+          - option "Phục vụ"
+          - option "Đầu bếp"
+          - option "Nhân viên"
+        - combobox [ref=e35]:
+          - option "Tất cả trạng thái" [selected]
+          - option "Chờ"
+          - option "Đang làm"
+          - option "Hoàn thành"
+          - option "Quá hạn"
+        - textbox "Tìm tên nhân viên…" [ref=e36]: Đầu Bếp
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - paragraph [ref=e39]: Tổng công việc hôm nay
+          - paragraph [ref=e40]: "1"
+        - generic [ref=e41]:
+          - paragraph [ref=e42]: Hoàn thành
+          - paragraph [ref=e43]: "0"
+          - generic [ref=e45]: ✓
+        - generic [ref=e46]:
+          - paragraph [ref=e47]: Đang thực hiện
+          - paragraph [ref=e48]: "0"
+        - generic [ref=e49]:
+          - paragraph [ref=e50]: Quá hạn
+          - paragraph [ref=e51]: "0"
+          - generic [ref=e53]: "!"
+      - table [ref=e55]:
+        - rowgroup [ref=e56]:
+          - row "Nhân viên Vai trò Được giao Hoàn thành Tỷ lệ % Chất lượng Thao tác" [ref=e57]:
+            - columnheader "Nhân viên" [ref=e58]
+            - columnheader "Vai trò" [ref=e59]
+            - columnheader "Được giao" [ref=e60]
+            - columnheader "Hoàn thành" [ref=e61]
+            - columnheader "Tỷ lệ %" [ref=e62]
+            - columnheader "Chất lượng" [ref=e63]
+            - columnheader "Thao tác" [ref=e64]
+        - rowgroup [ref=e65]:
+          - row "Đầu Bếp Đầu bếp 1 0 0% ★ 0.0 / 5.0 Xem công việc Giao việc" [ref=e66]:
+            - cell "Đầu Bếp" [ref=e67]:
+              - button [ref=e68] [cursor=pointer]:
+                - img [ref=e69]
+              - text: Đầu Bếp
+            - cell "Đầu bếp" [ref=e71]:
+              - generic [ref=e72]: Đầu bếp
+            - cell "1" [ref=e73]
+            - cell "0" [ref=e74]
+            - cell "0%" [ref=e75]:
+              - generic [ref=e76]: 0%
+            - cell "★ 0.0 / 5.0" [ref=e77]:
+              - generic [ref=e78]: ★ 0.0 / 5.0
+            - cell "Xem công việc Giao việc" [ref=e79]:
+              - generic [ref=e80]:
+                - button "Xem công việc" [ref=e81] [cursor=pointer]
+                - button "Giao việc" [ref=e82] [cursor=pointer]
+      - generic [ref=e1343]:
+        - generic [ref=e1344]:
+          - heading "Tạo công việc mới" [level=2] [ref=e1345]
+          - button [ref=e1346] [cursor=pointer]:
+            - img [ref=e1347]
+        - generic [ref=e1350]:
+          - generic [ref=e1351]:
+            - text: Nhân viên *
+            - combobox "Nhân viên *" [ref=e1352]:
+              - option "Chọn nhân viên…" [selected]
+              - option "Kiểm Tra Verify"
+              - option "Nhân Viên"
+              - option "Quản Lý"
+              - option "Đầu Bếp"
+              - option "Thu Ngân"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "E2E Test Chef"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "Status Toggle Test"
+              - option "Updated Name"
+              - option "E2E Test Chef"
+              - option "E2E Test Chef"
+              - option "Original Name"
+              - option "E2E Test Chef"
+              - option "E2E Test Chef"
+              - option "Original Name"
+              - option "E2E Test Chef"
+              - option "Original Name"
+              - option "Original Name"
+              - option "E2E Test Chef"
+              - option "Original Name"
+              - option "Original Name"
+              - option "E2E Test Chef"
+              - option "Original Name"
+              - option "E2E Test Chef"
+              - 'option "LÃª Äáº§u Báº¿p"'
+              - option "Pháº¡m Thu NgÃ¢n"
+              - option "Tráº§n Quáº£n LÃ½"
+              - option "Trần Thị Thu"
+              - option "Lê Văn Phục"
+              - option "Nguyễn Văn Bếp"
+              - option "Quản Trị Viên"
+          - generic [ref=e1353]:
+            - text: Tên công việc *
+            - textbox "Tên công việc *" [ref=e1354]:
+              - /placeholder: "Ví dụ: Dọn dẹp bếp sau ca sáng"
+          - generic [ref=e1355]:
+            - text: Mô tả
+            - textbox "Mô tả" [ref=e1356]:
+              - /placeholder: Hướng dẫn hoặc ghi chú thêm…
+          - generic [ref=e1357]:
+            - generic [ref=e1358]:
+              - text: Ưu tiên *
+              - combobox "Ưu tiên *" [ref=e1359]:
+                - option "Cao"
+                - option "Trung bình" [selected]
+                - option "Thấp"
+            - generic [ref=e1360]:
+              - text: Ngày hạn *
+              - textbox "Ngày hạn *" [ref=e1361]: 2026-05-30
+          - generic [ref=e1362]:
+            - generic [ref=e1363]:
+              - text: Giờ hoàn thành *
+              - textbox "Giờ hoàn thành *" [ref=e1364]: 08:00
+            - generic [ref=e1365]:
+              - text: Giờ bắt đầu
+              - textbox "Giờ bắt đầu" [ref=e1366]
+            - generic [ref=e1367]:
+              - text: Giờ kết thúc
+              - textbox "Giờ kết thúc" [ref=e1368]
+          - generic [ref=e1369]:
+            - text: Ghi chú
+            - textbox "Ghi chú" [ref=e1370]:
+              - /placeholder: Ghi chú thêm (tùy chọn)…
+          - generic [ref=e1371]:
+            - button "Hủy" [ref=e1372] [cursor=pointer]
+            - button "Tạo công việc" [ref=e1373] [cursor=pointer]
+  - region "Notifications alt+T"
+  - alert [ref=e1341]

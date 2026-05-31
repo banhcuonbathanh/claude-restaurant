@@ -77,7 +77,8 @@ func main() {
 	staffRepo      := repository.NewStaffRepo(sqlDB)
 	analyticsRepo  := repository.NewAnalyticsRepo(sqlDB)
 	ingredientRepo := repository.NewIngredientRepo(sqlDB)
-	taskRepo       := repository.NewTaskRepo(sqlDB)
+	taskRepo        := repository.NewTaskRepo(sqlDB)
+	trainingRepo    := repository.NewTrainingRepo(sqlDB)
 
 	// ── 5. Services ───────────────────────────────────────────────────────────
 	authSvc        := service.NewAuthService(authRepo, rdb)
@@ -89,6 +90,7 @@ func main() {
 	analyticsSvc   := service.NewAnalyticsService(analyticsRepo)
 	ingredientSvc  := service.NewIngredientService(ingredientRepo)
 	taskSvc        := service.NewTaskService(taskRepo)
+	trainingSvc    := service.NewTrainingService(trainingRepo)
 
 	// ── 6. WebSocket Hub ──────────────────────────────────────────────────────
 	hub := ws.NewHub()
@@ -107,6 +109,7 @@ func main() {
 	ingredientH  := handler.NewIngredientHandler(ingredientSvc)
 	marketingH   := handler.NewMarketingHandler()
 	taskH        := handler.NewTaskHandler(taskSvc)
+	trainingH    := handler.NewTrainingHandler(trainingSvc)
 
 	// ── 8. Router ─────────────────────────────────────────────────────────────
 	r := gin.New()
@@ -294,18 +297,23 @@ func main() {
 	adminR.GET("/ingredients/:id/movements", ingredientH.ListStockMovements)
 	adminR.POST("/stock-movements", ingredientH.CreateStockMovement)
 	adminR.GET("/marketing/spend", marketingH.GetSpend)
-	adminR.GET("/tasks", taskH.ListTasks)
+	adminR.GET("/tasks/stats", taskH.GetTaskStats)
+	adminR.GET("/tasks", taskH.GetStaffTasks)
 	adminR.POST("/tasks", taskH.CreateTask)
-	adminR.PATCH("/tasks/:id", taskH.UpdateTask)
-	adminR.DELETE("/tasks/:id", taskH.DeleteTask)
 	{
 		admIngR := adminR.Group("")
 		admIngR.Use(middleware.AtLeast("admin"))
 		admIngR.DELETE("/ingredients/:id", ingredientH.DeleteIngredient)
+		admIngR.DELETE("/training/guides/:id", trainingH.DeleteGuide)
 	}
 
-	// Staff may toggle status on their own tasks (cashier+ auth is sufficient).
-	v1.PATCH("/admin/tasks/:id/status", authMW, taskH.ToggleStatus)
+	// ── Training (manager+) ───────────────────────────────────────────────────
+	adminR.GET("/training/guides", trainingH.ListGuides)
+	adminR.POST("/training/guides", trainingH.CreateGuide)
+	adminR.PATCH("/training/guides/:id", trainingH.UpdateGuide)
+	adminR.GET("/training/guides/:id/progress", trainingH.ListGuideProgress)
+	adminR.GET("/training/staff/:staffId/progress/:guideId", trainingH.GetStaffProgressDetail)
+	adminR.PATCH("/training/staff/:staffId/progress/:guideId", trainingH.UpdateManagerNotes)
 
 	// ── Files ─────────────────────────────────────────────────────────────────
 	fileR := v1.Group("/files")
