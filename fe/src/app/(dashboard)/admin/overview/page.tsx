@@ -17,6 +17,7 @@ import { StatCards } from '@/features/admin/components/StatCards'
 import { WaitingSection } from '@/features/admin/components/WaitingSection'
 import { PrepPanel } from '@/features/admin/components/PrepPanel'
 import { TableGrid } from '@/features/admin/components/TableGrid'
+import { TableList } from '@/features/admin/components/TableList'
 import { ConnectionErrorBanner } from '@/components/shared/ConnectionErrorBanner'
 
 const ACTIVE = new Set(['pending', 'confirmed', 'preparing', 'ready'])
@@ -106,6 +107,7 @@ export default function OverviewPage() {
   const [popupOrder,      setPopupOrder]      = useState<Order | null>(null)
   const [popupLoading,    setPopupLoading]    = useState(false)
   const [searchQuery,     setSearchQuery]     = useState('')
+  const [viewMode,        setViewMode]        = useState<'grid' | 'list'>('list')
 
   // 30s timer — keeps elapsed-time urgency display fresh
   useEffect(() => {
@@ -292,16 +294,54 @@ export default function OverviewPage() {
       {/* Zone C — dish summary panel (always visible) */}
       <PrepPanel orders={filteredOrders} tableMap={tableMap} />
 
-      {/* Zone D — full table grid (occupied first, then empty) */}
-      <TableGrid
-        tables={filteredTables}
-        orders={filteredOrders}
-        now={now}
-        loadingIds={loadingIds}
-        checkedTableIds={checkedTableIds}
-        onAction={handleAction}
-        onToggleCheck={toggleCheck}
-      />
+      {/* Zone D — table view with toggle */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-gray-700">Danh sách bàn</h3>
+          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+              title="Danh sách"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              </svg>
+            </button>
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+              title="Lưới"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {viewMode === 'list' ? (
+          <TableList
+            tables={filteredTables}
+            orders={filteredOrders}
+            now={now}
+            loadingIds={loadingIds}
+            checkedTableIds={checkedTableIds}
+            onAction={handleAction}
+            onToggleCheck={toggleCheck}
+          />
+        ) : (
+          <TableGrid
+            tables={filteredTables}
+            orders={filteredOrders}
+            now={now}
+            loadingIds={loadingIds}
+            checkedTableIds={checkedTableIds}
+            onAction={handleAction}
+            onToggleCheck={toggleCheck}
+          />
+        )}
+      </div>
 
     </div>
   )

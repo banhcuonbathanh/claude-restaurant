@@ -8,6 +8,7 @@ export default defineConfig({
     include: [
       'src/lib/**/*.test.ts',
       'src/store/**/*.test.ts',
+      'src/hooks/**/*.test.ts',
       '../docs/work_flow/*.test.ts',
     ],
   },
