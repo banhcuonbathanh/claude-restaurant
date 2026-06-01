@@ -85,21 +85,89 @@
 
 ---
 
+## F — Inventory / Storage Management (`/admin/storage`)
+
+> Route: `/(dashboard)/admin/storage` · Guard: `AuthGuard + RoleGuard(['admin', 'manager'])`
+> Chef · Cashier · Staff have **no access** to this page.
+
+| # | Event | Who Can Trigger | Admin `/admin/storage` | Manager `/admin/storage` | Chef | Cashier | Staff |
+|---|---|---|---|---|---|---|---|
+| **F1** | **Ingredient added** | Admin · Manager | New row appears in ingredient table immediately | New row appears in ingredient table immediately | ❌ no access | ❌ no access | ❌ no access |
+| **F2** | **Ingredient edited** *(name / quantity / unit / import date / shelf days)* | Admin · Manager | Row updates inline | Row updates inline | ❌ no access | ❌ no access | ❌ no access |
+| **F3** | **Ingredient deleted** | Admin only | Row removed from table | ❌ blocked — delete button hidden for Manager | ❌ no access | ❌ no access | ❌ no access |
+| **F4** | **Ingredient status computed** *(fresh / expiring / expired)* | Automatic (server: `importDate + shelfDays`) | Status badge shown in table | Status badge shown in table | ❌ no access | ❌ no access | ❌ no access |
+| **F5** | **Filter by status applied** | Admin · Manager | Table filters to selected status | Table filters to selected status | ❌ no access | ❌ no access | ❌ no access |
+
+---
+
+## G — Staff Task List / Todo (`/admin/todo`)
+
+> Route: `/(dashboard)/admin/todo` · Guard: `AuthGuard + RoleGuard(['admin', 'manager', 'staff'])`
+> Chef · Cashier have **no access**. Staff can only view and toggle their own tasks.
+
+| # | Event | Who Can Trigger | Admin `/admin/todo` | Manager `/admin/todo` | Staff `/admin/todo` | Chef | Cashier |
+|---|---|---|---|---|---|---|---|
+| **G1** | **Task created** | Admin · Manager | Task appears in table — all columns editable | Task appears in table — all columns editable | ← no change (own tasks only shown) | ❌ no access | ❌ no access |
+| **G2** | **Task assigned to staff member** | Admin · Manager | Assignment row shown with assignee name | Assignment row shown with assignee name | If assigned to self → appears in own list | ❌ no access | ❌ no access |
+| **G3** | **Task status toggled** *(pending ↔ done)* | Admin · Manager (any task) · Staff (own task only) | Checkbox updates instantly (optimistic) | Checkbox updates instantly (optimistic) | Checkbox on own task only | ❌ no access | ❌ no access |
+| **G4** | **Task edited** *(title / due date / priority)* | Admin · Manager | Edit modal opens — all fields | Edit modal opens — all fields | ❌ edit button hidden | ❌ no access | ❌ no access |
+| **G5** | **Task deleted** | Admin · Manager | Row removed | Row removed | ❌ delete button hidden | ❌ no access | ❌ no access |
+| **G6** | **Filter applied** *(by status / assignee / date)* | Admin · Manager | Table filters globally | Table filters globally | Filters apply to own tasks only | ❌ no access | ❌ no access |
+| **G7** | **Stats row clicked** *(e.g. "3 overdue")* | Admin · Manager | Filter bar syncs to that status automatically | Filter bar syncs to that status automatically | ← N/A | ❌ no access | ❌ no access |
+
+---
+
+## H — Staff Task Board (`/admin/staff-task-board`)
+
+> Route: `/(dashboard)/admin/staff-task-board` · Guard: `AuthGuard + RoleGuard(['admin', 'manager'])`
+> Chef · Cashier · Staff have **no access** to this page.
+
+| # | Event | Who Can Trigger | Admin `/admin/staff-task-board` | Manager `/admin/staff-task-board` | Chef | Cashier | Staff |
+|---|---|---|---|---|---|---|---|
+| **H1** | **Task created and assigned to a staff member** | Admin · Manager | New task appears under that staff's expanded row | New task appears under that staff's expanded row | ❌ no access | ❌ no access | ❌ no access |
+| **H2** | **Staff row expanded** *(click to show daily tasks)* | Admin · Manager | `ExpandedRow` renders for that `staffId` + date | Same | ❌ no access | ❌ no access | ❌ no access |
+| **H3** | **Date filter changed** | Admin · Manager | All staff task rows reload for the new date | All staff task rows reload for the new date | ❌ no access | ❌ no access | ❌ no access |
+| **H4** | **Metrics row refreshed** *(total / done / pending / overdue)* | Automatic on data load | 4 metric cards update | 4 metric cards update | ❌ no access | ❌ no access | ❌ no access |
+| **H5** | **Filter by staff / role applied** | Admin · Manager | Table narrows to matching staff rows | Table narrows to matching staff rows | ❌ no access | ❌ no access | ❌ no access |
+| **H6** | **Staff pre-selected in CreateTaskModal** *(click "+" on a row)* | Admin · Manager | Modal opens with that staff pre-filled | Modal opens with that staff pre-filled | ❌ no access | ❌ no access | ❌ no access |
+
+---
+
+## I — Revenue Summary (`/admin/summary`)
+
+> Route: `/(dashboard)/admin/summary` · Guard: `AuthGuard + RoleGuard(['admin', 'manager'])`
+> Chef · Cashier · Staff have **no access** to this page.
+
+| # | Event | Who Can Trigger | Admin `/admin/summary` | Manager `/admin/summary` | Chef | Cashier | Staff |
+|---|---|---|---|---|---|---|---|
+| **I1** | **Date range filter applied** | Admin · Manager | Revenue charts and tables reload for selected range | Revenue charts and tables reload for selected range | ❌ no access | ❌ no access | ❌ no access |
+| **I2** | **Revenue data loaded** | Automatic on page mount | Charts render: revenue by day / category / product | Same | ❌ no access | ❌ no access | ❌ no access |
+| **I3** | **Export / print triggered** | Admin · Manager | `window.print()` or download — browser dialog | Same | ❌ no access | ❌ no access | ❌ no access |
+
+---
+
 ## Permission Matrix Summary
 
-| Operation | Admin | Manager | Cashier/Staff | Chef | Client |
-|---|---|---|---|---|---|
-| Product / Topping / Combo CRUD | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Category CRUD | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Create staff (chef/cashier/staff) | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Create manager | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Deactivate staff (role < own) | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Change role (role < own − 1) | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Generate / regenerate QR | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Assign training | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Complete own training | ✅ | ✅ | ✅ | ✅ | ❌ |
-| View staff sessions | ✅ (all) | ✅ (lower role) | ✅ (own only) | ✅ (own only) | ❌ |
-| Revoke staff session | ✅ | ✅ (lower role) | ❌ | ❌ | ❌ |
+| Operation | Admin | Manager | Staff | Cashier | Chef | Client |
+|---|---|---|---|---|---|---|
+| Product / Topping / Combo CRUD | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Category CRUD | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Create staff (chef/cashier/staff) | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Create manager | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Deactivate staff (role < own) | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Change role (role < own − 1) | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Generate / regenerate QR | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Assign training | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Complete own training | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| View staff sessions | ✅ (all) | ✅ (lower role) | ✅ (own only) | ✅ (own only) | ✅ (own only) | ❌ |
+| Revoke staff session | ✅ | ✅ (lower role) | ❌ | ❌ | ❌ | ❌ |
+| Ingredient CRUD (add / edit) | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Ingredient delete | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Create / edit / delete todo tasks | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Toggle own todo task status | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| View todo task board (all staff) | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Create / assign staff board tasks | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| View revenue summary | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
 
 ---
 
@@ -113,3 +181,8 @@
 | `docs/spec/Spec_7_Staff_Management.md` | Staff CRUD API full spec |
 | `docs/spec/Spec_9_Admin_Dashboard_Pages.md` | Admin pages spec (overview + marketing) |
 | `docs/spec/Spec_2_Products_API_v2_CORRECTED.md` | Product / topping / combo API spec |
+| `docs/fe/wireframes/admin_main/admin_main_storage/tech_description.md` | Storage page RBAC + component spec |
+| `docs/fe/wireframes/admin_main/admin_main_todo_list/tech_description.md` | Todo list page RBAC + component spec |
+| `docs/fe/wireframes/admin_main/admin_main_staff_task_boad/tech_description.md` | Staff task board RBAC + component spec |
+| `docs/fe/wireframes/admin_main/admin_summary/tech_description.md` | Revenue summary RBAC + component spec |
+| `docs/core/MASTER_v1.2.md §3` | Authoritative RBAC role hierarchy — resolve any conflict here |

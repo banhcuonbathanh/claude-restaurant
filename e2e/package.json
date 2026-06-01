@@ -14,6 +14,7 @@
     "test:pos": "playwright test tests/pos.spec.ts",
     "test:overview": "playwright test tests/admin-overview.spec.ts",
     "test:products": "playwright test tests/admin-products.spec.ts",
+    "test:staff-reactions": "playwright test tests/staff-internal-reactions.spec.ts",
     "report": "playwright show-report"
   },
   "devDependencies": {
