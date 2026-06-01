@@ -82,7 +82,6 @@ export default function KDSPage() {
   const beep  = useBeep()
   const [orders, setOrders] = useState<Order[]>([])
 
-  const [collapsed,   setCollapsed]   = useState<Set<string>>(new Set())
   const [statusMenus, setStatusMenus] = useState<Set<string>>(new Set())
   const [flagged,     setFlagged]     = useState<Set<string>>(new Set())
 
@@ -184,7 +183,6 @@ export default function KDSPage() {
           const kitItems   = order.items.filter(isKitchenItem)
           const totalItems = kitItems.length
           const remaining  = kitItems.reduce((s, i) => s + Math.max(0, i.quantity - i.qty_served), 0)
-          const isCollapsed   = collapsed.has(order.id)
           const isStatusOpen  = statusMenus.has(order.id)
           const isFlagged     = flagged.has(order.id)
 
@@ -210,35 +208,33 @@ export default function KDSPage() {
                 </span>
               </div>
 
-              {/* Items — collapsible */}
-              {!isCollapsed && (
-                <div className="pl-3 space-y-1">
-                  {kitItems.map(item => {
-                    const rem  = item.quantity - item.qty_served
-                    const done = rem <= 0
-                    return (
-                      <div
-                        key={item.id}
-                        role="button"
-                        onClick={() => patchItemStatus.mutate({ orderId: order.id, itemId: item.id })}
-                        className="flex items-center gap-2 cursor-pointer py-0.5 select-none"
-                      >
-                        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${done ? 'bg-green-500' : 'bg-muted-fg'}`} />
-                        <span className={`flex-1 text-sm ${done ? 'line-through text-muted-fg' : 'text-foreground'}`}>
-                          {item.name}
-                        </span>
-                        {done
-                          ? <span className="text-xs text-green-600 font-medium">✓</span>
-                          : <span className="text-xs bg-muted text-foreground px-2 py-0.5 rounded font-medium">còn ×{rem}</span>
-                        }
-                      </div>
-                    )
-                  })}
-                  <p className="text-xs text-muted-fg pt-0.5">
-                    {totalItems} món · {remaining} phần còn lại
-                  </p>
-                </div>
-              )}
+              {/* Items — always visible */}
+              <div className="pl-3 space-y-1">
+                {kitItems.map(item => {
+                  const rem  = item.quantity - item.qty_served
+                  const done = rem <= 0
+                  return (
+                    <div
+                      key={item.id}
+                      role="button"
+                      onClick={() => patchItemStatus.mutate({ orderId: order.id, itemId: item.id })}
+                      className="flex items-center gap-2 cursor-pointer py-0.5 select-none"
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${done ? 'bg-green-500' : 'bg-muted-fg'}`} />
+                      <span className={`flex-1 text-sm ${done ? 'line-through text-muted-fg' : 'text-foreground'}`}>
+                        {item.name}
+                      </span>
+                      {done
+                        ? <span className="text-xs text-green-600 font-medium">✓</span>
+                        : <span className="text-xs bg-muted text-foreground px-2 py-0.5 rounded font-medium">còn ×{rem}</span>
+                      }
+                    </div>
+                  )
+                })}
+                <p className="text-xs text-muted-fg pt-0.5">
+                  {totalItems} món · {remaining} phần còn lại
+                </p>
+              </div>
 
               {/* Inline status picker */}
               {isStatusOpen && (
@@ -288,13 +284,6 @@ export default function KDSPage() {
                   Trạng thái {isStatusOpen ? '▲' : '▼'}
                 </button>
 
-                <button
-                  onClick={() => setCollapsed(prev => toggle(prev, order.id))}
-                  className="px-3 py-1.5 text-xs rounded-lg font-medium border bg-muted text-foreground border-border hover:bg-muted/70 transition-colors"
-                  title={isCollapsed ? 'Hiện món' : 'Ẩn món'}
-                >
-                  {isCollapsed ? '▼' : '▲'}
-                </button>
               </div>
             </div>
           )

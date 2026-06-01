@@ -108,6 +108,7 @@ export default function OverviewPage() {
   const [popupLoading,    setPopupLoading]    = useState(false)
   const [searchQuery,     setSearchQuery]     = useState('')
   const [viewMode,        setViewMode]        = useState<'grid' | 'list'>('list')
+  const [kiemTraIds, setKiemTraIds] = useState<Set<string>>(new Set())
 
   // 30s timer — keeps elapsed-time urgency display fresh
   useEffect(() => {
@@ -289,10 +290,22 @@ export default function OverviewPage() {
         checkedTableIds={checkedTableIds}
         onAction={handleAction}
         onToggleCheck={toggleCheck}
+        kiemTraIds={kiemTraIds}
+        onKiemTra={(id) => setKiemTraIds(prev => {
+          const next = new Set(prev)
+          if (next.has(id)) next.delete(id); else next.add(id)
+          return next
+        })}
       />
 
-      {/* Zone C — dish summary panel (always visible) */}
-      <PrepPanel orders={filteredOrders} tableMap={tableMap} />
+      {/* Zone C — dish summary for all selected Kiểm tra orders */}
+      {kiemTraIds.size > 0 && (
+        <PrepPanel
+          orders={filteredOrders.filter(o => kiemTraIds.has(o.id))}
+          tableMap={tableMap}
+          onAction={handleAction}
+        />
+      )}
 
       {/* Zone D — table view with toggle */}
       <div>

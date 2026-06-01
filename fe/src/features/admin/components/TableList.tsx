@@ -1,4 +1,5 @@
 'use client'
+import { useState } from 'react'
 import type { Order } from '@/types/order'
 import type { Table } from '@/features/admin/admin.api'
 import { elapsedMins, statusColors, statusLabel, urgencyBorder } from '@/features/admin/overview.helpers'
@@ -17,12 +18,21 @@ interface TableListProps {
 export function TableList({
   tables, orders, now, loadingIds, onAction,
 }: TableListProps) {
+  const [timeSort, setTimeSort] = useState<'asc' | 'desc'>('asc')
+
   const orderByTable = new Map(orders.filter(o => o.table_id).map(o => [o.table_id!, o]))
 
   const sorted = [...tables].sort((a, b) => {
-    const aOcc = orderByTable.has(a.id) ? 0 : 1
-    const bOcc = orderByTable.has(b.id) ? 0 : 1
+    const aOrder = orderByTable.get(a.id)
+    const bOrder = orderByTable.get(b.id)
+    const aOcc = aOrder ? 0 : 1
+    const bOcc = bOrder ? 0 : 1
     if (aOcc !== bOcc) return aOcc - bOcc
+    // Both occupied — sort by order created_at
+    if (aOrder && bOrder) {
+      const diff = new Date(aOrder.created_at).getTime() - new Date(bOrder.created_at).getTime()
+      return timeSort === 'asc' ? diff : -diff
+    }
     return a.name.localeCompare(b.name, 'vi')
   })
 
@@ -31,11 +41,16 @@ export function TableList({
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       {/* header row */}
-      <div className="grid grid-cols-[2fr_1.5fr_1fr_1.5fr_1.5fr_1fr] gap-2 px-4 py-2 bg-gray-50 border-b border-gray-100 text-xs font-medium text-gray-500 uppercase tracking-wide">
+      <div className="grid grid-cols-[2fr_2fr_1fr_1.5fr_1fr] gap-3 px-4 py-2 bg-gray-50 border-b border-gray-100 text-xs font-medium text-gray-500 uppercase tracking-wide">
         <span>Bàn</span>
         <span>Trạng thái</span>
-        <span>Thời gian</span>
-        <span>Mã đơn</span>
+        <button
+          onClick={() => setTimeSort(s => s === 'asc' ? 'desc' : 'asc')}
+          className="flex items-center gap-1 hover:text-gray-700 transition-colors cursor-pointer select-none"
+        >
+          Thời gian
+          <span className="text-gray-400">{timeSort === 'asc' ? '↑' : '↓'}</span>
+        </button>
         <span>Tổng tiền</span>
         <span className="text-right">Thao tác</span>
       </div>
@@ -48,7 +63,7 @@ export function TableList({
           if (!order) {
             return (
               <div key={table.id}
-                className="grid grid-cols-[2fr_1.5fr_1fr_1.5fr_1.5fr_1fr] gap-2 px-4 py-3 items-center text-sm"
+                className="grid grid-cols-[2fr_2fr_1fr_1.5fr_1fr] gap-3 px-4 py-3 items-center text-sm"
               >
                 <span className="font-semibold text-gray-800">{table.name}
                   <span className="ml-2 text-xs font-normal text-gray-400">{table.capacity} chỗ</span>
@@ -57,7 +72,6 @@ export function TableList({
                   <span className="w-2 h-2 rounded-full bg-gray-300" />
                   <span className="text-gray-400 text-xs">Trống</span>
                 </span>
-                <span className="text-gray-300">—</span>
                 <span className="text-gray-300">—</span>
                 <span className="text-gray-300">—</span>
                 <span />
@@ -73,7 +87,7 @@ export function TableList({
 
           return (
             <div key={table.id}
-              className={`grid grid-cols-[2fr_1.5fr_1fr_1.5fr_1.5fr_1fr] gap-2 px-4 py-3 items-center text-sm hover:bg-gray-50 transition-colors ${borderL}`}
+              className={`grid grid-cols-[2fr_2fr_1fr_1.5fr_1fr] gap-3 px-4 py-3 items-center text-sm hover:bg-gray-50 transition-colors ${borderL}`}
             >
               {/* table name */}
               <span className="font-semibold text-gray-900">{table.name}
@@ -81,20 +95,17 @@ export function TableList({
               </span>
 
               {/* status badge */}
-              <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full w-fit ${statusColors(order.status)}`}>
+              <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full w-fit whitespace-nowrap ${statusColors(order.status)}`}>
                 {statusLabel(order.status)}
               </span>
 
               {/* elapsed */}
-              <span className={`text-sm ${timeColor}`}>
+              <span className={`text-sm whitespace-nowrap ${timeColor}`}>
                 {mins} phút
               </span>
 
-              {/* order number */}
-              <span className="text-gray-600 font-mono text-xs truncate">{order.order_number}</span>
-
               {/* total */}
-              <span className="text-gray-800 font-medium">{formatVND(order.total_amount)}</span>
+              <span className="text-gray-800 font-medium whitespace-nowrap">{formatVND(order.total_amount)}</span>
 
               {/* action */}
               <div className="flex justify-end gap-1">

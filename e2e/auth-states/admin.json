@@ -1,0 +1,25 @@
+{
+  "cookies": [
+    {
+      "name": "refresh_token",
+      "value": "s4joguKOTA3kMxwOThTSmejKEMW0b1uO7pnUIFRTLFI",
+      "domain": "localhost",
+      "path": "/api/v1/auth",
+      "expires": 1782904842.028123,
+      "httpOnly": true,
+      "secure": false,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "http://localhost:3000",
+      "localStorage": [
+        {
+          "name": "cookie_consent_accepted",
+          "value": "true"
+        }
+      ]
+    }
+  ]
+}

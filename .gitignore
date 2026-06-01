@@ -33,3 +33,4 @@ fe/build/
 
 # Playwright MCP snapshots
 .playwright-mcp/
+be/tmp/

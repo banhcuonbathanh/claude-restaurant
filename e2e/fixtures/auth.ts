@@ -36,6 +36,8 @@ export async function loginAs(page: Page, role: keyof typeof CREDS) {
     await page.getByRole('button', { name: 'Đăng nhập' }).click()
     try {
       await page.waitForURL(url => !url.pathname.startsWith('/login'), { timeout: 8_000 })
+      // Dismiss cookie consent banner so it doesn't block button clicks in tests
+      await page.evaluate(() => localStorage.setItem('cookie_consent_accepted', 'true'))
       return
     } catch {
       if (attempt === 1) throw new Error(`loginAs(${role}): still on /login after 2 attempts`)
