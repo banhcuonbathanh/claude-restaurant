@@ -1,4 +1,6 @@
 import Link from "next/link"
+import StaffQuickLogin from "./StaffQuickLogin"
+import TableGrid from "./TableGrid"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -6,6 +8,7 @@ import {
   Utensils, QrCode, LayoutDashboard, ChefHat, CreditCard, BarChart3,
   ArrowRight, CheckCircle2, Zap, Shield, Clock, Star,
 } from "lucide-react"
+import { DevPanel } from "@/components/shared/DevPanel"
 
 const features = [
   {
@@ -38,6 +41,20 @@ const features = [
     title: "Phân Quyền Vai Trò",
     desc: "Phân quyền rõ ràng: Admin · Manager · Cashier · Chef. Mỗi vai trò chỉ thấy chức năng của mình.",
   },
+]
+
+const tables = [
+  { label: "Bàn 01", href: "/table/a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890" },
+  { label: "Bàn 02", href: "/table/b2c3d4e5f6789012b2c3d4e5f6789012b2c3d4e5f6789012b2c3d4e5f6789012" },
+  { label: "Bàn 03", href: "/table/c3d4e5f678901234c3d4e5f678901234c3d4e5f678901234c3d4e5f678901234" },
+  { label: "Bàn 04", href: "/table/d4e5f67890123456d4e5f67890123456d4e5f67890123456d4e5f67890123456" },
+  { label: "Bàn 05", href: "/table/e5f6789012345678e5f6789012345678e5f6789012345678e5f6789012345678" },
+  { label: "Bàn VIP", href: "/table/f67890123456789af67890123456789af67890123456789af67890123456789a" },
+  { label: "Bàn 01 (mới)", href: "/table/3aec3d0423c6af297bec727d3056c88757e6b05a69e6ca3dd064b388e2985371" },
+  { label: "Bàn 02 (mới)", href: "/table/f9b1f40610c9c6b3950d31e2ecab5a03361885ca660f39312345286181bf8dfc" },
+  { label: "Bàn 03 (mới)", href: "/table/ecc6cf5edac88e587c68c8144bdc56baff220ab0b7b1a9f629e525e7218eb90a" },
+  { label: "Bàn 04 (mới)", href: "/table/8e9de69364ace184d567d54f8e9bfcc0dae8e6787892c2be3d6b43ef08cace80" },
+  { label: "Bàn 05 (mới)", href: "/table/cbe1a45804c76147effeb31762b3be0d526cb91d6824c5cfc77daf5e8369b256" },
 ]
 
 const steps = [
@@ -80,6 +97,13 @@ export default function MarketingPage() {
           </div>
         </div>
       </nav>
+
+      {/* ── Dev Panel ── */}
+      <div className="border-b border-amber-500/30 bg-amber-500/5 px-4 py-3">
+        <div className="mx-auto max-w-6xl">
+          <DevPanel />
+        </div>
+      </div>
 
       {/* ── Hero ── */}
       <section className="gradient-hero relative overflow-hidden py-28">
@@ -130,6 +154,23 @@ export default function MarketingPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── Staff Quick Login ── */}
+      <StaffQuickLogin />
+
+      {/* ── Table Selector ── */}
+      <section className="border-b border-border bg-card/30 py-10">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="mb-6 text-center">
+            <Badge variant="secondary" className="mb-2">Demo Nhanh</Badge>
+            <h2 className="font-display text-2xl font-bold">Chọn Bàn Để Xem Menu</h2>
+            <p className="mt-1 text-sm text-muted-fg">
+              Click tên bàn để vào menu · Click <strong>Giả lập khách</strong> để tự động đặt món ngẫu nhiên
+            </p>
+          </div>
+          <TableGrid tables={tables} />
         </div>
       </section>
 

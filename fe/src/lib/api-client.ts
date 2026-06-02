@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useAuthStore } from '@/features/auth/auth.store'
+import { useCartStore } from '@/store/cart'
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1',
@@ -27,7 +28,8 @@ api.interceptors.response.use(
           const payload = JSON.parse(atob(token.split('.')[1]))
           if (payload.sub === 'guest') {
             useAuthStore.getState().clearAuth()
-            window.location.href = '/login'
+            // Guests have no login page — redirect to menu so they can scan QR again
+            window.location.href = '/menu'
             return Promise.reject(err)
           }
         } catch { /* malformed token — fall through */ }
@@ -41,7 +43,9 @@ api.interceptors.response.use(
           useAuthStore.getState().setAccessToken(data.data.access_token)
         } catch {
           useAuthStore.getState().clearAuth()
-          window.location.href = '/login'
+          // If a tableId is set, this is a guest/QR context — guests have no login page
+          const isGuestContext = !!useCartStore.getState().tableId
+          window.location.href = isGuestContext ? '/menu' : '/login'
           return Promise.reject(err)
         } finally {
           isRefreshing = false

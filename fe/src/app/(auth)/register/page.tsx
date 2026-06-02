@@ -4,27 +4,16 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import Link from 'next/link'
 import { register } from '@/features/auth/auth.api'
 import { useAuthStore } from '@/features/auth/auth.store'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
-const ROLES = [
-  { value: 'customer', label: 'Khách hàng' },
-  { value: 'chef',     label: 'Đầu bếp' },
-  { value: 'cashier',  label: 'Thu ngân' },
-  { value: 'manager',  label: 'Quản lý' },
-  { value: 'admin',    label: 'Admin' },
-] as const
-
 const schema = z.object({
-  username:  z.string().min(3, 'Tối thiểu 3 ký tự'),
-  full_name: z.string().min(2, 'Tối thiểu 2 ký tự'),
-  role:      z.enum(['customer', 'chef', 'cashier', 'manager', 'admin']),
-  password:  z.string().min(6, 'Tối thiểu 6 ký tự'),
-  confirm:   z.string().min(6, 'Tối thiểu 6 ký tự'),
+  username: z.string().min(3, 'Tối thiểu 3 ký tự'),
+  password: z.string().min(6, 'Tối thiểu 6 ký tự'),
+  confirm:  z.string().min(6, 'Tối thiểu 6 ký tự'),
 }).refine(d => d.password === d.confirm, {
   message: 'Mật khẩu không khớp',
   path: ['confirm'],
@@ -52,19 +41,11 @@ export default function RegisterPage() {
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    resolver: zodResolver(schema),
-    defaultValues: { role: 'customer' },
-  })
+  } = useForm<FormValues>({ resolver: zodResolver(schema) })
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const { user: newUser, access_token } = await register(
-        values.username,
-        values.password,
-        values.full_name,
-        values.role,
-      )
+      const { user: newUser, access_token } = await register(values.username, values.password)
       setAuth(newUser, access_token)
       router.push(redirectByRole[newUser.role] ?? '/dashboard')
     } catch (err: unknown) {
@@ -99,39 +80,6 @@ export default function RegisterPage() {
             />
             {errors.username && (
               <p className="text-urgent text-xs">{errors.username.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="full_name" className="text-foreground text-sm">
-              Họ và tên
-            </Label>
-            <Input
-              id="full_name"
-              autoComplete="name"
-              {...field('full_name')}
-              className="bg-muted border-border text-foreground placeholder:text-muted-fg"
-            />
-            {errors.full_name && (
-              <p className="text-urgent text-xs">{errors.full_name.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="role" className="text-foreground text-sm">
-              Vai trò
-            </Label>
-            <select
-              id="role"
-              {...field('role')}
-              className="w-full rounded-md bg-muted border border-border text-foreground text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              {ROLES.map(r => (
-                <option key={r.value} value={r.value}>{r.label}</option>
-              ))}
-            </select>
-            {errors.role && (
-              <p className="text-urgent text-xs">{errors.role.message}</p>
             )}
           </div>
 
@@ -175,13 +123,6 @@ export default function RegisterPage() {
             {isSubmitting ? 'Đang tạo tài khoản…' : 'Đăng ký'}
           </Button>
         </form>
-
-        <p className="text-muted-fg text-xs text-center mt-6">
-          Đã có tài khoản?{' '}
-          <Link href="/login" className="text-primary hover:underline">
-            Đăng nhập
-          </Link>
-        </p>
       </div>
     </div>
   )

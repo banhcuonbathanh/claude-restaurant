@@ -132,6 +132,47 @@ func (h *AuthHandler) Me(c *gin.Context) {
 	})
 }
 
+type registerRequest struct {
+	Username string `json:"username" binding:"required,min=3"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+
+// Register handles POST /auth/register.
+// Creates a new cashier account and returns access_token + user (same shape as Login).
+func (h *AuthHandler) Register(c *gin.Context) {
+	var req registerRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		respondError(c, http.StatusBadRequest, "INVALID_INPUT", "Dữ liệu đầu vào không hợp lệ")
+		return
+	}
+
+	ctx := c.Request.Context()
+	result, err := h.svc.Register(ctx, req.Username, req.Password, c.ClientIP(), c.GetHeader("User-Agent"))
+	if err != nil {
+		handleServiceError(c, err)
+		return
+	}
+
+	middleware.SetRefreshCookie(c, result.RefreshToken)
+
+	email := ""
+	if result.Staff.Email.Valid {
+		email = result.Staff.Email.String
+	}
+	c.JSON(http.StatusCreated, gin.H{
+		"data": gin.H{
+			"access_token": result.AccessToken,
+			"user": gin.H{
+				"id":        result.Staff.ID,
+				"username":  result.Staff.Username,
+				"full_name": result.Staff.FullName,
+				"role":      string(result.Staff.Role),
+				"email":     email,
+			},
+		},
+	})
+}
+
 type guestRequest struct {
 	QRToken string `json:"qr_token" binding:"required,len=64"`
 }

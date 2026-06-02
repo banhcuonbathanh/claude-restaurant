@@ -5,7 +5,7 @@ import type { Table } from '@/features/admin/admin.api'
 import { elapsedMins, isKitchenItem, statusColors, statusLabel } from '@/features/admin/overview.helpers'
 import { OrderDetail } from '@/features/admin/components/OrderDetail'
 
-const PREP_STATUSES  = new Set(['confirmed'])
+const PREP_STATUSES  = new Set(['pending'])
 const STATUS_ORDER   = ['pending', 'confirmed', 'preparing', 'ready']
 
 type SortKey = 'table' | 'status' | 'order_number' | 'time' | 'remaining'
@@ -97,7 +97,7 @@ export function WaitingSection({
       {/* header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
         <div>
-          <h3 className="text-sm font-semibold text-gray-700">Danh sách cần chuẩn bị</h3>
+          <h3 className="text-sm font-semibold text-gray-700">Danh sách bàn cần chuẩn bị</h3>
           <p className="text-xs text-gray-400 mt-0.5">
             {prepOrders.length} bàn · {dishTypes} loại món · {totalRemain} phần còn lại
           </p>

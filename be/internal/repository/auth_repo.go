@@ -11,6 +11,7 @@ import (
 type AuthRepository interface {
 	GetStaffByUsername(ctx context.Context, username string) (db.Staff, error)
 	GetStaffByID(ctx context.Context, id string) (db.Staff, error)
+	CreateStaffForRegister(ctx context.Context, id, username, passwordHash, fullName, role string) (db.Staff, error)
 	CreateRefreshToken(ctx context.Context, arg db.CreateRefreshTokenParams) error
 	GetRefreshToken(ctx context.Context, tokenHash string) (db.RefreshToken, error)
 	DeleteRefreshToken(ctx context.Context, tokenHash string) error
@@ -80,6 +81,15 @@ func (r *authRepo) DeleteOldestSessionByStaff(ctx context.Context, staffID strin
 
 func (r *authRepo) UpdateRefreshTokenLastUsed(ctx context.Context, tokenHash string) error {
 	return r.q.UpdateRefreshTokenLastUsed(ctx, tokenHash)
+}
+
+func (r *authRepo) CreateStaffForRegister(ctx context.Context, id, username, passwordHash, fullName, role string) (db.Staff, error) {
+	const q = `INSERT INTO staff (id, username, password_hash, full_name, role, is_active, created_at, updated_at)
+	           VALUES (?, ?, ?, ?, ?, 1, NOW(), NOW())`
+	if _, err := r.dbtx.ExecContext(ctx, q, id, username, passwordHash, fullName, role); err != nil {
+		return db.Staff{}, err
+	}
+	return r.GetStaffByID(ctx, id)
 }
 
 // GetTableByQRToken returns the full table row for a given QR token.

@@ -172,8 +172,14 @@ export const listTables = (): Promise<Table[]> =>
 export const listLiveOrders = (q?: string): Promise<import('@/types/order').Order[]> =>
   api.get('/orders/live', { params: q ? { q } : undefined }).then(r => r.data?.data ?? r.data ?? [])
 
+export const listTodayHistory = (): Promise<import('@/types/order').Order[]> =>
+  api.get('/orders/history').then(r => r.data?.data ?? r.data ?? [])
+
 export const updateOrderStatus = (id: string, status: string): Promise<void> =>
   api.patch(`/orders/${id}/status`, { status })
+
+export const createPayment = (body: { order_id: string; method: string; amount: number }): Promise<void> =>
+  api.post('/payments', body).then(r => r.data)
 
 // ── Analytics ────────────────────────────────────────────────────────────────
 

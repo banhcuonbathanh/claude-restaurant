@@ -33,6 +33,7 @@ export type OrderStatus =
   | 'ready'
   | 'delivered'
   | 'cancelled'
+  | 'paid'
 
 export interface Order {
   id:             string
@@ -46,6 +47,7 @@ export interface Order {
   total_amount:   number
   note:           string | null
   created_at:     string
+  updated_at?:    string
   items:          OrderItem[]
 }
 

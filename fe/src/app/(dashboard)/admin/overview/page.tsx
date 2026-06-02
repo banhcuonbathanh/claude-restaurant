@@ -18,9 +18,10 @@ import { WaitingSection } from '@/features/admin/components/WaitingSection'
 import { PrepPanel } from '@/features/admin/components/PrepPanel'
 import { TableGrid } from '@/features/admin/components/TableGrid'
 import { TableList } from '@/features/admin/components/TableList'
+import { HistoryLog } from '@/features/admin/components/HistoryLog'
 import { ConnectionErrorBanner } from '@/components/shared/ConnectionErrorBanner'
 
-const ACTIVE = new Set(['pending', 'confirmed', 'preparing', 'ready'])
+const ACTIVE = new Set(['pending', 'confirmed', 'preparing', 'ready', 'delivered'])
 
 // ── New-order popup modal ─────────────────────────────────────────────────────
 
@@ -133,14 +134,19 @@ export default function OverviewPage() {
   // WS — mutates ['orders','live'] TanStack Query cache on every push event
   const wsConnected = useOverviewWS()
 
-  // SSE — fires popup when a new order arrives
+  // SSE — fires popup when a new order arrives and adds it to the live cache immediately
   const handleNewOrder = useCallback(async (evt: { order_id: string }) => {
     try {
       const res   = await api.get(`/orders/${evt.order_id}`)
       const order: Order = res.data?.data ?? res.data
-      if (ACTIVE.has(order.status)) setPopupOrder(order)
+      if (ACTIVE.has(order.status)) {
+        queryClient.setQueryData<Order[]>(['orders', 'live'], prev =>
+          prev?.find(o => o.id === order.id) ? prev : [order, ...(prev ?? [])]
+        )
+        setPopupOrder(order)
+      }
     } catch { /* skip */ }
-  }, [])
+  }, [queryClient])
   useAdminSSE({ token, onNewOrder: handleNewOrder })
 
   // ── Handlers ───────────────────────────────────────────────────────────────
@@ -281,7 +287,7 @@ export default function OverviewPage() {
       {/* Zone A — 4 stat cards */}
       <StatCards orders={orders} tables={tables} now={now} />
 
-      {/* Zone B — pending orders awaiting confirmation */}
+      {/* Zone B — all active orders */}
       <WaitingSection
         orders={filteredOrders}
         tables={tables}
@@ -298,10 +304,10 @@ export default function OverviewPage() {
         })}
       />
 
-      {/* Zone C — dish summary for all selected Kiểm tra orders */}
+      {/* Zone C — dish summary for kiểm tra selected orders */}
       {kiemTraIds.size > 0 && (
         <PrepPanel
-          orders={filteredOrders.filter(o => kiemTraIds.has(o.id))}
+          orders={filteredOrders.filter(o => kiemTraIds.has(o.id) && o.status === 'pending')}
           tableMap={tableMap}
           onAction={handleAction}
         />
@@ -342,6 +348,11 @@ export default function OverviewPage() {
             checkedTableIds={checkedTableIds}
             onAction={handleAction}
             onToggleCheck={toggleCheck}
+            onPaymentDone={(orderId) => {
+              queryClient.setQueryData<Order[]>(['orders', 'live'], prev =>
+                (prev ?? []).filter(o => o.id !== orderId)
+              )
+            }}
           />
         ) : (
           <TableGrid
@@ -355,6 +366,9 @@ export default function OverviewPage() {
           />
         )}
       </div>
+
+      {/* Zone E — history log: cancelled + paid orders from today */}
+      <HistoryLog />
 
     </div>
   )

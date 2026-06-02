@@ -118,6 +118,20 @@ func (h *OrderHandler) ListLive(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": data})
 }
 
+// ListHistory handles GET /orders/history (Cashier+) — today's cancelled + paid orders.
+func (h *OrderHandler) ListHistory(c *gin.Context) {
+	orders, err := h.svc.ListTodayHistory(c.Request.Context())
+	if err != nil {
+		handleServiceError(c, err)
+		return
+	}
+	data := make([]gin.H, 0, len(orders))
+	for _, o := range orders {
+		data = append(data, orderJSON(o))
+	}
+	c.JSON(http.StatusOK, gin.H{"data": data})
+}
+
 type updateStatusReq struct {
 	Status string `json:"status" binding:"required"`
 }

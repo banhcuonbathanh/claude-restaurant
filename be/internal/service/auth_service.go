@@ -194,6 +194,72 @@ func (s *AuthService) GetMe(ctx context.Context, staffID string) (db.Staff, erro
 	return staff, nil
 }
 
+// Register creates a new staff account with role=cashier and returns tokens identical to Login.
+func (s *AuthService) Register(ctx context.Context, username, password, ipAddr, userAgent string) (LoginResult, error) {
+	_, err := s.repo.GetStaffByUsername(ctx, username)
+	if err == nil {
+		return LoginResult{}, ErrUsernameTaken
+	}
+	if !errors.Is(err, sql.ErrNoRows) {
+		return LoginResult{}, fmt.Errorf("auth: check username: %w", err)
+	}
+
+	hash, err := bcryptpkg.Hash(password)
+	if err != nil {
+		return LoginResult{}, fmt.Errorf("auth: hash password: %w", err)
+	}
+
+	staff, err := s.repo.CreateStaffForRegister(ctx, newUUID(), username, hash, username, "cashier")
+	if err != nil {
+		return LoginResult{}, fmt.Errorf("auth: create staff: %w", err)
+	}
+
+	return s.issueTokens(ctx, staff, ipAddr, userAgent)
+}
+
+// issueTokens generates an access token and refresh token for the given staff member.
+func (s *AuthService) issueTokens(ctx context.Context, staff db.Staff, ipAddr, userAgent string) (LoginResult, error) {
+	accessToken, err := jwtpkg.GenerateAccessToken(staff.ID, string(staff.Role))
+	if err != nil {
+		return LoginResult{}, fmt.Errorf("auth: generate access token: %w", err)
+	}
+
+	rawToken, tokenHash := newRefreshToken()
+
+	count, err := s.repo.CountActiveSessionsByStaff(ctx, staff.ID)
+	if err != nil {
+		return LoginResult{}, fmt.Errorf("auth: count sessions: %w", err)
+	}
+	if count >= maxSessions {
+		if err := s.repo.DeleteOldestSessionByStaff(ctx, staff.ID); err != nil {
+			slog.WarnContext(ctx, "auth: delete oldest session failed", "err", err)
+		}
+	}
+
+	ua := sql.NullString{}
+	if userAgent != "" {
+		ua = sql.NullString{String: userAgent, Valid: true}
+	}
+	ip := sql.NullString{}
+	if ipAddr != "" {
+		ip = sql.NullString{String: ipAddr, Valid: true}
+	}
+	if err := s.repo.CreateRefreshToken(ctx, db.CreateRefreshTokenParams{
+		ID:        newUUID(),
+		StaffID:   staff.ID,
+		TokenHash: tokenHash,
+		UserAgent: ua,
+		IpAddress: ip,
+		ExpiresAt: time.Now().Add(jwtpkg.RefreshTTL()),
+	}); err != nil {
+		return LoginResult{}, fmt.Errorf("auth: create refresh token: %w", err)
+	}
+
+	s.setIsActiveCache(ctx, staff.ID, true)
+
+	return LoginResult{AccessToken: accessToken, RefreshToken: rawToken, Staff: staff}, nil
+}
+
 // GuestLoginResult holds the guest JWT and the table the QR code belongs to.
 type GuestLoginResult struct {
 	AccessToken string

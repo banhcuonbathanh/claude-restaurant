@@ -47,7 +47,7 @@ func (s *OrderService) GetOrderForPayment(ctx context.Context, orderID string) (
 		}
 		return OrderPaymentView{}, fmt.Errorf("order: get for payment: %w", err)
 	}
-	if o.Status != db.OrdersStatusReady {
+	if o.Status != db.OrdersStatusReady && o.Status != db.OrdersStatusDelivered {
 		return OrderPaymentView{}, ErrOrderNotReady
 	}
 	return OrderPaymentView{
@@ -152,6 +152,25 @@ func (s *OrderService) ListActiveOrders(ctx context.Context) ([]OrderDetails, er
 			}
 		}
 		result = append(result, OrderDetails{Order: o, TableName: tableName, Items: enriched})
+	}
+	return result, nil
+}
+
+// ListTodayHistory returns today's cancelled + paid orders sorted by updated_at DESC.
+func (s *OrderService) ListTodayHistory(ctx context.Context) ([]OrderDetails, error) {
+	orders, err := s.repo.ListTodayHistory(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("order: list today history: %w", err)
+	}
+	result := make([]OrderDetails, 0, len(orders))
+	for _, o := range orders {
+		var tableName string
+		if o.TableID.Valid {
+			if t, err := s.tableRepo.GetTableByID(ctx, o.TableID.String); err == nil {
+				tableName = t.Name
+			}
+		}
+		result = append(result, OrderDetails{Order: o, TableName: tableName})
 	}
 	return result, nil
 }

@@ -47,6 +47,7 @@ type OrderRepository interface {
 	GetActiveOrderByTable(ctx context.Context, tableID sql.NullString) (db.Order, error)
 	ListAllOrders(ctx context.Context, limit, offset int32) ([]db.Order, error)
 	ListActiveOrders(ctx context.Context) ([]db.Order, error)
+	ListTodayHistory(ctx context.Context) ([]db.Order, error)
 	// CountActiveOrderItems returns a map of order_id → item count for all active orders.
 	// Single query — safe to call alongside ListActiveOrders.
 	CountActiveOrderItems(ctx context.Context) (map[string]int, error)
@@ -181,13 +182,38 @@ func (r *orderRepo) ListAllOrders(ctx context.Context, limit, offset int32) ([]d
 }
 
 func (r *orderRepo) ListActiveOrders(ctx context.Context) ([]db.Order, error) {
-	// Active = pending, confirmed, preparing, ready
+	// Active = pending, confirmed, preparing, ready, delivered (awaiting payment)
 	rows, err := r.sqlDB.QueryContext(ctx, `
 		SELECT id, order_number, table_id, status, source, customer_name, customer_phone,
 		       note, total_amount, created_by, created_at, updated_at, deleted_at
 		FROM orders
-		WHERE status IN ('pending','confirmed','preparing','ready') AND deleted_at IS NULL
+		WHERE status IN ('pending','confirmed','preparing','ready','delivered') AND deleted_at IS NULL
 		ORDER BY created_at ASC`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var orders []db.Order
+	for rows.Next() {
+		var o db.Order
+		if err := rows.Scan(&o.ID, &o.OrderNumber, &o.TableID, &o.Status, &o.Source,
+			&o.CustomerName, &o.CustomerPhone, &o.Note, &o.TotalAmount, &o.CreatedBy,
+			&o.CreatedAt, &o.UpdatedAt, &o.DeletedAt); err != nil {
+			return nil, err
+		}
+		orders = append(orders, o)
+	}
+	return orders, rows.Err()
+}
+
+func (r *orderRepo) ListTodayHistory(ctx context.Context) ([]db.Order, error) {
+	rows, err := r.sqlDB.QueryContext(ctx, `
+		SELECT id, order_number, table_id, status, source, customer_name, customer_phone,
+		       note, total_amount, created_by, created_at, updated_at, deleted_at
+		FROM orders
+		WHERE status IN ('cancelled','paid') AND deleted_at IS NULL
+		  AND DATE(created_at) = CURDATE()
+		ORDER BY updated_at DESC`)
 	if err != nil {
 		return nil, err
 	}
@@ -257,7 +283,7 @@ func (r *orderRepo) CountActiveOrderItems(ctx context.Context) (map[string]int, 
 		SELECT oi.order_id, COUNT(*) AS cnt
 		FROM order_items oi
 		JOIN orders o ON o.id = oi.order_id
-		WHERE o.status IN ('pending','confirmed','preparing','ready') AND o.deleted_at IS NULL
+		WHERE o.status IN ('pending','confirmed','preparing','ready','delivered') AND o.deleted_at IS NULL
 		GROUP BY oi.order_id`)
 	if err != nil {
 		return nil, err

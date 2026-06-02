@@ -153,6 +153,7 @@ func main() {
 	// ── Auth (public + authenticated) ─────────────────────────────────────────
 	authR := v1.Group("/auth")
 	authR.POST("/login", authH.Login)
+	authR.POST("/register", authH.Register)
 	authR.POST("/refresh", authH.Refresh)
 	authR.POST("/guest", authH.Guest)
 	{
@@ -231,6 +232,7 @@ func main() {
 	orderR.POST("", orderH.Create)
 	orderR.GET("", middleware.AtLeast("chef"), orderH.ListLive)
 	orderR.GET("/live", middleware.AtLeast("cashier"), orderH.ListLive)
+	orderR.GET("/history", middleware.AtLeast("cashier"), orderH.ListHistory)
 	orderR.GET("/:id", orderH.Get)
 	orderR.PATCH("/:id/status", middleware.AtLeast("chef"), orderH.UpdateStatus)
 	orderR.DELETE("/:id", orderH.Cancel)

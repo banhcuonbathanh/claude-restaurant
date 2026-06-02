@@ -27,6 +27,9 @@ export function statusLabel(status: Order['status']): string {
     case 'confirmed': return 'Đã xác nhận'
     case 'preparing': return 'Đang chuẩn bị'
     case 'ready':     return 'Sẵn sàng phục vụ'
+    case 'delivered': return 'Đã giao'
+    case 'paid':      return 'Đã thanh toán'
+    case 'cancelled': return 'Đã huỷ'
     default:          return status
   }
 }
@@ -36,6 +39,8 @@ export function statusColors(status: Order['status']): string {
     case 'ready':     return 'bg-green-100 text-green-700'
     case 'preparing': return 'bg-yellow-100 text-yellow-700'
     case 'confirmed': return 'bg-blue-100 text-blue-700'
+    case 'delivered': return 'bg-purple-100 text-purple-700'
+    case 'paid':      return 'bg-gray-100 text-gray-500'
     default:          return 'bg-gray-100 text-gray-600'
   }
 }

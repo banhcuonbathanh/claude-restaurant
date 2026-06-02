@@ -24,9 +24,7 @@ export interface RegisterResponse {
 }
 
 export const register = (
-  username:  string,
-  password:  string,
-  full_name: string,
-  role:      User['role'],
+  username: string,
+  password: string,
 ): Promise<RegisterResponse> =>
-  api.post('/auth/register', { username, password, full_name, role }).then(r => r.data.data)
+  api.post('/auth/register', { username, password }).then(r => r.data.data)

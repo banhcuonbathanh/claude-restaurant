@@ -92,7 +92,7 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
       {/* header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
         <div>
-          <h3 className="text-sm font-semibold text-gray-700">Danh sách cần chuẩn bị</h3>
+          <h3 className="text-sm font-semibold text-gray-700">Danh sách món ăn cần chuẩn bị</h3>
           <p className="text-xs text-gray-400 mt-0.5">
             {rows.length} loại món · {totalRemaining} phần còn lại
           </p>

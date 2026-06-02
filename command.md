@@ -18,3 +18,15 @@ Ban 05 http://localhost:3000/table/cbe1a45804c76147effeb31762b3be0d526cb91d6824c
 ✓ Thu Ngân role=cashier username=cashier password=Admin@123
 ✓ Đầu Bếp role=chef username=chef password=Admin@123
 ✓ Nhân Viên role=staff username=staff password=Admin@123
+
+Terminal 1 — infra (run once):
+
+docker compose up -d mysql redis
+
+Terminal 2 — BE (stop Docker BE first: docker compose stop be):
+
+cd be && set -a && source .env.local && set +a && go run ./cmd/server
+Terminal 3 — FE with hot-reload:
+
+
+cd fe && NEXT_PUBLIC_API_URL=http://localhost:8080 npm run dev

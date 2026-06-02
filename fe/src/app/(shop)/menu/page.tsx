@@ -25,6 +25,7 @@ import type { Product, Combo, ComboRaw, Category } from '@/types/product'
 import { STORAGE_KEYS } from '@/lib/storage-keys'
 
 function TableConfirmModal({ onClose }: { onClose: () => void }) {
+  const router  = useRouter()
   const cart    = useCartStore()
   const [note, setNote] = useState('')
   const done    = useRef(false)
@@ -59,13 +60,15 @@ function TableConfirmModal({ onClose }: { onClose: () => void }) {
         }
       }
       cart.clearCart()
-      window.location.replace(order?.id ? `/order/${order.id}` : '/order')
+      // Use router.replace (client-side nav) to preserve auth token in Zustand across navigation
+      router.replace(order?.id ? `/order/${order.id}` : '/order')
     },
     onError: (err: unknown) => {
       const resp = (err as { response?: { data?: { error?: string; message?: string; details?: { active_order_id?: string } } } }).response
       if (resp?.data?.error === 'TABLE_HAS_ACTIVE_ORDER') {
         const activeId = resp?.data?.details?.active_order_id
-        window.location.replace(activeId ? `/order/${activeId}` : '/order')
+        // Use router.replace (client-side nav) to preserve auth token in Zustand across navigation
+        router.replace(activeId ? `/order/${activeId}` : '/order')
         return
       }
       toast.error(resp?.data?.message ?? 'Đặt hàng thất bại')
