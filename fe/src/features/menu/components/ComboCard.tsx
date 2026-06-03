@@ -15,6 +15,7 @@ interface Props {
 
 export function ComboCard({ combo }: Props) {
   const [modalOpen, setModalOpen] = useState(false)
+  const [filling, setFilling] = useState<'thit' | 'moc_nhi'>('thit')
   const { items, addItem, updateQty } = useCartStore()
   const { toggleFav, isFavourite } = useFavouritesStore()
   const fav = isFavourite(combo.id, 'combo')
@@ -96,6 +97,30 @@ export function ComboCard({ combo }: Props) {
             ))}
           </ul>
         )}
+
+        {/* Filling selector */}
+        <div className="flex items-center gap-1.5 mt-1">
+          <button
+            onClick={() => setFilling('thit')}
+            className={`text-[11px] px-2.5 py-0.5 rounded-full border transition-colors ${
+              filling === 'thit'
+                ? 'bg-primary text-white border-primary'
+                : 'border-border text-muted-fg hover:border-primary/50'
+            }`}
+          >
+            Nhân thịt
+          </button>
+          <button
+            onClick={() => setFilling('moc_nhi')}
+            className={`text-[11px] px-2.5 py-0.5 rounded-full border transition-colors ${
+              filling === 'moc_nhi'
+                ? 'bg-primary text-white border-primary'
+                : 'border-border text-muted-fg hover:border-primary/50'
+            }`}
+          >
+            Nhân mộc nhĩ
+          </button>
+        </div>
 
         {/* Detail link + qty control */}
         <div className="flex items-center justify-between mt-2">

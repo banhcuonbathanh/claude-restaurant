@@ -5,7 +5,7 @@
 /* Design tokens from MASTER_v1.2 §2 — NEVER hardcode hex in components */
 :root {
   --color-primary:    #FF7A1A;
-  --color-background: #0A0F1E;
+  --color-background: #000000;
   --color-card:       #1F2937;
   --color-success:    #3DB870;
   --color-warning:    #FCD34D;

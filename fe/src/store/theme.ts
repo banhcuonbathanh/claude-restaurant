@@ -9,7 +9,7 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      dark: false,
+      dark: true,
       toggle: () => set(state => ({ dark: !state.dark })),
     }),
     { name: 'admin-theme' }

@@ -28,10 +28,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <AuthGuard>
       <RoleGuard minRole={Role.MANAGER}>
-        <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors${dark ? ' dark' : ''}`}>
-          <div className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 px-6 py-4 shadow-sm">
+        <div className={`min-h-screen bg-black transition-colors${dark ? ' dark' : ''}`}>
+          <div className="bg-gray-900 dark:bg-gray-900 border-b border-gray-800 dark:border-gray-800 px-6 py-4 shadow-sm">
             <div className="flex items-center justify-between">
-              <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Quản trị hệ thống</h1>
+              <h1 className="text-xl font-bold text-gray-100">Quản trị hệ thống</h1>
               <ThemeToggle />
             </div>
             <nav className="mt-3 flex gap-6 overflow-x-auto pb-0.5">
@@ -41,8 +41,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   href={tab.href}
                   className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
                     pathname === tab.href || (tab.href !== '/admin' && pathname.startsWith(tab.href))
-                      ? 'border-orange-500 text-orange-600'
-                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
+                      ? 'border-orange-500 text-orange-500'
+                      : 'border-transparent text-gray-400 hover:text-gray-200'
                   }`}
                 >
                   {tab.label}

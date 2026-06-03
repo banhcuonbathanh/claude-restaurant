@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { login } from '@/features/auth/auth.api'
 import { useAuthStore } from '@/features/auth/auth.store'
@@ -13,7 +13,7 @@ const ACCOUNTS: Record<string, { username: string; redirect: string; label: stri
   staff:   { username: 'staff',   redirect: '/admin', label: 'Nhân Viên' },
 }
 
-export default function DevLoginPage() {
+function DevLoginInner() {
   const router        = useRouter()
   const searchParams  = useSearchParams()
   const setAuth       = useAuthStore(s => s.setAuth)
@@ -61,5 +61,17 @@ export default function DevLoginPage() {
         <p className="text-sm">Đang đăng nhập {account?.label ?? role}…</p>
       </div>
     </div>
+  )
+}
+
+export default function DevLoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-fg" />
+      </div>
+    }>
+      <DevLoginInner />
+    </Suspense>
   )
 }
