@@ -21,6 +21,8 @@
 --   00000000-... → order_items (demo)
 -- =============================================================================
 
+SET NAMES utf8mb4;
+
 -- ── Xóa menu cũ (placeholder) theo FK reverse order ─────────────────────────
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -201,6 +203,8 @@ VALUES
 ON DUPLICATE KEY UPDATE quantity = VALUES(quantity), updated_at = NOW();
 
 -- ── Demo Orders (3 bàn — để test KDS + POS + Admin Overview) ─────────────────
+-- Chỉ chạy được nếu seed.sql đã tạo tables 22222222-*. Dùng FK_CHECKS=0 để skip an toàn.
+SET FOREIGN_KEY_CHECKS = 0;
 --
 -- ┌────────┬────────────────────────────────────────────┬──────────┬───────────┐
 -- │ Bàn   │ Gọi                                        │ Tổng     │ Status    │
@@ -353,3 +357,5 @@ VALUES
    NULL, DATE_SUB(NOW(), INTERVAL 20 MINUTE), NOW())
 
 ON DUPLICATE KEY UPDATE updated_at = updated_at;
+
+SET FOREIGN_KEY_CHECKS = 1;
