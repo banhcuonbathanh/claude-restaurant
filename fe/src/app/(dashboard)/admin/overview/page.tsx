@@ -1,6 +1,7 @@
 'use client'
 import { useCallback, useEffect, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { useAuthStore } from '@/features/auth/auth.store'
 import {
   listLiveOrders,
@@ -18,10 +19,12 @@ import { WaitingSection } from '@/features/admin/components/WaitingSection'
 import { PrepPanel } from '@/features/admin/components/PrepPanel'
 import { TableGrid } from '@/features/admin/components/TableGrid'
 import { TableList } from '@/features/admin/components/TableList'
-import { HistoryLog } from '@/features/admin/components/HistoryLog'
+import { PaidLog } from '@/features/admin/components/PaidLog'
+import { CancelLog } from '@/features/admin/components/CancelLog'
 import { ConnectionErrorBanner } from '@/components/shared/ConnectionErrorBanner'
 
-const ACTIVE = new Set(['pending', 'confirmed', 'preparing', 'ready', 'delivered'])
+const ACTIVE        = new Set(['pending', 'confirmed', 'preparing', 'ready', 'delivered'])
+const TABLE_ACTIVE  = new Set(['pending', 'confirmed', 'preparing', 'ready', 'delivered'])
 
 // ── New-order popup modal ─────────────────────────────────────────────────────
 
@@ -39,7 +42,7 @@ function NewOrderPopup({
   const kitItems = order.items.filter(i => !(i.combo_id !== null && i.combo_ref_id === null))
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
         <div className="bg-indigo-600 px-5 py-4">
           <div className="flex items-center justify-between">
             <div>
@@ -58,7 +61,7 @@ function NewOrderPopup({
           {kitItems.map(it => (
             <div key={it.id} className="flex items-center gap-3">
               <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0" />
-              <span className="flex-1 text-sm text-gray-800">{it.name}</span>
+              <span className="flex-1 text-sm text-gray-800 dark:text-gray-200">{it.name}</span>
               <span className="text-xs font-semibold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">
                 ×{it.quantity}
               </span>
@@ -69,16 +72,16 @@ function NewOrderPopup({
           ))}
         </div>
 
-        <div className="border-t border-gray-100 px-5 py-3 bg-gray-50 flex items-center justify-between">
+        <div className="border-t border-gray-100 dark:border-gray-700 px-5 py-3 bg-gray-50 dark:bg-gray-700 flex items-center justify-between">
           <div>
-            <p className="text-xs text-gray-500">{kitItems.length} món · Tổng cộng</p>
-            <p className="text-lg font-bold text-gray-900">{formatVND(order.total_amount)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{kitItems.length} món · Tổng cộng</p>
+            <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{formatVND(order.total_amount)}</p>
           </div>
           <div className="flex gap-2">
             <button
               onClick={onDismiss}
               disabled={loading}
-              className="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors disabled:opacity-50"
+              className="px-4 py-2 text-sm text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
             >
               Bỏ qua
             </button>
@@ -129,7 +132,8 @@ export default function OverviewPage() {
     queryFn:  () => listLiveOrders(),
     staleTime: 15_000,
   })
-  const orders = rawOrders.filter(o => ACTIVE.has(o.status))
+  const orders       = rawOrders.filter(o => ACTIVE.has(o.status))
+  const tableOrders  = rawOrders.filter(o => TABLE_ACTIVE.has(o.status))
 
   // WS — mutates ['orders','live'] TanStack Query cache on every push event
   const wsConnected = useOverviewWS()
@@ -177,6 +181,8 @@ export default function OverviewPage() {
           o.id !== orderId ? o : { ...o, status: status as Order['status'] }
         )
       )
+    } catch {
+      toast.error('Không thể cập nhật trạng thái. Vui lòng thử lại.')
     } finally {
       setLoadingIds(prev => { const s = new Set(prev); s.delete(orderId); return s })
     }
@@ -212,7 +218,7 @@ export default function OverviewPage() {
   const filteredTables = q
     ? tables.filter(t => {
         if (t.name.toLowerCase().includes(q)) return true
-        const order = orders.find(o => o.table_id === t.id)
+        const order = tableOrders.find(o => o.table_id === t.id)
         if (!order) return false
         if (order.order_number.toLowerCase().includes(q)) return true
         if (order.id.toLowerCase().includes(q)) return true
@@ -220,6 +226,19 @@ export default function OverviewPage() {
         return false
       })
     : tables
+
+  const filteredTableOrders = q
+    ? tableOrders.filter(o => {
+        if (o.order_number.toLowerCase().includes(q)) return true
+        if (o.id.toLowerCase().includes(q)) return true
+        if (o.customer_name?.toLowerCase().includes(q)) return true
+        if (o.table_id) {
+          const name = tableMap.get(o.table_id)?.name?.toLowerCase() ?? ''
+          if (name.includes(q)) return true
+        }
+        return false
+      })
+    : tableOrders
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -242,12 +261,12 @@ export default function OverviewPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Tổng quan sàn</h2>
-          <p className="text-sm text-gray-400 mt-0.5">Tất cả bàn — cập nhật theo thời gian thực</p>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Tổng quan sàn</h2>
+          <p className="text-sm text-gray-400 dark:text-gray-500 mt-0.5">Tất cả bàn — cập nhật theo thời gian thực</p>
         </div>
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-xs text-gray-500">Live</span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">Live</span>
         </div>
       </div>
 
@@ -265,7 +284,7 @@ export default function OverviewPage() {
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           placeholder="Tìm theo mã đơn, số bàn, tên khách..."
-          className="w-full pl-9 pr-9 py-2.5 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 placeholder:text-gray-400"
+          className="w-full pl-9 pr-9 py-2.5 text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-400 placeholder:text-gray-400 dark:placeholder:text-gray-500"
         />
         {searchQuery && (
           <button
@@ -279,7 +298,7 @@ export default function OverviewPage() {
         )}
       </div>
       {q && (
-        <p className="text-xs text-gray-400 -mt-2">
+        <p className="text-xs text-gray-400 dark:text-gray-500 -mt-2">
           {filteredOrders.length} đơn · {filteredTables.length} bàn phù hợp với &ldquo;{q}&rdquo;
         </p>
       )}
@@ -304,7 +323,7 @@ export default function OverviewPage() {
         })}
       />
 
-      {/* Zone C — dish summary for kiểm tra selected orders */}
+      {/* Zone C — only 'pending' orders: docs/fe/wireframes/admin_main/admin_overview/table_status.md §PrepPanel Rules */}
       {kiemTraIds.size > 0 && (
         <PrepPanel
           orders={filteredOrders.filter(o => kiemTraIds.has(o.id) && o.status === 'pending')}
@@ -316,11 +335,11 @@ export default function OverviewPage() {
       {/* Zone D — table view with toggle */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold text-gray-700">Danh sách bàn</h3>
-          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Danh sách bàn</h3>
+          <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
             <button
               onClick={() => setViewMode('list')}
-              className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+              className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white dark:bg-gray-600 shadow-sm text-indigo-600' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}`}
               title="Danh sách"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -329,7 +348,7 @@ export default function OverviewPage() {
             </button>
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm text-indigo-600' : 'text-gray-400 hover:text-gray-600'}`}
+              className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white dark:bg-gray-600 shadow-sm text-indigo-600' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}`}
               title="Lưới"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -342,7 +361,7 @@ export default function OverviewPage() {
         {viewMode === 'list' ? (
           <TableList
             tables={filteredTables}
-            orders={filteredOrders}
+            orders={filteredTableOrders}
             now={now}
             loadingIds={loadingIds}
             checkedTableIds={checkedTableIds}
@@ -352,6 +371,9 @@ export default function OverviewPage() {
               queryClient.setQueryData<Order[]>(['orders', 'live'], prev =>
                 (prev ?? []).filter(o => o.id !== orderId)
               )
+            }}
+            onCancel={async (orderId) => {
+              await handleAction(orderId, 'cancelled')
             }}
           />
         ) : (
@@ -367,8 +389,11 @@ export default function OverviewPage() {
         )}
       </div>
 
-      {/* Zone E — history log: cancelled + paid orders from today */}
-      <HistoryLog />
+      {/* Zone E — paid orders from today */}
+      <PaidLog />
+
+      {/* Zone F — cancelled orders from today */}
+      <CancelLog />
 
     </div>
   )

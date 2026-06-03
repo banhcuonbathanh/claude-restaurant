@@ -5,10 +5,10 @@ import { elapsedMins, itemCounts } from '@/features/admin/overview.helpers'
 
 function StatCard({ label, value, sub, urgent }: { label: string; value: number | string; sub?: string; urgent?: boolean }) {
   return (
-    <div className={`rounded-xl border shadow-sm p-4 flex flex-col gap-1 ${urgent ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200'}`}>
-      <p className="text-xs text-gray-500">{label}</p>
-      <p className={`text-2xl font-bold ${urgent ? 'text-red-700' : 'text-gray-900'}`}>{value}</p>
-      {sub && <p className="text-xs text-gray-400">{sub}</p>}
+    <div className={`rounded-xl border shadow-sm p-4 flex flex-col gap-1 ${urgent ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700'}`}>
+      <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+      <p className={`text-2xl font-bold ${urgent ? 'text-red-700 dark:text-red-400' : 'text-gray-900 dark:text-gray-100'}`}>{value}</p>
+      {sub && <p className="text-xs text-gray-400 dark:text-gray-500">{sub}</p>}
     </div>
   )
 }

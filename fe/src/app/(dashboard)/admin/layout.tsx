@@ -4,6 +4,8 @@ import { usePathname } from 'next/navigation'
 import { AuthGuard } from '@/components/guards/AuthGuard'
 import { RoleGuard } from '@/components/guards/RoleGuard'
 import { Role } from '@/types/auth'
+import { ThemeToggle } from '@/components/shared/ThemeToggle'
+import { useThemeStore } from '@/store/theme'
 
 const tabs = [
   { href: '/admin/overview',     label: 'Tổng quan' },
@@ -21,13 +23,17 @@ const tabs = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const dark = useThemeStore(state => state.dark)
 
   return (
     <AuthGuard>
       <RoleGuard minRole={Role.MANAGER}>
-        <div className="min-h-screen bg-gray-50">
-          <div className="bg-white border-b px-6 py-4 shadow-sm">
-            <h1 className="text-xl font-bold text-gray-900">Quản trị hệ thống</h1>
+        <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors${dark ? ' dark' : ''}`}>
+          <div className="bg-white dark:bg-gray-800 border-b dark:border-gray-700 px-6 py-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Quản trị hệ thống</h1>
+              <ThemeToggle />
+            </div>
             <nav className="mt-3 flex gap-6 overflow-x-auto pb-0.5">
               {tabs.map(tab => (
                 <Link
@@ -36,7 +42,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   className={`pb-2 text-sm font-medium border-b-2 transition-colors ${
                     pathname === tab.href || (tab.href !== '/admin' && pathname.startsWith(tab.href))
                       ? 'border-orange-500 text-orange-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-800'
+                      : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                   }`}
                 >
                   {tab.label}

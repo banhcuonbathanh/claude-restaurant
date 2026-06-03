@@ -43,11 +43,14 @@ type OrderReader interface {
 }
 
 // OrderWriter is called by PaymentService after a payment is confirmed to
-// advance the order to 'delivered'.
+// advance the order to its terminal status.
 type OrderWriter interface {
 	// MarkOrderDelivered transitions order.status from 'ready' → 'delivered'.
 	// No-op (returns nil) if already delivered; returns error for any other status.
 	MarkOrderDelivered(ctx context.Context, orderID string) error
+	// MarkOrderPaid transitions order.status from 'delivered' → 'paid'.
+	// No-op (returns nil) if already paid; returns error for any other status.
+	MarkOrderPaid(ctx context.Context, orderID string) error
 }
 
 // ─── Shared value types ──────────────────────────────────────────────────────

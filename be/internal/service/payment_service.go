@@ -261,9 +261,9 @@ func (s *PaymentService) completePayment(ctx context.Context, paymentID, orderID
 		return fmt.Errorf("payment: update completed: %w", err)
 	}
 
-	// Advance order to delivered.
-	if err := s.orderWriter.MarkOrderDelivered(ctx, orderID); err != nil {
-		slog.WarnContext(ctx, "payment: mark order delivered failed", "order_id", orderID, "err", err)
+	// Advance order to paid.
+	if err := s.orderWriter.MarkOrderPaid(ctx, orderID); err != nil {
+		slog.WarnContext(ctx, "payment: mark order paid failed", "order_id", orderID, "err", err)
 	}
 
 	// Publish WS event for cashier screen.

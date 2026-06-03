@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import type { Order } from '@/types/order'
 import type { Table } from '@/features/admin/admin.api'
 import { createPayment } from '@/features/admin/admin.api'
@@ -42,7 +43,7 @@ function PaymentModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden">
         {/* header */}
         <div className="bg-green-600 px-5 py-4">
           <p className="text-white font-bold text-lg">Thu tiền — {table.name}</p>
@@ -50,9 +51,9 @@ function PaymentModal({
         </div>
 
         {/* amount */}
-        <div className="px-5 py-5 text-center border-b border-gray-100">
-          <p className="text-xs text-gray-400 mb-1">Tổng tiền</p>
-          <p className="text-3xl font-bold text-gray-900">{formatVND(order.total_amount)}</p>
+        <div className="px-5 py-5 text-center border-b border-gray-100 dark:border-gray-700">
+          <p className="text-xs text-gray-400 dark:text-gray-500 mb-1">Tổng tiền</p>
+          <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{formatVND(order.total_amount)}</p>
         </div>
 
         {/* checkboxes */}
@@ -64,7 +65,7 @@ function PaymentModal({
               onChange={e => setClientPaid(e.target.checked)}
               className="w-5 h-5 rounded accent-green-600 cursor-pointer"
             />
-            <span className={`text-sm font-medium ${clientPaid ? 'text-green-700' : 'text-gray-700'}`}>
+            <span className={`text-sm font-medium ${clientPaid ? 'text-green-700 dark:text-green-400' : 'text-gray-700 dark:text-gray-300'}`}>
               Khách đã đưa tiền
             </span>
             {clientPaid && <span className="text-green-500 text-sm">✓</span>}
@@ -77,7 +78,7 @@ function PaymentModal({
               onChange={e => setStaffReceived(e.target.checked)}
               className="w-5 h-5 rounded accent-green-600 cursor-pointer"
             />
-            <span className={`text-sm font-medium ${staffReceived ? 'text-green-700' : 'text-gray-700'}`}>
+            <span className={`text-sm font-medium ${staffReceived ? 'text-green-700 dark:text-green-400' : 'text-gray-700 dark:text-gray-300'}`}>
               Nhân viên đã nhận đủ tiền
             </span>
             {staffReceived && <span className="text-green-500 text-sm">✓</span>}
@@ -89,7 +90,7 @@ function PaymentModal({
           <button
             onClick={onClose}
             disabled={loading}
-            className="flex-1 py-2.5 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="flex-1 py-2.5 text-sm text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
           >
             Huỷ
           </button>
@@ -117,10 +118,11 @@ interface TableListProps {
   onAction:        (orderId: string, status: string) => Promise<void>
   onToggleCheck:   (tableId: string) => void
   onPaymentDone?:  (orderId: string) => void
+  onCancel?:       (orderId: string) => Promise<void>
 }
 
 export function TableList({
-  tables, orders, now, loadingIds, onAction, onPaymentDone,
+  tables, orders, now, loadingIds, onAction, onPaymentDone, onCancel,
 }: TableListProps) {
   const [timeSort,    setTimeSort]    = useState<'asc' | 'desc'>('asc')
   const [payingEntry, setPayingEntry] = useState<{ order: Order; table: Table } | null>(null)
@@ -144,13 +146,18 @@ export function TableList({
 
   async function handlePaymentConfirm() {
     if (!payingEntry) return
-    await createPayment({
-      order_id: payingEntry.order.id,
-      method:   'cash',
-      amount:   payingEntry.order.total_amount,
-    })
-    onPaymentDone?.(payingEntry.order.id)
-    setPayingEntry(null)
+    try {
+      await createPayment({
+        order_id: payingEntry.order.id,
+        method:   'cash',
+        amount:   payingEntry.order.total_amount,
+      })
+      onPaymentDone?.(payingEntry.order.id)
+      setPayingEntry(null)
+      toast.success('Đã thu tiền thành công')
+    } catch {
+      toast.error('Thanh toán thất bại. Vui lòng thử lại.')
+    }
   }
 
   return (
@@ -164,22 +171,22 @@ export function TableList({
         />
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         {/* header row */}
-        <div className="grid grid-cols-[2fr_2fr_1fr_1.5fr] gap-3 px-4 py-2 bg-gray-50 border-b border-gray-100 text-xs font-medium text-gray-500 uppercase tracking-wide">
+        <div className="grid grid-cols-[2fr_2fr_1fr_1.5fr] gap-3 px-4 py-2 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
           <span>Bàn</span>
           <span>Trạng thái</span>
           <button
             onClick={() => setTimeSort(s => s === 'asc' ? 'desc' : 'asc')}
-            className="flex items-center gap-1 hover:text-gray-700 transition-colors cursor-pointer select-none"
+            className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300 transition-colors cursor-pointer select-none"
           >
             Thời gian
-            <span className="text-gray-400">{timeSort === 'asc' ? '↑' : '↓'}</span>
+            <span className="text-gray-400 dark:text-gray-500">{timeSort === 'asc' ? '↑' : '↓'}</span>
           </button>
           <span>Tổng tiền</span>
         </div>
 
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-gray-100 dark:divide-gray-700">
           {sorted.map(table => {
             const order   = orderByTable.get(table.id)
             const loading = order ? loadingIds.has(order.id) : false
@@ -189,15 +196,15 @@ export function TableList({
                 <div key={table.id}
                   className="grid grid-cols-[2fr_2fr_1fr_1.5fr] gap-3 px-4 py-3 items-center text-sm"
                 >
-                  <span className="font-semibold text-gray-800">{table.name}
-                    <span className="ml-2 text-xs font-normal text-gray-400">{table.capacity} chỗ</span>
+                  <span className="font-semibold text-gray-800 dark:text-gray-200">{table.name}
+                    <span className="ml-2 text-xs font-normal text-gray-400 dark:text-gray-500">{table.capacity} chỗ</span>
                   </span>
                   <span className="inline-flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-gray-300" />
-                    <span className="text-gray-400 text-xs">Trống</span>
+                    <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600" />
+                    <span className="text-gray-400 dark:text-gray-500 text-xs">Trống</span>
                   </span>
-                  <span className="text-gray-300">—</span>
-                  <span className="text-gray-300">—</span>
+                  <span className="text-gray-300 dark:text-gray-600">—</span>
+                  <span className="text-gray-300 dark:text-gray-600">—</span>
                 </div>
               )
             }
@@ -210,17 +217,26 @@ export function TableList({
             function StatusBadge() {
               const baseClass = `inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full w-fit whitespace-nowrap ${statusColors(order!.status)}`
 
-              // delivered → open payment modal
+              // delivered → pay + cancel buttons
               if (order!.status === 'delivered') {
                 return (
-                  <button
-                    onClick={() => setPayingEntry({ order: order!, table })}
-                    className={`${baseClass} cursor-pointer hover:opacity-75 transition-opacity`}
-                    title="Xác nhận thu tiền"
-                  >
-                    {statusLabel(order!.status)}
-                    <span className="opacity-70">💰</span>
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => setPayingEntry({ order: order!, table })}
+                      className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 cursor-pointer hover:opacity-75 transition-opacity whitespace-nowrap"
+                      title="Thu tiền"
+                    >
+                      Đã thanh toán <span className="opacity-70">💰</span>
+                    </button>
+                    <button
+                      onClick={() => onCancel?.(order!.id)}
+                      disabled={loading}
+                      className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 cursor-pointer hover:opacity-75 disabled:opacity-50 transition-opacity whitespace-nowrap"
+                      title="Huỷ đơn"
+                    >
+                      Huỷ <span className="opacity-70">✕</span>
+                    </button>
+                  </div>
                 )
               }
 
@@ -244,10 +260,10 @@ export function TableList({
 
             return (
               <div key={table.id}
-                className={`grid grid-cols-[2fr_2fr_1fr_1.5fr] gap-3 px-4 py-3 items-center text-sm hover:bg-gray-50 transition-colors ${borderL}`}
+                className={`grid grid-cols-[2fr_2fr_1fr_1.5fr] gap-3 px-4 py-3 items-center text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${borderL}`}
               >
-                <span className="font-semibold text-gray-900">{table.name}
-                  <span className="ml-2 text-xs font-normal text-gray-400">{table.capacity} chỗ</span>
+                <span className="font-semibold text-gray-900 dark:text-gray-100">{table.name}
+                  <span className="ml-2 text-xs font-normal text-gray-400 dark:text-gray-500">{table.capacity} chỗ</span>
                 </span>
 
                 <StatusBadge />
@@ -256,7 +272,7 @@ export function TableList({
                   {mins} phút
                 </span>
 
-                <span className="text-gray-800 font-medium whitespace-nowrap">{formatVND(order.total_amount)}</span>
+                <span className="text-gray-800 dark:text-gray-200 font-medium whitespace-nowrap">{formatVND(order.total_amount)}</span>
               </div>
             )
           })}

@@ -40,7 +40,8 @@ export function statusColors(status: Order['status']): string {
     case 'preparing': return 'bg-yellow-100 text-yellow-700'
     case 'confirmed': return 'bg-blue-100 text-blue-700'
     case 'delivered': return 'bg-purple-100 text-purple-700'
-    case 'paid':      return 'bg-gray-100 text-gray-500'
+    case 'paid':      return 'bg-green-100 text-green-700'
+    case 'cancelled': return 'bg-red-100 text-red-700'
     default:          return 'bg-gray-100 text-gray-600'
   }
 }

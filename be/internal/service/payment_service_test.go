@@ -98,7 +98,9 @@ var _ OrderReader = (*mockOrderReader)(nil)
 
 type mockOrderWriter struct {
 	markDeliveredFn func(ctx context.Context, orderID string) error
+	markPaidFn      func(ctx context.Context, orderID string) error
 	deliveredIDs    []string
+	paidIDs         []string
 	mu              sync.Mutex
 }
 
@@ -108,6 +110,16 @@ func (m *mockOrderWriter) MarkOrderDelivered(ctx context.Context, orderID string
 	m.mu.Unlock()
 	if m.markDeliveredFn != nil {
 		return m.markDeliveredFn(ctx, orderID)
+	}
+	return nil
+}
+
+func (m *mockOrderWriter) MarkOrderPaid(ctx context.Context, orderID string) error {
+	m.mu.Lock()
+	m.paidIDs = append(m.paidIDs, orderID)
+	m.mu.Unlock()
+	if m.markPaidFn != nil {
+		return m.markPaidFn(ctx, orderID)
 	}
 	return nil
 }

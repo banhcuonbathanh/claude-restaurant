@@ -5,6 +5,7 @@ import type { Table } from '@/features/admin/admin.api'
 import { elapsedMins, isKitchenItem, statusColors, statusLabel } from '@/features/admin/overview.helpers'
 import { OrderDetail } from '@/features/admin/components/OrderDetail'
 
+// Zone B shows ONLY 'pending' — see docs/fe/wireframes/admin_main/admin_overview/table_status.md §Order Statuses
 const PREP_STATUSES  = new Set(['pending'])
 const STATUS_ORDER   = ['pending', 'confirmed', 'preparing', 'ready']
 
@@ -68,7 +69,7 @@ export function WaitingSection({
     .map(o => ({ table: tableMap.get(o.table_id!)!, order: o }))
 
   if (prepOrders.length === 0) return (
-    <div className="rounded-xl bg-white border border-gray-200 px-4 py-6 text-center text-sm text-gray-400">
+    <div className="rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-4 py-6 text-center text-sm text-gray-400 dark:text-gray-500">
       Chưa có đơn hàng — quán đang yên tĩnh
     </div>
   )
@@ -82,10 +83,10 @@ export function WaitingSection({
     return (
       <button
         onClick={() => toggleSort(col)}
-        className={`flex items-center gap-1 transition-colors cursor-pointer select-none hover:text-gray-700 ${align === 'right' ? 'justify-end w-full' : ''} ${active ? 'text-indigo-600' : 'text-gray-500'}`}
+        className={`flex items-center gap-1 transition-colors cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-300 ${align === 'right' ? 'justify-end w-full' : ''} ${active ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'}`}
       >
         {label}
-        <span className={active ? 'text-indigo-400' : 'text-gray-300'}>
+        <span className={active ? 'text-indigo-400 dark:text-indigo-300' : 'text-gray-300 dark:text-gray-600'}>
           {active ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}
         </span>
       </button>
@@ -93,12 +94,12 @@ export function WaitingSection({
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
       {/* header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-700">
         <div>
-          <h3 className="text-sm font-semibold text-gray-700">Danh sách bàn cần chuẩn bị</h3>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Danh sách bàn cần chuẩn bị</h3>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
             {prepOrders.length} bàn · {dishTypes} loại món · {totalRemain} phần còn lại
           </p>
         </div>
@@ -108,18 +109,18 @@ export function WaitingSection({
       </div>
 
       {/* Desktop: column headers (hidden on mobile) */}
-      <div className="hidden md:grid grid-cols-[2fr_1.5fr_1.5fr_1fr_2fr_1.5fr] gap-2 px-4 py-2 bg-gray-50 border-b border-gray-100 text-xs font-medium uppercase tracking-wide">
+      <div className="hidden md:grid grid-cols-[2fr_1.5fr_1.5fr_1fr_2fr_1.5fr] gap-2 px-4 py-2 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600 text-xs font-medium uppercase tracking-wide">
         <SortBtn col="table"        label="Bàn" />
         <SortBtn col="status"       label="Trạng thái" />
         <SortBtn col="order_number" label="Mã đơn" />
         <SortBtn col="time"         label="Thời gian" />
         <SortBtn col="remaining"    label="Còn lại" />
-        <span className="text-right text-gray-500">Thao tác</span>
+        <span className="text-right text-gray-500 dark:text-gray-400">Thao tác</span>
       </div>
 
       {/* Mobile: sort bar */}
-      <div className="flex md:hidden items-center gap-2 px-4 py-2 bg-gray-50 border-b border-gray-100 text-xs overflow-x-auto">
-        <span className="text-gray-400 shrink-0">Sắp xếp:</span>
+      <div className="flex md:hidden items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600 text-xs overflow-x-auto">
+        <span className="text-gray-400 dark:text-gray-500 shrink-0">Sắp xếp:</span>
         <SortBtn col="table"        label="Bàn" />
         <SortBtn col="status"       label="Trạng thái" />
         <SortBtn col="order_number" label="Mã đơn" />
@@ -127,7 +128,7 @@ export function WaitingSection({
         <SortBtn col="remaining"    label="Còn lại" />
       </div>
 
-      <div className="divide-y divide-gray-100">
+      <div className="divide-y divide-gray-100 dark:divide-gray-700">
         {prepOrders.map(({ table, order }) => {
           const mins        = elapsedMins(order.created_at, now)
           const kitItems    = order.items.filter(isKitchenItem)
@@ -143,26 +144,26 @@ export function WaitingSection({
           const pendingItems = kitItems.filter(i => i.quantity - i.qty_served > 0)
 
           return (
-            <div key={order.id} className={`border-b border-gray-100 last:border-b-0 ${borderL}`}>
+            <div key={order.id} className={`border-b border-gray-100 dark:border-gray-700 last:border-b-0 ${borderL}`}>
 
               {/* ── Desktop row ── */}
               <div
                 onClick={() => setExpandedId(isExpanded ? null : order.id)}
-                className={`hidden md:grid grid-cols-[2fr_1.5fr_1.5fr_1fr_2fr_1.5fr] gap-2 px-4 py-3 items-center text-sm cursor-pointer transition-colors ${isExpanded ? 'bg-indigo-50' : 'hover:bg-gray-50'}`}
+                className={`hidden md:grid grid-cols-[2fr_1.5fr_1.5fr_1fr_2fr_1.5fr] gap-2 px-4 py-3 items-center text-sm cursor-pointer transition-colors ${isExpanded ? 'bg-indigo-50 dark:bg-indigo-900/30' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}`}
               >
-                <span className="font-semibold text-gray-900 flex items-center gap-1.5">
+                <span className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
                   {table.name}
                   <span className="text-indigo-400">{isExpanded ? '▲' : '▼'}</span>
                 </span>
                 <span className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full w-fit ${statusColors(order.status)}`}>
                   {statusLabel(order.status)}
                 </span>
-                <span className="text-xs font-mono text-gray-500 truncate">{order.order_number}</span>
+                <span className="text-xs font-mono text-gray-500 dark:text-gray-400 truncate">{order.order_number}</span>
                 <div className="flex flex-col gap-0.5">
                   <span className={`text-sm ${timeColor}`}>{mins} phút</span>
-                  <span className="text-xs text-gray-400">{dateLabel}</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">{dateLabel}</span>
                 </div>
-                <div className="text-xs text-gray-600">
+                <div className="text-xs text-gray-600 dark:text-gray-400">
                   {pendingItems.length === 0
                     ? <span className="text-green-500">✓ Xong hết</span>
                     : <div className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-0.5">
@@ -181,7 +182,7 @@ export function WaitingSection({
                     className={`px-2.5 py-1 text-xs font-semibold rounded-lg border transition-colors ${
                       isKiemTra
                         ? 'bg-indigo-600 text-white border-indigo-600'
-                        : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
+                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
                     }`}
                   >
                     🔍
@@ -198,11 +199,11 @@ export function WaitingSection({
               {/* ── Mobile card ── */}
               <div
                 onClick={() => setExpandedId(isExpanded ? null : order.id)}
-                className={`md:hidden px-4 py-3 cursor-pointer transition-colors ${isExpanded ? 'bg-indigo-50' : 'hover:bg-gray-50'}`}
+                className={`md:hidden px-4 py-3 cursor-pointer transition-colors ${isExpanded ? 'bg-indigo-50 dark:bg-indigo-900/30' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}`}
               >
                 {/* top row: table name + status + kiểm tra */}
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-gray-900 text-base">{table.name}</span>
+                  <span className="font-bold text-gray-900 dark:text-gray-100 text-base">{table.name}</span>
                   <span className="text-indigo-400 text-xs">{isExpanded ? '▲' : '▼'}</span>
                   <span className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full ${statusColors(order.status)}`}>
                     {statusLabel(order.status)}
@@ -212,7 +213,7 @@ export function WaitingSection({
                     className={`ml-auto px-2.5 py-1 text-xs font-semibold rounded-lg border transition-colors ${
                       isKiemTra
                         ? 'bg-indigo-600 text-white border-indigo-600'
-                        : 'border-gray-300 bg-white text-gray-600 hover:bg-gray-50'
+                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
                     }`}
                   >
                     🔍 Kiểm tra
@@ -220,13 +221,13 @@ export function WaitingSection({
                 </div>
                 {/* meta row: order suffix · mins · time */}
                 <div className="flex items-center justify-between mt-1">
-                  <span className="text-xs font-mono text-gray-400">{order.order_number.split('-').pop()}</span>
+                  <span className="text-xs font-mono text-gray-400 dark:text-gray-500">{order.order_number.split('-').pop()}</span>
                   <span className={`text-xs font-semibold ${timeColor}`}>{mins} phút</span>
-                  <span className="text-xs text-gray-400">{dateLabel.split(' ')[1]}</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">{dateLabel.split(' ')[1]}</span>
                 </div>
                 {/* dish list */}
                 {pendingItems.length > 0 && (
-                  <div className="text-xs text-gray-500 mt-2 w-full grid grid-cols-[1fr_auto] gap-x-3 gap-y-0.5">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 w-full grid grid-cols-[1fr_auto] gap-x-3 gap-y-0.5">
                     {pendingItems.map(i => (
                       <>
                         <span key={`n-${i.id}`}>{i.name}</span>
@@ -239,7 +240,7 @@ export function WaitingSection({
 
               {/* expanded detail panel (both breakpoints) */}
               {isExpanded && (
-                <div className="border-t border-indigo-100 bg-indigo-50/40 pt-2">
+                <div className="border-t border-indigo-100 dark:border-indigo-800 bg-indigo-50/40 dark:bg-indigo-900/20 pt-2">
                   <OrderDetail
                     order={order}
                     table={table}

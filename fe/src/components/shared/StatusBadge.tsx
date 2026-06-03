@@ -8,6 +8,7 @@ const STYLES: Record<OrderStatus, string> = {
   ready:     'bg-green-900 text-success',
   delivered: 'bg-teal-900 text-teal-300',
   cancelled: 'bg-red-900 text-urgent',
+  paid:      'bg-purple-900 text-purple-300',
 }
 
 const LABELS: Record<OrderStatus, string> = {
@@ -17,6 +18,7 @@ const LABELS: Record<OrderStatus, string> = {
   ready:     'Sẵn sàng',
   delivered: 'Đã giao',
   cancelled: 'Đã huỷ',
+  paid:      'Đã thanh toán',
 }
 
 interface Props {

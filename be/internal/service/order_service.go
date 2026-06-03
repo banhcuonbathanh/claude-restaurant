@@ -63,13 +63,27 @@ func (s *OrderService) MarkOrderDelivered(ctx context.Context, orderID string) e
 	if err != nil {
 		return fmt.Errorf("order: get for delivered: %w", err)
 	}
-	if o.Status == db.OrdersStatusDelivered {
-		return nil // already delivered — idempotent
+	if o.Status == db.OrdersStatusDelivered || o.Status == db.OrdersStatusPaid {
+		return nil // already delivered or paid — idempotent
 	}
 	if o.Status != db.OrdersStatusReady {
 		return fmt.Errorf("order: cannot mark delivered, status is %s", o.Status)
 	}
 	return s.repo.UpdateOrderStatus(ctx, db.OrdersStatusDelivered, orderID)
+}
+
+func (s *OrderService) MarkOrderPaid(ctx context.Context, orderID string) error {
+	o, err := s.repo.GetOrderByID(ctx, orderID)
+	if err != nil {
+		return fmt.Errorf("order: get for paid: %w", err)
+	}
+	if o.Status == db.OrdersStatusPaid {
+		return nil // already paid — idempotent
+	}
+	if o.Status != db.OrdersStatusDelivered {
+		return fmt.Errorf("order: cannot mark paid, status is %s", o.Status)
+	}
+	return s.repo.UpdateOrderStatus(ctx, db.OrdersStatusPaid, orderID)
 }
 
 // ─── Order view ──────────────────────────────────────────────────────────────
@@ -457,6 +471,7 @@ var validTransitions = map[db.OrdersStatus][]db.OrdersStatus{
 	db.OrdersStatusConfirmed: {db.OrdersStatusPreparing, db.OrdersStatusCancelled},
 	db.OrdersStatusPreparing: {db.OrdersStatusReady, db.OrdersStatusCancelled},
 	db.OrdersStatusReady:     {db.OrdersStatusDelivered},
+	db.OrdersStatusDelivered: {db.OrdersStatusPaid},
 }
 
 // UpdateOrderStatus transitions order to the next status.

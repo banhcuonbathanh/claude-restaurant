@@ -78,7 +78,7 @@ func (r *analyticsRepo) GetSummary(ctx context.Context, rangeParam string) (Summ
 		    FROM order_items oi
 		    JOIN orders o ON o.id = oi.order_id
 		    WHERE o.deleted_at IS NULL
-		      AND o.status = 'delivered'
+		      AND o.status IN ('delivered','paid')
 		      AND %s
 		  ), 0) AS dishes_sold,
 		  COALESCE((
@@ -119,7 +119,7 @@ func (r *analyticsRepo) GetTopDishes(ctx context.Context, limit int, rangeParam 
 		FROM order_items oi
 		JOIN orders o ON o.id = oi.order_id
 		WHERE o.deleted_at IS NULL
-		  AND o.status = 'delivered'
+		  AND o.status IN ('delivered','paid')
 		  AND oi.combo_ref_id IS NULL
 		  AND %s
 		GROUP BY oi.name
@@ -168,7 +168,7 @@ func (r *analyticsRepo) GetStaffPerformance(ctx context.Context, rangeParam stri
 		LEFT JOIN orders o
 		  ON o.created_by = s.id
 		  AND o.deleted_at IS NULL
-		  AND o.status = 'delivered'
+		  AND o.status IN ('delivered','paid')
 		  AND %s
 		LEFT JOIN payments p
 		  ON p.order_id = o.id

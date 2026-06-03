@@ -64,6 +64,7 @@ const (
 	OrdersStatusReady     OrdersStatus = "ready"
 	OrdersStatusDelivered OrdersStatus = "delivered"
 	OrdersStatusCancelled OrdersStatus = "cancelled"
+	OrdersStatusPaid      OrdersStatus = "paid"
 )
 
 func (e *OrdersStatus) Scan(src interface{}) error {
