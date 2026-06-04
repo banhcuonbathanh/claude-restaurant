@@ -17,7 +17,6 @@ import { CartDrawer } from '@/features/menu/components/CartDrawer'
 import { SearchBar } from '@/features/menu/components/SearchBar'
 import { FavouritesRail } from '@/features/menu/components/FavouritesRail'
 import { DrinkCustomize } from '@/features/menu/components/DrinkCustomize'
-import { OrderNote } from '@/features/menu/components/OrderNote'
 import { OrderSummary } from '@/features/menu/components/OrderSummary'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { formatVND } from '@/lib/utils'
@@ -410,10 +409,7 @@ function MenuContent() {
         {/* Zone G — DrinkCustomize */}
         <DrinkCustomize />
 
-        {/* Zone H — OrderNote */}
-        <OrderNote />
-
-        {/* Zone I — OrderSummary */}
+        {/* Zone I — OrderSummary (includes note) */}
         <OrderSummary />
 
       </main>

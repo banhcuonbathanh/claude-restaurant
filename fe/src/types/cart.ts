@@ -21,4 +21,5 @@ export interface CartItem {
   price:             number    // unit price (product.price + selected toppings)
   toppings:          Topping[]
   combo_items?:      ComboItemSummary[]
+  filling?:          'thit' | 'moc_nhi'
 }

@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware'
 import type { CartItem, DrinkConfig } from '@/types/cart'
 import { STORAGE_KEYS } from '@/lib/storage-keys'
 
-const DEFAULT_DRINK_CONFIG: DrinkConfig = { bowls: 1, vegBowls: 0 }
+const DEFAULT_DRINK_CONFIG: DrinkConfig = { bowls: 0, vegBowls: 0 }
 
 interface CartState {
   items:            CartItem[]
@@ -92,6 +92,14 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name:       STORAGE_KEYS.CART_CONFIG,
+      version:    2,
+      migrate:    (persisted: unknown, fromVersion: number) => {
+        const s = (persisted ?? {}) as Record<string, unknown>
+        if (fromVersion < 2) {
+          s.drinkConfig = DEFAULT_DRINK_CONFIG
+        }
+        return s
+      },
       partialize: (s) => ({ drinkConfig: s.drinkConfig, orderNote: s.orderNote, activeOrderId: s.activeOrderId }),
     },
   ),

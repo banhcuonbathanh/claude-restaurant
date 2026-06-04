@@ -21,7 +21,7 @@ export function ComboCard({ combo }: Props) {
   const fav = isFavourite(combo.id, 'combo')
 
   const comboItems = combo.items ?? []
-  const cartId     = `combo_${combo.id}`
+  const cartId     = `combo_${combo.id}_${filling}`
   const cartItem   = items.find(i => i.id === cartId)
   const qty        = cartItem?.quantity ?? 0
 
@@ -40,6 +40,7 @@ export function ComboCard({ combo }: Props) {
         price:       combo.price,
         toppings:    [],
         combo_items: comboItems.map(i => ({ product_name: i.product_name, quantity: i.quantity, unit_price: i.unit_price })),
+        filling,
       })
     } else {
       updateQty(cartId, qty + 1)
@@ -132,7 +133,7 @@ export function ComboCard({ combo }: Props) {
           </Link>
           {qty === 0 ? (
             <button
-              onClick={() => setModalOpen(true)}
+              onClick={handleAdd}
               disabled={!combo.is_available}
               className="bg-primary text-white w-7 h-7 rounded-full flex items-center justify-center
                          hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"

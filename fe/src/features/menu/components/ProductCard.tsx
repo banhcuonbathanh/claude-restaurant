@@ -15,15 +15,16 @@ interface Props {
 
 export function ProductCard({ product }: Props) {
   const [modalOpen, setModalOpen] = useState(false)
+  const [filling, setFilling] = useState<'thit' | 'moc_nhi'>('thit')
   const { items, addItem, updateQty } = useCartStore()
 
   const { toggleFav, isFavourite } = useFavouritesStore()
   const fav = isFavourite(product.id, 'product')
 
-  const hasToppings = (product.toppings ?? []).some(t => t.is_available)
+  const hasToppings = false
 
-  // For no-topping products only — tracks the single cart entry
-  const noToppingCartId = `product_${product.id}_`
+  // Cart ID includes filling so different fillings are separate entries
+  const noToppingCartId = `product_${product.id}_${filling}`
   const noToppingItem   = items.find(i => i.id === noToppingCartId)
   const noToppingQty    = noToppingItem?.quantity ?? 0
 
@@ -41,6 +42,7 @@ export function ProductCard({ product }: Props) {
         quantity:   1,
         price:      product.price,
         toppings:   [],
+        filling,
       })
     } else {
       updateQty(noToppingCartId, noToppingQty + 1)
@@ -109,6 +111,30 @@ export function ProductCard({ product }: Props) {
         {hasToppings && (
           <p className="text-muted-fg text-xs">Có thể chọn topping</p>
         )}
+
+        {/* Filling selector */}
+        <div className="flex items-center gap-1.5 mt-1">
+          <button
+            onClick={() => setFilling('thit')}
+            className={`text-[11px] px-2.5 py-0.5 rounded-full border transition-colors ${
+              filling === 'thit'
+                ? 'bg-primary text-white border-primary'
+                : 'border-border text-muted-fg hover:border-primary/50'
+            }`}
+          >
+            Nhân thịt
+          </button>
+          <button
+            onClick={() => setFilling('moc_nhi')}
+            className={`text-[11px] px-2.5 py-0.5 rounded-full border transition-colors ${
+              filling === 'moc_nhi'
+                ? 'bg-primary text-white border-primary'
+                : 'border-border text-muted-fg hover:border-primary/50'
+            }`}
+          >
+            Nhân mộc nhĩ
+          </button>
+        </div>
 
         {/* Chi tiết + qty / add control */}
         <div className="flex items-center justify-between mt-auto pt-1">
