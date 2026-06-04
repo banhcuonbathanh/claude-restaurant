@@ -15,7 +15,7 @@ const ROLE_BADGE: Record<StaffRole, string> = {
   cashier:  'bg-blue-100 text-blue-700',
   staff:    'bg-green-100 text-green-700',
   manager:  'bg-purple-100 text-purple-700',
-  admin:    'bg-gray-100 text-gray-700',
+  admin:    'bg-muted text-foreground',
 }
 
 const SHIFT_LABELS: Record<ShiftSlot, string> = {
@@ -66,37 +66,37 @@ export function StaffTable({ staff, currentUserId, currentUserRole, onDetail, on
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
       <table className="w-full text-sm">
-        <thead className="bg-gray-50 border-b border-gray-200">
+        <thead className="bg-muted border-b border-border">
           <tr>
-            <th className="text-left px-4 py-3 font-medium text-gray-600">Nhân viên</th>
-            <th className="text-left px-4 py-3 font-medium text-gray-600">Username</th>
-            <th className="text-center px-4 py-3 font-medium text-gray-600">Vai trò</th>
-            <th className="text-left px-4 py-3 font-medium text-gray-600">Ca làm</th>
-            <th className="text-left px-4 py-3 font-medium text-gray-600 w-32">Hiệu suất</th>
-            <th className="text-center px-4 py-3 font-medium text-gray-600">Trạng thái</th>
+            <th className="text-left px-4 py-3 font-medium text-muted-fg">Nhân viên</th>
+            <th className="text-left px-4 py-3 font-medium text-muted-fg">Username</th>
+            <th className="text-center px-4 py-3 font-medium text-muted-fg">Vai trò</th>
+            <th className="text-left px-4 py-3 font-medium text-muted-fg">Ca làm</th>
+            <th className="text-left px-4 py-3 font-medium text-muted-fg w-32">Hiệu suất</th>
+            <th className="text-center px-4 py-3 font-medium text-muted-fg">Trạng thái</th>
             <th className="px-4 py-3" />
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-border">
           {staff.map(s => (
-            <tr key={s.id} className="hover:bg-gray-50">
+            <tr key={s.id} className="hover:bg-muted">
               <td className="px-4 py-3">
                 <div className="flex items-center gap-2.5">
                   <Avatar name={s.full_name} />
                   <div>
-                    <p className="font-medium text-gray-900 leading-tight">{s.full_name}</p>
+                    <p className="font-medium text-foreground leading-tight">{s.full_name}</p>
                     {s.job_title && (
-                      <p className="text-xs text-gray-400 leading-tight">{s.job_title}</p>
+                      <p className="text-xs text-muted-fg leading-tight">{s.job_title}</p>
                     )}
                   </div>
                 </div>
               </td>
-              <td className="px-4 py-3 text-gray-500 font-mono text-xs">{s.username}</td>
+              <td className="px-4 py-3 text-muted-fg font-mono text-xs">{s.username}</td>
               <td className="px-4 py-3 text-center">
                 <span
-                  className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_BADGE[s.role] ?? 'bg-gray-100 text-gray-700'}`}
+                  className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${ROLE_BADGE[s.role] ?? 'bg-muted text-foreground'}`}
                   aria-label={`Vai trò: ${ROLE_LABELS[s.role] ?? s.role}`}
                 >
                   {ROLE_LABELS[s.role] ?? s.role}
@@ -106,18 +106,18 @@ export function StaffTable({ staff, currentUserId, currentUserRole, onDetail, on
                 <div className="flex flex-wrap gap-1">
                   {(s.shifts ?? []).length > 0
                     ? s.shifts.map(sh => (
-                        <span key={sh} className="px-1.5 py-0.5 rounded bg-orange-50 text-orange-700 text-xs">
+                        <span key={sh} className="px-1.5 py-0.5 rounded bg-orange-50 text-orange-700 dark:bg-orange-950 dark:text-orange-300 text-xs">
                           {SHIFT_LABELS[sh] ?? sh}
                         </span>
                       ))
-                    : <span className="text-gray-400 text-xs">—</span>
+                    : <span className="text-muted-fg text-xs">—</span>
                   }
                 </div>
               </td>
               <td className="px-4 py-3">
                 <div className="space-y-0.5">
                   <ProgressBar value={s.performance_score} className="w-28" />
-                  <p className="text-xs text-gray-400">{s.performance_score}%</p>
+                  <p className="text-xs text-muted-fg">{s.performance_score}%</p>
                 </div>
               </td>
               <td className="px-4 py-3 text-center">
@@ -137,20 +137,20 @@ export function StaffTable({ staff, currentUserId, currentUserRole, onDetail, on
                 <div className="flex gap-1.5 justify-end">
                   <button
                     onClick={() => onDetail(s)}
-                    className="min-h-[36px] px-3 py-1 text-xs border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50"
+                    className="min-h-[36px] px-3 py-1 text-xs border border-border text-foreground rounded-lg hover:bg-muted"
                   >
                     Chi tiết
                   </button>
                   <button
                     onClick={() => onEdit(s)}
-                    className="min-h-[36px] px-3 py-1 text-xs border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50"
+                    className="min-h-[36px] px-3 py-1 text-xs border border-border text-foreground rounded-lg hover:bg-muted"
                   >
                     Sửa
                   </button>
                   {canDelete(s) && (
                     <button
                       onClick={() => onDelete(s)}
-                      className="min-h-[36px] px-3 py-1 text-xs border border-red-200 text-red-600 rounded-lg hover:bg-red-50"
+                      className="min-h-[36px] px-3 py-1 text-xs border border-red-200 text-red-600 rounded-lg hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
                     >
                       Xóa
                     </button>

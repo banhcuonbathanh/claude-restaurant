@@ -27,30 +27,30 @@ export function DateRangePicker({ value, onChange, placeholder }: DateRangePicke
     <div className="relative">
       <button
         onClick={() => setOpen(o => !o)}
-        className="flex min-h-[36px] items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 shadow-sm transition hover:bg-gray-50"
+        className="flex min-h-[36px] items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-foreground shadow-sm transition hover:bg-muted"
       >
         <Calendar className="h-4 w-4 text-gray-400" />
         {displayText}
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-20 mt-1 flex gap-3 rounded-xl border border-gray-200 bg-white p-4 shadow-lg">
+        <div className="absolute right-0 top-full z-20 mt-1 flex gap-3 rounded-xl border border-border bg-card p-4 shadow-lg">
           <div>
-            <label className="mb-1 block text-xs text-gray-500">Từ ngày</label>
+            <label className="mb-1 block text-xs text-muted-fg">Từ ngày</label>
             <input
               type="date"
               value={value.from}
               onChange={e => onChange({ ...value, from: e.target.value })}
-              className="rounded-lg border border-gray-200 px-2 py-1 text-sm"
+              className="rounded-lg border border-border bg-card text-foreground px-2 py-1 text-sm"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs text-gray-500">Đến ngày</label>
+            <label className="mb-1 block text-xs text-muted-fg">Đến ngày</label>
             <input
               type="date"
               value={value.to}
               onChange={e => onChange({ ...value, to: e.target.value })}
-              className="rounded-lg border border-gray-200 px-2 py-1 text-sm"
+              className="rounded-lg border border-border bg-card text-foreground px-2 py-1 text-sm"
             />
           </div>
           <button

@@ -23,7 +23,7 @@ export function JobGuideCardGrid({
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[1, 2, 3, 4].map(i => (
-          <div key={i} className="rounded-xl border border-gray-200 bg-white h-72 animate-pulse" />
+          <div key={i} className="rounded-xl border border-border bg-muted h-72 animate-pulse" />
         ))}
       </div>
     )

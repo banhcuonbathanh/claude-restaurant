@@ -10,11 +10,11 @@ interface Props {
 export function BreadcrumbPageHeader({ breadcrumbs, onAddTask }: Props) {
   return (
     <div className="flex items-center justify-between">
-      <nav className="flex items-center gap-1 text-sm text-gray-500">
+      <nav className="flex items-center gap-1 text-sm text-muted-fg">
         {breadcrumbs.map((crumb, i) => (
           <span key={i} className="flex items-center gap-1">
             {i > 0 && <ChevronRight className="h-3.5 w-3.5" />}
-            <span className={i === breadcrumbs.length - 1 ? 'font-medium text-gray-900' : ''}>
+            <span className={i === breadcrumbs.length - 1 ? 'font-medium text-foreground' : ''}>
               {crumb}
             </span>
           </span>

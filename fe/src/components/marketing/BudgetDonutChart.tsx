@@ -24,8 +24,8 @@ export function BudgetDonutChart({ items, spentPct }: BudgetDonutChartProps) {
   })
 
   return (
-    <div className="flex h-full flex-col gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-      <p className="text-sm font-semibold text-gray-700">Phân bổ ngân sách</p>
+    <div className="flex h-full flex-col gap-4 rounded-xl border border-border bg-card p-4 shadow-sm">
+      <p className="text-sm font-semibold text-foreground">Phân bổ ngân sách</p>
 
       <div className="flex justify-center">
         <svg

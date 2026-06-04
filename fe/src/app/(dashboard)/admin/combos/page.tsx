@@ -234,7 +234,7 @@ export default function CombosPage() {
     <div>
       {/* Zone B — PageHeader */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">Combo ({combos.length})</h2>
+        <h2 className="text-lg font-semibold text-foreground">Combo ({combos.length})</h2>
         <div className="flex gap-2">
           <button
             onClick={handleRandomCombos}
@@ -254,23 +254,23 @@ export default function CombosPage() {
 
       {/* Zone C — ComboTable */}
       {isLoading ? (
-        <p className="text-gray-500 text-sm">Đang tải...</p>
+        <p className="text-muted-fg text-sm">Đang tải...</p>
       ) : combos.length === 0 ? (
         <EmptyState icon="🍱" message="Chưa có combo nào. Nhấn + Thêm combo để bắt đầu." />
       ) : (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-card rounded-xl shadow-sm overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-muted border-b border-border">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Tên combo</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Sản phẩm trong combo</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">Giá combo</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-600">Giá lẻ</th>
-                <th className="text-center px-4 py-3 font-medium text-gray-600">Tiết kiệm</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-fg">Tên combo</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-fg">Sản phẩm trong combo</th>
+                <th className="text-right px-4 py-3 font-medium text-muted-fg">Giá combo</th>
+                <th className="text-right px-4 py-3 font-medium text-muted-fg">Giá lẻ</th>
+                <th className="text-center px-4 py-3 font-medium text-muted-fg">Tiết kiệm</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {combos.map(combo => {
                 const rowRetail = combo.items.reduce((sum, item) => {
                   const p = productMap[item.product_id]
@@ -278,11 +278,11 @@ export default function CombosPage() {
                 }, 0)
                 const rowSavings = rowRetail - combo.price
                 return (
-                  <tr key={combo.id} className="hover:bg-gray-50">
+                  <tr key={combo.id} className="hover:bg-muted">
                     <td className="px-4 py-3">
-                      <p className="font-medium text-gray-900">{combo.name}</p>
+                      <p className="font-medium text-foreground">{combo.name}</p>
                       {combo.description && (
-                        <p className="text-xs text-gray-400 mt-0.5">{combo.description}</p>
+                        <p className="text-xs text-muted-fg mt-0.5">{combo.description}</p>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -296,14 +296,14 @@ export default function CombosPage() {
                           )
                         })}
                         {combo.items.length === 0 && (
-                          <span className="text-gray-400 text-xs">Chưa có sản phẩm</span>
+                          <span className="text-muted-fg text-xs">Chưa có sản phẩm</span>
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-right font-semibold text-gray-900">
+                    <td className="px-4 py-3 text-right font-semibold text-foreground">
                       {formatVND(combo.price)}
                     </td>
-                    <td className="px-4 py-3 text-right text-gray-500">
+                    <td className="px-4 py-3 text-right text-muted-fg">
                       {rowRetail > 0 ? formatVND(rowRetail) : '—'}
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -312,14 +312,14 @@ export default function CombosPage() {
                           -{formatVND(rowSavings)}
                         </span>
                       ) : (
-                        <span className="text-gray-400 text-xs">—</span>
+                        <span className="text-muted-fg text-xs">—</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2 justify-end">
                         <button
                           onClick={() => openEdit(combo)}
-                          className="min-h-[44px] min-w-[44px] px-3 py-1 text-xs border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50"
+                          className="min-h-[44px] min-w-[44px] px-3 py-1 text-xs border border-border text-foreground rounded-lg hover:bg-muted"
                         >
                           Sửa
                         </button>
@@ -344,16 +344,16 @@ export default function CombosPage() {
       {/* Zone D — ComboFormModal */}
       {modalMode !== null && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-2xl shadow-xl max-h-[92vh] flex flex-col">
+          <div className="bg-card rounded-xl w-full max-w-2xl shadow-xl max-h-[92vh] flex flex-col">
             {/* Header */}
-            <div className="px-6 py-4 border-b flex items-center justify-between">
-              <h3 className="font-semibold text-gray-900">
+            <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+              <h3 className="font-semibold text-foreground">
                 {modalMode === 'edit' ? 'Sửa combo' : 'Thêm combo mới'}
               </h3>
               <button
                 type="button"
                 onClick={closeModal}
-                className="text-gray-400 hover:text-gray-600 text-xl leading-none"
+                className="text-muted-fg hover:text-foreground text-xl leading-none"
               >
                 ×
               </button>
@@ -365,19 +365,19 @@ export default function CombosPage() {
                 {/* Name + Description */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Tên combo *</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Tên combo *</label>
                     <input
                       {...register('name')}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full border border-border rounded-lg px-3 py-2 text-sm text-foreground bg-card focus:outline-none focus:ring-2 focus:ring-orange-500"
                       placeholder="VD: Combo Gia Đình"
                     />
                     {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả (tuỳ chọn)</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Mô tả (tuỳ chọn)</label>
                     <input
                       {...register('description')}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full border border-border rounded-lg px-3 py-2 text-sm text-foreground bg-card focus:outline-none focus:ring-2 focus:ring-orange-500"
                       placeholder="Mô tả ngắn về combo (tuỳ chọn)"
                     />
                   </div>
@@ -386,7 +386,7 @@ export default function CombosPage() {
                 {/* Product selection */}
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-foreground">
                       Sản phẩm trong combo *
                       {Object.keys(selectedItems).length > 0 && (
                         <span className="ml-2 text-orange-600 font-normal">
@@ -398,7 +398,7 @@ export default function CombosPage() {
                       <button
                         type="button"
                         onClick={() => setSelectedItems({})}
-                        className="text-xs text-gray-400 hover:text-red-500"
+                        className="text-xs text-muted-fg hover:text-red-500"
                       >
                         Bỏ chọn tất cả
                       </button>
@@ -407,20 +407,20 @@ export default function CombosPage() {
                   {itemsError && (
                     <p className="text-red-500 text-xs mb-2">{itemsError}</p>
                   )}
-                  <div className="border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-100 max-h-72 overflow-y-auto">
+                  <div className="border border-border rounded-xl overflow-hidden divide-y divide-border max-h-72 overflow-y-auto">
                     {uniqueProducts.map(product => {
                       const isChecked = selectedItems[product.id] !== undefined
                       return (
                         <div
                           key={product.id}
                           className={`flex items-start gap-3 px-4 py-3 transition-colors cursor-pointer ${
-                            isChecked ? 'bg-orange-50' : 'hover:bg-gray-50'
+                            isChecked ? 'bg-orange-50 dark:bg-orange-950/30' : 'hover:bg-muted'
                           }`}
                           onClick={() => toggleProduct(product.id)}
                         >
                           <div className="mt-0.5 flex-shrink-0">
                             <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${
-                              isChecked ? 'bg-orange-500 border-orange-500' : 'border-gray-300'
+                              isChecked ? 'bg-orange-500 border-orange-500' : 'border-border'
                             }`}>
                               {isChecked && (
                                 <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 8">
@@ -431,15 +431,15 @@ export default function CombosPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2">
-                              <span className={`text-sm font-medium ${isChecked ? 'text-orange-700' : 'text-gray-900'}`}>
+                              <span className={`text-sm font-medium ${isChecked ? 'text-orange-700 dark:text-orange-300' : 'text-foreground'}`}>
                                 {product.name}
                               </span>
-                              <span className="text-sm font-semibold text-gray-900 flex-shrink-0">
+                              <span className="text-sm font-semibold text-foreground flex-shrink-0">
                                 {formatVND(product.price)}
                               </span>
                             </div>
                             {product.description && (
-                              <p className="text-xs text-gray-400 mt-0.5 truncate">{product.description}</p>
+                              <p className="text-xs text-muted-fg mt-0.5 truncate">{product.description}</p>
                             )}
                           </div>
                           {isChecked && (
@@ -451,17 +451,17 @@ export default function CombosPage() {
                                 type="button"
                                 onClick={() => setQty(product.id, (selectedItems[product.id] ?? 1) - 1)}
                                 disabled={(selectedItems[product.id] ?? 1) <= 1}
-                                className="w-6 h-6 rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100 flex items-center justify-center text-sm leading-none disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="w-6 h-6 rounded-full border border-border text-foreground hover:bg-muted flex items-center justify-center text-sm leading-none disabled:opacity-40 disabled:cursor-not-allowed"
                               >
                                 −
                               </button>
-                              <span className="w-6 text-center text-sm font-medium text-gray-900">
+                              <span className="w-6 text-center text-sm font-medium text-foreground">
                                 {selectedItems[product.id]}
                               </span>
                               <button
                                 type="button"
                                 onClick={() => setQty(product.id, (selectedItems[product.id] ?? 1) + 1)}
-                                className="w-6 h-6 rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100 flex items-center justify-center text-sm leading-none"
+                                className="w-6 h-6 rounded-full border border-border text-foreground hover:bg-muted flex items-center justify-center text-sm leading-none"
                               >
                                 +
                               </button>
@@ -475,21 +475,21 @@ export default function CombosPage() {
 
                 {/* Selected summary */}
                 {Object.keys(selectedItems).length > 0 && (
-                  <div className="bg-orange-50 rounded-xl p-3 space-y-1.5">
-                    <p className="text-xs font-medium text-orange-700 mb-2">Các món đã chọn:</p>
+                  <div className="bg-orange-50 dark:bg-orange-950/30 rounded-xl p-3 space-y-1.5">
+                    <p className="text-xs font-medium text-orange-700 dark:text-orange-300 mb-2">Các món đã chọn:</p>
                     {Object.entries(selectedItems).map(([id, qty]) => {
                       const p = productMap[id]
                       if (!p) return null
                       return (
                         <div key={id} className="flex items-center justify-between text-sm">
-                          <span className="text-gray-700">{p.name} <span className="text-gray-400">×{qty}</span></span>
-                          <span className="text-gray-900 font-medium">{formatVND(p.price * qty)}</span>
+                          <span className="text-foreground">{p.name} <span className="text-muted-fg">×{qty}</span></span>
+                          <span className="text-foreground font-medium">{formatVND(p.price * qty)}</span>
                         </div>
                       )
                     })}
-                    <div className="border-t border-orange-200 pt-1.5 mt-1.5 flex items-center justify-between text-sm font-semibold">
-                      <span className="text-gray-700">Tổng giá lẻ</span>
-                      <span className="text-gray-900">{formatVND(retailTotal)}</span>
+                    <div className="border-t border-orange-200 dark:border-orange-800 pt-1.5 mt-1.5 flex items-center justify-between text-sm font-semibold">
+                      <span className="text-foreground">Tổng giá lẻ</span>
+                      <span className="text-foreground">{formatVND(retailTotal)}</span>
                     </div>
                   </div>
                 )}
@@ -497,10 +497,10 @@ export default function CombosPage() {
                 {/* Price + sort */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-foreground mb-1">
                       Giá combo * (₫)
                       {retailTotal > 0 && (
-                        <span className="ml-1 text-xs text-gray-400 font-normal">
+                        <span className="ml-1 text-xs text-muted-fg font-normal">
                           — gợi ý: {formatVND(Math.round(retailTotal * 0.9 / 1000) * 1000)}
                         </span>
                       )}
@@ -508,7 +508,7 @@ export default function CombosPage() {
                     <input
                       type="number"
                       {...register('price')}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full border border-border rounded-lg px-3 py-2 text-sm text-foreground bg-card focus:outline-none focus:ring-2 focus:ring-orange-500"
                       placeholder="160000"
                     />
                     {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>}
@@ -519,22 +519,22 @@ export default function CombosPage() {
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Thứ tự</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Thứ tự</label>
                     <input
                       type="number"
                       {...register('sort_order')}
-                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full border border-border rounded-lg px-3 py-2 text-sm text-foreground bg-card focus:outline-none focus:ring-2 focus:ring-orange-500"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Footer */}
-              <div className="px-6 py-4 border-t flex gap-3 bg-white">
+              <div className="px-6 py-4 border-t border-border flex gap-3 bg-card">
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="flex-1 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-50"
+                  className="flex-1 py-2 border border-border text-foreground rounded-lg text-sm hover:bg-muted"
                 >
                   Huỷ bỏ
                 </button>

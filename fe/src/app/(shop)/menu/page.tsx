@@ -16,7 +16,6 @@ import { ComboCard } from '@/features/menu/components/ComboCard'
 import { CartDrawer } from '@/features/menu/components/CartDrawer'
 import { SearchBar } from '@/features/menu/components/SearchBar'
 import { FavouritesRail } from '@/features/menu/components/FavouritesRail'
-import { DrinkCustomize } from '@/features/menu/components/DrinkCustomize'
 import { OrderSummary } from '@/features/menu/components/OrderSummary'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { formatVND } from '@/lib/utils'
@@ -37,12 +36,19 @@ function TableConfirmModal({ onClose }: { onClose: () => void }) {
         note:           note.trim() || null,
         table_id:       cart.tableId,
         source:         'qr',
-        items: cart.items.map(item => ({
-          product_id:  item.product_id ?? null,
-          combo_id:    item.combo_id   ?? null,
-          quantity:    item.quantity,
-          topping_ids: item.toppings.map(t => t.id),
-        })),
+        items: cart.items.flatMap(item => {
+          const base = { product_id: item.product_id ?? null, combo_id: item.combo_id ?? null, topping_ids: item.toppings.map(t => t.id) }
+          const isSoup = item.name.toLowerCase().includes('canh') || item.name.toLowerCase().includes('nước dùng')
+          const { vegBowls, bowls } = cart.drinkConfig
+          const nonVegBowls = bowls - vegBowls
+          if (isSoup && bowls > 0) {
+            const rows = []
+            if (vegBowls    > 0) rows.push({ ...base, quantity: vegBowls,    note: 'Có rau' })
+            if (nonVegBowls > 0) rows.push({ ...base, quantity: nonVegBowls, note: 'Không rau' })
+            return rows
+          }
+          return [{ ...base, quantity: item.quantity }]
+        }),
       })
       return data
     },
@@ -131,13 +137,17 @@ function MenuContent() {
   const [confirmOpen, setConfirmOpen]           = useState(false)
   const [hasOrders, setHasOrders]               = useState(false)
   const [searchQuery, setSearchQuery]           = useState('')
+  const [canhShakeKey, setCanhShakeKey]         = useState(0)
 
   useEffect(() => {
     const found = Object.keys(localStorage).some(k => k.startsWith(STORAGE_KEYS.ORDER_CACHE))
     setHasOrders(found)
   }, [])
 
-  const { items, itemCount, total, tableId } = useCartStore()
+  const { items, itemCount, total, tableId, drinkConfig } = useCartStore()
+
+  // Canh is always required: any order must have at least 1 bowl before checkout.
+  const canhMissing  = drinkConfig.bowls === 0
   const { tableLabel } = useSettingsStore()
   const { items: favItems } = useFavouritesStore()
 
@@ -406,11 +416,8 @@ function MenuContent() {
           </div>
         )}
 
-        {/* Zone G — DrinkCustomize */}
-        <DrinkCustomize />
-
         {/* Zone I — OrderSummary (includes note) */}
-        <OrderSummary />
+        <OrderSummary shakeKey={canhShakeKey} />
 
       </main>
 
@@ -418,8 +425,15 @@ function MenuContent() {
       {count > 0 && (
         <div className="fixed bottom-6 left-4 right-4 z-30">
           <button
-            onClick={() => tableId ? setConfirmOpen(true) : router.push('/checkout')}
-            className="w-full bg-primary text-white py-3.5 rounded-2xl font-semibold flex items-center justify-between px-5 shadow-lg min-h-[44px]"
+            onClick={() => {
+              if (canhMissing) {
+                setCanhShakeKey(k => k + 1)
+                toast.error('Vui lòng chọn số bát canh trước khi thanh toán')
+                return
+              }
+              tableId ? setConfirmOpen(true) : router.push('/checkout')
+            }}
+            className={`w-full bg-primary text-white py-3.5 rounded-2xl font-semibold flex items-center justify-between px-5 shadow-lg min-h-[44px] transition-opacity ${canhMissing ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
             <span className="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded-full">
               {count}

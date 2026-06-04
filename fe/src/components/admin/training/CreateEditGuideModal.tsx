@@ -97,19 +97,19 @@ export function CreateEditGuideModal({
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
       <div
-        className="w-full max-w-lg bg-white rounded-2xl shadow-xl overflow-y-auto max-h-[90vh]"
+        className="w-full max-w-lg bg-card rounded-2xl shadow-xl overflow-y-auto max-h-[90vh]"
         role="dialog"
         aria-modal="true"
         aria-label={isEdit ? 'Chỉnh sửa hướng dẫn' : 'Tạo hướng dẫn'}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-base font-semibold text-gray-900">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+          <h2 className="text-base font-semibold text-foreground">
             {isEdit ? 'Chỉnh sửa hướng dẫn' : 'Tạo hướng dẫn'}
           </h2>
           <button
             onClick={onClose}
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-muted text-muted-fg"
             aria-label="Đóng"
           >
             ✕
@@ -119,12 +119,12 @@ export function CreateEditGuideModal({
         <form onSubmit={handleSubmit(onSubmit)} className="px-6 py-4 flex flex-col gap-4">
           {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Tiêu đề <span className="text-red-500">*</span>
             </label>
             <input
               {...register('title')}
-              className="w-full min-h-[44px] rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className="w-full min-h-[44px] rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               placeholder="Tên hướng dẫn đào tạo"
             />
             {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title.message}</p>}
@@ -132,12 +132,12 @@ export function CreateEditGuideModal({
 
           {/* Role */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Vai trò chính <span className="text-red-500">*</span>
             </label>
             <select
               {...register('role')}
-              className="w-full min-h-[44px] rounded-lg border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className="w-full min-h-[44px] rounded-lg border border-border bg-card text-foreground px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
             >
               <option value="">Chọn vai trò...</option>
               {ROLES.map(r => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
@@ -147,21 +147,21 @@ export function CreateEditGuideModal({
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Mô tả</label>
             <textarea
               {...register('description')}
               rows={3}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
+              className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
               placeholder="Mô tả nội dung hướng dẫn..."
             />
           </div>
 
           {/* Cover image URL */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">URL ảnh bìa</label>
+            <label className="block text-sm font-medium text-foreground mb-1">URL ảnh bìa</label>
             <input
               {...register('coverImageUrl')}
-              className="w-full min-h-[44px] rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className="w-full min-h-[44px] rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               placeholder="https://..."
             />
             {errors.coverImageUrl && <p className="mt-1 text-xs text-red-500">{errors.coverImageUrl.message}</p>}
@@ -169,10 +169,10 @@ export function CreateEditGuideModal({
 
           {/* YouTube URL */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">URL YouTube</label>
+            <label className="block text-sm font-medium text-foreground mb-1">URL YouTube</label>
             <input
               {...register('youtubeUrl')}
-              className="w-full min-h-[44px] rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className="w-full min-h-[44px] rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               placeholder="https://youtube.com/..."
             />
             {errors.youtubeUrl && <p className="mt-1 text-xs text-red-500">{errors.youtubeUrl.message}</p>}
@@ -181,18 +181,18 @@ export function CreateEditGuideModal({
           {/* KPI targets */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">KPI Chất lượng</label>
+              <label className="block text-sm font-medium text-foreground mb-1">KPI Chất lượng</label>
               <input
                 {...register('qualityKpiTarget')}
-                className="w-full min-h-[44px] rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full min-h-[44px] rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
                 placeholder="≥ 95% rating"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">KPI Số lượng</label>
+              <label className="block text-sm font-medium text-foreground mb-1">KPI Số lượng</label>
               <input
                 {...register('quantityKpiTarget')}
-                className="w-full min-h-[44px] rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full min-h-[44px] rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
                 placeholder="≥ 80 bánh/ca"
               />
             </div>
@@ -201,21 +201,21 @@ export function CreateEditGuideModal({
           {/* Pass threshold + max attempts */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Điểm đậu (%)</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Điểm đậu (%)</label>
               <input
                 {...register('passThreshold')}
                 type="number"
                 min={1} max={100}
-                className="w-full min-h-[44px] rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full min-h-[44px] rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Số lần thi tối đa</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Số lần thi tối đa</label>
               <input
                 {...register('maxAttempts')}
                 type="number"
                 min={1} max={10}
-                className="w-full min-h-[44px] rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full min-h-[44px] rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               />
             </div>
           </div>
@@ -245,7 +245,7 @@ export function CreateEditGuideModal({
                         className={`min-h-[44px] px-3 rounded-full text-sm font-medium transition-colors ${
                           selected
                             ? 'bg-orange-500 text-white'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            : 'bg-muted text-muted-fg hover:opacity-90'
                         }`}
                       >
                         {ROLE_LABELS[r]} {selected ? '×' : '+'}
@@ -262,7 +262,7 @@ export function CreateEditGuideModal({
 
           {/* Published toggle */}
           <div className="flex items-center justify-between py-2">
-            <label className="text-sm font-medium text-gray-700">Đã xuất bản</label>
+            <label className="text-sm font-medium text-foreground">Đã xuất bản</label>
             <Controller
               name="published"
               control={control}
@@ -270,7 +270,7 @@ export function CreateEditGuideModal({
                 <button
                   type="button"
                   onClick={() => field.onChange(!field.value)}
-                  className={`relative w-11 h-6 rounded-full transition-colors ${field.value ? 'bg-green-500' : 'bg-gray-300'}`}
+                  className={`relative w-11 h-6 rounded-full transition-colors ${field.value ? 'bg-green-500' : 'bg-muted'}`}
                   aria-label={field.value ? 'Đã xuất bản' : 'Nháp'}
                 >
                   <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${field.value ? 'translate-x-5' : ''}`} />
@@ -280,11 +280,11 @@ export function CreateEditGuideModal({
           </div>
 
           {/* Footer */}
-          <div className="flex gap-3 pt-2 border-t border-gray-100">
+          <div className="flex gap-3 pt-2 border-t border-border">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 min-h-[44px] rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+              className="flex-1 min-h-[44px] rounded-lg border border-border text-sm text-foreground hover:bg-muted transition-colors"
             >
               Huỷ
             </button>

@@ -21,7 +21,7 @@ const ROLE_COLORS: Record<string, string> = {
   cashier: 'bg-blue-100 text-blue-700',
   server:  'bg-purple-100 text-purple-700',
   chef:    'bg-red-100 text-red-700',
-  staff:   'bg-gray-100 text-gray-700',
+  staff:   'bg-muted text-foreground',
   manager: 'bg-green-100 text-green-700',
   admin:   'bg-yellow-100 text-yellow-700',
 }
@@ -58,10 +58,10 @@ export function StaffTaskTable({
   onAssign,
 }: Props) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+    <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
       <table className="min-w-full text-sm">
         <thead>
-          <tr className="bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wide">
+          <tr className="bg-muted text-xs font-medium text-muted-fg uppercase tracking-wide">
             <th className="px-4 py-3 text-left">Nhân viên</th>
             <th className="px-4 py-3 text-left">Vai trò</th>
             <th className="px-4 py-3 text-center">Được giao</th>
@@ -71,7 +71,7 @@ export function StaffTaskTable({
             <th className="px-4 py-3 text-right">Thao tác</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-border">
           {rows.map(row => {
             const isExpanded = expandedId === row.staffId
             return (
@@ -79,14 +79,14 @@ export function StaffTaskTable({
                 <tr
                   className={cn(
                     'transition-colors',
-                    row.hasOverdue ? 'bg-orange-50 hover:bg-orange-100' : 'hover:bg-gray-50',
+                    row.hasOverdue ? 'bg-orange-50 dark:bg-orange-950/30 hover:bg-orange-100 dark:hover:bg-orange-950/50' : 'hover:bg-muted',
                   )}
                 >
-                  <td className="px-4 py-3 font-medium text-gray-900 flex items-center gap-2">
+                  <td className="px-4 py-3 font-medium text-foreground flex items-center gap-2">
                     <button
                       aria-expanded={isExpanded}
                       onClick={() => onToggleExpand(row.staffId)}
-                      className="text-gray-400 hover:text-gray-700 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                      className="text-muted-fg hover:text-foreground min-h-[44px] min-w-[44px] flex items-center justify-center"
                     >
                       {isExpanded
                         ? <ChevronDown className="h-4 w-4" />
@@ -100,12 +100,12 @@ export function StaffTaskTable({
                   <td className="px-4 py-3">
                     <span className={cn(
                       'inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium',
-                      ROLE_COLORS[row.role] ?? 'bg-gray-100 text-gray-700',
+                      ROLE_COLORS[row.role] ?? 'bg-muted text-foreground',
                     )}>
                       {ROLE_LABELS[row.role] ?? row.role}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-center text-gray-700">{row.assignedCount}</td>
+                  <td className="px-4 py-3 text-center text-foreground">{row.assignedCount}</td>
                   <td className="px-4 py-3 text-center text-green-700 font-medium">{row.completedCount}</td>
                   <td className="px-4 py-3 text-center">
                     <span className={cn(
@@ -140,7 +140,7 @@ export function StaffTaskTable({
                   </td>
                 </tr>
                 {isExpanded && (
-                  <tr key={`${row.staffId}-expanded`} className="bg-gray-50">
+                  <tr key={`${row.staffId}-expanded`} className="bg-muted">
                     <td colSpan={7} className="px-0 py-0">
                       <ExpandedTaskList
                         tasks={expandedTasks}

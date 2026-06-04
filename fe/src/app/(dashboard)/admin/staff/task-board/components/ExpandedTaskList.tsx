@@ -12,7 +12,7 @@ interface Props {
 export function ExpandedTaskList({ tasks, isLoading, isError }: Props) {
   if (isLoading) {
     return (
-      <div className="px-4 py-3 text-sm text-gray-400 animate-pulse">
+      <div className="px-4 py-3 text-sm text-muted-fg animate-pulse">
         Đang tải công việc…
       </div>
     )
@@ -26,7 +26,7 @@ export function ExpandedTaskList({ tasks, isLoading, isError }: Props) {
   }
   if (tasks.length === 0) {
     return (
-      <div className="px-4 py-3 text-sm text-gray-400">
+      <div className="px-4 py-3 text-sm text-muted-fg">
         Không có công việc nào trong ngày này.
       </div>
     )
@@ -36,7 +36,7 @@ export function ExpandedTaskList({ tasks, isLoading, isError }: Props) {
     <div className="overflow-x-auto">
       <table className="min-w-full text-sm">
         <thead>
-          <tr className="bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wide">
+          <tr className="bg-muted text-xs font-medium text-muted-fg uppercase tracking-wide">
             <th className="px-4 py-2 text-left">Tên công việc</th>
             <th className="px-4 py-2 text-left">Ưu tiên</th>
             <th className="px-4 py-2 text-left">Giờ</th>
@@ -44,14 +44,14 @@ export function ExpandedTaskList({ tasks, isLoading, isError }: Props) {
             <th className="px-4 py-2 text-left">Ghi chú</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-border">
           {tasks.map(task => (
-            <tr key={task.id} className="hover:bg-gray-50">
-              <td className="px-4 py-2 font-medium text-gray-900">{task.name}</td>
+            <tr key={task.id} className="hover:bg-muted">
+              <td className="px-4 py-2 font-medium text-foreground">{task.name}</td>
               <td className="px-4 py-2">
                 <TaskPriorityBadge priority={task.priority} />
               </td>
-              <td className="px-4 py-2 text-gray-500 whitespace-nowrap">
+              <td className="px-4 py-2 text-muted-fg whitespace-nowrap">
                 {task.dueTimeStart && task.dueTimeEnd
                   ? `${task.dueTimeStart}–${task.dueTimeEnd}`
                   : task.dueTimeStart || '—'}
@@ -59,7 +59,7 @@ export function ExpandedTaskList({ tasks, isLoading, isError }: Props) {
               <td className="px-4 py-2">
                 <TaskStatusBadge status={task.status} />
               </td>
-              <td className="px-4 py-2 text-gray-500 max-w-[200px] truncate">
+              <td className="px-4 py-2 text-muted-fg max-w-[200px] truncate">
                 {task.notes || '—'}
               </td>
             </tr>

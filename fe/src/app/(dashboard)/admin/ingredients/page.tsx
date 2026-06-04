@@ -49,17 +49,17 @@ function StockMoveModal({ ingredient, onClose }: { ingredient: Ingredient; onClo
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b px-6 py-4">
-          <h3 className="font-semibold text-gray-900">Điều chỉnh kho — {ingredient.name}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">✕</button>
+      <div className="w-full max-w-md rounded-xl bg-card shadow-xl">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
+          <h3 className="font-semibold text-foreground">Điều chỉnh kho — {ingredient.name}</h3>
+          <button onClick={onClose} className="text-muted-fg hover:text-foreground">✕</button>
         </div>
         <form onSubmit={handleSubmit(v => mut.mutate(v))} className="space-y-4 p-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Loại thao tác</label>
+            <label className="block text-sm font-medium text-foreground">Loại thao tác</label>
             <select
               {...register('type')}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className="mt-1 w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
             >
               <option value="in">Nhập hàng (+)</option>
               <option value="out">Xuất hàng (-)</option>
@@ -67,29 +67,29 @@ function StockMoveModal({ ingredient, onClose }: { ingredient: Ingredient; onClo
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-foreground">
               Số lượng ({ingredient.unit})
             </label>
             <input
               type="number"
               step="0.001"
               {...register('quantity')}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className="mt-1 w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               placeholder="0"
             />
             {errors.quantity && <p className="mt-1 text-xs text-red-500">{errors.quantity.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Ghi chú</label>
+            <label className="block text-sm font-medium text-foreground">Ghi chú</label>
             <input
               {...register('note')}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm"
               placeholder="Tùy chọn"
             />
           </div>
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={onClose}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">
+              className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:bg-muted">
               Huỷ
             </button>
             <button type="submit" disabled={mut.isPending}
@@ -183,7 +183,7 @@ export default function IngredientsPage() {
       />
 
       {isError && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div className="rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/40 px-4 py-3 text-sm text-red-600 dark:text-red-400">
           Không tải được danh sách. Thử lại.
         </div>
       )}
@@ -191,11 +191,11 @@ export default function IngredientsPage() {
       {isLoading ? (
         <div className="space-y-2">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-14 animate-pulse rounded-xl bg-gray-100" />
+            <div key={i} className="h-14 animate-pulse rounded-xl bg-muted" />
           ))}
         </div>
       ) : searchQuery && filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-gray-300 py-16 text-center text-sm text-gray-400">
+        <div className="rounded-xl border border-dashed border-border py-16 text-center text-sm text-muted-fg">
           Không tìm thấy nguyên liệu nào.
         </div>
       ) : (

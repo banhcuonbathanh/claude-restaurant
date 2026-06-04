@@ -212,7 +212,7 @@ func (r *orderRepo) ListTodayHistory(ctx context.Context) ([]db.Order, error) {
 		       note, total_amount, created_by, created_at, updated_at, deleted_at
 		FROM orders
 		WHERE status IN ('cancelled','paid') AND deleted_at IS NULL
-		  AND DATE(created_at) = CURDATE()
+		  AND DATE(updated_at) = CURDATE()
 		ORDER BY updated_at DESC`)
 	if err != nil {
 		return nil, err

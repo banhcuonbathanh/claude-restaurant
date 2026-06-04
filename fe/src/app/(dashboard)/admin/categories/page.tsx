@@ -84,7 +84,7 @@ export default function CategoriesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">Danh mục ({categories.length})</h2>
+        <h2 className="text-lg font-semibold text-foreground">Danh mục ({categories.length})</h2>
         <button
           onClick={openAdd}
           className="px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600 transition-colors"
@@ -96,41 +96,41 @@ export default function CategoriesPage() {
       {isLoading ? (
         <p className="text-gray-500 text-sm">Đang tải...</p>
       ) : isError ? (
-        <div className="bg-white rounded-xl shadow-sm p-10 text-center">
-          <p className="text-gray-500 text-sm mb-3">Không thể tải danh mục. Vui lòng thử lại.</p>
+        <div className="bg-card rounded-xl shadow-sm p-10 text-center">
+          <p className="text-muted-fg text-sm mb-3">Không thể tải danh mục. Vui lòng thử lại.</p>
           <button
             onClick={() => refetch()}
-            className="px-4 py-2 text-sm border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50"
+            className="px-4 py-2 text-sm border border-border text-foreground rounded-lg hover:bg-muted"
           >
             Thử lại
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-card rounded-xl shadow-sm overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-muted border-b border-border">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Tên danh mục</th>
-                <th className="text-center px-4 py-3 font-medium text-gray-600">Thứ tự</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-fg">Tên danh mục</th>
+                <th className="text-center px-4 py-3 font-medium text-muted-fg">Thứ tự</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {[...categories].sort((a, b) => a.sort_order - b.sort_order).map(c => (
-                <tr key={c.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-900">{c.name}</td>
-                  <td className="px-4 py-3 text-center text-gray-500">{c.sort_order}</td>
+                <tr key={c.id} className="hover:bg-muted">
+                  <td className="px-4 py-3 font-medium text-foreground">{c.name}</td>
+                  <td className="px-4 py-3 text-center text-muted-fg">{c.sort_order}</td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2 justify-end">
                       <button
                         onClick={() => openEdit(c)}
-                        className="px-3 py-1 text-xs border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50"
+                        className="px-3 py-1 text-xs border border-border text-foreground rounded-lg hover:bg-muted"
                       >
                         Sửa
                       </button>
                       <button
                         onClick={() => handleDelete(c.id, c.name)}
-                        className="px-3 py-1 text-xs border border-red-200 text-red-600 rounded-lg hover:bg-red-50"
+                        className="px-3 py-1 text-xs border border-red-200 text-red-600 rounded-lg hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
                       >
                         Xóa
                       </button>
@@ -140,7 +140,7 @@ export default function CategoriesPage() {
               ))}
               {categories.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="px-4 py-10 text-center text-gray-400">
+                  <td colSpan={3} className="px-4 py-10 text-center text-muted-fg">
                     Chưa có danh mục nào
                   </td>
                 </tr>
@@ -152,35 +152,35 @@ export default function CategoriesPage() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-sm shadow-xl">
-            <div className="px-6 py-4 border-b">
-              <h3 className="font-semibold text-gray-900">
+          <div className="bg-card rounded-xl w-full max-w-sm shadow-xl">
+            <div className="px-6 py-4 border-b border-border">
+              <h3 className="font-semibold text-foreground">
                 {editItem ? 'Sửa danh mục' : 'Thêm danh mục'}
               </h3>
             </div>
             <form onSubmit={handleSubmit(v => saveMut.mutate(v))} className="px-6 py-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tên danh mục</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Tên danh mục</label>
                 <input
                   {...register('name')}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm text-foreground bg-card placeholder:text-muted-fg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   placeholder="Bánh cuốn, Bún bò..."
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Thứ tự hiển thị</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Thứ tự hiển thị</label>
                 <input
                   type="number"
                   {...register('sort_order')}
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm text-foreground bg-card focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-50"
+                  className="flex-1 py-2 border border-border text-foreground rounded-lg text-sm hover:bg-muted"
                 >
                   Huỷ
                 </button>

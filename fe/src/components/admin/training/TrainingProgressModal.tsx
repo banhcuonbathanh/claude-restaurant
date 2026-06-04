@@ -71,23 +71,23 @@ export function TrainingProgressModal({
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
       <div
-        className="w-full max-w-lg bg-white rounded-2xl shadow-xl overflow-y-auto max-h-[90vh]"
+        className="w-full max-w-lg bg-card rounded-2xl shadow-xl overflow-y-auto max-h-[90vh]"
         role="dialog"
         aria-modal="true"
         aria-label="Chi tiết tiến trình đào tạo"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <div>
-            <h2 className="text-base font-semibold text-gray-900">Chi tiết tiến trình</h2>
+            <h2 className="text-base font-semibold text-foreground">Chi tiết tiến trình</h2>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-sm text-gray-700 font-medium">{staffName}</span>
+              <span className="text-sm text-foreground font-medium">{staffName}</span>
               <RoleBadge role={staffRole} />
             </div>
           </div>
           <button
             onClick={onClose}
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-muted text-muted-fg"
             aria-label="Đóng"
           >
             ✕
@@ -95,25 +95,25 @@ export function TrainingProgressModal({
         </div>
 
         {isLoading ? (
-          <div className="p-8 text-center text-sm text-gray-400">Đang tải...</div>
+          <div className="p-8 text-center text-sm text-muted-fg">Đang tải...</div>
         ) : !detail ? (
-          <div className="p-8 text-center text-sm text-gray-500">
+          <div className="p-8 text-center text-sm text-muted-fg">
             Nhân viên này chưa bắt đầu hướng dẫn.
           </div>
         ) : (
           <div className="px-6 py-4 flex flex-col gap-5">
             {/* Guide name */}
-            <p className="text-sm text-gray-500">
-              Hướng dẫn: <span className="font-medium text-gray-700">{detail.guideName}</span>
+            <p className="text-sm text-muted-fg">
+              Hướng dẫn: <span className="font-medium text-foreground">{detail.guideName}</span>
             </p>
 
             {/* Progress bar */}
             <div>
-              <div className="flex justify-between text-xs text-gray-500 mb-1">
+              <div className="flex justify-between text-xs text-muted-fg mb-1">
                 <span>Tiến trình hoàn thành</span>
                 <span className="font-medium text-orange-600">{detail.watchedPercent}%</span>
               </div>
-              <div className="h-2.5 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-2.5 bg-muted rounded-full overflow-hidden">
                 <div
                   className="h-full bg-orange-400 rounded-full transition-all"
                   style={{ width: `${detail.watchedPercent}%` }}
@@ -123,22 +123,22 @@ export function TrainingProgressModal({
 
             {/* Steps */}
             <div>
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">
+              <p className="text-xs font-medium text-muted-fg uppercase tracking-wide mb-3">
                 Các bước
               </p>
               <ol className="flex flex-col gap-2">
                 {deriveSteps(detail).map((step, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <span className={`mt-0.5 text-base ${step.done ? 'text-green-500' : 'text-gray-300'}`}>
+                    <span className={`mt-0.5 text-base ${step.done ? 'text-green-500' : 'text-muted-fg'}`}>
                       {step.done ? '✓' : '○'}
                     </span>
                     <div className="flex-1">
-                      <span className={`text-sm font-medium ${step.done ? 'text-gray-800' : 'text-gray-400'}`}>
+                      <span className={`text-sm font-medium ${step.done ? 'text-foreground' : 'text-muted-fg'}`}>
                         {step.label}
                       </span>
-                      <span className="text-xs text-gray-400 ml-2">— {step.note}</span>
+                      <span className="text-xs text-muted-fg ml-2">— {step.note}</span>
                       {step.date && (
-                        <span className="text-xs text-gray-400 ml-1">
+                        <span className="text-xs text-muted-fg ml-1">
                           · {new Date(step.date).toLocaleDateString('vi-VN')}
                         </span>
                       )}
@@ -151,23 +151,23 @@ export function TrainingProgressModal({
             {/* Quiz attempts */}
             {detail.quizAttempts.length > 0 && (
               <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">
+                <p className="text-xs font-medium text-muted-fg uppercase tracking-wide mb-3">
                   Lịch sử thi
                 </p>
-                <table className="w-full text-sm border border-gray-100 rounded-lg overflow-hidden">
+                <table className="w-full text-sm border border-border rounded-lg overflow-hidden">
                   <thead>
-                    <tr className="bg-gray-50 text-xs text-gray-500">
+                    <tr className="bg-muted text-xs text-muted-fg">
                       <th className="px-3 py-2 text-left">Lần</th>
                       <th className="px-3 py-2 text-left">Ngày</th>
                       <th className="px-3 py-2 text-left">Điểm</th>
                       <th className="px-3 py-2 text-left">Kết quả</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className="divide-y divide-border">
                     {detail.quizAttempts.map(a => (
                       <tr key={a.attemptNumber}>
-                        <td className="px-3 py-2 text-gray-600">Lần {a.attemptNumber}</td>
-                        <td className="px-3 py-2 text-gray-600">{a.date}</td>
+                        <td className="px-3 py-2 text-muted-fg">Lần {a.attemptNumber}</td>
+                        <td className="px-3 py-2 text-muted-fg">{a.date}</td>
                         <td className="px-3 py-2 font-medium">{a.score}%</td>
                         <td className={`px-3 py-2 font-medium ${a.passed ? 'text-green-600' : 'text-red-500'}`}>
                           {a.passed ? 'Đạt' : 'Không đạt'}
@@ -176,7 +176,7 @@ export function TrainingProgressModal({
                     ))}
                   </tbody>
                 </table>
-                <p className="text-xs text-gray-400 mt-2">
+                <p className="text-xs text-muted-fg mt-2">
                   Cần ≥ {detail.passThreshold}% để qua ·{' '}
                   {detail.attemptsRemaining > 0
                     ? `${detail.attemptsRemaining} lần thử còn lại`
@@ -188,24 +188,24 @@ export function TrainingProgressModal({
 
             {/* Manager notes */}
             <div>
-              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+              <label className="block text-xs font-medium text-muted-fg uppercase tracking-wide mb-2">
                 Ghi chú quản lý
               </label>
               <textarea
                 value={notes}
                 onChange={e => handleNotesChange(e.target.value)}
                 rows={3}
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
+                className="w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
                 placeholder="Thêm ghi chú huấn luyện cho nhân viên này..."
               />
             </div>
           </div>
         )}
 
-        <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
+        <div className="px-6 py-4 border-t border-border flex justify-end">
           <button
             onClick={onClose}
-            className="min-h-[44px] px-6 rounded-lg bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition-colors"
+            className="min-h-[44px] px-6 rounded-lg bg-muted text-foreground text-sm font-medium hover:opacity-90 transition-colors"
           >
             Đóng
           </button>

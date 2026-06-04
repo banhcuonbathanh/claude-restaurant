@@ -85,10 +85,10 @@ export default function TrainingPage() {
   return (
     <div className="flex flex-col min-h-full">
       {/* Zone A — Page Header (sticky) */}
-      <div className="sticky top-0 z-20 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm">
+      <div className="sticky top-0 z-20 bg-card border-b border-border px-6 py-4 flex items-center justify-between shadow-sm">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">Đào tạo nhân viên</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Quản lý hướng dẫn và theo dõi tiến trình</p>
+          <h1 className="text-xl font-bold text-foreground">Đào tạo nhân viên</h1>
+          <p className="text-sm text-muted-fg mt-0.5">Quản lý hướng dẫn và theo dõi tiến trình</p>
         </div>
         <button
           onClick={handleNewGuide}

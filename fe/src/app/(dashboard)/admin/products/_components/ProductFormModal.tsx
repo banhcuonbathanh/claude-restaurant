@@ -125,22 +125,22 @@ export function ProductFormModal({ mode, product, open, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
-        <div className="px-6 py-4 border-b sticky top-0 bg-white">
-          <h3 className="font-semibold text-gray-900">
+      <div className="bg-card rounded-xl w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto">
+        <div className="px-6 py-4 border-b border-border sticky top-0 bg-card">
+          <h3 className="font-semibold text-foreground">
             {mode === 'edit' ? 'Sửa sản phẩm' : 'Thêm sản phẩm'}
           </h3>
         </div>
         <form onSubmit={handleSubmit(v => saveMut.mutate(v))} className="px-6 py-4 space-y-4">
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Danh mục</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Danh mục</label>
             {categories.length === 0 ? (
               <p className="text-xs text-gray-400">Chưa có danh mục nào. Vui lòng thêm danh mục trước.</p>
             ) : (
               <select
                 {...register('category_id')}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full border border-border rounded-lg px-3 py-2 text-sm text-foreground bg-card focus:outline-none focus:ring-2 focus:ring-orange-500"
               >
                 <option value="">-- Chọn danh mục --</option>
                 {categories.map(c => (
@@ -152,26 +152,26 @@ export function ProductFormModal({ mode, product, open, onClose }: Props) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tên sản phẩm</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Tên sản phẩm</label>
             <input
               {...register('name')}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm text-foreground bg-card focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="Bánh cuốn nhân tôm"
             />
             {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả (tuỳ chọn)</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Mô tả (tuỳ chọn)</label>
             <textarea
               {...register('description')}
               rows={2}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
+              className="w-full border border-border rounded-lg px-3 py-2 text-sm text-foreground bg-card focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Hình ảnh</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Hình ảnh</label>
             <input
               ref={fileInputRef}
               type="file"
@@ -185,10 +185,10 @@ export function ProductFormModal({ mode, product, open, onClose }: Props) {
                 <img
                   src={imagePreview}
                   alt="preview"
-                  className="w-16 h-16 rounded-lg object-cover bg-gray-100 border border-gray-200"
+                  className="w-16 h-16 rounded-lg object-cover bg-muted border border-border"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-lg bg-gray-100 border border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xs text-center">
+                <div className="w-16 h-16 rounded-lg bg-muted border border-dashed border-border flex items-center justify-center text-muted-fg text-xs text-center">
                   Chưa có ảnh
                 </div>
               )}
@@ -197,7 +197,7 @@ export function ProductFormModal({ mode, product, open, onClose }: Props) {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
-                  className="px-3 py-1.5 text-xs border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+                  className="px-3 py-1.5 text-xs border border-border text-foreground rounded-lg hover:bg-muted disabled:opacity-50"
                 >
                   {uploading ? 'Đang tải...' : imagePreview ? 'Đổi ảnh' : 'Chọn ảnh'}
                 </button>
@@ -216,40 +216,40 @@ export function ProductFormModal({ mode, product, open, onClose }: Props) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Giá (₫)</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Giá (₫)</label>
               <input
                 type="number"
                 {...register('price')}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full border border-border rounded-lg px-3 py-2 text-sm text-foreground bg-card focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="35000"
               />
               {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Thứ tự</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Thứ tự</label>
               <input
                 type="number"
                 {...register('sort_order')}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                className="w-full border border-border rounded-lg px-3 py-2 text-sm text-foreground bg-card focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Topping áp dụng</label>
+            <label className="block text-sm font-medium text-foreground mb-2">Topping áp dụng</label>
             {toppings.length === 0 ? (
-              <p className="text-xs text-gray-400">Chưa có topping nào được thiết lập.</p>
+              <p className="text-xs text-muted-fg">Chưa có topping nào được thiết lập.</p>
             ) : (
-              <div className="border border-gray-200 rounded-lg p-3 space-y-2 max-h-40 overflow-y-auto">
+              <div className="border border-border rounded-lg p-3 space-y-2 max-h-40 overflow-y-auto">
                 {toppings.map(t => (
-                  <label key={t.id} className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 rounded px-1 py-0.5">
+                  <label key={t.id} className="flex items-center gap-2 cursor-pointer hover:bg-muted rounded px-1 py-0.5">
                     <input
                       type="checkbox"
                       checked={selectedToppingIds.includes(t.id)}
                       onChange={() => toggleTopping(t.id)}
                       className="accent-orange-500 w-4 h-4"
                     />
-                    <span className="text-sm text-gray-800">{t.name}</span>
+                    <span className="text-sm text-foreground">{t.name}</span>
                     <span className="ml-auto text-xs">
                       {t.price === 0
                         ? <span className="text-green-600">Miễn phí</span>
@@ -260,7 +260,7 @@ export function ProductFormModal({ mode, product, open, onClose }: Props) {
               </div>
             )}
             {selectedToppingIds.length > 0 && (
-              <p className="text-xs text-gray-500 mt-1">{selectedToppingIds.length} topping đã chọn</p>
+              <p className="text-xs text-muted-fg mt-1">{selectedToppingIds.length} topping đã chọn</p>
             )}
           </div>
 
@@ -268,7 +268,7 @@ export function ProductFormModal({ mode, product, open, onClose }: Props) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-50"
+              className="flex-1 py-2 border border-border text-foreground rounded-lg text-sm hover:bg-muted"
             >
               Huỷ
             </button>

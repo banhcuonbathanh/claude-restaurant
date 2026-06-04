@@ -95,14 +95,14 @@ export function IngredientFormModal({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
       onKeyDown={e => e.key === 'Escape' && onClose()}
     >
-      <div className="w-full max-w-md rounded-xl bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b px-6 py-4">
-          <h3 className="font-semibold text-gray-900">
+      <div className="w-full max-w-md rounded-xl bg-card shadow-xl">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
+          <h3 className="font-semibold text-foreground">
             {isEdit ? 'Sửa nguyên liệu' : 'Thêm nguyên liệu'}
           </h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 min-h-[44px] min-w-[44px] flex items-center justify-center"
+            className="text-muted-fg hover:text-foreground min-h-[44px] min-w-[44px] flex items-center justify-center"
           >
             ✕
           </button>
@@ -111,13 +111,13 @@ export function IngredientFormModal({
         <form onSubmit={handleSubmit(submit)} className="space-y-4 p-6">
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-foreground">
               Tên nguyên liệu <span className="text-red-500">*</span>
             </label>
             <input
               {...register('name')}
               placeholder="Nhập tên nguyên liệu..."
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className="mt-1 w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
             />
             {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
           </div>
@@ -125,19 +125,19 @@ export function IngredientFormModal({
           {/* Unit + Initial Quantity */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-foreground">
                 Đơn vị <span className="text-red-500">*</span>
               </label>
               <select
                 {...register('unit')}
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="mt-1 w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               >
                 {COMMON_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
               </select>
               {errors.unit && <p className="mt-1 text-xs text-red-500">{errors.unit.message}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-foreground">
                 Số lượng ban đầu <span className="text-red-500">*</span>
               </label>
               <input
@@ -145,7 +145,7 @@ export function IngredientFormModal({
                 step="0.001"
                 disabled={isEdit}
                 {...register('initialQuantity')}
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 disabled:bg-gray-50 disabled:text-gray-400"
+                className="mt-1 w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 disabled:bg-muted disabled:text-muted-fg"
               />
               {errors.initialQuantity && (
                 <p className="mt-1 text-xs text-red-500">{errors.initialQuantity.message}</p>
@@ -155,11 +155,11 @@ export function IngredientFormModal({
 
           {/* Warning Threshold */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-foreground">
               Ngưỡng cảnh báo <span className="text-red-500">*</span>
               <span
                 title="Hệ thống sẽ cảnh báo khi tồn kho xuống dưới mức này"
-                className="ml-1 cursor-help text-gray-400 hover:text-gray-600"
+                className="ml-1 cursor-help text-muted-fg hover:text-foreground"
               >
                 (?)
               </span>
@@ -168,9 +168,9 @@ export function IngredientFormModal({
               type="number"
               step="0.001"
               {...register('warningThreshold')}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className="mt-1 w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
             />
-            <p className="mt-0.5 text-xs text-gray-400">
+            <p className="mt-0.5 text-xs text-muted-fg">
               cảnh báo khi tồn kho dưới mức này
             </p>
             {errors.warningThreshold && (
@@ -181,20 +181,20 @@ export function IngredientFormModal({
           {/* Import Date + Shelf Days */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-foreground">
                 Ngày nhập kho <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
                 {...register('importDate')}
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="mt-1 w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               />
               {errors.importDate && (
                 <p className="mt-1 text-xs text-red-500">{errors.importDate.message}</p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-foreground">
                 Số ngày bảo quản <span className="text-red-500">*</span>
               </label>
               <div className="relative mt-1">
@@ -204,7 +204,7 @@ export function IngredientFormModal({
                   {...register('shelfDays')}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 pr-14 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 pointer-events-none">
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-fg pointer-events-none">
                   ngày
                 </span>
               </div>
@@ -215,11 +215,11 @@ export function IngredientFormModal({
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end gap-3 border-t pt-4">
+          <div className="flex justify-end gap-3 border-t border-border pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 min-h-[44px]"
+              className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:bg-muted min-h-[44px]"
             >
               Hủy
             </button>

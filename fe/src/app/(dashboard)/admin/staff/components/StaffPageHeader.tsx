@@ -5,9 +5,9 @@ interface Props {
 
 export function StaffPageHeader({ totalCount, onAdd }: Props) {
   return (
-    <div className="flex items-center justify-between bg-white rounded-xl border border-gray-200 px-6 py-3 shadow-sm">
-      <h2 className="text-lg font-semibold text-gray-900">
-        Nhân viên <span className="text-gray-400 font-normal">({totalCount})</span>
+    <div className="flex items-center justify-between bg-card rounded-xl border border-border px-6 py-3 shadow-sm">
+      <h2 className="text-lg font-semibold text-foreground">
+        Nhân viên <span className="text-muted-fg font-normal">({totalCount})</span>
       </h2>
       <button
         onClick={onAdd}

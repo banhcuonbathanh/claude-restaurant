@@ -17,16 +17,16 @@ const badgeClasses: Record<NonNullable<KPICardProps['badgeVariant']>, string> = 
 
 export function KPICard({ label, value, badge, badgeVariant = 'secondary', subLabel }: KPICardProps) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-      <p className="text-xs text-gray-500">{label}</p>
-      <p className="mt-1 text-xl font-bold text-gray-900 leading-tight">{value}</p>
+    <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+      <p className="text-xs text-muted-fg">{label}</p>
+      <p className="mt-1 text-xl font-bold text-foreground leading-tight">{value}</p>
       <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
         {badge && (
           <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', badgeClasses[badgeVariant])}>
             {badge}
           </span>
         )}
-        {subLabel && <span className="text-xs text-gray-400">{subLabel}</span>}
+        {subLabel && <span className="text-xs text-muted-fg">{subLabel}</span>}
       </div>
     </div>
   )

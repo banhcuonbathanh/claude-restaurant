@@ -32,6 +32,7 @@ interface SummaryRow {
   remainingMoney:   number
   remainingItemIds: string[]
   toppings:         ToppingSnapshotEntry[]
+  notes:            string[]
 }
 
 export default function OrderPage({ params }: { params: { id: string } }) {
@@ -42,6 +43,7 @@ export default function OrderPage({ params }: { params: { id: string } }) {
   const setActiveOrderId = useCartStore(s => s.setActiveOrderId)
   const [cancelTarget, setCancelTarget]       = useState<CancelTarget | null>(null)
   const [collapsed, setCollapsed]             = useState(false)
+  const [collapsedSummary, setCollapsedSummary] = useState(false)
   const [collapsedCombos, setCollapsedCombos] = useState<Set<string>>(new Set())
 
   const toggleCombo = (refId: string) =>
@@ -74,11 +76,12 @@ export default function OrderPage({ params }: { params: { id: string } }) {
     onError:   (err: unknown) => { toast.error(errMsg(err) ?? 'Không thể huỷ món'); setCancelTarget(null) },
   })
 
-  const { displayRows, eatenAmount, remainingAmount, totalQty, totalServed, comboNameMap, summaryRows, summaryRemainingTotal, summaryGrandTotal } = useMemo(() => {
+  const { displayRows, eatenAmount, remainingAmount, totalQty, totalServed, comboNameMap, summaryRows, summaryRemainingTotal, summaryGrandTotal, noteCounts } = useMemo(() => {
     if (!order) return {
       displayRows: [], eatenAmount: 0, remainingAmount: 0,
       totalQty: 0, totalServed: 0, comboNameMap: new Map<string, string>(),
       summaryRows: [] as SummaryRow[], summaryRemainingTotal: 0, summaryGrandTotal: 0,
+      noteCounts: [] as { label: string; count: number }[],
     }
 
     const comboNameMap = new Map<string, string>()
@@ -105,7 +108,7 @@ export default function OrderPage({ params }: { params: { id: string } }) {
           key, name: i.name, unitPrice: i.unit_price,
           totalQty: 0, totalServed: 0, remaining: 0,
           totalMoney: 0, remainingMoney: 0, remainingItemIds: [],
-          toppings: [],
+          toppings: [], notes: [],
         })
       }
       const row = summaryMap.get(key)!
@@ -115,11 +118,14 @@ export default function OrderPage({ params }: { params: { id: string } }) {
       row.totalMoney   = row.unitPrice * row.totalQty
       row.remainingMoney = row.unitPrice * row.remaining
       if (i.qty_served < i.quantity) row.remainingItemIds.push(i.id)
-      // Collect unique toppings across all items in this group
+      // Collect unique toppings + notes across all items in this group
       for (const t of (i.toppings_snapshot ?? []).filter(t => t.name?.trim())) {
         if (!row.toppings.some(existing => existing.name === t.name)) {
           row.toppings.push(t)
         }
+      }
+      if (i.note?.trim() && !row.notes.includes(i.note.trim())) {
+        row.notes.push(i.note.trim())
       }
     }
 
@@ -127,7 +133,15 @@ export default function OrderPage({ params }: { params: { id: string } }) {
     const summaryRemainingTotal = summaryRows.reduce((s, r) => s + r.remainingMoney, 0)
     const summaryGrandTotal     = summaryRows.reduce((s, r) => s + r.totalMoney, 0)
 
-    return { displayRows: rows, eatenAmount, remainingAmount, totalQty, totalServed, comboNameMap, summaryRows, summaryRemainingTotal, summaryGrandTotal }
+    // Count items by note (rau/không rau etc.)
+    const noteCountMap = new Map<string, number>()
+    for (const i of rows) {
+      const n = i.note?.trim()
+      if (n) noteCountMap.set(n, (noteCountMap.get(n) ?? 0) + i.quantity)
+    }
+    const noteCounts = Array.from(noteCountMap.entries()).map(([label, count]) => ({ label, count }))
+
+    return { displayRows: rows, eatenAmount, remainingAmount, totalQty, totalServed, comboNameMap, summaryRows, summaryRemainingTotal, summaryGrandTotal, noteCounts }
   }, [order])
 
   const handleConfirm = () => {
@@ -286,10 +300,7 @@ export default function OrderPage({ params }: { params: { id: string } }) {
         <div className="bg-card rounded-xl overflow-hidden border-l-4 border-primary">
 
           {/* Header row */}
-          <button
-            onClick={() => setCollapsed(v => !v)}
-            className="w-full flex items-center gap-2 px-4 py-3 hover:bg-background/30 transition-colors"
-          >
+          <div className="flex items-center gap-2 px-4 py-3">
             {order.table_name
               ? <span className="font-bold text-foreground text-sm shrink-0">Bàn {order.table_name}</span>
               : <span className="font-bold text-foreground text-sm shrink-0">Mang về</span>}
@@ -298,10 +309,14 @@ export default function OrderPage({ params }: { params: { id: string } }) {
             <span className="flex-1" />
             <span className="text-sm font-bold text-foreground">{formatVND(order.total_amount)}</span>
             <span className="text-xs font-semibold text-primary">{elapsed} phút</span>
-            {collapsed
-              ? <ChevronDown size={14} className="text-muted-fg" />
-              : <ChevronUp   size={14} className="text-muted-fg" />}
-          </button>
+            <button
+              onClick={() => setCollapsed(v => !v)}
+              className="flex items-center gap-1 text-[11px] font-medium text-primary ml-1"
+            >
+              {collapsed ? 'Hiện' : 'Ẩn'}
+              {collapsed ? <ChevronDown size={13} /> : <ChevronUp size={13} />}
+            </button>
+          </div>
 
           {/* Progress bar */}
           <div className="h-1 bg-muted">
@@ -372,11 +387,16 @@ export default function OrderPage({ params }: { params: { id: string } }) {
                 )
               })}
 
-              {/* X/Y phần đã ra */}
-              <div className="px-4 py-2 border-t border-border/40 bg-background/20">
+              {/* X/Y phần đã ra + note summary */}
+              <div className="px-4 py-2 border-t border-border/40 flex items-center gap-3 flex-wrap">
                 <p className="text-xs text-muted-fg">
                   <span className="text-foreground font-semibold">{totalServed}/{totalQty}</span> phần đã ra
                 </p>
+                {noteCounts.map(({ label, count }) => (
+                  <span key={label} className="text-xs font-semibold text-foreground">
+                    {label} <span className="text-primary">×{count}</span>
+                  </span>
+                ))}
               </div>
             </>
           )}
@@ -385,6 +405,20 @@ export default function OrderPage({ params }: { params: { id: string } }) {
         {/* ── Dish summary table ──────────────────────────────────────── */}
         <div className="bg-card rounded-xl overflow-hidden border-l-4 border-border">
 
+          {/* Toggle header */}
+          <button
+            onClick={() => setCollapsedSummary(v => !v)}
+            className="w-full flex items-center justify-between px-3 py-2.5 border-b border-border"
+          >
+            <span className="text-xs font-bold text-foreground">Chi tiết món</span>
+            <span className="flex items-center gap-1 text-[11px] font-medium text-primary">
+              {collapsedSummary ? 'Hiện' : 'Ẩn'}
+              {collapsedSummary ? <ChevronDown size={13} /> : <ChevronUp size={13} />}
+            </span>
+          </button>
+
+          {!collapsedSummary && (
+            <>
           {/* Column headers */}
           <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-background/30 text-[10px] font-bold text-muted-fg uppercase tracking-wide">
             <span className="flex-1">Tên món</span>
@@ -477,6 +511,8 @@ export default function OrderPage({ params }: { params: { id: string } }) {
               <span className="text-base font-bold text-foreground tabular-nums">{formatVND(summaryGrandTotal)}</span>
             </div>
           </div>
+            </>
+          )}
         </div>
 
         {/* ── Money summary ───────────────────────────────────────────── */}

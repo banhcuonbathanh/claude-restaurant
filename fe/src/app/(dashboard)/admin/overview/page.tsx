@@ -371,6 +371,7 @@ export default function OverviewPage() {
               queryClient.setQueryData<Order[]>(['orders', 'live'], prev =>
                 (prev ?? []).filter(o => o.id !== orderId)
               )
+              queryClient.invalidateQueries({ queryKey: ['orders', 'history'] })
             }}
             onCancel={async (orderId) => {
               await handleAction(orderId, 'cancelled')

@@ -20,69 +20,69 @@ export function ProductsTable({ products, isLoading, onEdit, onDelete, onToggle 
 
   if (products.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-sm">
+      <div className="bg-card rounded-xl shadow-sm">
         <EmptyState message="Chưa có sản phẩm nào" />
       </div>
     )
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div className="bg-card rounded-xl shadow-sm overflow-hidden">
       <table className="w-full text-sm">
-        <thead className="bg-gray-50 border-b">
+        <thead className="bg-muted border-b border-border">
           <tr>
             <th className="px-4 py-3 w-14" />
-            <th className="text-left px-4 py-3 font-medium text-gray-600">Tên sản phẩm</th>
-            <th className="text-left px-4 py-3 font-medium text-gray-600">Danh mục</th>
-            <th className="text-left px-4 py-3 font-medium text-gray-600">Topping</th>
-            <th className="text-right px-4 py-3 font-medium text-gray-600">Giá</th>
-            <th className="text-center px-4 py-3 font-medium text-gray-600">Trạng thái</th>
+            <th className="text-left px-4 py-3 font-medium text-muted-fg">Tên sản phẩm</th>
+            <th className="text-left px-4 py-3 font-medium text-muted-fg">Danh mục</th>
+            <th className="text-left px-4 py-3 font-medium text-muted-fg">Topping</th>
+            <th className="text-right px-4 py-3 font-medium text-muted-fg">Giá</th>
+            <th className="text-center px-4 py-3 font-medium text-muted-fg">Trạng thái</th>
             <th className="px-4 py-3" />
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-border">
           {products.map(p => {
             const visibleToppings = p.toppings.slice(0, MAX_TOPPING_PILLS)
             const overflow = p.toppings.length - MAX_TOPPING_PILLS
 
             return (
-              <tr key={p.id} className="hover:bg-gray-50">
+              <tr key={p.id} className="hover:bg-muted">
                 <td className="px-4 py-3">
                   {p.image_path ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={getImageUrl(p.image_path) ?? ''}
                       alt={p.name}
-                      className="w-10 h-10 rounded-lg object-cover bg-gray-100"
+                      className="w-10 h-10 rounded-lg object-cover bg-muted"
                       onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-300 text-lg">
+                    <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-fg text-lg">
                       🍜
                     </div>
                   )}
                 </td>
-                <td className="px-4 py-3 font-medium text-gray-900">{p.name}</td>
-                <td className="px-4 py-3 text-gray-500">{p.category_name}</td>
+                <td className="px-4 py-3 font-medium text-foreground">{p.name}</td>
+                <td className="px-4 py-3 text-muted-fg">{p.category_name}</td>
                 <td className="px-4 py-3">
                   {p.toppings.length > 0 ? (
                     <div className="flex flex-wrap gap-1">
                       {visibleToppings.map(t => (
-                        <span key={t.id} className="px-1.5 py-0.5 bg-orange-50 text-orange-700 text-xs rounded">
+                        <span key={t.id} className="px-1.5 py-0.5 bg-orange-50 text-orange-700 dark:bg-orange-950 dark:text-orange-300 text-xs rounded">
                           {t.name}
                         </span>
                       ))}
                       {overflow > 0 && (
-                        <span className="px-1.5 py-0.5 bg-gray-100 text-gray-500 text-xs rounded">
+                        <span className="px-1.5 py-0.5 bg-muted text-muted-fg text-xs rounded">
                           +{overflow} more
                         </span>
                       )}
                     </div>
                   ) : (
-                    <span className="text-gray-400 text-xs">—</span>
+                    <span className="text-muted-fg text-xs">—</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-right text-gray-900">{formatVND(p.price)}</td>
+                <td className="px-4 py-3 text-right text-foreground">{formatVND(p.price)}</td>
                 <td className="px-4 py-3 text-center">
                   <Badge
                     variant={p.is_available ? 'success' : 'muted'}
@@ -96,13 +96,13 @@ export function ProductsTable({ products, isLoading, onEdit, onDelete, onToggle 
                   <div className="flex gap-2 justify-end">
                     <button
                       onClick={() => onEdit(p)}
-                      className="px-3 py-1 text-xs border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 min-h-[32px]"
+                      className="px-3 py-1 text-xs border border-border text-foreground rounded-lg hover:bg-muted min-h-[32px]"
                     >
                       Sửa
                     </button>
                     <button
                       onClick={() => onDelete(p.id, p.name)}
-                      className="px-3 py-1 text-xs border border-red-200 text-red-600 rounded-lg hover:bg-red-50 min-h-[32px]"
+                      className="px-3 py-1 text-xs border border-red-200 text-red-600 rounded-lg hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950 min-h-[32px]"
                     >
                       Xóa
                     </button>

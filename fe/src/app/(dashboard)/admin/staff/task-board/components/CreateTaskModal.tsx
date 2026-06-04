@@ -104,11 +104,11 @@ export function CreateTaskModal({ open, defaultStaffId, onClose, onSuccess }: Pr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-xl">
+      <div className="w-full max-w-md rounded-xl bg-card shadow-xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b px-6 py-4">
-          <h2 className="text-base font-semibold text-gray-900">Tạo công việc mới</h2>
-          <button onClick={onClose} className="min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-gray-700">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
+          <h2 className="text-base font-semibold text-foreground">Tạo công việc mới</h2>
+          <button onClick={onClose} className="min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-fg hover:text-foreground">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -125,7 +125,7 @@ export function CreateTaskModal({ open, defaultStaffId, onClose, onSuccess }: Pr
                 <select
                   {...field}
                   id="staffId"
-                  className="w-full min-h-[44px] rounded-md border border-gray-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  className="w-full min-h-[44px] rounded-md border border-border bg-card text-foreground px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
                 >
                   <option value="">Chọn nhân viên…</option>
                   {staffList.map(s => (
@@ -152,7 +152,7 @@ export function CreateTaskModal({ open, defaultStaffId, onClose, onSuccess }: Pr
               rows={2}
               placeholder="Hướng dẫn hoặc ghi chú thêm…"
               {...register('description')}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className="w-full rounded-md border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
             />
           </div>
 
@@ -163,7 +163,7 @@ export function CreateTaskModal({ open, defaultStaffId, onClose, onSuccess }: Pr
               <select
                 id="priority"
                 {...register('priority')}
-                className="w-full min-h-[44px] rounded-md border border-gray-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full min-h-[44px] rounded-md border border-border bg-card text-foreground px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               >
                 <option value="high">Cao</option>
                 <option value="medium">Trung bình</option>
@@ -202,7 +202,7 @@ export function CreateTaskModal({ open, defaultStaffId, onClose, onSuccess }: Pr
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end gap-3 border-t pt-4">
+          <div className="flex justify-end gap-3 border-t border-border pt-4">
             <Button type="button" variant="ghost" onClick={onClose} className="min-h-[44px]">
               Hủy
             </Button>

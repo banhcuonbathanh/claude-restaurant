@@ -13,14 +13,14 @@ export function MarketingPageHeader({ dateRange, onDateChange, onExport, onAddSp
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900">Marketing — Khai trương nhà hàng mới</h2>
-        <p className="mt-1 text-sm text-gray-500">Theo dõi ngân sách &amp; hiệu quả chiến dịch marketing</p>
+        <h2 className="text-2xl font-bold text-foreground">Marketing — Khai trương nhà hàng mới</h2>
+        <p className="mt-1 text-sm text-muted-fg">Theo dõi ngân sách &amp; hiệu quả chiến dịch marketing</p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <DateRangePicker value={dateRange} onChange={onDateChange} />
         <button
           onClick={onExport}
-          className="flex min-h-[36px] items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-600 shadow-sm transition hover:bg-gray-50"
+          className="flex min-h-[36px] items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-foreground shadow-sm transition hover:bg-muted"
         >
           <Download className="h-4 w-4" />
           Xuất BC

@@ -14,9 +14,9 @@ export function JobGuideCard({ guide, onViewProgress, onEdit, onDelete }: JobGui
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <div className="relative rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden flex flex-col">
+    <div className="relative rounded-xl border border-border bg-card shadow-sm overflow-hidden flex flex-col">
       {/* Cover image */}
-      <div className="relative h-36 bg-gray-100 flex-shrink-0">
+      <div className="relative h-36 bg-muted flex-shrink-0">
         {guide.coverImageUrl ? (
           <img
             src={guide.coverImageUrl}
@@ -57,9 +57,9 @@ export function JobGuideCard({ guide, onViewProgress, onEdit, onDelete }: JobGui
             ⋮
           </button>
           {menuOpen && (
-            <div className="absolute right-0 top-full mt-1 w-36 rounded-lg border border-gray-200 bg-white shadow-lg z-10">
+            <div className="absolute right-0 top-full mt-1 w-36 rounded-lg border border-border bg-card shadow-lg z-10">
               <button
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                className="w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted"
                 onClick={() => { onEdit(guide); setMenuOpen(false) }}
               >
                 Chỉnh sửa
@@ -77,12 +77,12 @@ export function JobGuideCard({ guide, onViewProgress, onEdit, onDelete }: JobGui
 
       {/* Card body */}
       <div className="flex flex-col flex-1 p-4 gap-3">
-        <h3 className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2">
+        <h3 className="font-semibold text-foreground text-sm leading-snug line-clamp-2">
           {guide.title}
         </h3>
 
         {guide.description && (
-          <p className="text-xs text-gray-500 line-clamp-2">{guide.description}</p>
+          <p className="text-xs text-muted-fg line-clamp-2">{guide.description}</p>
         )}
 
         {/* YouTube link */}
@@ -107,7 +107,7 @@ export function JobGuideCard({ guide, onViewProgress, onEdit, onDelete }: JobGui
         )}
 
         {/* KPI chips */}
-        <div className="flex flex-col gap-1 text-xs text-gray-600">
+        <div className="flex flex-col gap-1 text-xs text-muted-fg">
           {guide.qualityKpiTarget && (
             <span className="truncate">📊 {guide.qualityKpiTarget}</span>
           )}

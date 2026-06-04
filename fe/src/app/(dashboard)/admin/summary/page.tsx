@@ -23,7 +23,7 @@ const RANGE_LABELS: Record<SummaryRange, string> = {
 
 function RangeSelector({ range, setRange }: Required<RangeProps>) {
   return (
-    <div className="flex gap-1 rounded-lg border border-gray-200 bg-white p-1">
+    <div className="flex gap-1 rounded-lg border border-border bg-card p-1">
       {(Object.keys(RANGE_LABELS) as SummaryRange[]).map(r => (
         <button
           key={r}
@@ -31,7 +31,7 @@ function RangeSelector({ range, setRange }: Required<RangeProps>) {
           className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
             range === r
               ? 'bg-orange-500 text-white'
-              : 'text-gray-600 hover:bg-gray-100'
+              : 'text-muted-fg hover:bg-muted'
           }`}
         >
           {RANGE_LABELS[r]}
@@ -47,10 +47,10 @@ function KPICard({
   label, value, sub, color,
 }: { label: string; value: string; sub: string; color: string }) {
   return (
-    <div className={`rounded-xl border-2 ${color} bg-white p-5`}>
-      <p className="text-sm font-medium text-gray-500">{label}</p>
-      <p className="mt-2 text-3xl font-bold text-gray-900">{value}</p>
-      <p className="mt-1 text-xs text-gray-400">{sub}</p>
+    <div className={`rounded-xl border-2 ${color} bg-card p-5`}>
+      <p className="text-sm font-medium text-muted-fg">{label}</p>
+      <p className="mt-2 text-3xl font-bold text-foreground">{value}</p>
+      <p className="mt-1 text-xs text-muted-fg">{sub}</p>
     </div>
   )
 }
@@ -66,7 +66,7 @@ function SummaryKPICards({ range }: RangeProps) {
     return (
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {[...Array(4)].map((_, i) => (
-          <div key={i} className="h-28 animate-pulse rounded-xl bg-gray-100" />
+          <div key={i} className="h-28 animate-pulse rounded-xl bg-muted" />
         ))}
       </div>
     )
@@ -112,32 +112,32 @@ function TopDishesList({ range }: RangeProps) {
   })
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5">
-      <h2 className="mb-4 text-base font-semibold text-gray-800">Món bán chạy</h2>
+    <div className="rounded-xl border border-border bg-card p-5">
+      <h2 className="mb-4 text-base font-semibold text-foreground">Món bán chạy</h2>
       {isLoading ? (
         <div className="space-y-3">
-          {[...Array(5)].map((_, i) => <div key={i} className="h-8 animate-pulse rounded bg-gray-100" />)}
+          {[...Array(5)].map((_, i) => <div key={i} className="h-8 animate-pulse rounded bg-muted" />)}
         </div>
       ) : data.length === 0 ? (
-        <p className="py-8 text-center text-sm text-gray-400">Chưa có dữ liệu trong kỳ này</p>
+        <p className="py-8 text-center text-sm text-muted-fg">Chưa có dữ liệu trong kỳ này</p>
       ) : (
         <ol className="space-y-3">
           {data.map((row, i) => (
             <li key={row.name} className="flex items-center gap-3">
-              <span className="w-5 text-right text-sm font-bold text-gray-400">#{i + 1}</span>
+              <span className="w-5 text-right text-sm font-bold text-muted-fg">#{i + 1}</span>
               <div className="flex-1">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium text-gray-800">{row.name}</span>
-                  <span className="text-gray-500">×{row.qty} · {row.pct.toFixed(1)}%</span>
+                  <span className="font-medium text-foreground">{row.name}</span>
+                  <span className="text-muted-fg">×{row.qty} · {row.pct.toFixed(1)}%</span>
                 </div>
-                <div className="mt-1 h-2 w-full rounded-full bg-gray-100">
+                <div className="mt-1 h-2 w-full rounded-full bg-muted">
                   <div
                     className="h-2 rounded-full bg-orange-400"
                     style={{ width: `${Math.min(row.pct, 100)}%` }}
                   />
                 </div>
               </div>
-              <span className="w-28 text-right text-xs text-gray-500">{formatVND(row.revenue)}</span>
+              <span className="w-28 text-right text-xs text-muted-fg">{formatVND(row.revenue)}</span>
             </li>
           ))}
         </ol>
@@ -164,31 +164,31 @@ function StaffPerfTable({ range }: RangeProps) {
   })
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5">
-      <h2 className="mb-4 text-base font-semibold text-gray-800">Hiệu suất nhân viên</h2>
+    <div className="rounded-xl border border-border bg-card p-5">
+      <h2 className="mb-4 text-base font-semibold text-foreground">Hiệu suất nhân viên</h2>
       {isLoading ? (
         <div className="space-y-3">
-          {[...Array(4)].map((_, i) => <div key={i} className="h-8 animate-pulse rounded bg-gray-100" />)}
+          {[...Array(4)].map((_, i) => <div key={i} className="h-8 animate-pulse rounded bg-muted" />)}
         </div>
       ) : data.length === 0 ? (
-        <p className="py-8 text-center text-sm text-gray-400">Chưa có dữ liệu</p>
+        <p className="py-8 text-center text-sm text-muted-fg">Chưa có dữ liệu</p>
       ) : (
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b text-left text-xs text-gray-500">
+            <tr className="border-b border-border text-left text-xs text-muted-fg">
               <th className="pb-2 font-medium">Tên nhân viên</th>
               <th className="pb-2 font-medium">Vai trò</th>
               <th className="pb-2 text-right font-medium">Đơn xử lý</th>
               <th className="pb-2 text-right font-medium">Doanh thu</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody className="divide-y divide-border">
             {data.map(row => (
               <tr key={row.staff_id} className="py-2">
-                <td className="py-2 font-medium text-gray-800">{row.full_name}</td>
-                <td className="py-2 text-gray-500">{ROLE_LABELS[row.role] ?? row.role}</td>
-                <td className="py-2 text-right text-gray-800">{row.orders_handled}</td>
-                <td className="py-2 text-right text-gray-500">
+                <td className="py-2 font-medium text-foreground">{row.full_name}</td>
+                <td className="py-2 text-muted-fg">{ROLE_LABELS[row.role] ?? row.role}</td>
+                <td className="py-2 text-right text-foreground">{row.orders_handled}</td>
+                <td className="py-2 text-right text-muted-fg">
                   {row.role === 'chef' ? '—' : formatVND(row.revenue ?? 0)}
                 </td>
               </tr>
@@ -232,38 +232,38 @@ function StockInModal({ ingredient, onClose }: { ingredient: Ingredient; onClose
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-md rounded-xl bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b px-6 py-4">
-          <h3 className="font-semibold text-gray-900">Nhập hàng — {ingredient.name}</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">✕</button>
+      <div className="w-full max-w-md rounded-xl bg-card shadow-xl">
+        <div className="flex items-center justify-between border-b border-border px-6 py-4">
+          <h3 className="font-semibold text-foreground">Nhập hàng — {ingredient.name}</h3>
+          <button onClick={onClose} className="text-muted-fg hover:text-foreground">✕</button>
         </div>
         <form onSubmit={handleSubmit(v => mut.mutate(v))} className="space-y-4 p-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Nguyên liệu</label>
+            <label className="block text-sm font-medium text-foreground">Nguyên liệu</label>
             <input
               value={ingredient.name}
               readOnly
-              className="mt-1 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500"
+              className="mt-1 w-full rounded-lg border border-border bg-muted px-3 py-2 text-sm text-muted-fg"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-foreground">
               Số lượng nhập ({ingredient.unit})
             </label>
             <input
               type="number"
               step="0.001"
               {...register('quantity')}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className="mt-1 w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               placeholder="0"
             />
             {errors.quantity && <p className="mt-1 text-xs text-red-500">{errors.quantity.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Ghi chú</label>
+            <label className="block text-sm font-medium text-foreground">Ghi chú</label>
             <input
               {...register('note')}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className="mt-1 w-full rounded-lg border border-border bg-card text-foreground px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               placeholder="Tùy chọn"
             />
           </div>
@@ -271,7 +271,7 @@ function StockInModal({ ingredient, onClose }: { ingredient: Ingredient; onClose
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
+              className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:bg-muted"
             >
               Huỷ
             </button>
@@ -298,9 +298,9 @@ function StockAlertList() {
   })
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5">
+    <div className="rounded-xl border border-border bg-card p-5">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-base font-semibold text-gray-800">Cảnh báo tồn kho</h2>
+        <h2 className="text-base font-semibold text-foreground">Cảnh báo tồn kho</h2>
         <a href="/admin/ingredients" className="text-xs text-blue-500 hover:underline">
           Xem toàn bộ kho →
         </a>
@@ -308,7 +308,7 @@ function StockAlertList() {
 
       {isLoading ? (
         <div className="space-y-2">
-          {[...Array(3)].map((_, i) => <div key={i} className="h-12 animate-pulse rounded-lg bg-gray-100" />)}
+          {[...Array(3)].map((_, i) => <div key={i} className="h-12 animate-pulse rounded-lg bg-muted" />)}
         </div>
       ) : data.length === 0 ? (
         <p className="py-6 text-center text-sm text-green-600">✅ Tất cả nguyên liệu đủ hàng</p>
@@ -367,7 +367,7 @@ export default function SummaryPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-bold text-gray-900">Tổng kết nhà hàng</h1>
+        <h1 className="text-lg font-bold text-foreground">Tổng kết nhà hàng</h1>
         <RangeSelector range={range} setRange={setRange} />
       </div>
 

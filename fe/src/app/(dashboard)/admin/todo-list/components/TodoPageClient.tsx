@@ -104,30 +104,30 @@ export function TodoPageClient() {
                   { label: 'Đang làm', value: statsQuery.data.metrics.inProgressTasks },
                   { label: 'Quá hạn', value: statsQuery.data.metrics.overdueTasks },
                 ].map(m => (
-                  <div key={m.label} className="bg-white rounded-lg border p-3 text-center">
-                    <p className="text-2xl font-bold text-gray-900">{m.value}</p>
-                    <p className="text-xs text-gray-500 mt-1">{m.label}</p>
+                  <div key={m.label} className="bg-card rounded-lg border border-border p-3 text-center">
+                    <p className="text-2xl font-bold text-foreground">{m.value}</p>
+                    <p className="text-xs text-muted-fg mt-1">{m.label}</p>
                   </div>
                 ))}
               </div>
 
               {/* Per-staff stats */}
-              <div className="bg-white rounded-lg border overflow-hidden">
+              <div className="bg-card rounded-lg border border-border overflow-hidden">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 border-b">
+                  <thead className="bg-muted border-b border-border">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nhân viên</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Được giao</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Xong</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Tỉ lệ</th>
-                      <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Quá hạn</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-muted-fg uppercase">Nhân viên</th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-fg uppercase">Được giao</th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-fg uppercase">Xong</th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-fg uppercase">Tỉ lệ</th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-muted-fg uppercase">Quá hạn</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y">
+                  <tbody className="divide-y divide-border">
                     {statsQuery.data.staffStats.map(stat => (
                       <tr
                         key={stat.staffId}
-                        className={`hover:bg-gray-50 cursor-pointer ${stat.hasOverdue ? 'bg-red-50' : ''}`}
+                        className={`hover:bg-muted cursor-pointer ${stat.hasOverdue ? 'bg-red-50 dark:bg-red-950/40' : ''}`}
                         onClick={() => setFilters(f => ({ ...f, assigned_to: stat.staffId }))}
                       >
                         <td className="px-4 py-3 font-medium">{stat.staffName}</td>
@@ -141,7 +141,7 @@ export function TodoPageClient() {
                         <td className="px-4 py-3 text-center">
                           {stat.hasOverdue
                             ? <TaskStatusBadge status="overdue" />
-                            : <span className="text-gray-400 text-xs">—</span>}
+                            : <span className="text-muted-fg text-xs">—</span>}
                         </td>
                       </tr>
                     ))}
@@ -166,7 +166,7 @@ export function TodoPageClient() {
                   <TodoTaskCard key={task.id} task={task} canEdit={canCreate} onEdit={handleEdit} />
                 ))}
                 {(tasksQuery.data ?? []).length === 0 && (
-                  <p className="text-center py-12 text-sm text-gray-400">Không có công việc nào</p>
+                  <p className="text-center py-12 text-sm text-muted-fg">Không có công việc nào</p>
                 )}
               </div>
               {/* Desktop table */}

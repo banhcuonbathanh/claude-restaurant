@@ -16,19 +16,19 @@ interface Props {
 
 export function TodoTaskCard({ task, canEdit, onEdit }: Props) {
   return (
-    <div className={`rounded-lg border p-4 bg-white space-y-2 ${task.status === 'overdue' ? 'border-red-300' : ''}`}>
+    <div className={`rounded-lg border p-4 bg-card space-y-2 ${task.status === 'overdue' ? 'border-red-300 dark:border-red-800' : 'border-border'}`}>
       <div className="flex items-start justify-between gap-2">
-        <p className={`font-medium text-gray-900 ${task.status === 'completed' ? 'line-through text-gray-400' : ''}`}>
+        <p className={`font-medium text-foreground ${task.status === 'completed' ? 'line-through text-muted-fg' : ''}`}>
           {task.name}
         </p>
         <TaskStatusBadge status={task.status} />
       </div>
 
       {task.description && (
-        <p className="text-sm text-gray-500">{task.description}</p>
+        <p className="text-sm text-muted-fg">{task.description}</p>
       )}
 
-      <div className="flex items-center gap-3 text-xs text-gray-500 flex-wrap">
+      <div className="flex items-center gap-3 text-xs text-muted-fg flex-wrap">
         <span>{PRIORITY_LABEL[task.priority] ?? task.priority}</span>
         <span>
           🕐 {task.dueTimeStart

@@ -56,7 +56,7 @@ export default function MarketingDashboardPage() {
       {isLoading ? (
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-24 animate-pulse rounded-xl bg-gray-100" />
+            <div key={i} className="h-24 animate-pulse rounded-xl bg-muted" />
           ))}
         </div>
       ) : data?.summary ? (
@@ -67,7 +67,7 @@ export default function MarketingDashboardPage() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
         <div className="flex-1">
           {isLoading ? (
-            <div className="h-72 animate-pulse rounded-xl bg-gray-100" />
+            <div className="h-72 animate-pulse rounded-xl bg-muted" />
           ) : data?.items && data.items.length > 0 ? (
             <SpendBreakdownTable items={data.items} />
           ) : !isError ? (
@@ -86,7 +86,7 @@ export default function MarketingDashboardPage() {
       {isLoading ? (
         <div className="grid gap-4 sm:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-28 animate-pulse rounded-xl bg-gray-100" />
+            <div key={i} className="h-28 animate-pulse rounded-xl bg-muted" />
           ))}
         </div>
       ) : data?.love_score ? (

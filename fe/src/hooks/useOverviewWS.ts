@@ -5,7 +5,7 @@ import { api } from '@/lib/api-client'
 import type { Order } from '@/types/order'
 import { useOrdersWSContext, type WsMsg } from '@/context/OrdersWSContext'
 
-const ACTIVE = new Set(['pending', 'confirmed', 'preparing', 'ready'])
+const ACTIVE = new Set(['pending', 'confirmed', 'preparing', 'ready', 'delivered'])
 
 export function useOverviewWS(): boolean | null {
   const { connected, subscribe } = useOrdersWSContext()

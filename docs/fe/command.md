@@ -8,11 +8,46 @@
 docker compose up -d --build be
 docker compose up -d --build fe
 docker compose up -d --build be fe
+docker compose build --no-cache fe && docker compose up -d fe
+```
+
+---
+
+## Health Check
+
+```bash
+# Check if BE is responding
+curl -s http://localhost:8080/health || echo "BE is down"
+
+# Check Docker container status
+docker compose ps be
+
+# Check if port 8080 is listening
+lsof -i :8080
 ```
 
 ---
 
 ## Local Dev (Hot Reload)
+
+```bash
+# One command — starts MySQL + Redis in Docker, BE + FE locally
+./dev.sh
+
+cd fe && npm run dev
+rm -rf .next && npm run dev
+# Stop the current dev server first (Ctrl+C), then:
+rm -rf fe/.next
+cd fe && npm run dev
+Or from inside fe/:
+
+
+rm -rf .next && npm run dev
+
+```
+
+<details>
+<summary>Manual (3 terminals)</summary>
 
 ```bash
 # Terminal 1 — Infra (run once)
@@ -26,6 +61,18 @@ cd be && set -a && source .env.local && set +a && go run ./cmd/server
 cd fe && NEXT_PUBLIC_API_URL=http://localhost:8080 npm run dev
 # or simply:
 cd fe && npm run dev
+```
+
+</details>
+
+### Stop BE / FE (local dev)
+
+```bash
+# Stop BE
+pkill -f "go run ./cmd/server"
+
+# Stop FE
+pkill -f "next dev"
 ```
 
 ---

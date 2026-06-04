@@ -24,35 +24,35 @@ export function TodoTaskTable({ tasks, canEdit, onEdit }: Props) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border bg-white">
+    <div className="overflow-x-auto rounded-lg border border-border bg-card">
       <table className="w-full text-sm">
-        <thead className="bg-gray-50 border-b">
+        <thead className="bg-muted border-b border-border">
           <tr>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tên</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ưu tiên</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Khung giờ</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trạng thái</th>
-            {canEdit && <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Hành động</th>}
+            <th className="px-4 py-3 text-left text-xs font-medium text-muted-fg uppercase">Tên</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-muted-fg uppercase">Ưu tiên</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-muted-fg uppercase">Khung giờ</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-muted-fg uppercase">Trạng thái</th>
+            {canEdit && <th className="px-4 py-3 text-right text-xs font-medium text-muted-fg uppercase">Hành động</th>}
           </tr>
         </thead>
-        <tbody className="divide-y">
+        <tbody className="divide-y divide-border">
           {tasks.map(task => (
             <tr
               key={task.id}
-              className={task.status === 'overdue' ? 'bg-red-50' : 'hover:bg-gray-50'}
+              className={task.status === 'overdue' ? 'bg-red-50 dark:bg-red-950/40' : 'hover:bg-muted'}
             >
-              <td className="px-4 py-3 font-medium text-gray-900 max-w-xs">
-                <span className={task.status === 'completed' ? 'line-through text-gray-400' : ''}>
+              <td className="px-4 py-3 font-medium text-foreground max-w-xs">
+                <span className={task.status === 'completed' ? 'line-through text-muted-fg' : ''}>
                   {task.name}
                 </span>
                 {task.description && (
-                  <p className="text-xs text-gray-400 mt-0.5 truncate">{task.description}</p>
+                  <p className="text-xs text-muted-fg mt-0.5 truncate">{task.description}</p>
                 )}
               </td>
               <td className="px-4 py-3 whitespace-nowrap">
                 <span className="text-sm">{PRIORITY_LABEL[task.priority] ?? task.priority}</span>
               </td>
-              <td className="px-4 py-3 whitespace-nowrap text-gray-600">
+              <td className="px-4 py-3 whitespace-nowrap text-muted-fg">
                 {task.dueTimeStart
                   ? `${task.dueTimeStart}${task.dueTimeEnd ? ` – ${task.dueTimeEnd}` : ''}`
                   : task.dueDate}

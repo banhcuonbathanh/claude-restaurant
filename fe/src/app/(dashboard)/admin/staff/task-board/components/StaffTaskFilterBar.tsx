@@ -33,19 +33,19 @@ export function StaffTaskFilterBar({ filters, onChange }: Props) {
         type="date"
         value={filters.date}
         onChange={e => set({ date: e.target.value })}
-        className="min-h-[44px] rounded-md border border-gray-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+        className="min-h-[44px] rounded-md border border-border bg-card text-foreground px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
       />
       <select
         value={filters.role}
         onChange={e => set({ role: e.target.value })}
-        className="min-h-[44px] rounded-md border border-gray-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+        className="min-h-[44px] rounded-md border border-border bg-card text-foreground px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
       >
         {ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
       </select>
       <select
         value={filters.status}
         onChange={e => set({ status: e.target.value })}
-        className="min-h-[44px] rounded-md border border-gray-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+        className="min-h-[44px] rounded-md border border-border bg-card text-foreground px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
       >
         {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
       </select>

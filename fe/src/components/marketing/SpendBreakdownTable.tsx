@@ -16,10 +16,10 @@ export function SpendBreakdownTable({ items }: SpendBreakdownTableProps) {
   const totalRemaining = items.reduce((s, i) => s + i.remaining, 0)
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm">
+    <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
       <table className="w-full min-w-[560px] text-sm">
         <thead>
-          <tr className="border-b border-gray-100 bg-gray-50 text-left text-xs text-gray-500">
+          <tr className="border-b border-border bg-muted text-left text-xs text-muted-fg">
             <th className="px-4 py-3 font-medium">Hạng mục</th>
             <th className="px-4 py-3 text-right font-medium">Ngân sách</th>
             <th className="px-4 py-3 text-right font-medium">Đã chi</th>
@@ -34,18 +34,18 @@ export function SpendBreakdownTable({ items }: SpendBreakdownTableProps) {
               <tr
                 key={item.id}
                 className={cn(
-                  'border-b border-gray-50 transition-colors hover:bg-gray-50',
-                  overBudget && 'bg-red-50'
+                  'border-b border-border transition-colors hover:bg-muted',
+                  overBudget && 'bg-red-50 dark:bg-red-950/40'
                 )}
               >
                 <td className="px-4 py-3">
                   <div className="flex items-start gap-2">
                     <span className="text-base leading-5">{item.icon}</span>
                     <div>
-                      <p className={cn('font-medium text-gray-800', overBudget && 'text-red-700')}>
+                      <p className={cn('font-medium text-foreground', overBudget && 'text-red-700 dark:text-red-400')}>
                         {item.name}
                       </p>
-                      <p className="text-xs text-gray-400">{item.sub_items.join(' · ')}</p>
+                      <p className="text-xs text-muted-fg">{item.sub_items.join(' · ')}</p>
                     </div>
                   </div>
                   {overBudget && (
@@ -54,9 +54,9 @@ export function SpendBreakdownTable({ items }: SpendBreakdownTableProps) {
                     </span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-right text-gray-700">{fmt(item.budget)}</td>
-                <td className="px-4 py-3 text-right font-medium text-gray-900">{fmt(item.spent)}</td>
-                <td className="px-4 py-3 text-right text-gray-600">{fmt(item.remaining)}</td>
+                <td className="px-4 py-3 text-right text-foreground">{fmt(item.budget)}</td>
+                <td className="px-4 py-3 text-right font-medium text-foreground">{fmt(item.spent)}</td>
+                <td className="px-4 py-3 text-right text-muted-fg">{fmt(item.remaining)}</td>
                 <td className="px-4 py-3">
                   <ProgressBar value={item.progress_pct} max={100} colorHex={item.color} />
                 </td>
@@ -65,11 +65,11 @@ export function SpendBreakdownTable({ items }: SpendBreakdownTableProps) {
           })}
         </tbody>
         <tfoot>
-          <tr className="border-t border-gray-200 bg-gray-50 font-semibold">
-            <td className="px-4 py-3 text-gray-700">Tổng cộng</td>
-            <td className="px-4 py-3 text-right text-gray-700">{fmt(totalBudget)}</td>
-            <td className="px-4 py-3 text-right text-gray-900">{fmt(totalSpent)}</td>
-            <td className="px-4 py-3 text-right text-gray-600">{fmt(totalRemaining)}</td>
+          <tr className="border-t border-border bg-muted font-semibold">
+            <td className="px-4 py-3 text-foreground">Tổng cộng</td>
+            <td className="px-4 py-3 text-right text-foreground">{fmt(totalBudget)}</td>
+            <td className="px-4 py-3 text-right text-foreground">{fmt(totalSpent)}</td>
+            <td className="px-4 py-3 text-right text-muted-fg">{fmt(totalRemaining)}</td>
             <td className="px-4 py-3" />
           </tr>
         </tfoot>

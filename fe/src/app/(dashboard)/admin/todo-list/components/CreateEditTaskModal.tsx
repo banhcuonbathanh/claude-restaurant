@@ -63,15 +63,15 @@ export function CreateEditTaskModal({ open, mode, task, staffList, onClose, onSu
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
     >
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
-        <div className="flex items-center justify-between px-5 py-4 border-b">
-          <h2 id="modal-title" className="font-semibold text-gray-900">
+      <div className="bg-card rounded-xl shadow-xl w-full max-w-md">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+          <h2 id="modal-title" className="font-semibold text-foreground">
             {mode === 'create' ? 'Tạo công việc mới' : 'Sửa công việc'}
           </h2>
           <button
             onClick={onClose}
             aria-label="Đóng"
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-gray-600"
+            className="min-h-[44px] min-w-[44px] flex items-center justify-center text-muted-fg hover:text-foreground"
           >
             ✕
           </button>
@@ -80,10 +80,10 @@ export function CreateEditTaskModal({ open, mode, task, staffList, onClose, onSu
         <form onSubmit={handleSubmit(onSubmit)} className="px-5 py-4 space-y-4">
           {/* Task name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tên công việc *</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Tên công việc *</label>
             <input
               {...register('name')}
-              className="w-full min-h-[44px] border rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className="w-full min-h-[44px] border border-border bg-card text-foreground rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               placeholder="Nhập tên công việc..."
             />
             {errors.name && <p className="text-xs text-red-600 mt-1">{errors.name.message}</p>}
@@ -91,10 +91,10 @@ export function CreateEditTaskModal({ open, mode, task, staffList, onClose, onSu
 
           {/* Staff */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Giao cho *</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Giao cho *</label>
             <select
               {...register('staffId')}
-              className="w-full min-h-[44px] border rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className="w-full min-h-[44px] border border-border bg-card text-foreground rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
             >
               <option value="">Chọn nhân viên</option>
               {staffList.map(s => (
@@ -106,10 +106,10 @@ export function CreateEditTaskModal({ open, mode, task, staffList, onClose, onSu
 
           {/* Priority */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Ưu tiên *</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Ưu tiên *</label>
             <select
               {...register('priority')}
-              className="w-full min-h-[44px] border rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+              className="w-full min-h-[44px] border border-border bg-card text-foreground rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
             >
               <option value="high">🔴 Cao</option>
               <option value="medium">🟡 Trung bình</option>
@@ -120,20 +120,20 @@ export function CreateEditTaskModal({ open, mode, task, staffList, onClose, onSu
           {/* Due date + time */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Ngày hạn *</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Ngày hạn *</label>
               <input
                 type="date"
                 {...register('dueDate')}
-                className="w-full min-h-[44px] border rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full min-h-[44px] border border-border bg-card text-foreground rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               />
               {errors.dueDate && <p className="text-xs text-red-600 mt-1">{errors.dueDate.message}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Giờ hạn *</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Giờ hạn *</label>
               <input
                 type="time"
                 {...register('dueTime')}
-                className="w-full min-h-[44px] border rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full min-h-[44px] border border-border bg-card text-foreground rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               />
               {errors.dueTime && <p className="text-xs text-red-600 mt-1">{errors.dueTime.message}</p>}
             </div>
@@ -142,30 +142,30 @@ export function CreateEditTaskModal({ open, mode, task, staffList, onClose, onSu
           {/* Optional time window */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Bắt đầu (tuỳ chọn)</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Bắt đầu (tuỳ chọn)</label>
               <input
                 type="time"
                 {...register('dueTimeStart')}
-                className="w-full min-h-[44px] border rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full min-h-[44px] border border-border bg-card text-foreground rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Kết thúc (tuỳ chọn)</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Kết thúc (tuỳ chọn)</label>
               <input
                 type="time"
                 {...register('dueTimeEnd')}
-                className="w-full min-h-[44px] border rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full min-h-[44px] border border-border bg-card text-foreground rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               />
             </div>
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Mô tả</label>
             <textarea
               {...register('description')}
               rows={2}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
+              className="w-full border border-border bg-card text-foreground rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
               placeholder="Mô tả thêm..."
             />
           </div>
@@ -175,7 +175,7 @@ export function CreateEditTaskModal({ open, mode, task, staffList, onClose, onSu
             <button
               type="button"
               onClick={onClose}
-              className="min-h-[44px] px-4 border rounded-lg text-sm hover:bg-gray-50 transition-colors"
+              className="min-h-[44px] px-4 border border-border text-foreground rounded-lg text-sm hover:bg-muted transition-colors"
             >
               Hủy
             </button>

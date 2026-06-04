@@ -78,7 +78,7 @@ export const useCartStore = create<CartState>()(
           }),
         })),
 
-      clearCart: () => set({ items: [], tableId: null, tableName: null, activeOrderId: null, paymentMethod: null }),
+      clearCart: () => set({ items: [], tableId: null, tableName: null, activeOrderId: null, paymentMethod: null, drinkConfig: DEFAULT_DRINK_CONFIG, orderNote: '' }),
 
       setTableId:       (id)     => set({ tableId: id }),
       setTableName:     (name)   => set({ tableName: name }),
@@ -92,11 +92,15 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name:       STORAGE_KEYS.CART_CONFIG,
-      version:    2,
+      version:    3,
       migrate:    (persisted: unknown, fromVersion: number) => {
         const s = (persisted ?? {}) as Record<string, unknown>
         if (fromVersion < 2) {
           s.drinkConfig = DEFAULT_DRINK_CONFIG
+        }
+        if (fromVersion < 3) {
+          s.drinkConfig = DEFAULT_DRINK_CONFIG
+          s.orderNote   = ''
         }
         return s
       },

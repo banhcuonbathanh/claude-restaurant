@@ -19,7 +19,7 @@ interface RoleFilterTabsProps {
 
 export function RoleFilterTabs({ activeRole, guideCount, onRoleChange }: RoleFilterTabsProps) {
   return (
-    <div className="sticky top-[92px] z-10 bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-1 overflow-x-auto">
+    <div className="sticky top-[92px] z-10 bg-card border-b border-border px-6 py-3 flex items-center gap-1 overflow-x-auto">
       {TABS.map(tab => (
         <button
           key={tab.value}
@@ -27,14 +27,14 @@ export function RoleFilterTabs({ activeRole, guideCount, onRoleChange }: RoleFil
           className={`min-h-[44px] px-4 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
             activeRole === tab.value
               ? 'bg-orange-500 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              : 'bg-muted text-muted-fg hover:opacity-90'
           }`}
           aria-pressed={activeRole === tab.value}
         >
           {tab.label}
         </button>
       ))}
-      <span className="ml-auto text-sm text-gray-400 whitespace-nowrap">
+      <span className="ml-auto text-sm text-muted-fg whitespace-nowrap">
         {guideCount} hướng dẫn
       </span>
     </div>

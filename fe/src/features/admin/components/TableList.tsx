@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import type { Order } from '@/types/order'
+import type { Order, OrderItem } from '@/types/order'
 import type { Table } from '@/features/admin/admin.api'
 import { createPayment } from '@/features/admin/admin.api'
 import { elapsedMins, statusColors, statusLabel } from '@/features/admin/overview.helpers'
@@ -107,6 +107,135 @@ function PaymentModal({
   )
 }
 
+// ── Table detail drawer ───────────────────────────────────────────────────────
+
+function ItemRow({ item }: { item: OrderItem }) {
+  const hasToppings = item.toppings_snapshot && item.toppings_snapshot.length > 0
+  return (
+    <div className="py-2.5 border-b border-gray-100 dark:border-gray-700 last:border-0">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 leading-snug">{item.name}</p>
+          {hasToppings && (
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+              + {item.toppings_snapshot!.map(t => t.name).join(', ')}
+            </p>
+          )}
+          {item.note && (
+            <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5 italic">&ldquo;{item.note}&rdquo;</p>
+          )}
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <span className="text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded">
+            ×{item.quantity}
+          </span>
+          <span className="text-sm text-gray-700 dark:text-gray-300 w-20 text-right">
+            {formatVND(item.unit_price * item.quantity)}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function TableDetailDrawer({
+  order,
+  table,
+  now,
+  onClose,
+}: {
+  order:   Order
+  table:   Table
+  now:     number
+  onClose: () => void
+}) {
+  const mins      = elapsedMins(order.created_at, now)
+  const timeColor = mins > 20 ? 'text-red-600' : mins >= 10 ? 'text-yellow-600' : 'text-orange-500'
+  const kitItems  = order.items.filter(i => !(i.combo_id !== null && i.combo_ref_id === null))
+
+  return (
+    <>
+      {/* backdrop */}
+      <div
+        className="fixed inset-0 bg-black/40 z-40"
+        onClick={onClose}
+      />
+      {/* drawer */}
+      <div className="fixed right-0 top-0 h-full w-full max-w-sm bg-white dark:bg-gray-800 z-50 shadow-2xl flex flex-col">
+        {/* header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+          <div>
+            <p className="text-base font-bold text-gray-900 dark:text-gray-100">{table.name}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{table.capacity} chỗ · #{order.order_number}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* meta info */}
+        <div className="px-5 py-3 bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700 space-y-1.5">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-500 dark:text-gray-400">Trạng thái</span>
+            <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${statusColors(order.status)}`}>
+              {statusLabel(order.status)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-500 dark:text-gray-400">Thời gian chờ</span>
+            <span className={`font-semibold ${timeColor}`}>{mins} phút</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-500 dark:text-gray-400">Nguồn</span>
+            <span className="text-gray-700 dark:text-gray-300 capitalize">{order.source}</span>
+          </div>
+          {order.customer_name && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500 dark:text-gray-400">Khách</span>
+              <span className="text-gray-700 dark:text-gray-300">{order.customer_name}</span>
+            </div>
+          )}
+          {order.customer_phone && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500 dark:text-gray-400">SĐT</span>
+              <span className="text-gray-700 dark:text-gray-300">{order.customer_phone}</span>
+            </div>
+          )}
+          {order.note && (
+            <div className="flex items-start justify-between text-sm gap-2">
+              <span className="text-gray-500 dark:text-gray-400 shrink-0">Ghi chú</span>
+              <span className="text-amber-600 dark:text-amber-400 italic text-right">&ldquo;{order.note}&rdquo;</span>
+            </div>
+          )}
+        </div>
+
+        {/* items */}
+        <div className="flex-1 overflow-y-auto px-5 py-3">
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">
+            {kitItems.length} món
+          </p>
+          {kitItems.map(item => (
+            <ItemRow key={item.id} item={item} />
+          ))}
+        </div>
+
+        {/* footer total */}
+        <div className="px-5 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Tổng cộng</span>
+            <span className="text-xl font-bold text-gray-900 dark:text-gray-100">{formatVND(order.total_amount)}</span>
+          </div>
+        </div>
+      </div>
+    </>
+  )
+}
+
 // ── TableList ─────────────────────────────────────────────────────────────────
 
 interface TableListProps {
@@ -126,6 +255,16 @@ export function TableList({
 }: TableListProps) {
   const [timeSort,    setTimeSort]    = useState<'asc' | 'desc'>('asc')
   const [payingEntry, setPayingEntry] = useState<{ order: Order; table: Table } | null>(null)
+  const [detailEntry, setDetailEntry] = useState<{ order: Order; table: Table } | null>(null)
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
+
+  function toggleExpand(orderId: string) {
+    setExpandedIds(prev => {
+      const next = new Set(prev)
+      next.has(orderId) ? next.delete(orderId) : next.add(orderId)
+      return next
+    })
+  }
 
   const orderByTable = new Map(orders.filter(o => o.table_id).map(o => [o.table_id!, o]))
 
@@ -171,11 +310,19 @@ export function TableList({
         />
       )}
 
+      {detailEntry && (
+        <TableDetailDrawer
+          order={detailEntry.order}
+          table={detailEntry.table}
+          now={now}
+          onClose={() => setDetailEntry(null)}
+        />
+      )}
+
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         {/* header row */}
-        <div className="grid grid-cols-[2fr_2fr_1fr_1.5fr] gap-3 px-4 py-2 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+        <div className="grid grid-cols-[2fr_1fr_2.5rem] gap-3 px-4 py-2 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
           <span>Bàn</span>
-          <span>Trạng thái</span>
           <button
             onClick={() => setTimeSort(s => s === 'asc' ? 'desc' : 'asc')}
             className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300 transition-colors cursor-pointer select-none"
@@ -183,7 +330,7 @@ export function TableList({
             Thời gian
             <span className="text-gray-400 dark:text-gray-500">{timeSort === 'asc' ? '↑' : '↓'}</span>
           </button>
-          <span>Tổng tiền</span>
+          <span />
         </div>
 
         <div className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -194,17 +341,17 @@ export function TableList({
             if (!order) {
               return (
                 <div key={table.id}
-                  className="grid grid-cols-[2fr_2fr_1fr_1.5fr] gap-3 px-4 py-3 items-center text-sm"
+                  className="grid grid-cols-[2fr_1fr_2.5rem] gap-3 px-4 py-3 items-center text-sm"
                 >
-                  <span className="font-semibold text-gray-800 dark:text-gray-200">{table.name}
-                    <span className="ml-2 text-xs font-normal text-gray-400 dark:text-gray-500">{table.capacity} chỗ</span>
-                  </span>
-                  <span className="inline-flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600" />
-                    <span className="text-gray-400 dark:text-gray-500 text-xs">Trống</span>
-                  </span>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-semibold text-gray-800 dark:text-gray-200">{table.name}</span>
+                    <span className="inline-flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600" />
+                      <span className="text-gray-400 dark:text-gray-500 text-xs">Trống</span>
+                    </span>
+                  </div>
                   <span className="text-gray-300 dark:text-gray-600">—</span>
-                  <span className="text-gray-300 dark:text-gray-600">—</span>
+                  <span />
                 </div>
               )
             }
@@ -258,21 +405,65 @@ export function TableList({
               return <span className={baseClass}>{statusLabel(order!.status)}</span>
             }
 
+            const isExpanded = expandedIds.has(order.id)
+            const orderSuffix = order.order_number.split('-').pop() ?? order.order_number
+
             return (
-              <div key={table.id}
-                className={`grid grid-cols-[2fr_2fr_1fr_1.5fr] gap-3 px-4 py-3 items-center text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${borderL}`}
-              >
-                <span className="font-semibold text-gray-900 dark:text-gray-100">{table.name}
-                  <span className="ml-2 text-xs font-normal text-gray-400 dark:text-gray-500">{table.capacity} chỗ</span>
-                </span>
+              <div key={table.id} className={`${borderL}`}>
+                <div
+                  onClick={() => setDetailEntry({ order, table })}
+                  className={`grid grid-cols-[2fr_1fr_2.5rem] gap-3 px-4 py-3 items-center text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer`}
+                >
+                  <div className="flex flex-col gap-1 min-w-0">
+                    <span className="font-semibold text-gray-900 dark:text-gray-100 leading-tight">
+                      {table.name}
+                      <span className="ml-2 text-xs font-mono font-normal text-gray-400 dark:text-gray-500">{orderSuffix}</span>
+                    </span>
+                    <span onClick={e => e.stopPropagation()}>
+                      <StatusBadge />
+                    </span>
+                  </div>
 
-                <StatusBadge />
+                  <span className={`text-sm whitespace-nowrap ${timeColor}`}>
+                    {mins} phút
+                  </span>
 
-                <span className={`text-sm whitespace-nowrap ${timeColor}`}>
-                  {mins} phút
-                </span>
+                  <button
+                    onClick={e => { e.stopPropagation(); toggleExpand(order.id) }}
+                    className="flex items-center justify-center w-9 h-9 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/30 transition-colors"
+                    title={isExpanded ? 'Thu gọn' : 'Xem chi tiết'}
+                  >
+                    <svg className={`w-5 h-5 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                </div>
 
-                <span className="text-gray-800 dark:text-gray-200 font-medium whitespace-nowrap">{formatVND(order.total_amount)}</span>
+                {/* inline expanded detail */}
+                {isExpanded && (
+                  <div className="px-4 pb-3 pt-0 bg-gray-50 dark:bg-gray-700/40 border-t border-gray-100 dark:border-gray-700">
+                    <div className="py-2 space-y-1.5">
+                      {order.items
+                        .filter(i => !(i.combo_id !== null && i.combo_ref_id === null))
+                        .map(it => (
+                          <div key={it.id} className="flex items-center gap-2 text-xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-500 shrink-0" />
+                            <span className="flex-1 text-gray-700 dark:text-gray-300">{it.name}</span>
+                            {it.note && <span className="text-amber-600 dark:text-amber-400 italic truncate max-w-[120px]">&ldquo;{it.note}&rdquo;</span>}
+                            <span className="font-semibold text-gray-600 dark:text-gray-400 tabular-nums">×{it.quantity}</span>
+                            <span className="text-gray-500 dark:text-gray-500 w-16 text-right tabular-nums">{formatVND(it.unit_price * it.quantity)}</span>
+                          </div>
+                        ))
+                      }
+                    </div>
+                    <button
+                      onClick={() => setDetailEntry({ order, table })}
+                      className="mt-1 text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+                    >
+                      Xem đầy đủ →
+                    </button>
+                  </div>
+                )}
               </div>
             )
           })}

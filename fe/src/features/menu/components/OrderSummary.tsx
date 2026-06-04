@@ -5,13 +5,26 @@ import { useCartStore } from '@/store/cart'
 import type { CartItem } from '@/types/cart'
 import { formatVND } from '@/lib/utils'
 
-export function OrderSummary({ embedded }: { embedded?: boolean }) {
+export function OrderSummary({ embedded, shakeKey }: { embedded?: boolean; shakeKey?: number }) {
   const [open, setOpen] = useState(true)
   const [dishSummaryOpen, setDishSummaryOpen] = useState(true)
   const [expandedCombos, setExpandedCombos] = useState<Set<string>>(new Set())
   const [noteSaved, setNoteSaved] = useState(false)
   const noteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const canhRef      = useRef<HTMLDivElement>(null)
   const { items, total, tableName, drinkConfig, setDrinkConfig, orderNote, setOrderNote, updateQty, removeItem, updateComboItem } = useCartStore()
+
+  useEffect(() => {
+    if (!shakeKey) return
+    const el = canhRef.current
+    if (!el) return
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    el.classList.remove('animate-canh-shake')
+    void el.offsetWidth // reflow to restart animation
+    el.classList.add('animate-canh-shake')
+    const t = setTimeout(() => el.classList.remove('animate-canh-shake'), 600)
+    return () => clearTimeout(t)
+  }, [shakeKey])
 
   const handleNoteChange = (value: string) => {
     setOrderNote(value)
@@ -119,7 +132,7 @@ export function OrderSummary({ embedded }: { embedded?: boolean }) {
           </div>
 
           {/* Canh summary */}
-          <div className="pt-2 border-t border-border space-y-2">
+          <div ref={canhRef} className="pt-2 border-t border-border space-y-2 rounded-lg transition-colors">
             <p className="text-xs font-semibold text-muted-fg uppercase tracking-wide">Canh</p>
             {drinkConfig.bowls === 0 && (
               <p className="text-xs text-amber-500">⚠ Bạn chưa chọn canh — thêm số bát bên dưới nếu cần.</p>

@@ -7,14 +7,14 @@ interface CampaignTimelineProps {
 
 export function CampaignTimeline({ milestones }: CampaignTimelineProps) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-      <h3 className="mb-8 text-sm font-semibold text-gray-700">
+    <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+      <h3 className="mb-8 text-sm font-semibold text-foreground">
         Lộ trình chiến dịch — 5 tuần khai trương
       </h3>
 
       <div className="relative">
         {/* Connector line */}
-        <div className="absolute left-0 right-0 top-[10px] h-0.5 bg-gray-200" />
+        <div className="absolute left-0 right-0 top-[10px] h-0.5 bg-muted" />
 
         <div className="relative flex justify-between">
           {milestones.map(m => (
@@ -32,7 +32,7 @@ export function CampaignTimeline({ milestones }: CampaignTimelineProps) {
               <p
                 className={cn(
                   'text-center text-xs font-semibold',
-                  m.isKeyEvent ? 'text-orange-600' : 'text-gray-600'
+                  m.isKeyEvent ? 'text-orange-600' : 'text-muted-fg'
                 )}
               >
                 {m.label}
@@ -40,7 +40,7 @@ export function CampaignTimeline({ milestones }: CampaignTimelineProps) {
               {/* Activities */}
               <div className="flex flex-col items-center gap-0.5">
                 {m.activities.map(a => (
-                  <p key={a} className="text-center text-[10px] leading-tight text-gray-400">
+                  <p key={a} className="text-center text-[10px] leading-tight text-muted-fg">
                     {a}
                   </p>
                 ))}

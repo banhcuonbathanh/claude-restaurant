@@ -9,11 +9,11 @@ interface StoragePageHeaderProps {
 export function StoragePageHeader({ searchQuery, onSearch, onAddClick }: StoragePageHeaderProps) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <h1 className="text-lg font-bold text-gray-900 shrink-0">Kho nguyên liệu</h1>
+      <h1 className="text-lg font-bold text-foreground shrink-0">Kho nguyên liệu</h1>
       <div className="flex items-center gap-3 flex-1 max-w-md">
         <div className="relative flex-1">
           <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400"
+            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-fg"
             fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
           >
             <path strokeLinecap="round" strokeLinejoin="round"
@@ -24,7 +24,7 @@ export function StoragePageHeader({ searchQuery, onSearch, onAddClick }: Storage
             value={searchQuery}
             onChange={e => onSearch(e.target.value)}
             placeholder="Tìm nguyên liệu..."
-            className="w-full rounded-lg border border-gray-300 pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 min-h-[44px]"
+            className="w-full rounded-lg border border-border bg-card pl-9 pr-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-orange-400 min-h-[44px]"
           />
         </div>
       </div>
