@@ -104,7 +104,7 @@ These activate silently when you work in the relevant domain. Claude reads them 
 
 **You must approve the plan before Claude draws anything.**
 
-```
+```e
 /excalidraw checkout_page
 ```
 
@@ -143,6 +143,23 @@ These activate silently when you work in the relevant domain. Claude reads them 
 
 ```
 /dev-page checkout_page
+```
+
+---
+
+### `/status-routing-reference <page-folder-name>`
+**What it does:** Generates (or refreshes) a **Status Routing Reference** doc for an FE page — the code-accurate table mapping every entity status to the zone/component that renders it, plus action buttons and per-zone rules. Built so you and Claude share one accurate picture of "which status shows up where."
+
+**Key rule:** every cell is traced to current code — never guessed. Anything that can't be confirmed from a file is marked `❓ UNVERIFIED` and listed in the report.
+
+**Steps:** read tracker → locate page code (page.tsx, components, status enums, query hooks) → build each section → verify each cell → write `<Page>_Status_Routing_Reference.md` → update tracker.
+
+- **Model file:** `docs/fe/wireframes/admin_main/admin_overview/Admin_Overview_Status_Routing_Reference.md`
+- **Tracker:** `docs/fe/status-routing-reference/TRACKER.md`
+
+```
+/status-routing-reference admin_main/admin_overview
+/status-routing-reference kds
 ```
 
 ---
@@ -233,6 +250,7 @@ WIREFRAMES
 
 BUILDING PAGES
   Build from spec     → /dev-page <page-folder-name>
+  Status routing map  → /status-routing-reference <page-folder-name>
 
 DESIGN SYSTEM
   Manage tokens       → /design [scaffold|lint|export|diff]

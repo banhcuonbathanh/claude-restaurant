@@ -23,6 +23,7 @@
 | `/design lint` | Validate `DESIGN.md` | Runs 7 rules: broken refs · primary color · WCAG contrast · orphaned tokens · typography · section order · touch target. |
 | `/design export [tailwind\|css]` | Export tokens to code | Generates Tailwind `theme.extend` or CSS variables block from DESIGN.md tokens. Confirms before writing. |
 | `/design diff <file1> <file2>` | Compare two DESIGN.md files | Token-level diff with regression detection. |
+| `/status-routing-reference <page-folder>` | When you need a shared, code-accurate map of which status renders in which zone for an FE page | Reads the page's `page.tsx`, components, status enums, and query hooks, then writes `<Page>_Status_Routing_Reference.md`. Every cell traced to code; unverifiable cells marked `❓ UNVERIFIED`. Model: Admin_Overview_Status_Routing_Reference.md. |
 
 ---
 

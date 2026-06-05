@@ -203,7 +203,7 @@ docs/workflow.excalidraw                  ← Claude workflow diagram v1.1 (FE P
 | Realtime (SSE/WS config) | `docs/core/MASTER_v1.2.md §5` + `docs/contract/API_CONTRACT_v1.2.md §10` | BE + FE + DevOps |
 | **Client QR flow** (scan → menu → order → tracking) | **`docs/work_flow/CLIENT_QR_FLOW.md`** | **BE + FE — MUST READ before touching this flow** |
 | **Staff order flow** (login → KDS → POS → confirm → cancel → bill → payment) | **`docs/work_flow/STAFF_ORDER_FLOW.md`** | **BE + FE — MUST READ before touching staff order management** |
-| **Admin Overview zones (B/C/D/E) + status filters** | **`docs/fe/wireframes/admin_main/admin_overview/table_status.md`** | **FE — MUST READ before touching WaitingSection, PrepPanel, TableList, or page.tsx** |
+| **Admin Overview zones (B/C/D/E) + status filters** | **`docs/fe/wireframes/admin_main/admin_overview/Admin_Overview_Status_Routing_Reference.md`** | **FE — MUST READ before touching WaitingSection, PrepPanel, TableList, or page.tsx** |
 
 ## Commands
 
