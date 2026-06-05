@@ -82,10 +82,14 @@ Gaps that were found during implementation and resolved in a later spec version.
 | Payment | 05 | ✅ | ✅ (via Spec 06 POS) |
 | QR + POS | 06 | ✅ | ✅ |
 | Staff Management | 07 | ✅ | ✅ |
-| Admin Dashboard | 09 | ✅ | ✅ |
+| Admin: Overview + Marketing | 09 | ✅ | ✅ |
+| Admin: Categories | 09a | ✅ | ✅ |
+| **Admin: Analytics · Ingredients · Tasks · Training** | — | ⬜ no spec yet — built ad-hoc | ⬜ no spec yet — built ad-hoc |
 | **Phase 7 Testing** | — | ⬜ no spec yet | ⬜ no spec yet |
 
-> **Gap:** Phase 7 (Testing + Go-Live) has no spec. Create `Spec_10_Testing_GoLive.md` before starting Phase 7.
+> **Gap:** The following are built but have **no spec** — write them when next touched:
+> - Phase 7 (Testing + Go-Live) → `Spec_10_Testing_GoLive.md`
+> - Admin Analytics · Ingredients · Tasks · Training pages (Spec 09 covers **only** Overview + Marketing)
 
 ---
 

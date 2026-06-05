@@ -201,6 +201,20 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 ---
 
+## Phase P-BEBLUEPRINT — BE Rebuild Blueprint (reusable starter)
+
+> **Owner:** Docs
+> **Dependency:** none (read-only over existing BE code)
+> **Status:** ✅ COMPLETE (1→2) — `BE_SQLC_GUIDE.md` + `BE_BUILD_FROM_ZERO.md` added; linked from `BE_DOC_INDEX.md`
+> **Goal:** Close the two structural gaps that block rebuilding the BE from `docs/be` alone, so the doc set is reusable as a from-scratch BE blueprint on other projects.
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P-BEBLUEPRINT-1 | Docs | New `docs/be/BE_SQLC_GUIDE.md` — documents the sqlc data layer: `sqlc.yaml` config + overrides, `query/` file naming convention (`-- name: X :one/:many/:exec`), generation workflow, and representative query examples reverse-engineered from `be/query/*.sql`. Also documents `cmd/` CLI tools (seed · qr · demo_order). | — | 1 | ✅ | A reader can recreate `query/*.sql` + regenerate `internal/db/` without opening source |
+| P-BEBLUEPRINT-2 | Docs | New `docs/be/BE_BUILD_FROM_ZERO.md` — ordered build checklist (init module → migrations → sqlc → pkg → repo → service → handler → main.go wiring → Docker), each step pointing at the doc that fills it. Includes one full goose migration file shown verbatim as a template. | P-BEBLUEPRINT-1 | 1 | ✅ | Checklist reproduces the BE scaffold end-to-end; every step links its source doc |
+
+---
+
 ## Critical Rules (Never Forget)
 
 | Rule | Detail |

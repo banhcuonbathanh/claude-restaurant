@@ -26,6 +26,8 @@
 | SSE/WS realtime config (reconnect, heartbeat) | [`docs/core/MASTER_v1.2.md`](../core/MASTER_v1.2.md) §5 + [`API_CONTRACT_v1.2.md`](../contract/API_CONTRACT_v1.2.md) §10 |
 | Error format + `respondError` pattern | [`docs/contract/ERROR_CONTRACT_v1.1.md`](../contract/ERROR_CONTRACT_v1.1.md) |
 | Patterns / epics / "what to read per domain" (prose) | [`BE_SYSTEM_GUIDE.md`](BE_SYSTEM_GUIDE.md) — primary BE guide |
+| How the `repository → db` layer is generated (sqlc) | [`BE_SQLC_GUIDE.md`](BE_SQLC_GUIDE.md) — sqlc.yaml · query conventions · `cmd/` tools |
+| Build the whole BE from an empty folder (ordered checklist) | [`BE_BUILD_FROM_ZERO.md`](BE_BUILD_FROM_ZERO.md) — scaffold spine, links each step's doc |
 | End-to-end client/staff flows | [`docs/work_flow/`](../work_flow/) → `CLIENT_QR_FLOW.md` · `STAFF_ORDER_FLOW.md` · `FLOW_INDEX.md` |
 
 ---
@@ -70,7 +72,8 @@
 | **QR / Tables** | [`Spec_6_QR_POS.md`](../spec/Spec_6_QR_POS.md) | API §6 | [`CLIENT_QR_FLOW.md`](../work_flow/CLIENT_QR_FLOW.md) · [`FLOW_04_STAFF_POS.md`](../work_flow/FLOW_04_STAFF_POS.md) |
 | **Files / Upload** | — (contract only) | API §7 · ERROR §2 | — |
 | **Staff management** | [`Spec_7_Staff_Management.md`](../spec/Spec_7_Staff_Management.md) | API §8 | — |
-| **Admin: Analytics · Ingredients · Tasks · Training · Marketing** | [`Spec_9_Admin_Dashboard_Pages.md`](../spec/Spec_9_Admin_Dashboard_Pages.md) | API §9 | [`FLOW_05_ADMIN_OVERVIEW.md`](../work_flow/FLOW_05_ADMIN_OVERVIEW.md) |
+| **Admin: Overview + Marketing** | [`Spec_9_Admin_Dashboard_Pages.md`](../spec/Spec_9_Admin_Dashboard_Pages.md) | API §9 | [`FLOW_05_ADMIN_OVERVIEW.md`](../work_flow/FLOW_05_ADMIN_OVERVIEW.md) |
+| **Admin: Analytics · Ingredients · Tasks · Training** | ⬜ no spec yet — built ad-hoc (see code summaries + API §9) | API §9 | — |
 | **WebSocket (KDS / live)** | — | API §10.1 · MASTER §5.1 | [`FLOW_03_STAFF_KDS.md`](../work_flow/FLOW_03_STAFF_KDS.md) |
 
 > Common field-name + rule gotchas (`price` not `base_price`, derive item status from `qty_served`, `gateway_data` not `webhook_payload`, payment `completed` not `success`, recalc `total_amount` after every mutation) are in [`DB_SCHEMA_SUMMARY.md`](be_code_summary/DB_SCHEMA_SUMMARY.md) → Critical Gotchas and MASTER_TASK Critical Rules.
