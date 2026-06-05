@@ -147,9 +147,9 @@ Only after Step 5 is confirmed → follow the 7-step workflow below.
 | Phase 4 — Backend | ✅ COMPLETE — all domains coded + all AC verified and fixed | — |
 | Phase 5 — Frontend | ✅ COMPLETE — 5.1 auth + 5.2 menu/cart + 5.3 checkout/SSE + 5.4 KDS + 5.5 POS/Payment ✅ | — |
 | Phase 6 — DevOps | ✅ COMPLETE — .env.example + migrate.sh + Caddyfile + Caddy in compose + CI/CD + README | — |
-| Phase 7 — Testing + Go-Live | ⬜ NOT STARTED | Needs P4+P5 |
+| Phase 7 — Testing + Go-Live | 🔄 IN PROGRESS — go-live/monitoring/rollback ✅; remaining: P7-5.4 E2E + P7-7 payment sandbox + P7-8 UAT | — |
 | Phase 8 — Admin Dashboard | ✅ COMPLETE — FE pages + BE staff CRUD + Overview + Marketing (8-1→8-17) | — |
-| P-ARCH — FE Architecture Groundwork | ⬜ NOT STARTED — storage-keys + wireframe doc corrections | — |
+| P-ARCH — FE Architecture Groundwork | ✅ COMPLETE — storage-keys.ts + wireframe path fixes | — |
 
 ## Document Map (3 Tầng)
 
@@ -237,7 +237,7 @@ FE folder conventions (enforce on every new page):
 
 ## Current Work
 
-- **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 ✅ · Phase 10 ✅ · Phase UX ✅ · **OC (Order Consistency) ✅ COMPLETE** · Phase 7 ⬜ NEXT · P-ARCH ⬜ NEXT.
+- **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 ✅ · Phase 10 ✅ · Phase UX ✅ · **OC (Order Consistency) ✅ COMPLETE** · P-ARCH ✅ · Phase 7 🔄 IN PROGRESS (go-live/monitoring/rollback ✅; P7-5.4 E2E + P7-7 payment sandbox + P7-8 UAT remain).
 - **Branch:** feature/fe-wireframe-build — uncommitted changes. Run `docker compose up -d --build be fe` after any change.
 - **Done this session — OC epic (menu preview = saved order), OC-1→OC-4 all ✅:**
   - **OC-1** migration `016` + sqlc: `order_items.filling` column (thit/moc_nhi/NULL)
@@ -246,5 +246,6 @@ FE folder conventions (enforce on every new page):
   - **OC-4** read views render filling: `order/[id]` DishRow, admin WaitingSection/PrepPanel (`toppingLabel` reads real `filling`+`note`), KDS variant
   - ⚠️ 2 **pre-existing** FE test failures (orderNote/clearCart + CART_CONFIG key) — unrelated to OC
 - **Next (in order):**
-  1. **Phase 7-7** — Payment sandbox (VNPay + MoMo via ngrok)
-  2. **P-ARCH** — FE architecture groundwork
+  1. **P7-5.4** — Playwright E2E (full browser flows per role) — needs `docker compose up` full stack
+  2. **P7-7** — Payment sandbox (VNPay + MoMo via ngrok)
+  3. **P7-8** — UAT plan (`docs/UAT_Plan.md`)

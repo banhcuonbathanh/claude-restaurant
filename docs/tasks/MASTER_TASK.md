@@ -76,7 +76,7 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 > **Owner:** BE + FE
 > **Dependency:** P4 ✅ · P5 ✅
-> **Status:** 🔄 IN PROGRESS
+> **Status:** ✅ COMPLETE (OC-1 → OC-4 all ✅, 2026-06-05)
 > **Added:** 2026-06-05
 > **Problem:** The menu "Tổng số món" preview promises customization that the backend never stores, so the saved order (order page + admin Overview + KDS) diverges from what the customer saw. Three drops at checkout: (1) `filling` (Thịt/Mộc nhĩ) never sent + no DB column; (2) edited combo contents ignored — `expandCombo` rebuilds from canonical `GetComboSnapshot`; (3) canh có rau/không rau split only applied to standalone canh, not combo canh.
 > **Decision (owner, 2026-06-05):** Make the backend honor the preview. `filling` is a real, kitchen-visible per-order attribute (dedicated column, not `note`).
