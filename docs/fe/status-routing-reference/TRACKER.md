@@ -27,7 +27,7 @@
 |---|------|---------|--------|----------|-----------------|
 | C1 | Menu | `/status-routing-reference client_menu_page` | N/A | — | No entity status routing (catalog only) |
 | C2 | Product Detail | `/status-routing-reference client_product_detail` | N/A | — | No entity status routing |
-| C3 | Order | `/status-routing-reference client_order_page` | ⬜ | — | order status drives DishRow / Zone visibility |
+| C3 | Order | `/status-routing-reference client_order_page` | ⚠️ | 2026-06-05 | Done, all cells traced. ⚠️ `paid` treated as active (isActive excludes only delivered/cancelled) → stepper/cancel/Thêm món still show on paid. ⚠️ pending can't whole-order cancel (canCancelOrder = confirmed/preparing only). Both flagged for BE confirm. |
 | C4 | Monitoring / Servicing Table | `/status-routing-reference client_monitoring_servicing_table` | ⬜ | — | SSE-gated zones by order status |
 | C5 | Favourites | `/status-routing-reference client_favourite_page` | N/A | — | No entity status routing |
 | C6 | Info | `/status-routing-reference client_info_page` | N/A | — | No entity status routing |
@@ -62,8 +62,9 @@
 | # | Concern | Affects Pages | Status | Notes |
 |---|---------|--------------|--------|-------|
 | X1 | Order status enum is single-source — every reference must use the exact same 7 values | C3, C4, A11, A13, A14 | ✅ | Source: `docs/be/be_code_summary/DB_SCHEMA_SUMMARY.md` (`orders.status`). pending·confirmed·preparing·ready·delivered·cancelled·paid |
-| X2 | Vietnamese status labels must match across all references (no label drift) | C3, C4, A11, A13, A14 | 🔄 | Captured in A11. Re-confirm verbatim when each new reference is written. |
-| X3 | Status transition rules (which button → which next status) consistent BE vs FE | A11, A13, A14 | 🔄 | A11 done. Cross-check against `order-flow` skill rules when A13/A14 run. |
+| X2 | Vietnamese status labels must match across all references (no label drift) | C3, C4, A11, A13, A14 | 🔄 | A11 + C3 use identical labels from `StatusBadge.tsx` (single source). `ready` label = "Sẵn sàng" (A11 had "Sẵn sàng phục vụ" — A11 text is descriptive, badge is "Sẵn sàng"). Re-confirm per page. |
+| X3 | Status transition rules (which button → which next status) consistent BE vs FE | A11, A13, A14 | 🔄 | A11 done. C3 has no status-advance buttons (customer only cancels/adjusts qty; advances arrive via SSE). Cross-check against `order-flow` skill when A13/A14 run. |
+| X4 | `isActive` semantics — `paid` counts as active on C3 (excludes only delivered/cancelled) | C3, C4, A13, A14 | ⚠️ | Found in C3 (`order/[id]/page.tsx:232`). Confirm whether `paid` should disable edit/cancel/add on all client+staff order surfaces. |
 
 ---
 
@@ -74,6 +75,7 @@
 | Date | Page | Outcome | Key decisions / notes |
 |------|------|---------|------------------------|
 | 2026-06-05 | admin_main/admin_overview | ✅ | Seeded as the model reference (pre-existing file renamed from table_status.md → Admin_Overview_Status_Routing_Reference.md). All zones, statuses, buttons, and per-zone rules captured. |
+| 2026-06-05 | client_order_page | ⚠️ | Tracking page `order/[id]`. Reframed matrix: single order, status gates buttons/banners/modals (not zone routing). Found 2 BE inconsistencies: `paid` is active (X4), `pending` can't whole-order cancel. Notification modal = SSE-transition-driven, separate from stored status. |
 
 ---
 

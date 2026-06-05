@@ -89,5 +89,6 @@ Freeform raw dumps are fine — the 4-file layout is a recommendation, not a gat
 |---|---|---|---|
 | 2026-06-05 | [`2026-06-05_oc-epic/`](2026-06-05_oc-epic/) | OC (Order Consistency) epic — menu preview ≠ saved order; combo double-count fix | analyzed-pending |
 | 2026-06-05 | [`2026-06-05_scope-guardrail/`](2026-06-05_scope-guardrail/) | Why AI changes code the owner didn't ask for — 5 root causes + Checkpoint/Scope Contract fix | raw |
+| 2026-06-05 | [`2026-06-05_client-order-data-trace/`](2026-06-05_client-order-data-trace/) | Tracing Client Order Page data flow (FE useSSE+REST+localStorage / BE Redis pub-sub→SSE) into the reference doc; found 2 dead-code discrepancies | raw |
 
 > Status values: `raw` (just captured) · `analyzed-pending` (read, improvements not yet applied) · `actioned` (improvements applied, can archive).
