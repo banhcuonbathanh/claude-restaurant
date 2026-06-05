@@ -6,6 +6,7 @@ export interface DrinkConfig {
 }
 
 export interface ComboItemSummary {
+  product_id?:  string   // needed to send combo content overrides at checkout
   product_name: string
   quantity:     number
   unit_price?:  number

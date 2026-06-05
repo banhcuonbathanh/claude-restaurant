@@ -8,6 +8,7 @@ import { useCartStore } from '@/store/cart'
 import { useSettingsStore } from '@/store/settings'
 import { formatVND } from '@/lib/utils'
 import { addItemsToOrder } from '@/lib/api-client'
+import { buildOrderItemsPayload } from '@/lib/order-payload'
 
 interface Props {
   open:              boolean
@@ -18,7 +19,7 @@ interface Props {
 
 export function CartDrawer({ open, onClose, addToOrderId, onTableCheckout }: Props) {
   const router = useRouter()
-  const { items, updateQty, removeItem, total, itemCount, activeOrderId, clearCart, tableId } = useCartStore()
+  const { items, updateQty, removeItem, total, itemCount, activeOrderId, clearCart, tableId, drinkConfig } = useCartStore()
   const { customerName, tableLabel } = useSettingsStore()
 
   // Track which combos have their dish list expanded
@@ -27,15 +28,7 @@ export function CartDrawer({ open, onClose, addToOrderId, onTableCheckout }: Pro
   const addItemsMutation = useMutation({
     mutationFn: () => addItemsToOrder(
       addToOrderId!,
-      items.map(item => ({
-        product_id:       item.product_id ?? null,
-        combo_id:         item.combo_id   ?? null,
-        quantity:         item.quantity,
-        unit_price:       item.price,
-        topping_snapshot: item.toppings.length > 0
-          ? item.toppings.map(t => ({ id: t.id, name: t.name, price_delta: t.price }))
-          : null,
-      })),
+      buildOrderItemsPayload(items, drinkConfig),
     ),
     onSuccess: () => {
       toast.success('Đã thêm món thành công')

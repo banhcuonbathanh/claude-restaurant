@@ -11,7 +11,7 @@ import { QuantityStepper } from '@/components/shared/QuantityStepper'
 import { api, patchOrderItemQty } from '@/lib/api-client'
 import { formatVND } from '@/lib/utils'
 import { useCartStore } from '@/store/cart'
-import type { OrderItem, ToppingSnapshotEntry } from '@/types/order'
+import { fillingLabel, type OrderItem, type ToppingSnapshotEntry } from '@/types/order'
 
 interface CancelTarget {
   type:            'item' | 'combo-remaining' | 'order'
@@ -703,10 +703,15 @@ function DishRow({
         {/* Bullet */}
         <span className="w-1.5 h-1.5 rounded-full bg-muted-fg shrink-0 mt-2" />
 
-        {/* Dish name + toppings + optional stepper */}
+        {/* Dish name + filling + toppings + optional stepper */}
         <div className="flex-1 min-w-0">
           <span className="text-sm text-foreground leading-snug block truncate">
             {item.name}
+            {fillingLabel(item.filling) && (
+              <span className="ml-1.5 text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full align-middle">
+                {fillingLabel(item.filling)}
+              </span>
+            )}
           </span>
           {toppings.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1">

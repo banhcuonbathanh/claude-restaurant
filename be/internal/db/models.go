@@ -564,7 +564,6 @@ type Order struct {
 	ID            string         `json:"id"`
 	OrderNumber   string         `json:"order_number"`
 	TableID       sql.NullString `json:"table_id"`
-	Status        OrdersStatus   `json:"status"`
 	Source        OrdersSource   `json:"source"`
 	CustomerName  sql.NullString `json:"customer_name"`
 	CustomerPhone sql.NullString `json:"customer_phone"`
@@ -576,6 +575,7 @@ type Order struct {
 	DeletedAt     sql.NullTime   `json:"deleted_at"`
 	// Shared UUID for multi-table group (Option A). NULL = standalone order.
 	GroupID sql.NullString `json:"group_id"`
+	Status  OrdersStatus   `json:"status"`
 }
 
 type OrderItem struct {
@@ -592,6 +592,7 @@ type OrderItem struct {
 	Note             sql.NullString  `json:"note"`
 	CreatedAt        time.Time       `json:"created_at"`
 	UpdatedAt        time.Time       `json:"updated_at"`
+	Filling          sql.NullString  `json:"filling"`
 }
 
 type OrderSequence struct {

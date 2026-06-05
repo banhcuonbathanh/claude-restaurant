@@ -10,8 +10,15 @@
 ```
 be/
 │
-├── cmd/server/
-│   └── main.go                        ← Entry point: DI wiring, route registration, graceful shutdown
+├── cmd/                                ← Entry points (one main.go each)
+│   ├── server/main.go                  ← HTTP server: DI wiring, routes, jobs, graceful shutdown (auto-runs migrations on boot)
+│   ├── seed/main.go                    ← One-shot: insert demo accounts for all roles (bcrypt-hashed)
+│   ├── qr/main.go                      ← Print QR URLs for active tables (uses FE_HOST)
+│   └── demo_order/main.go              ← E2E smoke: guest scan → /auth/guest → /products → /orders
+│
+├── migrations/                         ← Goose SQL (001–015) — DDL; sqlc reads column types from here
+├── query/                              ← Hand-written SQL + `-- name:` annotations → sqlc input (see BE_SQLC_GUIDE.md)
+├── sqlc.yaml                           ← sqlc config (engine, gen options, column overrides)
 │
 ├── integration/                        ← Integration tests (hit real DB + Redis)
 │   ├── auth_test.go

@@ -61,6 +61,7 @@ export function ProductCard({ product }: Props) {
       quantity:   1,
       price,
       toppings:   selected,
+      filling,
     })
     setModalOpen(false)
   }
@@ -118,7 +119,7 @@ export function ProductCard({ product }: Props) {
             onClick={() => setFilling('thit')}
             className={`text-[11px] px-2.5 py-0.5 rounded-full border transition-colors ${
               filling === 'thit'
-                ? 'bg-primary text-white border-primary'
+                ? 'bg-primary text-white border-primary running-border'
                 : 'border-border text-muted-fg hover:border-primary/50'
             }`}
           >
@@ -128,7 +129,7 @@ export function ProductCard({ product }: Props) {
             onClick={() => setFilling('moc_nhi')}
             className={`text-[11px] px-2.5 py-0.5 rounded-full border transition-colors ${
               filling === 'moc_nhi'
-                ? 'bg-primary text-white border-primary'
+                ? 'bg-primary text-white border-primary running-border'
                 : 'border-border text-muted-fg hover:border-primary/50'
             }`}
           >

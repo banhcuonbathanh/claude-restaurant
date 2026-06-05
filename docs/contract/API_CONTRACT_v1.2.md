@@ -260,10 +260,24 @@ GET /api/v1/inventory/:id/logs?page=1&limit=20
 | Field | Type | Required | Mô Tả |
 | --- | --- | --- | --- |
 | product_id | string (UUID) | Optional | UUID sản phẩm (null nếu là combo header) |
-| combo_id | string (UUID) | Optional | UUID combo — BE tự expand thành sub-items |
+| combo_id | string (UUID) | Optional | UUID combo — BE expand thành sub-items |
 | quantity | integer | Required | Số lượng (> 0) |
 | toppings | array | Optional | [{ topping_id: UUID, quantity: int }] — snapshot giá tại thời điểm đặt |
 | note | string | Optional | Ghi chú riêng cho món |
+| filling | string | Optional | Nhân của món lẻ: `"thit"` │ `"moc_nhi"` │ "" (không nhân). Lưu vào `order_items.filling`. |
+| combo_items | array | Optional | Tuỳ biến nội dung combo (xem sub-schema). Khi có → thay thế template chuẩn của combo; khi rỗng → BE expand theo template. |
+
+### items[].combo_items[] sub-schema (combo content override)
+| Field | Type | Required | Mô Tả |
+| --- | --- | --- | --- |
+| product_id | string (UUID) | Required | Phải thuộc combo — sản phẩm ngoài combo bị reject 400 `INVALID_INPUT` |
+| quantity | integer | Required | Số lượng mỗi suất combo (BE nhân với `quantity` của combo) |
+| note | string | Optional | Ghi chú riêng (vd canh: `"Có rau"` / `"Không rau"`) |
+| filling | string | Optional | `"thit"` │ `"moc_nhi"` │ "" |
+
+> **Combo pricing:** combo header row có `unit_price = 0` (chỉ là nhãn nhóm — mọi read view ẩn nó). Sub-items mang giá thật (từ template phía server, **không tin giá client**). `total_amount` = Σ(sub-items) + món lẻ. Quy ước này tránh double-count với `recalculateTotalAmount`.
+>
+> Cùng schema áp dụng cho `POST /orders/:id/items` (thêm món vào đơn đang mở).
 
 ## POST /orders — Response 201
 | {

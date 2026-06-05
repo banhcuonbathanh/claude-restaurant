@@ -12,6 +12,7 @@
 
 | Phase | Owner | Status | Sessions Left | Next task |
 |---|---|---|---|---|
+| **OC — Order Consistency (menu preview = saved order)** ⭐ TOP PRIORITY | BE+FE | ✅ COMPLETE | 0 | — |
 | P0 — Docs & Architecture | BA | ✅ COMPLETE | 0 | — |
 | P1 — DB Migrations | DevOps | ✅ COMPLETE | 0 | — |
 | P2 — Feature Specs | BA | ✅ COMPLETE | 0 | — |
@@ -36,6 +37,8 @@
 | P-WIRE-ORDER — Client Order Page Wireframe | Docs | ✅ COMPLETE | 0 | — |
 | P-GRAPH-ENRICH — Enrich Codebase Graphs for /dev-page | Docs | ✅ COMPLETE | 2 | — |
 | P-MON — Client Order Monitoring Page | BE+FE | ✅ COMPLETE | 0 | — |
+| P-FIX-CANH — Stale canh count in cart | FE | ✅ COMPLETE | 0 | — |
+| P-PREP-3COL — WaitingSection prep list → 3 columns (Title · Topping · Quantity) | FE | ✅ COMPLETE | 0 | — |
 
 ---
 
@@ -66,6 +69,25 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 | P-ORDER-TOPPING | 2026-05 | Topping name/price in order page (P-ORDER-TOPPING-1→2) |
 | P-FIX-MOCK | 2026-05 | mockOrderRepo AppendOrderItems stub |
 | P-GRAPH-ENRICH | 2026-05 | BE + FE codebase graphs enriched |
+
+---
+
+## Phase OC — Order Consistency ⭐ TOP PRIORITY
+
+> **Owner:** BE + FE
+> **Dependency:** P4 ✅ · P5 ✅
+> **Status:** 🔄 IN PROGRESS
+> **Added:** 2026-06-05
+> **Problem:** The menu "Tổng số món" preview promises customization that the backend never stores, so the saved order (order page + admin Overview + KDS) diverges from what the customer saw. Three drops at checkout: (1) `filling` (Thịt/Mộc nhĩ) never sent + no DB column; (2) edited combo contents ignored — `expandCombo` rebuilds from canonical `GetComboSnapshot`; (3) canh có rau/không rau split only applied to standalone canh, not combo canh.
+> **Decision (owner, 2026-06-05):** Make the backend honor the preview. `filling` is a real, kitchen-visible per-order attribute (dedicated column, not `note`).
+> **Order:** OC-1 → OC-2 → OC-3 → OC-4 (strict)
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| OC-1 | BE | Add `filling` column to `order_items` (migration `016` + `query/*.sql` + `sqlc generate` + `OrderItemRow`/repo struct). Enum-style: `thit` · `moc_nhi` · NULL via `chk_oi_filling`. | — | 1 | ✅ | Column exists (verified in DB); `sqlc generate` + `go build ./...` clean; service tests green; both insert call sites pass `Filling` |
+| OC-2 | BE | Order-create contract honors filling + custom combo contents. Added `filling` + `combo_items` overrides to order DTO + `CreateOrderItemInput` (both `POST /orders` and `POST /orders/:id/items`); `expandCombo` honors overrides (validate product ∈ combo, server-side prices, qty×comboQty, note, filling) with canonical fallback; `buildProductRow` sets filling; exposed `filling`+`note`+combo fields in `orderJSON` & overview `buildItemsJSON`. **Also fixed pre-existing combo double-count**: header `unit_price` now 0 (was bundle price) → `total_amount` no longer counts combo twice. `API_CONTRACT_v1.2.md` updated (openapi has no /orders paths — pre-existing gap, flagged). | OC-1 | 1 | ✅ | Live smoke test: filling persists, overrides honored, total 72k→42k (double-count fixed); 2 new unit tests green; full BE suite green |
+| OC-3 | FE | Checkout payload sends filling + expanded combo contents + unified canh split. Created single `lib/order-payload.ts` builder; wired all 3 cart-driven paths (menu table-confirm, `/checkout`, CartDrawer add-to-order). Threaded `product_id` into cart `combo_items` (type + ComboCard + combo detail); added filling to ProductCard topping path. POS/TableGrid left as-is (staff UI, no combo/filling/canh selection). | OC-2 | 1 | ✅ | 5 builder unit tests green; FE typecheck clean (pre-existing AuthState test errors unrelated); BE accepts shape (OC-2 live smoke). **Note:** favourites quick-add combos carry no `combo_items` → BE canonical path (incl. their canh ×1) — flagged, secondary path |
+| OC-4 | FE | Read views show filling + cross-page consistency. Added `filling` to `OrderItem` type + `fillingLabel()`; `toppingLabel` (admin WaitingSection + PrepPanel) now reads real `filling`+`note` instead of deriving from toppings; `order/[id]` DishRow shows filling badge; KDS shows nhân/rau variant. | OC-3 | 1 | ✅ | Live GET verified `filling` flows through read JSON ('thit'/'moc_nhi'); total 20k (no double-count); FE typecheck clean; admin/order/KDS render filling |
 
 ---
 
@@ -212,6 +234,18 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 |---|---|---|---|---|---|---|
 | P-BEBLUEPRINT-1 | Docs | New `docs/be/BE_SQLC_GUIDE.md` — documents the sqlc data layer: `sqlc.yaml` config + overrides, `query/` file naming convention (`-- name: X :one/:many/:exec`), generation workflow, and representative query examples reverse-engineered from `be/query/*.sql`. Also documents `cmd/` CLI tools (seed · qr · demo_order). | — | 1 | ✅ | A reader can recreate `query/*.sql` + regenerate `internal/db/` without opening source |
 | P-BEBLUEPRINT-2 | Docs | New `docs/be/BE_BUILD_FROM_ZERO.md` — ordered build checklist (init module → migrations → sqlc → pkg → repo → service → handler → main.go wiring → Docker), each step pointing at the doc that fills it. Includes one full goose migration file shown verbatim as a template. | P-BEBLUEPRINT-1 | 1 | ✅ | Checklist reproduces the BE scaffold end-to-end; every step links its source doc |
+| P-BEBLUEPRINT-3 | Docs | New `docs/be/BE_CACHING_STRATEGY.md` — cache-aside pattern, delete-on-write invalidation, fail-open-on-Redis-down behavior, what is/isn't cached. Correct the drifted Redis Key Schema table in `DB_SCHEMA_SUMMARY.md` to match real keys/TTLs (remove 4 non-existent keys; add product/list caches). Flag (docs-only, no code change): `is_active` invalidation key mismatch in `staff_service.go`, and bloom filters defined but never called. | — | 1 | ✅ | Key table matches `grep` of code 1:1; strategy + fail-open documented; known gaps flagged |
+| P-BEBLUEPRINT-4 | BE | Fix `is_active` cache-key mismatch — centralize via `staffActiveKey()` helper in `auth_service.go`; route all 5 call sites (auth read/write/del + staff SetStatus/Delete) through it. Also repair stale service-test mocks blocking compilation (`mockAuthRepo.CreateStaffForRegister`, `mockOrderRepo.{CountActiveOrderItems,ListTodayHistory,UpdateItemQuantity,DeleteOrderItem}`) and update stale VNPay webhook test assertion (`MarkOrderDelivered` → `MarkOrderPaid`, per migration 015). | P-BEBLUEPRINT-3 | 1 | ✅ | `go build ./...` clean; `go test ./be/internal/service/...` green; deactivation now invalidates the real cache |
+
+## Phase P-FIX-CANH — Stale canh count in cart
+
+> **Owner:** FE
+> **Dependency:** none
+> **Status:** ✅ COMPLETE
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P-FIX-CANH-1 | FE | `OrderSummary` CANH section showed leftover bowl counts (e.g. 2/2) on a fresh menu load. Root cause: `cart.ts` persisted `drinkConfig` but not `items`, so old canh counts resurfaced without their order. Fix: drop `drinkConfig` from `partialize`; bump persist `version` 3→4 with migrate that deletes stale `drinkConfig`. | — | 1 | ✅ | Canh starts at 0/0 on fresh load; existing stale localStorage value flushed on next load |
 
 ---
 

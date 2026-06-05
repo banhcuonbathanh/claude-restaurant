@@ -19,6 +19,7 @@ Your mindset:
 - **Simplicity first:** minimum solution, nothing beyond what was asked — no speculative features, no premature abstractions
 - **Surgical:** touch only what the task requires; don't improve adjacent code, docs, or formatting unless asked
 - **These principles apply to ALL tasks** — code, docs, planning, analysis. The mechanics differ (tests for code; clear ACs for plans) but the discipline is the same.
+- **Cost-aware:** delegate normal work to a Sonnet 4.6 sub-agent, keep Opus 4.8 for difficult work. Criteria → `docs/MODEL_SELECTION.md`.
 
 **Commands:** `/handoff` to close session.
 
@@ -76,6 +77,7 @@ READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 | `docs/PROCEDURE_INDEX.md` | Procedure index — task type → required procedure. |
 | `docs/IMPLEMENTATION_WORKFLOW.md` | Full detail on each of the 7 steps. |
 | `docs/base/LESSONS_LEARNED_v3.md` | Session workflow guide + prefix system detail |
+| `docs/MODEL_SELECTION.md` | Model choice — when to spawn Sonnet 4.6 sub-agent vs. use Opus 4.8. |
 
 ---
 
@@ -230,11 +232,14 @@ FE folder conventions (enforce on every new page):
 
 ## Current Work
 
-- **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 ✅ · Phase 10 ✅ · Phase UX ✅ · Phase 7 ⬜ NEXT · P-ARCH ⬜ NEXT.
-- **Branch:** chore/wireframe-files — uncommitted changes. Run `docker compose up -d --build be fe` after any change.
-- **Done this session:**
-  - **P-ARCH registered** — MASTER + CLAUDE.md + fe/CLAUDE.md + LESSONS_LEARNED updated; 2 tasks ready
+- **Status:** Phase 5 ✅ · Phase 6 ✅ · Phase 8 ✅ · Phase 10 ✅ · Phase UX ✅ · **OC (Order Consistency) ✅ COMPLETE** · Phase 7 ⬜ NEXT · P-ARCH ⬜ NEXT.
+- **Branch:** feature/fe-wireframe-build — uncommitted changes. Run `docker compose up -d --build be fe` after any change.
+- **Done this session — OC epic (menu preview = saved order), OC-1→OC-4 all ✅:**
+  - **OC-1** migration `016` + sqlc: `order_items.filling` column (thit/moc_nhi/NULL)
+  - **OC-2** order-create contract: `filling` + `combo_items` overrides honored; **fixed combo double-count** (header `unit_price`=0) → `total_amount` correct (reported order 72k → 42k)
+  - **OC-3** single `fe/src/lib/order-payload.ts` builder wired into all 3 cart-driven POST paths (menu / checkout / add-to-order); combo `product_id` threaded through cart
+  - **OC-4** read views render filling: `order/[id]` DishRow, admin WaitingSection/PrepPanel (`toppingLabel` reads real `filling`+`note`), KDS variant
+  - ⚠️ 2 **pre-existing** FE test failures (orderNote/clearCart + CART_CONFIG key) — unrelated to OC
 - **Next (in order):**
-  1. **P-ARCH-1** — create `src/lib/storage-keys.ts` + update 6 files (1 session)
-  2. **P-ARCH-2** — correct `menu_wireframe_v1.md` file paths + update `_TEMPLATE.md` (1 session)
-  3. **Phase 7-7** — Payment sandbox (VNPay + MoMo via ngrok)
+  1. **Phase 7-7** — Payment sandbox (VNPay + MoMo via ngrok)
+  2. **P-ARCH** — FE architecture groundwork

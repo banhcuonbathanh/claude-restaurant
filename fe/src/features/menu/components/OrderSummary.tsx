@@ -62,22 +62,32 @@ export function OrderSummary({ embedded, shakeKey }: { embedded?: boolean; shake
       }
     }
   }
+  const isSoupName = (name: string) =>
+    name.toLowerCase().includes('canh') || name.toLowerCase().includes('nước dùng')
   const dishSummary = (() => {
     const map = new Map<string, { name: string; filling?: string; qty: number }>()
     for (const item of items) {
       if (item.type === 'combo' && item.combo_items) {
         for (const ci of item.combo_items) {
+          if (isSoupName(ci.product_name)) continue // canh comes from drinkConfig, added below
           const key = `${ci.product_name}|${item.filling ?? ''}`
           const prev = map.get(key)
           map.set(key, { name: ci.product_name, filling: item.filling, qty: (prev?.qty ?? 0) + ci.quantity * item.quantity })
         }
       } else if (item.type === 'product') {
+        if (isSoupName(item.name)) continue // canh comes from drinkConfig, added below
         const key = `${item.name}|${item.filling ?? ''}`
         const prev = map.get(key)
         map.set(key, { name: item.name, filling: item.filling, qty: (prev?.qty ?? 0) + item.quantity })
       }
     }
-    return Array.from(map.values()).sort((a, b) => b.qty - a.qty)
+    const rows = Array.from(map.values()).sort((a, b) => b.qty - a.qty)
+    // Canh is driven by the CANH stepper (drinkConfig), split into có rau / không rau —
+    // mirrors the checkout payload in menu/page.tsx, not the combo's literal canh qty.
+    const nonVegBowls = drinkConfig.bowls - drinkConfig.vegBowls
+    if (drinkConfig.vegBowls > 0) rows.push({ name: 'Canh (có rau)', qty: drinkConfig.vegBowls })
+    if (nonVegBowls > 0)          rows.push({ name: 'Canh (không rau)', qty: nonVegBowls })
+    return rows
   })()
   return (
     <section className={embedded ? 'border-t border-border px-5 py-4' : 'mx-4 mt-4 bg-card rounded-xl p-4 shadow-sm mb-4'}>
@@ -132,7 +142,14 @@ export function OrderSummary({ embedded, shakeKey }: { embedded?: boolean; shake
           </div>
 
           {/* Canh summary */}
-          <div ref={canhRef} className="pt-2 border-t border-border space-y-2 rounded-lg transition-colors">
+          <div
+            ref={canhRef}
+            className={`p-2 space-y-2 rounded-lg transition-colors ${
+              drinkConfig.bowls === 0
+                ? 'border border-primary running-border'
+                : 'border-t border-border'
+            }`}
+          >
             <p className="text-xs font-semibold text-muted-fg uppercase tracking-wide">Canh</p>
             {drinkConfig.bowls === 0 && (
               <p className="text-xs text-amber-500">⚠ Bạn chưa chọn canh — thêm số bát bên dưới nếu cần.</p>

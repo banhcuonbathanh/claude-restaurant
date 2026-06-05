@@ -35,6 +35,17 @@
   }
 }
 
+/* Running light that travels around the border of the selected filling pill */
+@property --running-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes running-border {
+  to { --running-angle: 360deg; }
+}
+
 @keyframes canh-shake {
   0%, 100% { transform: translateX(0); }
   15%       { transform: translateX(-6px); }
@@ -56,6 +67,38 @@
 
   .glow-primary {
     box-shadow: 0 0 40px -10px var(--color-primary);
+  }
+
+  /* A bright "comet" of light runs around the pill border. Apply to the selected pill. */
+  .running-border {
+    position: relative;
+    isolation: isolate;
+  }
+  .running-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;         /* follows the element's own corner radius */
+    padding: 1.5px;                 /* border thickness the light traces */
+    background: conic-gradient(
+      from var(--running-angle),
+      rgba(255, 255, 255, 0.95) 0deg,
+      var(--color-primary)      45deg,
+      transparent               120deg,
+      transparent               360deg
+    );
+    /* Show only the 1.5px ring, hide the filled centre */
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+    /* Fast at the start of each lap, then eases to a slow finish before looping */
+    animation: running-border 3.6s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .running-border::before { animation: none; }
   }
 
   .gradient-hero {

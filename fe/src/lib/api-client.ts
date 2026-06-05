@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { useAuthStore } from '@/features/auth/auth.store'
 import { useCartStore } from '@/store/cart'
+import type { OrderItemPayload } from '@/lib/order-payload'
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080/api/v1',
@@ -57,21 +58,13 @@ api.interceptors.response.use(
   },
 )
 
-interface AddItemInput {
-  product_id:       string | null
-  combo_id:         string | null
-  quantity:         number
-  unit_price:       number
-  topping_snapshot: { id: string; name: string; price_delta: number }[] | null
-}
-
 export interface AddItemsResult {
   order_id:          string
   added_items_count: number
   new_total_amount:  number
 }
 
-export async function addItemsToOrder(orderId: string, items: AddItemInput[]): Promise<AddItemsResult> {
+export async function addItemsToOrder(orderId: string, items: OrderItemPayload[]): Promise<AddItemsResult> {
   const { data } = await api.post(`/orders/${orderId}/items`, { items })
   return data.data
 }

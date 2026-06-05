@@ -19,6 +19,7 @@ import { FavouritesRail } from '@/features/menu/components/FavouritesRail'
 import { OrderSummary } from '@/features/menu/components/OrderSummary'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { formatVND } from '@/lib/utils'
+import { buildOrderItemsPayload } from '@/lib/order-payload'
 import type { Product, Combo, ComboRaw, Category } from '@/types/product'
 import { STORAGE_KEYS } from '@/lib/storage-keys'
 
@@ -36,19 +37,7 @@ function TableConfirmModal({ onClose }: { onClose: () => void }) {
         note:           note.trim() || null,
         table_id:       cart.tableId,
         source:         'qr',
-        items: cart.items.flatMap(item => {
-          const base = { product_id: item.product_id ?? null, combo_id: item.combo_id ?? null, topping_ids: item.toppings.map(t => t.id) }
-          const isSoup = item.name.toLowerCase().includes('canh') || item.name.toLowerCase().includes('nước dùng')
-          const { vegBowls, bowls } = cart.drinkConfig
-          const nonVegBowls = bowls - vegBowls
-          if (isSoup && bowls > 0) {
-            const rows = []
-            if (vegBowls    > 0) rows.push({ ...base, quantity: vegBowls,    note: 'Có rau' })
-            if (nonVegBowls > 0) rows.push({ ...base, quantity: nonVegBowls, note: 'Không rau' })
-            return rows
-          }
-          return [{ ...base, quantity: item.quantity }]
-        }),
+        items: buildOrderItemsPayload(cart.items, cart.drinkConfig),
       })
       return data
     },
@@ -72,6 +61,7 @@ function TableConfirmModal({ onClose }: { onClose: () => void }) {
       const resp = (err as { response?: { data?: { error?: string; message?: string; details?: { active_order_id?: string } } } }).response
       if (resp?.data?.error === 'TABLE_HAS_ACTIVE_ORDER') {
         const activeId = resp?.data?.details?.active_order_id
+        toast.info('Bàn này đang có đơn chưa hoàn tất — đây là đơn hiện tại của bàn.')
         // Use router.replace (client-side nav) to preserve auth token in Zustand across navigation
         router.replace(activeId ? `/order/${activeId}` : '/order')
         return

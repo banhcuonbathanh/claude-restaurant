@@ -97,6 +97,12 @@ func (m *mockOrderRepo) UpdateQtyServed(ctx context.Context, qty int32, itemID s
 	return nil
 }
 func (m *mockOrderRepo) RecalculateTotalAmount(_ context.Context, _ string) error   { return nil }
+func (m *mockOrderRepo) CountActiveOrderItems(_ context.Context) (map[string]int, error) {
+	return map[string]int{}, nil
+}
+func (m *mockOrderRepo) ListTodayHistory(_ context.Context) ([]db.Order, error)        { return nil, nil }
+func (m *mockOrderRepo) UpdateItemQuantity(_ context.Context, _ int32, _ string) error { return nil }
+func (m *mockOrderRepo) DeleteOrderItem(_ context.Context, _ string) error             { return nil }
 func (m *mockOrderRepo) SoftDeleteOrder(ctx context.Context, orderID string) error {
 	if m.softDeleteOrderFn != nil {
 		return m.softDeleteOrderFn(ctx, orderID)
@@ -244,6 +250,11 @@ func TestCreateOrder_ComboExpand(t *testing.T) {
 	if header.ComboRefID.Valid {
 		t.Fatal("header row: expected combo_ref_id to be NULL")
 	}
+	// Header is a label only — its price MUST be 0 so it does not double-count
+	// against the sub-item rows in recalculateTotalAmount (OC epic).
+	if header.UnitPrice != "0" {
+		t.Fatalf("header row: unit_price = %q, want \"0\" (label, not a charge)", header.UnitPrice)
+	}
 
 	headerID := header.ID
 	for i, sub := range captured.Items[1:] {
@@ -256,7 +267,84 @@ func TestCreateOrder_ComboExpand(t *testing.T) {
 		if sub.ComboRefID.String != headerID {
 			t.Errorf("sub-item[%d]: combo_ref_id = %q, want header id %q", i, sub.ComboRefID.String, headerID)
 		}
+		// Sub-items carry the real money; price comes from the template.
+		want := formatPrice(comboSnap.Items[i].UnitPrice)
+		if sub.UnitPrice != want {
+			t.Errorf("sub-item[%d]: unit_price = %q, want %q", i, sub.UnitPrice, want)
+		}
 	}
+}
+
+// TestCreateOrder_ComboOverrides verifies that client-supplied combo contents
+// (quantity, note, filling) replace the canonical template, that prices still
+// come from the server template, and that an out-of-combo product is rejected.
+func TestCreateOrder_ComboOverrides(t *testing.T) {
+	const comboID = "combo-uuid-1"
+	comboSnap := ComboSnapshot{
+		ID: comboID, Name: "Combo Gia Đình", Price: 180000,
+		Items: []ComboItemTemplate{
+			{ProductID: "prod-1", Name: "Bánh Cuốn", UnitPrice: 4000, Quantity: 2},
+			{ProductID: "prod-2", Name: "Canh", UnitPrice: 0, Quantity: 1},
+		},
+	}
+	lookup := &mockProductLookup{
+		getComboSnapshotFn: func(_ context.Context, _ string) (ComboSnapshot, error) { return comboSnap, nil },
+	}
+
+	t.Run("overrides honored", func(t *testing.T) {
+		var captured repository.CreateOrderWithItemsInput
+		repo := &mockOrderRepo{createOrderFn: func(_ context.Context, in repository.CreateOrderWithItemsInput) error {
+			captured = in
+			return nil
+		}}
+		svc := newTestOrderService(repo, lookup)
+
+		_, err := svc.CreateOrder(context.Background(), CreateOrderInput{
+			Items: []CreateOrderItemInput{{
+				ComboID:  comboID,
+				Quantity: 2, // combo qty multiplies sub-item qty
+				ComboItems: []ComboItemOverrideInput{
+					{ProductID: "prod-1", Quantity: 3, Filling: "thit"},
+					{ProductID: "prod-2", Quantity: 1, Note: "Không rau"},
+				},
+			}},
+		})
+		if err != nil {
+			t.Fatalf("CreateOrder failed: %v", err)
+		}
+		// header + 2 overridden sub-items
+		if len(captured.Items) != 3 {
+			t.Fatalf("expected 3 rows, got %d", len(captured.Items))
+		}
+		bc := captured.Items[1]
+		if bc.Quantity != 3*2 {
+			t.Errorf("bánh cuốn qty = %d, want 6 (3 × combo qty 2)", bc.Quantity)
+		}
+		if bc.UnitPrice != "4000" {
+			t.Errorf("bánh cuốn unit_price = %q, want \"4000\" (from template)", bc.UnitPrice)
+		}
+		if bc.Filling.String != "thit" || !bc.Filling.Valid {
+			t.Errorf("bánh cuốn filling = %+v, want thit", bc.Filling)
+		}
+		canh := captured.Items[2]
+		if canh.Note.String != "Không rau" {
+			t.Errorf("canh note = %q, want \"Không rau\"", canh.Note.String)
+		}
+	})
+
+	t.Run("rejects product not in combo", func(t *testing.T) {
+		svc := newTestOrderService(&mockOrderRepo{createOrderFn: func(_ context.Context, _ repository.CreateOrderWithItemsInput) error { return nil }}, lookup)
+		_, err := svc.CreateOrder(context.Background(), CreateOrderInput{
+			Items: []CreateOrderItemInput{{
+				ComboID:    comboID,
+				Quantity:   1,
+				ComboItems: []ComboItemOverrideInput{{ProductID: "prod-999", Quantity: 1}},
+			}},
+		})
+		if err == nil {
+			t.Fatal("expected error for out-of-combo product, got nil")
+		}
+	})
 }
 
 // TestCreateOrder_DuplicateTable verifies that creating a second order for a table

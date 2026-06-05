@@ -92,7 +92,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name:       STORAGE_KEYS.CART_CONFIG,
-      version:    3,
+      version:    4,
       migrate:    (persisted: unknown, fromVersion: number) => {
         const s = (persisted ?? {}) as Record<string, unknown>
         if (fromVersion < 2) {
@@ -102,9 +102,16 @@ export const useCartStore = create<CartState>()(
           s.drinkConfig = DEFAULT_DRINK_CONFIG
           s.orderNote   = ''
         }
+        if (fromVersion < 4) {
+          // canh counts must not persist across sessions — flush any stale value
+          delete s.drinkConfig
+        }
         return s
       },
-      partialize: (s) => ({ drinkConfig: s.drinkConfig, orderNote: s.orderNote, activeOrderId: s.activeOrderId }),
+      // drinkConfig (canh counts) is intentionally NOT persisted — it only makes
+      // sense relative to the current (non-persisted) cart items, so it always
+      // starts at 0 on a fresh load instead of resurfacing a previous order's value.
+      partialize: (s) => ({ orderNote: s.orderNote, activeOrderId: s.activeOrderId }),
     },
   ),
 )

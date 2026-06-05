@@ -152,6 +152,9 @@ func (m *mockAuthRepo) CountActiveSessionsByStaff(ctx context.Context, staffID s
 	return 0, nil
 }
 func (m *mockAuthRepo) DeleteOldestSessionByStaff(_ context.Context, _ string) error { return nil }
+func (m *mockAuthRepo) CreateStaffForRegister(_ context.Context, _, _, _, _, _ string) (db.Staff, error) {
+	return db.Staff{}, nil
+}
 func (m *mockAuthRepo) UpdateRefreshTokenLastUsed(_ context.Context, _ string) error { return nil }
 func (m *mockAuthRepo) GetTableByQRToken(_ context.Context, _ string) (db.Table, error) {
 	return db.Table{}, sql.ErrNoRows

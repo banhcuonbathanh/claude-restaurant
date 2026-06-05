@@ -232,6 +232,26 @@ type CreateOrderItemInput struct {
 	Quantity   int32
 	ToppingIDs []string
 	Note       string
+	Filling    string                   // standalone product filling: ""|thit|moc_nhi
+	ComboItems []ComboItemOverrideInput // optional combo content overrides
+}
+
+// ComboItemOverrideInput customizes one dish inside a combo. When a combo line
+// carries overrides, they replace the canonical combo template (quantity, note,
+// filling). ProductID must belong to the combo.
+type ComboItemOverrideInput struct {
+	ProductID string
+	Quantity  int32
+	Note      string
+	Filling   string
+}
+
+// fillingNull converts a filling string to a nullable column value.
+func fillingNull(f string) sql.NullString {
+	if f == "" {
+		return sql.NullString{}
+	}
+	return sql.NullString{String: f, Valid: true}
 }
 
 // toppingSnapshotEntry is stored in order_items.toppings_snapshot.
@@ -359,6 +379,7 @@ func (s *OrderService) buildProductRow(ctx context.Context, item CreateOrderItem
 		Quantity:  item.Quantity,
 		ToppingsSnapshot: toppingsJSON,
 		Note:      sql.NullString{String: item.Note, Valid: item.Note != ""},
+		Filling:   fillingNull(item.Filling),
 	}, nil
 }
 
@@ -371,20 +392,52 @@ func (s *OrderService) expandCombo(ctx context.Context, orderID string, item Cre
 	parentID := newUUID()
 	emptyToppings, _ := json.Marshal([]toppingSnapshotEntry{})
 
-	// Combo header row
+	// Combo header is a grouping label only — all read views (order, KDS, admin)
+	// hide it and sum the sub-item rows. Its price MUST be 0; the sub-items carry
+	// the money. Storing the combo price here too would double-count in
+	// recalculateTotalAmount (which sums every row). See OC epic.
 	rows := []repository.OrderItemRow{
 		{
 			ID:               parentID,
 			ComboID:          sql.NullString{String: item.ComboID, Valid: true},
 			Name:             snap.Name,
-			UnitPrice:        formatPrice(snap.Price),
+			UnitPrice:        formatPrice(0),
 			Quantity:         item.Quantity,
 			ToppingsSnapshot: emptyToppings,
 			Note:             sql.NullString{String: item.Note, Valid: item.Note != ""},
 		},
 	}
 
-	// Sub-item rows
+	// Sub-item rows. With client overrides we honor the customized contents
+	// (quantity, note, filling); without them we fall back to the canonical
+	// template. Prices always come from the server-side template — never the
+	// client — so product_id must belong to the combo.
+	if len(item.ComboItems) > 0 {
+		tmpl := make(map[string]ComboItemTemplate, len(snap.Items))
+		for _, ci := range snap.Items {
+			tmpl[ci.ProductID] = ci
+		}
+		for _, ov := range item.ComboItems {
+			t, ok := tmpl[ov.ProductID]
+			if !ok {
+				return nil, NewAppError(400, "INVALID_INPUT",
+					fmt.Sprintf("Sản phẩm %s không thuộc combo", ov.ProductID))
+			}
+			rows = append(rows, repository.OrderItemRow{
+				ID:               newUUID(),
+				ProductID:        sql.NullString{String: ov.ProductID, Valid: true},
+				ComboRefID:       sql.NullString{String: parentID, Valid: true},
+				Name:             t.Name,
+				UnitPrice:        formatPrice(t.UnitPrice),
+				Quantity:         ov.Quantity * item.Quantity,
+				ToppingsSnapshot: emptyToppings,
+				Note:             sql.NullString{String: ov.Note, Valid: ov.Note != ""},
+				Filling:          fillingNull(ov.Filling),
+			})
+		}
+		return rows, nil
+	}
+
 	for _, ci := range snap.Items {
 		rows = append(rows, repository.OrderItemRow{
 			ID:               newUUID(),

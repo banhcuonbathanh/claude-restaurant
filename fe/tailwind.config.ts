@@ -34,6 +34,16 @@ const config: Config = {
         xl:  'calc(var(--radius) + 4px)',
         '2xl': 'calc(var(--radius) + 8px)',
       },
+      keyframes: {
+        // Soft "breathing" hint — gently scales the selected filling pill to draw attention
+        'soft-hint': {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%':      { transform: 'scale(1.03)' },
+        },
+      },
+      animation: {
+        'soft-hint': 'soft-hint 3.8s ease-in-out infinite',
+      },
     },
   },
   plugins: [],

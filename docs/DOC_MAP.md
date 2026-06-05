@@ -187,8 +187,7 @@ Always check before writing:
 | `docs/requirements/BanhCuon_BRD_v1.md` | BRD | WHY the system exists — business problem, project scope, stakeholder goals | Understanding business intent · resolving ambiguous requirements |
 | `docs/requirements/BanhCuon_FSD_v1.md` | FSD | HOW each feature works — data flows, DB structure, API logic, FE components, AC. Bridges SRS → code. | Feature design gap · how a flow was intended to work |
 | `docs/requirements/BanhCuon_UXUI_Design_v1.md` | UX/UI | UX flows, screen layouts, color system, component guidelines | New FE screen with no wireframe · visual design decisions |
-| `docs/core/SYSTEM_DESCRIPTION_v1.md` | Overview | Full system architecture, project layout, tech stack description for AI/dev onboarding | Onboarding to the project · architecture questions |
-| `docs/TECH_OVERVIEW.md` | Overview | Per-spec tech descriptions (stack, mechanisms, deps, contract §). Overall architecture → `SYSTEM_DESCRIPTION_v1.md`. | What each spec covers at a glance |
+| `docs/TECH_OVERVIEW.md` | Overview | Per-spec tech descriptions (stack, mechanisms, deps, contract §). Overall architecture → `CLAUDE.md` + `docs/be/BE_DOC_INDEX.md`. | What each spec covers at a glance |
 
 ---
 
@@ -264,7 +263,6 @@ docs/
 │
 ├── core/                       ← cross-cutting rules + system overview
 │   ├── MASTER_v1.2.md          ← RBAC, business rules, JWT, realtime, design tokens
-│   ├── SYSTEM_DESCRIPTION_v1.md
 │   └── TASK_READING_GUIDE.md
 │
 ├── spec/                       ← domain specs (Spec1–Spec9) — read BEFORE planning any domain task

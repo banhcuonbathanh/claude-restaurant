@@ -39,7 +39,7 @@ export function ComboCard({ combo }: Props) {
         quantity:    1,
         price:       combo.price,
         toppings:    [],
-        combo_items: comboItems.map(i => ({ product_name: i.product_name, quantity: i.quantity, unit_price: i.unit_price })),
+        combo_items: comboItems.map(i => ({ product_id: i.product_id, product_name: i.product_name, quantity: i.quantity, unit_price: i.unit_price })),
         filling,
       })
     } else {
@@ -105,7 +105,7 @@ export function ComboCard({ combo }: Props) {
             onClick={() => setFilling('thit')}
             className={`text-[11px] px-2.5 py-0.5 rounded-full border transition-colors ${
               filling === 'thit'
-                ? 'bg-primary text-white border-primary'
+                ? 'bg-primary text-white border-primary running-border'
                 : 'border-border text-muted-fg hover:border-primary/50'
             }`}
           >
@@ -115,7 +115,7 @@ export function ComboCard({ combo }: Props) {
             onClick={() => setFilling('moc_nhi')}
             className={`text-[11px] px-2.5 py-0.5 rounded-full border transition-colors ${
               filling === 'moc_nhi'
-                ? 'bg-primary text-white border-primary'
+                ? 'bg-primary text-white border-primary running-border'
                 : 'border-border text-muted-fg hover:border-primary/50'
             }`}
           >

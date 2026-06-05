@@ -207,10 +207,10 @@ func TestVNPayWebhook_ValidSignature(t *testing.T) {
 	}
 
 	writer.mu.Lock()
-	delivered := writer.deliveredIDs
+	paid := writer.paidIDs
 	writer.mu.Unlock()
-	if len(delivered) == 0 || delivered[0] != orderID {
-		t.Errorf("expected MarkOrderDelivered(%q), got %v", orderID, delivered)
+	if len(paid) == 0 || paid[0] != orderID {
+		t.Errorf("expected MarkOrderPaid(%q), got %v", orderID, paid)
 	}
 
 	rdb.mu.Lock()

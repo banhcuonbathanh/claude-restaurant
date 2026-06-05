@@ -9,6 +9,11 @@ docker compose up -d --build be
 docker compose up -d --build fe
 docker compose up -d --build be fe
 docker compose build --no-cache fe && docker compose up -d fe
+
+docker compose build --no-cache fe && docker compose up -d fe
+
+docker compose stop fe
+
 ```
 
 ---
@@ -32,7 +37,7 @@ lsof -i :8080
 
 ```bash
 # One command — starts MySQL + Redis in Docker, BE + FE locally
-./dev.sh
+
 
 cd fe && npm run dev
 rm -rf .next && npm run dev
@@ -43,6 +48,7 @@ Or from inside fe/:
 
 
 rm -rf .next && npm run dev
+lsof -ti tcp:8080 | xargs kill 2>/dev/null; docker compose up -d --build fe be
 
 ```
 
@@ -68,6 +74,8 @@ cd fe && npm run dev
 ### Stop BE / FE (local dev)
 
 ```bash
+# Start whole system
+./dev.sh
 # Stop BE
 pkill -f "go run ./cmd/server"
 
@@ -97,45 +105,51 @@ go run ./be/cmd/seed/main.go
 ### What each seed does
 
 #### `go run ./be/cmd/seed/main.go`
+
 Seeds 5 staff accounts only via Go + bcrypt. Password for all: `Admin@123`.
 
-| Account | Role |
-|---------|------|
-| admin | admin |
+| Account | Role    |
+| ------- | ------- |
+| admin   | admin   |
 | manager | manager |
 | cashier | cashier |
-| chef | chef |
-| staff | staff |
+| chef    | chef    |
+| staff   | staff   |
 
 #### `scripts/seed.sql`
+
 ```bash
 docker compose exec -T mysql mysql -uroot -prootpass banhcuon < scripts/seed.sql
 ```
+
 Seeds staff accounts and tables. Password for all: `Admin@123`.
 
-| Account | Role |
-|---------|------|
-| admin | admin |
+| Account  | Role    |
+| -------- | ------- |
+| admin    | admin   |
 | manager1 | manager |
-| chef1 | chef |
+| chef1    | chef    |
 | cashier1 | cashier |
 
 #### `scripts/seed_real_menu.sql`
+
 ```bash
 docker compose exec -T mysql mysql -uroot -prootpass banhcuon < scripts/seed_real_menu.sql
 ```
+
 Replaces the placeholder menu with the actual stall menu. Run after `seed.sql`. Deletes all 33333333/44444444/55555555 IDs first, then inserts:
 
-| Table | What |
-|-------|------|
-| `categories` | 3: Bánh Cuốn, Canh, Suất / Combo |
-| `toppings` | 3 nhân: Nhân thịt, Nhân mộc nhĩ, Rau mùi tàu — all free |
-| `products` | 6: Giò, Bánh Trứng Tái/Chín/Vàng, Bánh Cuốn (4,000đ), Canh (free) |
-| `combos` | 5 suất: Đầy Đủ Trứng Chín/Tái, Suất Giò, Trứng Bánh Không, Bánh Chay |
-| `orders` | 3 fresh demo orders (Bàn 01 preparing, Bàn 02 pending, Bàn 03 delivered) |
-| `order_items` | All items for those 3 orders with topping snapshots |
+| Table         | What                                                                     |
+| ------------- | ------------------------------------------------------------------------ |
+| `categories`  | 3: Bánh Cuốn, Canh, Suất / Combo                                         |
+| `toppings`    | 3 nhân: Nhân thịt, Nhân mộc nhĩ, Rau mùi tàu — all free                  |
+| `products`    | 6: Giò, Bánh Trứng Tái/Chín/Vàng, Bánh Cuốn (4,000đ), Canh (free)        |
+| `combos`      | 5 suất: Đầy Đủ Trứng Chín/Tái, Suất Giò, Trứng Bánh Không, Bánh Chay     |
+| `orders`      | 3 fresh demo orders (Bàn 01 preparing, Bàn 02 pending, Bàn 03 delivered) |
+| `order_items` | All items for those 3 orders with topping snapshots                      |
 
 #### Delete all data
+
 ```bash
 docker compose exec -T mysql mysql -uroot -prootpass banhcuon <<'SQL'
 SET FOREIGN_KEY_CHECKS = 0;
@@ -152,6 +166,7 @@ TRUNCATE staff;
 SET FOREIGN_KEY_CHECKS = 1;
 SQL
 ```
+
 Truncates all tables in FK-safe order. Re-run `seed.sql` → `seed_real_menu.sql` after to restore.
 
 ---
@@ -160,8 +175,8 @@ Truncates all tables in FK-safe order. Re-run `seed.sql` → `seed_real_menu.sql
 
 ### Current QR Links (localhost)
 
-| Table | URL |
-|-------|-----|
+| Table | URL                                                                                          |
+| ----- | -------------------------------------------------------------------------------------------- |
 | Bàn 1 | http://localhost:3000/table/c914cac8a66cf2f8d5d8682830512bf43d9e85b1480bc12a243712e52c0be1d7 |
 | Bàn 2 | http://localhost:3000/table/1fce680084d98d6cabd1368306636c34aa2ce10640378350444f6475db4caeb9 |
 | Bàn 3 | http://localhost:3000/table/b46af37334844f107731c3a0d6dcc6ee2bfaf31f7ff52d88bf0aa9af2ac0673d |
@@ -199,62 +214,75 @@ go run ./be/cmd/demo_order/main.go --table "Bàn 3" --items 4
 
 ## Test Accounts
 
-| Role | Username | Password |
-|------|----------|----------|
-| Quản Trị Viên (admin) | `admin` | `Admin@123` |
-| Quản Lý (manager) | `manager` | `Admin@123` |
-| Thu Ngân (cashier) | `cashier` | `Admin@123` |
-| Đầu Bếp (chef) | `chef` | `Admin@123` |
-| Nhân Viên (staff) | `staff` | `Admin@123` |
+| Role                  | Username  | Password    |
+| --------------------- | --------- | ----------- |
+| Quản Trị Viên (admin) | `admin`   | `Admin@123` |
+| Quản Lý (manager)     | `manager` | `Admin@123` |
+| Thu Ngân (cashier)    | `cashier` | `Admin@123` |
+| Đầu Bếp (chef)        | `chef`    | `Admin@123` |
+| Nhân Viên (staff)     | `staff`   | `Admin@123` |
 
 ---
 
 ## Staff & Admin Links (localhost:3000)
 
 ### Auth
-| Page | URL |
-|------|-----|
+
+| Page  | URL                         |
+| ----- | --------------------------- |
 | Login | http://localhost:3000/login |
 
 ### Auto-Login Links (Dev Only)
 
 > Open any link → auto-logs in and redirects (admin/manager → `/admin`, cashier → `/pos`, chef → `/kds`)
 
-| Role | Link |
-|------|------|
-| Admin | http://localhost:3000/dev-login?role=admin |
+| Role    | Link                                         |
+| ------- | -------------------------------------------- |
+| Admin   | http://localhost:3000/dev-login?role=admin   |
 | Manager | http://localhost:3000/dev-login?role=manager |
 | Cashier | http://localhost:3000/dev-login?role=cashier |
-| Chef | http://localhost:3000/dev-login?role=chef |
-| Staff | http://localhost:3000/dev-login?role=staff |
+| Chef    | http://localhost:3000/dev-login?role=chef    |
+| Staff   | http://localhost:3000/dev-login?role=staff   |
 
 ### Kitchen & Floor
-| Page | URL | Role |
-|------|-----|------|
-| KDS (Kitchen Display) | http://localhost:3000/kds | Chef |
-| POS (Point of Sale) | http://localhost:3000/pos | Cashier |
-| Live Orders | http://localhost:3000/orders/live | Staff+ |
+
+| Page                  | URL                               | Role    |
+| --------------------- | --------------------------------- | ------- |
+| KDS (Kitchen Display) | http://localhost:3000/kds         | Chef    |
+| POS (Point of Sale)   | http://localhost:3000/pos         | Cashier |
+| Live Orders           | http://localhost:3000/orders/live | Staff+  |
 
 ### Admin Dashboard
-| Page | URL | Role |
-|------|-----|------|
-| Overview (Floor Map) | http://localhost:3000/admin/overview | Manager+ |
-| Products | http://localhost:3000/admin/products | Manager+ |
-| Categories | http://localhost:3000/admin/categories | Manager+ |
-| Toppings | http://localhost:3000/admin/toppings | Manager+ |
-| Combos | http://localhost:3000/admin/combos | Manager+ |
-| Staff Management | http://localhost:3000/admin/staff | Admin |
-| Marketing (QR Codes) | http://localhost:3000/admin/marketing | Manager+ |
-| Summary / Reports | http://localhost:3000/admin/summary | Manager+ |
+
+| Page                 | URL                                    | Role     |
+| -------------------- | -------------------------------------- | -------- |
+| Overview (Floor Map) | http://localhost:3000/admin/overview   | Manager+ |
+| Products             | http://localhost:3000/admin/products   | Manager+ |
+| Categories           | http://localhost:3000/admin/categories | Manager+ |
+| Toppings             | http://localhost:3000/admin/toppings   | Manager+ |
+| Combos               | http://localhost:3000/admin/combos     | Manager+ |
+| Staff Management     | http://localhost:3000/admin/staff      | Admin    |
+| Marketing (QR Codes) | http://localhost:3000/admin/marketing  | Manager+ |
+| Summary / Reports    | http://localhost:3000/admin/summary    | Manager+ |
 
 ---
 
 ## Ports
 
-| Service | Port |
-|---------|------|
-| FE | 3000 |
-| BE | 8080 |
-| MySQL | 3306 |
-| Redis | 6379 |
+| Service      | Port |
+| ------------ | ---- |
+| FE           | 3000 |
+| BE           | 8080 |
+| MySQL        | 3306 |
+| Redis        | 6379 |
 | RedisInsight | 8001 |
+
+check fe running or not
+
+Open http://localhost:3000 in your browser to see it.
+
+Handy commands to check yourself anytime:
+
+docker compose ps fe # is the container up?
+curl -s -o /dev/null -w "%{http_code}\n" localhost:3000 # 200 = serving
+docker compose logs -f fe # live logs (Ctrl+C to exit)

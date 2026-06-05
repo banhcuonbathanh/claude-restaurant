@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import type { Order } from '@/types/order'
 import type { Table } from '@/features/admin/admin.api'
-import { isKitchenItem } from '@/features/admin/overview.helpers'
+import { isKitchenItem, toppingLabel } from '@/features/admin/overview.helpers'
 
 interface PrepPanelProps {
   orders:   Order[]
@@ -37,13 +37,17 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
     return name.toLowerCase().includes('canh')
   }
 
-  // Aggregate: dish name → { remaining, tables, minCreatedAt, orders, noteCounts }
+  // Aggregate: dish name → { remaining, tables, minCreatedAt, orders, noteCounts, toppingCounts }
+  // toppingCounts = filling/veg breakdown via toppingLabel():
+  //   Bánh/Trứng/Giò → "nhân thịt" / "nhân mộc nhĩ" / "không nhân"
+  //   Canh           → "có rau" / "không rau"
   const remainMap = new Map<string, {
     remaining: number
     tables: string[]
     minCreatedAt: number
-    orders: { tableLabel: string; time: string; qty: number }[]
+    orders: { tableLabel: string; time: string; qty: number; topping: string }[]
     noteCounts: Map<string, number>
+    toppingCounts: Map<string, number>
   }>()
   for (const o of orders) {
     const fullName = o.table_id ? (tableMap.get(o.table_id)?.name ?? '—') : '—'
@@ -55,13 +59,16 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
       if (rem <= 0) continue
       const row = remainMap.get(it.name) ?? {
         remaining: 0, tables: [] as string[], minCreatedAt: orderTime,
-        orders: [] as { tableLabel: string; time: string; qty: number }[],
+        orders: [] as { tableLabel: string; time: string; qty: number; topping: string }[],
         noteCounts: new Map<string, number>(),
+        toppingCounts: new Map<string, number>(),
       }
+      const topping = toppingLabel(it)
       row.remaining += rem
       if (!row.tables.includes(tName)) row.tables.push(tName)
       if (orderTime < row.minCreatedAt) row.minCreatedAt = orderTime
-      row.orders.push({ tableLabel: tName, time: timeStr, qty: rem })
+      row.orders.push({ tableLabel: tName, time: timeStr, qty: rem, topping })
+      row.toppingCounts.set(topping, (row.toppingCounts.get(topping) ?? 0) + rem)
       const note = it.note?.trim()
       if (note) row.noteCounts.set(note, (row.noteCounts.get(note) ?? 0) + rem)
       remainMap.set(it.name, row)
@@ -112,7 +119,7 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div className="bg-green-50 dark:bg-green-950/30 rounded-xl border border-green-200 dark:border-green-900 overflow-hidden">
       {/* header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-gray-800">
         <div>
@@ -160,21 +167,35 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
               const soup = isSoupItem(name)
               return (
                 <div key={name}>
-                  <div className={`grid grid-cols-[2fr_1.5fr_1.5fr_1fr] gap-2 px-4 py-3 items-center transition-colors ${soup ? 'bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/40' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
-                    <span className={`text-sm font-medium flex items-center gap-1.5 ${soup ? 'text-amber-800 dark:text-amber-300' : 'text-gray-800 dark:text-gray-100'}`}>
-                      {soup && <span className="text-amber-500 text-xs">♨</span>}
+                  <div className={`grid grid-cols-[2fr_1.5fr_1.5fr_1fr] gap-2 px-4 py-3 items-center transition-colors ${soup ? 'bg-orange-50 dark:bg-orange-950/30 hover:bg-orange-100 dark:hover:bg-orange-900/40' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
+                    <span className={`text-sm font-medium flex items-center gap-1.5 ${soup ? 'text-primary' : 'text-gray-800 dark:text-gray-100'}`}>
+                      {soup && <span className="text-primary text-xs">♨</span>}
                       {name}
                     </span>
-                    <span className={`text-xs truncate ${soup ? 'text-amber-700 dark:text-amber-400' : 'text-gray-500 dark:text-gray-400'}`}>{row.tables.join(', ')}</span>
-                    <span className={`text-xs ${soup ? 'text-amber-700 dark:text-amber-400' : 'text-gray-500 dark:text-gray-400'}`}>{timeStr}</span>
+                    <span className={`text-xs truncate ${soup ? 'text-primary/80' : 'text-gray-500 dark:text-gray-400'}`}>{row.tables.join(', ')}</span>
+                    <span className={`text-xs ${soup ? 'text-primary/80' : 'text-gray-500 dark:text-gray-400'}`}>{timeStr}</span>
                     <span className="text-right">
-                      <span className={`text-sm font-bold px-2 py-0.5 rounded-md ${soup ? 'bg-amber-200 dark:bg-amber-800 text-amber-800 dark:text-amber-200' : 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300'}`}>
+                      <span className={`text-sm font-bold px-2 py-0.5 rounded-md ${soup ? 'bg-orange-200 dark:bg-orange-900 text-primary dark:text-orange-200' : 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300'}`}>
                         ×{row.remaining}
                       </span>
                     </span>
                   </div>
 
-                  {/* Note summary (có rau / không rau etc.) */}
+                  {/* Filling/veg breakdown — Bánh/Trứng: nhân thịt/mộc nhĩ/không nhân · Canh: có rau/không rau */}
+                  {row.toppingCounts.size > 0 && (
+                    <div className={`px-4 pb-2 flex flex-wrap gap-2 ${soup ? 'bg-orange-50 dark:bg-orange-950/30' : 'bg-green-50/60 dark:bg-green-950/20'}`}>
+                      {Array.from(row.toppingCounts.entries()).map(([topping, count]) => (
+                        <span
+                          key={topping}
+                          className={`text-xs font-semibold ${soup ? 'text-primary' : 'text-gray-700 dark:text-gray-300'}`}
+                        >
+                          {topping} <span className="text-primary font-bold">×{count}</span>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Note summary (free-text notes) */}
                   {row.noteCounts.size > 0 && (
                     <div className={`px-4 pb-2 flex flex-wrap gap-2 ${soup ? 'bg-amber-50 dark:bg-amber-950/30' : 'bg-gray-50 dark:bg-gray-800/50'}`}>
                       {Array.from(row.noteCounts.entries()).map(([note, count]) => (
@@ -187,15 +208,15 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
 
                   {/* Per-order detail for soup items */}
                   {soup && row.orders.length > 0 && (
-                    <div className="px-4 pb-3 bg-amber-50 dark:bg-amber-950/30 border-t border-amber-100 dark:border-amber-800/40">
-                      <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-500 uppercase tracking-wide mb-1.5">Chi tiết theo đơn</p>
+                    <div className="px-4 pb-3 bg-orange-50 dark:bg-orange-950/30 border-t border-orange-100 dark:border-orange-900/40">
+                      <p className="text-[10px] font-semibold text-primary uppercase tracking-wide mb-1.5">Chi tiết theo đơn</p>
                       <div className="flex flex-wrap gap-1.5">
                         {row.orders.map((od, i) => (
-                          <span key={i} className="inline-flex items-center gap-1 text-xs bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-700">
+                          <span key={i} className="inline-flex items-center gap-1 text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 px-2 py-0.5 rounded-md border border-green-300 dark:border-green-700">
                             <span className="font-semibold">Bàn {od.tableLabel}</span>
-                            <span className="text-amber-500">·</span>
-                            <span>{od.time}</span>
-                            <span className="text-amber-500">·</span>
+                            <span className="text-green-500">·</span>
+                            <span className={`font-semibold ${od.topping === 'có rau' ? 'text-green-700 dark:text-green-400' : 'text-amber-700 dark:text-amber-400'}`}>{od.topping}</span>
+                            <span className="text-green-500">·</span>
                             <span className="font-bold">×{od.qty}</span>
                           </span>
                         ))}

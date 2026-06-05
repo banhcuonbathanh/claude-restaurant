@@ -19,12 +19,47 @@ func NewOrderHandler(svc *service.OrderService) *OrderHandler {
 	return &OrderHandler{svc: svc}
 }
 
+// comboItemOverrideReq lets the client customize a combo's contents (quantity,
+// per-dish note like "Có rau"/"Không rau", and filling). When present on a combo
+// line, these replace the canonical combo template. product_id must belong to the
+// combo — arbitrary products are rejected.
+type comboItemOverrideReq struct {
+	ProductID string `json:"product_id" binding:"required"`
+	Quantity  int32  `json:"quantity" binding:"required,min=1"`
+	Note      string `json:"note"`
+	Filling   string `json:"filling"`
+}
+
 type createOrderItemReq struct {
-	ProductID  string   `json:"product_id"`
-	ComboID    string   `json:"combo_id"`
-	Quantity   int32    `json:"quantity" binding:"required,min=1"`
-	ToppingIDs []string `json:"topping_ids"`
-	Note       string   `json:"note"`
+	ProductID  string                 `json:"product_id"`
+	ComboID    string                 `json:"combo_id"`
+	Quantity   int32                  `json:"quantity" binding:"required,min=1"`
+	ToppingIDs []string               `json:"topping_ids"`
+	Note       string                 `json:"note"`
+	Filling    string                 `json:"filling"`     // standalone product filling: ""|thit|moc_nhi
+	ComboItems []comboItemOverrideReq `json:"combo_items"` // optional combo content overrides
+}
+
+// validFilling reports whether a filling value is allowed (empty = none).
+func validFilling(s string) bool {
+	return s == "" || s == "thit" || s == "moc_nhi"
+}
+
+// toComboOverrides maps request overrides to service inputs.
+func toComboOverrides(in []comboItemOverrideReq) []service.ComboItemOverrideInput {
+	if len(in) == 0 {
+		return nil
+	}
+	out := make([]service.ComboItemOverrideInput, 0, len(in))
+	for _, ci := range in {
+		out = append(out, service.ComboItemOverrideInput{
+			ProductID: ci.ProductID,
+			Quantity:  ci.Quantity,
+			Note:      ci.Note,
+			Filling:   ci.Filling,
+		})
+	}
+	return out
 }
 
 type createOrderReq struct {
@@ -54,6 +89,16 @@ func (h *OrderHandler) Create(c *gin.Context) {
 			respondError(c, http.StatusBadRequest, "INVALID_INPUT", "Không thể có cả product_id và combo_id")
 			return
 		}
+		if !validFilling(item.Filling) {
+			respondError(c, http.StatusBadRequest, "INVALID_INPUT", "Nhân không hợp lệ")
+			return
+		}
+		for _, ci := range item.ComboItems {
+			if !validFilling(ci.Filling) {
+				respondError(c, http.StatusBadRequest, "INVALID_INPUT", "Nhân không hợp lệ")
+				return
+			}
+		}
 	}
 
 	claims := middleware.ClaimsFromContext(c)
@@ -70,6 +115,8 @@ func (h *OrderHandler) Create(c *gin.Context) {
 			Quantity:   it.Quantity,
 			ToppingIDs: it.ToppingIDs,
 			Note:       it.Note,
+			Filling:    it.Filling,
+			ComboItems: toComboOverrides(it.ComboItems),
 		})
 	}
 
@@ -220,10 +267,13 @@ func (h *OrderHandler) UpdateItemServed(c *gin.Context) {
 }
 
 type addItemsReqItem struct {
-	ProductID  string   `json:"product_id"`
-	ComboID    string   `json:"combo_id"`
-	Quantity   int32    `json:"quantity" binding:"required,min=1"`
-	ToppingIDs []string `json:"topping_ids"`
+	ProductID  string                 `json:"product_id"`
+	ComboID    string                 `json:"combo_id"`
+	Quantity   int32                  `json:"quantity" binding:"required,min=1"`
+	ToppingIDs []string               `json:"topping_ids"`
+	Note       string                 `json:"note"`
+	Filling    string                 `json:"filling"`
+	ComboItems []comboItemOverrideReq `json:"combo_items"`
 }
 
 type addItemsReq struct {
@@ -247,6 +297,16 @@ func (h *OrderHandler) AddItemsToOrder(c *gin.Context) {
 			respondError(c, http.StatusBadRequest, "INVALID_INPUT", "Không thể có cả product_id và combo_id")
 			return
 		}
+		if !validFilling(item.Filling) {
+			respondError(c, http.StatusBadRequest, "INVALID_INPUT", "Nhân không hợp lệ")
+			return
+		}
+		for _, ci := range item.ComboItems {
+			if !validFilling(ci.Filling) {
+				respondError(c, http.StatusBadRequest, "INVALID_INPUT", "Nhân không hợp lệ")
+				return
+			}
+		}
 	}
 
 	claims := middleware.ClaimsFromContext(c)
@@ -262,6 +322,9 @@ func (h *OrderHandler) AddItemsToOrder(c *gin.Context) {
 			ComboID:    it.ComboID,
 			Quantity:   it.Quantity,
 			ToppingIDs: it.ToppingIDs,
+			Note:       it.Note,
+			Filling:    it.Filling,
+			ComboItems: toComboOverrides(it.ComboItems),
 		})
 	}
 
@@ -319,6 +382,10 @@ func orderJSON(o service.OrderDetails) gin.H {
 		if item.Note.Valid {
 			itemNote = item.Note.String
 		}
+		var filling interface{}
+		if item.Filling.Valid {
+			filling = item.Filling.String
+		}
 		items = append(items, gin.H{
 			"id":                item.ID,
 			"product_id":        productID,
@@ -331,6 +398,7 @@ func orderJSON(o service.OrderDetails) gin.H {
 			"item_status":       item.ItemStatus,
 			"toppings_snapshot": item.ToppingsSnapshot,
 			"note":              itemNote,
+			"filling":           filling,
 		})
 	}
 

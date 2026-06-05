@@ -22,8 +22,14 @@ export interface OrderItem {
   qty_served:       number
   unit_price:       number
   note:             string | null
+  filling?:         'thit' | 'moc_nhi' | null
   toppings_snapshot: ToppingSnapshotEntry[] | null
   flagged:           boolean
+}
+
+// Vietnamese label for an order item's filling (nhân). "" when none.
+export function fillingLabel(filling: OrderItem['filling']): string {
+  return filling === 'thit' ? 'Thịt' : filling === 'moc_nhi' ? 'Mộc nhĩ' : ''
 }
 
 export type OrderStatus =

@@ -19,6 +19,7 @@ type OrderItemRow struct {
 	Quantity         int32
 	ToppingsSnapshot []byte
 	Note             sql.NullString
+	Filling          sql.NullString
 }
 
 // CreateOrderWithItemsInput is the full order + items passed to the transaction helper.
@@ -107,6 +108,7 @@ func (r *orderRepo) CreateOrderWithItems(ctx context.Context, in CreateOrderWith
 			Quantity:         item.Quantity,
 			ToppingsSnapshot: item.ToppingsSnapshot,
 			Note:             item.Note,
+			Filling:          item.Filling,
 		}); err != nil {
 			return fmt.Errorf("order: insert order_item: %w", err)
 		}
@@ -140,6 +142,7 @@ func (r *orderRepo) AppendOrderItems(ctx context.Context, orderID string, items 
 			Quantity:         item.Quantity,
 			ToppingsSnapshot: item.ToppingsSnapshot,
 			Note:             item.Note,
+			Filling:          item.Filling,
 		}); err != nil {
 			return "", fmt.Errorf("appendOrderItems: insert item: %w", err)
 		}

@@ -4,7 +4,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { api } from '@/lib/api-client'
 import { useOrdersWSContext } from '@/context/OrdersWSContext'
-import type { Order, OrderItem } from '@/types/order'
+import { fillingLabel, type Order, type OrderItem } from '@/types/order'
 
 function useBeep() {
   const ctxRef = useRef<AudioContext | null>(null)
@@ -74,6 +74,14 @@ function statusBadgeClass(status: string): string {
 
 function isKitchenItem(item: OrderItem): boolean {
   return !(item.combo_id !== null && item.combo_ref_id === null)
+}
+
+// Prep variant the chef needs: nhân (thịt/mộc nhĩ) or, for canh, the rau note.
+function kdsVariant(item: OrderItem): string {
+  const f = fillingLabel(item.filling)
+  if (f) return f
+  if (item.name.toLowerCase().includes('canh') && item.note) return item.note
+  return ''
 }
 
 const ACTIVE_STATUSES = new Set(['pending', 'confirmed', 'preparing'])
@@ -223,6 +231,9 @@ export default function KDSPage() {
                       <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${done ? 'bg-green-500' : 'bg-muted-fg'}`} />
                       <span className={`flex-1 text-sm ${done ? 'line-through text-muted-fg' : 'text-foreground'}`}>
                         {item.name}
+                        {kdsVariant(item) && (
+                          <span className="ml-1.5 text-[11px] text-primary font-medium">· {kdsVariant(item)}</span>
+                        )}
                       </span>
                       {done
                         ? <span className="text-xs text-green-600 font-medium">✓</span>

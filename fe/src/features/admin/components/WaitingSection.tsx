@@ -1,8 +1,8 @@
 'use client'
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import type { Order } from '@/types/order'
 import type { Table } from '@/features/admin/admin.api'
-import { elapsedMins, isKitchenItem, statusColors, statusLabel } from '@/features/admin/overview.helpers'
+import { elapsedMins, isKitchenItem, statusColors, statusLabel, summarizePending } from '@/features/admin/overview.helpers'
 import { OrderDetail } from '@/features/admin/components/OrderDetail'
 
 // Zone B shows ONLY 'pending' — see docs/fe/wireframes/admin_main/admin_overview/table_status.md §Order Statuses
@@ -142,13 +142,7 @@ export function WaitingSection({
           const isKiemTra    = kiemTraIds.has(order.id)
 
           const pendingItems = kitItems.filter(i => i.quantity - i.qty_served > 0)
-
-          // map combo-header id -> combo name, so children can show their parent combo
-          const comboNameMap = new Map(
-            order.items
-              .filter(i => i.combo_id !== null && i.combo_ref_id === null)
-              .map(i => [i.id, i.name])
-          )
+          const summaryRows  = summarizePending(pendingItems)
 
           return (
             <div key={order.id} className={`border-b border-gray-100 dark:border-gray-700 last:border-b-0 ${borderL}`}>
@@ -173,25 +167,16 @@ export function WaitingSection({
                 <div className="text-xs text-gray-600 dark:text-gray-400">
                   {pendingItems.length === 0
                     ? <span className="text-green-500">✓ Xong hết</span>
-                    : <div className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-0.5">
-                        {pendingItems.map(i => (
-                          <>
-                            <span key={`n-${i.id}`} className="truncate">
-                              {i.name}
-                              {i.note && <span className="text-amber-500 dark:text-amber-400 italic ml-1">({i.note})</span>}
+                    : <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 gap-y-0.5">
+                        {summaryRows.map(r => (
+                          <Fragment key={r.key}>
+                            <span className="truncate">
+                              {r.name}
+                              {r.note && <span className="text-amber-500 dark:text-amber-400 italic ml-1">({r.note})</span>}
                             </span>
-                            <span key={`q-${i.id}`} className="font-semibold text-right tabular-nums">×{i.quantity - i.qty_served}</span>
-                            {i.combo_ref_id && comboNameMap.get(i.combo_ref_id) && (
-                              <span key={`c-${i.id}`} className="col-span-2 text-indigo-400 dark:text-indigo-500 truncate -mt-0.5">
-                                [{comboNameMap.get(i.combo_ref_id)}]
-                              </span>
-                            )}
-                            {i.toppings_snapshot && i.toppings_snapshot.length > 0 && (
-                              <span key={`t-${i.id}`} className="col-span-2 text-gray-400 dark:text-gray-500 italic truncate -mt-0.5">
-                                + {i.toppings_snapshot.map(t => t.name).join(', ')}
-                              </span>
-                            )}
-                          </>
+                            <span className="text-gray-400 dark:text-gray-500 italic whitespace-nowrap">{r.topping}</span>
+                            <span className="font-semibold text-right tabular-nums">×{r.qty}</span>
+                          </Fragment>
                         ))}
                       </div>
                   }
@@ -247,25 +232,16 @@ export function WaitingSection({
                 </div>
                 {/* dish list */}
                 {pendingItems.length > 0 && (
-                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 w-full grid grid-cols-[1fr_auto] gap-x-3 gap-y-0.5">
-                    {pendingItems.map(i => (
-                      <>
-                        <span key={`n-${i.id}`}>
-                          {i.name}
-                          {i.note && <span className="text-amber-500 dark:text-amber-400 italic ml-1">({i.note})</span>}
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 w-full grid grid-cols-[1fr_auto_auto] gap-x-3 gap-y-0.5">
+                    {summaryRows.map(r => (
+                      <Fragment key={r.key}>
+                        <span>
+                          {r.name}
+                          {r.note && <span className="text-amber-500 dark:text-amber-400 italic ml-1">({r.note})</span>}
                         </span>
-                        <span key={`q-${i.id}`} className="font-semibold text-right tabular-nums">×{i.quantity - i.qty_served}</span>
-                        {i.combo_ref_id && comboNameMap.get(i.combo_ref_id) && (
-                          <span key={`c-${i.id}`} className="col-span-2 text-indigo-400 dark:text-indigo-500 truncate -mt-0.5">
-                            [{comboNameMap.get(i.combo_ref_id)}]
-                          </span>
-                        )}
-                        {i.toppings_snapshot && i.toppings_snapshot.length > 0 && (
-                          <span key={`t-${i.id}`} className="col-span-2 text-gray-400 dark:text-gray-500 italic truncate -mt-0.5">
-                            + {i.toppings_snapshot.map(t => t.name).join(', ')}
-                          </span>
-                        )}
-                      </>
+                        <span className="text-gray-400 dark:text-gray-500 italic whitespace-nowrap">{r.topping}</span>
+                        <span className="font-semibold text-right tabular-nums">×{r.qty}</span>
+                      </Fragment>
                     ))}
                   </div>
                 )}

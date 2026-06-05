@@ -227,7 +227,7 @@ func (s *StaffService) SetStaffStatus(ctx context.Context, callerID, callerRole,
 	}
 
 	// Invalidate Redis cache so middleware re-checks DB immediately (Spec7 §5).
-	_ = s.rdb.Del(ctx, "is_active:"+targetID)
+	_ = s.rdb.Del(ctx, staffActiveKey(targetID))
 
 	return s.GetStaff(ctx, targetID)
 }
@@ -265,6 +265,6 @@ func (s *StaffService) DeleteStaff(ctx context.Context, callerID, targetID strin
 	}
 
 	// Invalidate active cache and revoke sessions
-	_ = s.rdb.Del(ctx, "is_active:"+targetID)
+	_ = s.rdb.Del(ctx, staffActiveKey(targetID))
 	return nil
 }

@@ -46,6 +46,52 @@ export function statusColors(status: Order['status']): string {
   }
 }
 
+// Friendly topping/variant label for the prep list.
+// Canh → "có rau" / "không rau" (from item.note, set at checkout).
+// Bánh / Giò / Trứng → "nhân thịt" / "nhân mộc nhĩ" (from item.filling column).
+export function toppingLabel(item: OrderItem): string {
+  const isCanh = item.name.toLowerCase().includes('canh')
+
+  if (isCanh) {
+    const note = item.note?.toLowerCase() ?? ''
+    if (note.includes('không rau')) return 'không rau'
+    if (note.includes('rau'))       return 'có rau'
+    return 'không rau'
+  }
+
+  if (item.filling === 'thit')    return 'nhân thịt'
+  if (item.filling === 'moc_nhi') return 'nhân mộc nhĩ'
+  // Fallback: surface any toppings, else no filling.
+  const names = (item.toppings_snapshot ?? []).map(t => t.name)
+  return names.length > 0 ? names.join(', ').toLowerCase() : 'không nhân'
+}
+
+export interface PrepSummaryRow {
+  key:     string
+  name:    string
+  topping: string
+  note:    string | null
+  qty:     number
+}
+
+// Merge still-pending kitchen items that share the same dish + topping (+ note)
+// into one row, summing the remaining quantity.
+// e.g. Canh/không rau ×3 + ×3 + ×6 → Canh/không rau ×12.
+export function summarizePending(items: OrderItem[]): PrepSummaryRow[] {
+  const map = new Map<string, PrepSummaryRow>()
+  for (const it of items) {
+    const remaining = it.quantity - it.qty_served
+    if (remaining <= 0) continue
+    const topping = toppingLabel(it)
+    const note    = it.note ?? null
+    const key     = `${it.name}|${topping}|${note ?? ''}`
+    const existing = map.get(key)
+    if (existing) existing.qty += remaining
+    else map.set(key, { key, name: it.name, topping, note, qty: remaining })
+  }
+  return Array.from(map.values())
+}
+
 export function urgencyBorder(createdAt: string, now: number): string {
   const mins = elapsedMins(createdAt, now)
   if (mins > 20) return 'border-red-400'

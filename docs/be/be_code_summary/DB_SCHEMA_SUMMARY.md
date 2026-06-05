@@ -417,20 +417,38 @@ UNIQUE: `(guide_id, staff_id)` — one progress row per staff per guide.
 
 ## 🔑 Redis Key Schema
 
+> **Verified against code 2026-06-05** (grep of every `rdb.Get/Set/Del/Incr/Expire/Publish` in `be/internal/service`). Strategy + fail-open behavior: [`BE_CACHING_STRATEGY.md`](../BE_CACHING_STRATEGY.md).
+> Redis is accelerator-only — every key has an authoritative copy in MySQL.
+
+### Caches (cache-aside, delete-on-write)
+
 | Key Pattern | Type | TTL | Purpose |
 |---|---|---|---|
-| `refresh_token:{hash}` | String | 30d | Verify + revoke refresh token |
-| `auth:staff:{staff_id}` | String `'active'/'disabled'` | 5min | is_active cache for AuthMiddleware |
-| `auth:refresh:{staff_id}:{hash_prefix}` | String `'valid'` | 30d | Multi-session token (Phase 1) |
-| `order_seq:{YYYYMMDD}` | Counter | 2d | Order number generation |
-| `table_order:{table_id}` | String | 24h | Fast check: table has active order |
-| `order:{order_id}:channel` | Pub/Sub | N/A | SSE stream for order tracking |
-| `kds:channel` | Pub/Sub | N/A | Broadcast new orders to KDS |
-| `bloom:order_exists` | Bloom Filter | Permanent | Fast existence check before DB |
-| `bloom:product_ids` | Bloom Filter | Permanent | Fast existence check before DB |
-| `rate_limit:{ip}:{endpoint}` | Counter | 1min | Rate limiting middleware |
-| `payment_timeout:{id}` | String | 15min | Keyspace notification → timeout job |
-| `login_fail:{ip}` | Counter | 15min | Login rate limit (max 5/min) |
+| `product:{id}` | String (JSON) | 5min | Single enriched product |
+| `products:list` | String (JSON) | 5min | Product list — invalidated by product **or** topping write |
+| `toppings:list` | String (JSON) | 5min | Topping list |
+| `combos:list` | String (JSON) | 5min | Combo list |
+| `categories:list` | String (JSON) | 5min | Category list |
+| `auth:staff:{id}` | String `'active'/'disabled'` | 5min | is_active cache for AuthMiddleware (fail-open on Redis down) |
+
+### Counters
+
+| Key Pattern | Type | TTL | Purpose |
+|---|---|---|---|
+| `ratelimit:login:{ip}` | Counter | 60s | Login rate limit — `Incr`; `> 5` ⇒ `RATE_LIMIT_EXCEEDED` (fail-open) |
+| `order:seq:{YYYYMMDD}` | Counter | 25h | Order number `ORD-YYYYMMDD-NNN`; DB `order_sequences` is the fallback |
+
+### Pub/Sub channels (ephemeral — not cache)
+
+| Channel | Purpose |
+|---|---|
+| `order:{id}` | SSE order tracking |
+| `group:{id}` | SSE group view |
+| `orders:kds` | KDS new-order feed |
+| `orders:admin` | Admin floor monitor |
+| `queue:broadcast` · `tables:broadcast` | Order-monitor queue + table updates |
+
+> ⚠️ **Removed (documented before, but NOT in code):** `refresh_token:{hash}` and `auth:refresh:…` — refresh tokens live in the MySQL `refresh_tokens` table, not Redis · `payment_timeout:{id}` — the timeout job polls the DB on a 60s ticker, no keyspace notifications · `table_order:{table_id}` — the 1-active-order check uses the `idx_orders_table_status` DB index · `bloom:*` — `BFAdd`/`BFExists` exist in `pkg/redis/bloom.go` but have **zero call sites** (dead code; see BE_CACHING_STRATEGY §5).
 
 ---
 

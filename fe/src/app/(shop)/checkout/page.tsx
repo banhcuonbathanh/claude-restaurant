@@ -10,6 +10,7 @@ import { api } from '@/lib/api-client'
 import { useCartStore } from '@/store/cart'
 import { formatVND } from '@/lib/utils'
 import { STORAGE_KEYS } from '@/lib/storage-keys'
+import { buildOrderItemsPayload } from '@/lib/order-payload'
 
 const schema = z.object({
   customer_name:   z.string().min(2, 'Vui lòng nhập tên').max(100),
@@ -51,12 +52,7 @@ export default function CheckoutPage() {
         note:           form.note ?? null,
         table_id:       cart.tableId ?? null,
         source:         cart.tableId ? 'qr' : 'online',
-        items: cart.items.map(item => ({
-          product_id:  item.product_id ?? null,
-          combo_id:    item.combo_id ?? null,
-          quantity:    item.quantity,
-          topping_ids: item.toppings.map(t => t.id),
-        })),
+        items: buildOrderItemsPayload(cart.items, cart.drinkConfig),
       }
 
       const { data } = await api.post('/orders', payload)

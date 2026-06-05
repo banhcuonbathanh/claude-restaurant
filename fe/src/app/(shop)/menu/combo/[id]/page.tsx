@@ -65,7 +65,7 @@ export default function ComboDetailPage() {
       quantity:    qty,
       price:       combo.price,
       toppings:    [],
-      combo_items: combo.items.map(i => ({ product_name: i.product_name, quantity: i.quantity, unit_price: i.unit_price })),
+      combo_items: combo.items.map(i => ({ product_id: i.product_id, product_name: i.product_name, quantity: i.quantity, unit_price: i.unit_price })),
     })
     router.back()
   }

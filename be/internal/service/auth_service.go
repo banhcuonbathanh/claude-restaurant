@@ -37,6 +37,13 @@ const (
 	isActiveTTL     = 5 * time.Minute
 )
 
+// staffActiveKey is the single source of truth for the is_active cache key.
+// Both AuthService (read/write) and StaffService (invalidate) MUST use this —
+// a divergent key silently breaks deactivation (stale cache served for up to isActiveTTL).
+func staffActiveKey(staffID string) string {
+	return "auth:staff:" + staffID
+}
+
 // AuthService handles authentication business logic.
 type AuthService struct {
 	repo repository.AuthRepository
@@ -308,7 +315,7 @@ func (s *AuthService) DeactivateStaff(ctx context.Context, staffID string) error
 // IsStaffActive checks is_active from Redis cache (TTL 5min); falls back to DB on cache miss.
 // Used by AuthRequired middleware for every authenticated request.
 func (s *AuthService) IsStaffActive(ctx context.Context, staffID string) (bool, error) {
-	key := fmt.Sprintf("auth:staff:%s", staffID)
+	key := staffActiveKey(staffID)
 	val, err := s.rdb.Get(ctx, key).Result()
 	if err == nil {
 		return val == "active", nil
@@ -362,14 +369,14 @@ func (s *AuthService) setIsActiveCache(ctx context.Context, staffID string, acti
 	if active {
 		val = "active"
 	}
-	key := fmt.Sprintf("auth:staff:%s", staffID)
+	key := staffActiveKey(staffID)
 	if err := s.rdb.Set(ctx, key, val, isActiveTTL).Err(); err != nil {
 		slog.WarnContext(ctx, "auth: set is_active cache failed", "err", err)
 	}
 }
 
 func (s *AuthService) delIsActiveCache(ctx context.Context, staffID string) {
-	key := fmt.Sprintf("auth:staff:%s", staffID)
+	key := staffActiveKey(staffID)
 	if err := s.rdb.Del(ctx, key).Err(); err != nil {
 		slog.WarnContext(ctx, "auth: del is_active cache failed", "err", err)
 	}

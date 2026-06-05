@@ -53,8 +53,8 @@ func (q *Queries) CreateOrder(ctx context.Context, arg CreateOrderParams) error 
 }
 
 const createOrderItem = `-- name: CreateOrderItem :exec
-INSERT INTO order_items (id, order_id, product_id, combo_id, combo_ref_id, name, unit_price, quantity, qty_served, toppings_snapshot, note)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)
+INSERT INTO order_items (id, order_id, product_id, combo_id, combo_ref_id, name, unit_price, quantity, qty_served, toppings_snapshot, note, filling)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)
 `
 
 type CreateOrderItemParams struct {
@@ -68,6 +68,7 @@ type CreateOrderItemParams struct {
 	Quantity         int32           `json:"quantity"`
 	ToppingsSnapshot json.RawMessage `json:"toppings_snapshot"`
 	Note             sql.NullString  `json:"note"`
+	Filling          sql.NullString  `json:"filling"`
 }
 
 func (q *Queries) CreateOrderItem(ctx context.Context, arg CreateOrderItemParams) error {
@@ -82,12 +83,13 @@ func (q *Queries) CreateOrderItem(ctx context.Context, arg CreateOrderItemParams
 		arg.Quantity,
 		arg.ToppingsSnapshot,
 		arg.Note,
+		arg.Filling,
 	)
 	return err
 }
 
 const getActiveOrderByTable = `-- name: GetActiveOrderByTable :one
-SELECT id, order_number, table_id, status, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at, group_id FROM orders
+SELECT id, order_number, table_id, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at, group_id, status FROM orders
 WHERE table_id = ?
   AND status IN ('pending','confirmed','preparing','ready')
   AND deleted_at IS NULL
@@ -101,7 +103,6 @@ func (q *Queries) GetActiveOrderByTable(ctx context.Context, tableID sql.NullStr
 		&i.ID,
 		&i.OrderNumber,
 		&i.TableID,
-		&i.Status,
 		&i.Source,
 		&i.CustomerName,
 		&i.CustomerPhone,
@@ -112,12 +113,13 @@ func (q *Queries) GetActiveOrderByTable(ctx context.Context, tableID sql.NullStr
 		&i.UpdatedAt,
 		&i.DeletedAt,
 		&i.GroupID,
+		&i.Status,
 	)
 	return i, err
 }
 
 const getOrderByID = `-- name: GetOrderByID :one
-SELECT id, order_number, table_id, status, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at, group_id FROM orders
+SELECT id, order_number, table_id, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at, group_id, status FROM orders
 WHERE id = ? AND deleted_at IS NULL
 LIMIT 1
 `
@@ -129,7 +131,6 @@ func (q *Queries) GetOrderByID(ctx context.Context, id string) (Order, error) {
 		&i.ID,
 		&i.OrderNumber,
 		&i.TableID,
-		&i.Status,
 		&i.Source,
 		&i.CustomerName,
 		&i.CustomerPhone,
@@ -140,12 +141,13 @@ func (q *Queries) GetOrderByID(ctx context.Context, id string) (Order, error) {
 		&i.UpdatedAt,
 		&i.DeletedAt,
 		&i.GroupID,
+		&i.Status,
 	)
 	return i, err
 }
 
 const getOrderItemByID = `-- name: GetOrderItemByID :one
-SELECT id, order_id, product_id, combo_id, combo_ref_id, name, unit_price, quantity, qty_served, toppings_snapshot, note, created_at, updated_at FROM order_items
+SELECT id, order_id, product_id, combo_id, combo_ref_id, name, unit_price, quantity, qty_served, toppings_snapshot, note, created_at, updated_at, filling FROM order_items
 WHERE id = ?
 LIMIT 1
 `
@@ -167,12 +169,13 @@ func (q *Queries) GetOrderItemByID(ctx context.Context, id string) (OrderItem, e
 		&i.Note,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Filling,
 	)
 	return i, err
 }
 
 const getOrderItemsByOrderID = `-- name: GetOrderItemsByOrderID :many
-SELECT id, order_id, product_id, combo_id, combo_ref_id, name, unit_price, quantity, qty_served, toppings_snapshot, note, created_at, updated_at FROM order_items
+SELECT id, order_id, product_id, combo_id, combo_ref_id, name, unit_price, quantity, qty_served, toppings_snapshot, note, created_at, updated_at, filling FROM order_items
 WHERE order_id = ?
 ORDER BY created_at ASC
 `
@@ -200,6 +203,7 @@ func (q *Queries) GetOrderItemsByOrderID(ctx context.Context, orderID string) ([
 			&i.Note,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.Filling,
 		); err != nil {
 			return nil, err
 		}
@@ -228,7 +232,7 @@ func (q *Queries) GetOrderSequence(ctx context.Context, dateKey time.Time) (int3
 }
 
 const listAllOrders = `-- name: ListAllOrders :many
-SELECT id, order_number, table_id, status, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at, group_id FROM orders
+SELECT id, order_number, table_id, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at, group_id, status FROM orders
 WHERE deleted_at IS NULL
 ORDER BY created_at DESC
 LIMIT ? OFFSET ?
@@ -247,7 +251,6 @@ func (q *Queries) ListAllOrders(ctx context.Context, limit int32, offset int32) 
 			&i.ID,
 			&i.OrderNumber,
 			&i.TableID,
-			&i.Status,
 			&i.Source,
 			&i.CustomerName,
 			&i.CustomerPhone,
@@ -258,6 +261,7 @@ func (q *Queries) ListAllOrders(ctx context.Context, limit int32, offset int32) 
 			&i.UpdatedAt,
 			&i.DeletedAt,
 			&i.GroupID,
+			&i.Status,
 		); err != nil {
 			return nil, err
 		}
@@ -273,7 +277,7 @@ func (q *Queries) ListAllOrders(ctx context.Context, limit int32, offset int32) 
 }
 
 const listOrdersByGroupID = `-- name: ListOrdersByGroupID :many
-SELECT id, order_number, table_id, status, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at, group_id FROM orders
+SELECT id, order_number, table_id, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at, group_id, status FROM orders
 WHERE group_id = ? AND deleted_at IS NULL
 ORDER BY created_at ASC
 `
@@ -291,7 +295,6 @@ func (q *Queries) ListOrdersByGroupID(ctx context.Context, groupID sql.NullStrin
 			&i.ID,
 			&i.OrderNumber,
 			&i.TableID,
-			&i.Status,
 			&i.Source,
 			&i.CustomerName,
 			&i.CustomerPhone,
@@ -302,6 +305,7 @@ func (q *Queries) ListOrdersByGroupID(ctx context.Context, groupID sql.NullStrin
 			&i.UpdatedAt,
 			&i.DeletedAt,
 			&i.GroupID,
+			&i.Status,
 		); err != nil {
 			return nil, err
 		}
@@ -317,7 +321,7 @@ func (q *Queries) ListOrdersByGroupID(ctx context.Context, groupID sql.NullStrin
 }
 
 const listOrdersByStatus = `-- name: ListOrdersByStatus :many
-SELECT id, order_number, table_id, status, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at, group_id FROM orders
+SELECT id, order_number, table_id, source, customer_name, customer_phone, note, total_amount, created_by, created_at, updated_at, deleted_at, group_id, status FROM orders
 WHERE status = ? AND deleted_at IS NULL
 ORDER BY created_at DESC
 LIMIT ? OFFSET ?
@@ -336,7 +340,6 @@ func (q *Queries) ListOrdersByStatus(ctx context.Context, status OrdersStatus, l
 			&i.ID,
 			&i.OrderNumber,
 			&i.TableID,
-			&i.Status,
 			&i.Source,
 			&i.CustomerName,
 			&i.CustomerPhone,
@@ -347,6 +350,7 @@ func (q *Queries) ListOrdersByStatus(ctx context.Context, status OrdersStatus, l
 			&i.UpdatedAt,
 			&i.DeletedAt,
 			&i.GroupID,
+			&i.Status,
 		); err != nil {
 			return nil, err
 		}

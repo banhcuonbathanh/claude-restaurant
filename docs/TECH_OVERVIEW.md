@@ -1,7 +1,7 @@
 # TECH_OVERVIEW — Hệ Thống Quản Lý Quán Bánh Cuốn
 
 > **Per-spec tech descriptions.** For the overall system architecture, project layout, stack,
-> and conventions, see the single source: [`docs/core/SYSTEM_DESCRIPTION_v1.md`](core/SYSTEM_DESCRIPTION_v1.md).
+> and conventions, see [`CLAUDE.md`](../CLAUDE.md) (map) and [`docs/be/BE_DOC_INDEX.md`](be/BE_DOC_INDEX.md) (BE navigation).
 > Scope source for this file: `docs/spec/*` + `docs/spec/SPEC_INDEX.md`. Keep in sync when specs change.
 
 ---

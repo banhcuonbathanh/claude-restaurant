@@ -16,6 +16,7 @@
 | What error codes an endpoint returns | [`be_code_summary/BE_API_DTO.md`](be_code_summary/BE_API_DTO.md) (catalog + per-endpoint) |
 | A DB table / column / type / FK / index | [`be_code_summary/DB_SCHEMA_SUMMARY.md`](be_code_summary/DB_SCHEMA_SUMMARY.md) |
 | Redis key patterns + TTLs | [`be_code_summary/DB_SCHEMA_SUMMARY.md`](be_code_summary/DB_SCHEMA_SUMMARY.md) → Redis Key Schema |
+| Caching strategy (cache-aside, invalidation, fail-open) | [`BE_CACHING_STRATEGY.md`](BE_CACHING_STRATEGY.md) |
 | An env var (purpose / default / where read) | [`be_code_summary/BE_ENV_CONFIG.md`](be_code_summary/BE_ENV_CONFIG.md) |
 | What a service/repo exposes (method index) | [`be_code_summary/CODEBASE_GRAPH_BE.md`](be_code_summary/CODEBASE_GRAPH_BE.md) |
 | How a domain wires handler→service→repo→DB | [`be_code_summary/CODEBASE_GRAPH_BE.md`](be_code_summary/CODEBASE_GRAPH_BE.md) |
