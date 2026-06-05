@@ -1,5 +1,5 @@
 # 🍜 BanhCuon System — Database Schema Summary
-> **Version:** Migrations v1.2 · MySQL 8.0 · ECC-Free · Tháng 4/2026
+> **Version:** Migrations 001–015 · MySQL 8.0 · ECC-Free · Tháng 6/2026
 > **Purpose:** Single-page reference for all Phase 1 SQL migrations. Read this before any DB query or schema work.
 > **Source of truth:** `migrations/*.sql` — specs only reference, never repeat DDL.
 
@@ -10,11 +10,19 @@
 ```
 001_auth.sql
 002_products.sql
-003_tables.sql        ← must run BEFORE 005_orders
+003_tables.sql            ← must run BEFORE 005_orders
 004_combos.sql
 005_orders.sql
 006_payments.sql
 007_files.sql
+008_order_groups.sql      ← adds orders.group_id
+009_ingredients.sql       ← ingredients · product_ingredients · stock_movements
+010_ingredients_dates.sql ← adds ingredients.import_date + shelf_days
+011_staff_tasks.sql       ← staff_tasks
+012_staff_tasks_v2.sql    ← adds priority/notes/due_time + status enum
+013_staff_profile_fields.sql ← adds staff.job_title/shifts/responsibilities
+014_training.sql          ← training_guides · training_guide_roles · training_progress · quiz_attempts
+015_add_paid_status.sql   ← adds orders.status 'paid'
 ```
 
 Tool: Goose (`-- +goose Up / Down` blocks in each file)
@@ -46,6 +54,9 @@ Tool: Goose (`-- +goose Up / Down` blocks in each file)
 | `email` | VARCHAR(100) NULL | v1.1 — password reset |
 | `role` | ENUM('customer','chef','cashier','staff','manager','admin') DEFAULT 'cashier' | Role hierarchy: admin ⊃ manager ⊃ staff ⊃ (chef\|cashier) — customer isolated |
 | `full_name` | VARCHAR(100) NOT NULL | |
+| `job_title` | VARCHAR(100) NULL | **migration 013** — display title (free text) |
+| `shifts` | JSON NULL | **migration 013** — work shift schedule |
+| `responsibilities` | TEXT NULL | **migration 013** — role responsibilities |
 | `phone` | VARCHAR(20) NULL | |
 | `is_active` | TINYINT(1) DEFAULT 1 | Middleware checks via Redis cache TTL 5min |
 | `created_at`, `updated_at` | DATETIME | |
@@ -185,7 +196,7 @@ Fallback: `INSERT ... ON DUPLICATE KEY UPDATE last_seq = last_seq + 1`
 | `id` | CHAR(36) PK | UUID |
 | `order_number` | VARCHAR(30) UNIQUE NOT NULL | Format: `ORD-YYYYMMDD-NNN` |
 | `table_id` | CHAR(36) NULL | FK → tables ON DELETE RESTRICT. NULL = online/delivery |
-| `status` | ENUM('pending','confirmed','preparing','ready','delivered','cancelled') DEFAULT 'pending' | |
+| `status` | ENUM('pending','confirmed','preparing','ready','delivered','cancelled','paid') DEFAULT 'pending' | `paid` added in **migration 015** |
 | `source` | ENUM('online','qr','pos') DEFAULT 'online' | ⚠️ NOT `payment_method` |
 | `customer_name` | VARCHAR(100) NULL | |
 | `customer_phone` | VARCHAR(20) NULL | |
@@ -199,9 +210,10 @@ Composite index: `idx_orders_table_status (table_id, status)` — used for One A
 
 State machine:
 ```
-pending → confirmed → preparing → ready → delivered
+pending → confirmed → preparing → ready → delivered → paid
                      ↘ cancelled  (only if SUM(qty_served)/SUM(quantity) < 0.30)
 ```
+`paid` (migration 015) is the terminal state after payment is completed.
 
 🚨 `total_amount` drift: service MUST call `recalculateTotalAmount(orderId)` after every mutation or payment will charge wrong amount.
 
@@ -294,6 +306,115 @@ App constraint: when `is_orphan=0` → both `entity_type` AND `entity_id` MUST b
 
 ---
 
+## 009_ingredients.sql (+ 010 dates)
+
+### `ingredients`
+| Column | Type | Notes |
+|---|---|---|
+| `id` | CHAR(36) PK | UUID |
+| `name` | VARCHAR(150) NOT NULL | |
+| `unit` | VARCHAR(30) NOT NULL | e.g. `kg`, `lít`, `cái` |
+| `import_date` | DATE NOT NULL DEFAULT (CURDATE()) | **migration 010** |
+| `shelf_days` | INT NOT NULL DEFAULT 90 | **migration 010** — expiry = import_date + shelf_days |
+| `current_stock` | DECIMAL(10,3) NOT NULL DEFAULT 0 | ⚠️ 3 decimals, not currency |
+| `min_stock` | DECIMAL(10,3) NOT NULL DEFAULT 0 | Low-stock threshold |
+| `cost_per_unit` | DECIMAL(10,0) NOT NULL DEFAULT 0 | VND |
+| `created_at`, `updated_at`, `deleted_at` | DATETIME | Soft delete |
+
+### `product_ingredients` (Junction M:N — recipe/BOM)
+| Column | Type | Notes |
+|---|---|---|
+| `product_id` | CHAR(36) | FK → products ON DELETE CASCADE |
+| `ingredient_id` | CHAR(36) | FK → ingredients ON DELETE CASCADE |
+| `qty_used` | DECIMAL(10,3) NOT NULL DEFAULT 0 | Per 1 product unit |
+
+PK: composite `(product_id, ingredient_id)`
+
+### `stock_movements` (Audit log — append only)
+| Column | Type | Notes |
+|---|---|---|
+| `id` | CHAR(36) PK | UUID |
+| `ingredient_id` | CHAR(36) NOT NULL | FK → ingredients ON DELETE CASCADE |
+| `type` | ENUM('in','out','adjustment') NOT NULL | |
+| `quantity` | DECIMAL(10,3) NOT NULL | Signed by intent; `type` distinguishes direction |
+| `note` | TEXT NULL | |
+| `created_by` | CHAR(36) NULL | FK → staff ON DELETE SET NULL |
+| `created_at` | DATETIME | No `updated_at`/`deleted_at` — immutable log |
+
+---
+
+## 011_staff_tasks.sql (+ 012 v2)
+
+### `staff_tasks`
+| Column | Type | Notes |
+|---|---|---|
+| `id` | CHAR(36) PK | UUID |
+| `title` | VARCHAR(200) NOT NULL | |
+| `description` | TEXT NULL | |
+| `assigned_to` | CHAR(36) NOT NULL | FK → staff ON DELETE RESTRICT |
+| `assigned_by` | CHAR(36) NOT NULL | FK → staff ON DELETE RESTRICT |
+| `status` | ENUM('pending','in_progress','completed','overdue') DEFAULT 'pending' | `in_progress` added in **migration 012** |
+| `priority` | ENUM('high','medium','low') NOT NULL DEFAULT 'medium' | **migration 012** |
+| `notes` | TEXT NULL | **migration 012** |
+| `due_at` | DATETIME NOT NULL | |
+| `due_time_start` | VARCHAR(5) NULL | **migration 012** — `"HH:MM"` |
+| `due_time_end` | VARCHAR(5) NULL | **migration 012** — `"HH:MM"` |
+| `completed_at` | DATETIME NULL | |
+| `created_at`, `updated_at`, `deleted_at` | DATETIME | Soft delete |
+
+---
+
+## 014_training.sql
+
+### `training_guides`
+| Column | Type | Notes |
+|---|---|---|
+| `id` | CHAR(36) PK | UUID |
+| `title` | VARCHAR(200) NOT NULL | |
+| `role` | ENUM('chef','cashier','staff','manager') NOT NULL | Primary target role |
+| `description` | TEXT NULL | |
+| `cover_image_url` | VARCHAR(500) NULL | |
+| `youtube_url` | VARCHAR(500) NULL | |
+| `quality_kpi_target` | VARCHAR(200) NULL | |
+| `quantity_kpi_target` | VARCHAR(200) NULL | |
+| `pass_threshold` | INT NOT NULL DEFAULT 75 | Quiz pass % |
+| `max_attempts` | INT NOT NULL DEFAULT 3 | |
+| `published` | TINYINT(1) NOT NULL DEFAULT 0 | |
+| `created_by` | CHAR(36) NULL | FK → staff ON DELETE SET NULL |
+| `created_at`, `updated_at`, `deleted_at` | DATETIME | Soft delete |
+
+### `training_guide_roles` (Junction — multi-role targeting)
+| Column | Type | Notes |
+|---|---|---|
+| `guide_id` | CHAR(36) | FK → training_guides ON DELETE CASCADE |
+| `role` | ENUM('chef','cashier','staff','manager') | |
+
+PK: composite `(guide_id, role)`
+
+### `training_progress`
+| Column | Type | Notes |
+|---|---|---|
+| `id` | CHAR(36) PK | UUID |
+| `guide_id` | CHAR(36) NOT NULL | FK → training_guides ON DELETE CASCADE |
+| `staff_id` | CHAR(36) NOT NULL | FK → staff ON DELETE CASCADE |
+| `watched_percent` | INT NOT NULL DEFAULT 0 | |
+| `manager_notes` | TEXT NULL | |
+| `created_at`, `updated_at` | DATETIME | |
+
+UNIQUE: `(guide_id, staff_id)` — one progress row per staff per guide.
+
+### `quiz_attempts`
+| Column | Type | Notes |
+|---|---|---|
+| `id` | CHAR(36) PK | UUID |
+| `progress_id` | CHAR(36) NOT NULL | FK → training_progress ON DELETE CASCADE |
+| `score` | INT NOT NULL | |
+| `passed` | TINYINT(1) NOT NULL DEFAULT 0 | |
+| `attempted_at` | DATETIME | |
+| `created_at` | DATETIME | No soft delete — immutable attempt log |
+
+---
+
 ## 🔑 Redis Key Schema
 
 | Key Pattern | Type | TTL | Purpose |
@@ -331,6 +452,18 @@ categories ──→ products ──────────────┘     
                                 payments (UNIQUE order_id)
 
 staff ──→ file_attachments (polymorphic via entity_type + entity_id)
+
+products ──→ product_ingredients ──→ ingredients ──→ stock_movements
+                                                          ↑
+staff ──→ stock_movements.created_by (SET NULL) ──────────┘
+
+staff ──→ staff_tasks (assigned_to + assigned_by, both RESTRICT)
+
+staff ──→ training_guides.created_by (SET NULL)
+training_guides ──→ training_guide_roles
+            └──→ training_progress ──→ quiz_attempts
+                       ↑
+staff ─────────────────┘ (training_progress.staff_id CASCADE)
 ```
 
 ---
@@ -355,4 +488,4 @@ staff ──→ file_attachments (polymorphic via entity_type + entity_id)
 
 ---
 
-*🍜 BanhCuon System · DB_SCHEMA_SUMMARY.md · Compiled from migrations v1.2 · Tháng 4/2026*
+*🍜 BanhCuon System · DB_SCHEMA_SUMMARY.md · Compiled from migrations 001–015 · Tháng 6/2026*

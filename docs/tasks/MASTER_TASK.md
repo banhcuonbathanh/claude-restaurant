@@ -185,6 +185,22 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 ---
 
+## Phase P-BEDOC — BE Code Summary Enrichment
+
+> **Owner:** Docs
+> **Dependency:** none (read-only audit of existing BE code)
+> **Status:** ✅ COMPLETE (1→4) — added `BE_ENV_CONFIG.md`, `BE_API_DTO.md`, folder `README.md`; fixed Tasks/Training/route drift
+> **Goal:** Keep `docs/be/be_code_summary/` in sync with code + add DTO/env references so future sessions read summaries, not source.
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P-BEDOC-1 | Docs | Drift fix — regenerate `BE_STRUCTURE.md` + `CODEBASE_GRAPH_BE.md`: add Tasks + Training domains, marketing in graph, all 87 routes (incl. order-monitor SSE, item quantity/cancel, /metrics, /register, /history) | — | 1 | ✅ | Tree + route table + service/repo indexes match `main.go` 1:1 |
+| P-BEDOC-2 | Docs | New `BE_ENV_CONFIG.md` — all 23 env vars (name, purpose, default, used-by) grouped by concern | — | 1 | ✅ | Every `os.Getenv` in code has a row |
+| P-BEDOC-3 | Docs | New `BE_API_DTO.md` — request/response shapes + per-endpoint error codes for auth · products · orders · payments · groups | P-BEDOC-1 | 1 | ✅ | Each endpoint shows JSON in/out + `ERR_*` codes |
+| P-BEDOC-4 | Docs | Extend `BE_API_DTO.md` — staff · tables · analytics · ingredients · tasks · training · marketing · files | P-BEDOC-3 | 1 | ✅ | Same coverage for admin domains |
+
+---
+
 ## Critical Rules (Never Forget)
 
 | Rule | Detail |

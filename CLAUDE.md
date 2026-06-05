@@ -152,7 +152,7 @@ Only after Step 5 is confirmed → follow the 7-step workflow below.
 docs/core/MASTER_v1.2.md                          ← RBAC §3 · business rules §4 · realtime §5 · JWT §6 · design tokens §2
 docs/contract/API_CONTRACT_v1.2.md               ← tất cả endpoints (bảng, không prose)
 docs/contract/ERROR_CONTRACT_v1.1.md             ← error codes + respondError pattern
-docs/be/DB_SCHEMA_SUMMARY.md                     ← DB schema overview (SINGLE SOURCE field names)
+docs/be/be_code_summary/DB_SCHEMA_SUMMARY.md     ← DB schema overview (SINGLE SOURCE field names)
 docs/requirements/BanhCuon_Project_Checklist.md  ← AC per task
 docs/api/openapi.yaml                             ← OpenAPI 3.0 spec — Swagger UI tại :8090 (docker compose swagger service)
 ```
@@ -160,6 +160,8 @@ docs/api/openapi.yaml                             ← OpenAPI 3.0 spec — Swagg
 **Tầng 3 — Development system guides (read these before coding):**
 
 ```
+docs/be/BE_DOC_INDEX.md      ← BE NAVIGATION MAP: "where do I read X?" — start here for any BE task
+docs/be/be_code_summary/     ← BE code summaries (read instead of grepping source): routes · DTOs · errors · schema · env
 docs/be/BE_SYSTEM_GUIDE.md   ← PRIMARY BE guide: epics · rules · patterns · code · what to read per domain
 docs/fe/FE_SYSTEM_GUIDE.md   ← PRIMARY FE guide: epics · rules · patterns · code · what to read per domain
 ```
