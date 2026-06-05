@@ -67,6 +67,7 @@ docker compose up -d --build fe  # rebuild FE container
 - KHÔNG hardcode localStorage key strings — import từ `src/lib/storage-keys.ts`; không tạo key string trực tiếp trong component/hook
 - KHÔNG hardcode hex — dùng token từ tailwind.config.ts: `bg-primary`, `text-card`, `text-muted-fg` → `docs/fe/FE_DOC_INDEX.md §3`
 - `formatVND()` cho mọi giá tiền — từ `src/lib/utils.ts` (đã có)
+- MỌI payload cart→order PHẢI đi qua `src/lib/order-payload.ts` (`buildOrderItemsPayload`) — KHÔNG tự build `items[]` trong từng trang. 1 builder = menu/checkout/add-to-order luôn khớp nhau + khớp preview "Tổng số món" (filling · combo overrides · canh split có/không rau)
 - Access token: Zustand memory ONLY → `docs/core/MASTER_v1.2.md §6`
 - SSE auth: `Authorization: Bearer` header · WS auth: `?token=` query param → `docs/core/MASTER_v1.2.md §5`
 - All IDs: `string` (UUID) — never `number`

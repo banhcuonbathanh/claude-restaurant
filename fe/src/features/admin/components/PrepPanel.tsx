@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import type { Order } from '@/types/order'
 import type { Table } from '@/features/admin/admin.api'
 import { isKitchenItem, toppingLabel } from '@/features/admin/overview.helpers'
@@ -45,7 +45,7 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
     remaining: number
     tables: string[]
     minCreatedAt: number
-    orders: { tableLabel: string; time: string; qty: number; topping: string }[]
+    orders: { orderId: string; tableLabel: string; time: string; qty: number; topping: string }[]
     noteCounts: Map<string, number>
     toppingCounts: Map<string, number>
   }>()
@@ -59,7 +59,7 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
       if (rem <= 0) continue
       const row = remainMap.get(it.name) ?? {
         remaining: 0, tables: [] as string[], minCreatedAt: orderTime,
-        orders: [] as { tableLabel: string; time: string; qty: number; topping: string }[],
+        orders: [] as { orderId: string; tableLabel: string; time: string; qty: number; topping: string }[],
         noteCounts: new Map<string, number>(),
         toppingCounts: new Map<string, number>(),
       }
@@ -67,10 +67,11 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
       row.remaining += rem
       if (!row.tables.includes(tName)) row.tables.push(tName)
       if (orderTime < row.minCreatedAt) row.minCreatedAt = orderTime
-      row.orders.push({ tableLabel: tName, time: timeStr, qty: rem, topping })
+      row.orders.push({ orderId: o.id, tableLabel: tName, time: timeStr, qty: rem, topping })
       row.toppingCounts.set(topping, (row.toppingCounts.get(topping) ?? 0) + rem)
+      // Canh's note already encodes có/không rau — shown as the topping, so skip it here to avoid a duplicate line
       const note = it.note?.trim()
-      if (note) row.noteCounts.set(note, (row.noteCounts.get(note) ?? 0) + rem)
+      if (note && !isSoupItem(it.name)) row.noteCounts.set(note, (row.noteCounts.get(note) ?? 0) + rem)
       remainMap.set(it.name, row)
     }
   }
@@ -156,14 +157,12 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
           <div className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr] gap-2 px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
             <span>Tên món</span>
             <span>Bàn</span>
-            <SortBtn col="time" label="Giờ đặt" />
+            <span>Nhân / Rau</span>
             <div className="flex justify-end"><SortBtn col="remaining" label="Còn lại" /></div>
           </div>
 
           <div className="divide-y divide-gray-100 dark:divide-gray-800">
             {rows.map(([name, row]) => {
-              const t = new Date(row.minCreatedAt)
-              const timeStr = t.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
               const soup = isSoupItem(name)
               return (
                 <div key={name}>
@@ -173,27 +172,19 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
                       {name}
                     </span>
                     <span className={`text-xs truncate ${soup ? 'text-primary/80' : 'text-gray-500 dark:text-gray-400'}`}>{row.tables.join(', ')}</span>
-                    <span className={`text-xs ${soup ? 'text-primary/80' : 'text-gray-500 dark:text-gray-400'}`}>{timeStr}</span>
+                    <span className={`text-xs flex flex-wrap gap-x-2 gap-y-0.5 ${soup ? 'text-primary' : 'text-gray-700 dark:text-gray-300'}`}>
+                      {Array.from(row.toppingCounts.entries()).map(([topping, count]) => (
+                        <span key={topping} className="font-semibold whitespace-nowrap">
+                          {topping} <span className="text-primary font-bold">×{count}</span>
+                        </span>
+                      ))}
+                    </span>
                     <span className="text-right">
                       <span className={`text-sm font-bold px-2 py-0.5 rounded-md ${soup ? 'bg-orange-200 dark:bg-orange-900 text-primary dark:text-orange-200' : 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300'}`}>
                         ×{row.remaining}
                       </span>
                     </span>
                   </div>
-
-                  {/* Filling/veg breakdown — Bánh/Trứng: nhân thịt/mộc nhĩ/không nhân · Canh: có rau/không rau */}
-                  {row.toppingCounts.size > 0 && (
-                    <div className={`px-4 pb-2 flex flex-wrap gap-2 ${soup ? 'bg-orange-50 dark:bg-orange-950/30' : 'bg-green-50/60 dark:bg-green-950/20'}`}>
-                      {Array.from(row.toppingCounts.entries()).map(([topping, count]) => (
-                        <span
-                          key={topping}
-                          className={`text-xs font-semibold ${soup ? 'text-primary' : 'text-gray-700 dark:text-gray-300'}`}
-                        >
-                          {topping} <span className="text-primary font-bold">×{count}</span>
-                        </span>
-                      ))}
-                    </div>
-                  )}
 
                   {/* Note summary (free-text notes) */}
                   {row.noteCounts.size > 0 && (
@@ -211,13 +202,22 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
                     <div className="px-4 pb-3 bg-orange-50 dark:bg-orange-950/30 border-t border-orange-100 dark:border-orange-900/40">
                       <p className="text-[10px] font-semibold text-primary uppercase tracking-wide mb-1.5">Chi tiết theo đơn</p>
                       <div className="flex flex-wrap gap-1.5">
-                        {row.orders.map((od, i) => (
+                        {Array.from(
+                          row.orders.reduce((m, od) => {
+                            const g = m.get(od.orderId) ?? { tableLabel: od.tableLabel, parts: [] as { topping: string; qty: number }[] }
+                            g.parts.push({ topping: od.topping, qty: od.qty })
+                            return m.set(od.orderId, g)
+                          }, new Map<string, { tableLabel: string; parts: { topping: string; qty: number }[] }>()).values()
+                        ).map((g, i) => (
                           <span key={i} className="inline-flex items-center gap-1 text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 px-2 py-0.5 rounded-md border border-green-300 dark:border-green-700">
-                            <span className="font-semibold">Bàn {od.tableLabel}</span>
-                            <span className="text-green-500">·</span>
-                            <span className={`font-semibold ${od.topping === 'có rau' ? 'text-green-700 dark:text-green-400' : 'text-amber-700 dark:text-amber-400'}`}>{od.topping}</span>
-                            <span className="text-green-500">·</span>
-                            <span className="font-bold">×{od.qty}</span>
+                            <span className="font-semibold">Bàn {g.tableLabel}</span>
+                            {g.parts.map((p, j) => (
+                              <Fragment key={j}>
+                                <span className="text-green-500">·</span>
+                                <span className={`font-semibold ${p.topping === 'có rau' ? 'text-green-700 dark:text-green-400' : 'text-amber-700 dark:text-amber-400'}`}>{p.topping}</span>
+                                <span className="font-bold">×{p.qty}</span>
+                              </Fragment>
+                            ))}
                           </span>
                         ))}
                       </div>

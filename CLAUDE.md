@@ -67,6 +67,11 @@ READ → PLAN → ALIGN → IMPLEMENT → SELF-REVIEW → TEST → DONE
 - **SELF-REVIEW:** did I follow the spec? any regressions? does it match the AC?
 - If blocked at any step → stop, flag with prefix, discuss before proceeding.
 
+**Scope Guardrail (Checkpoint + Scope Contract) — no exceptions:**
+- **Checkpoint first:** before IMPLEMENT, commit current state: `git add -A && git commit -m "checkpoint: before <task>"`. This guarantees a one-command rollback (`git reset --hard HEAD~1`) if I touch code the owner didn't want.
+- **Scope contract:** in ALIGN, list the **exact files I will change and why**. I touch **only** those files. If mid-task I find I must change a file not on the list → STOP and ask before editing it.
+- **Rollback on request:** if the owner says "revert" / "undo", reset to the last checkpoint — never patch over unwanted changes.
+
 | File | Purpose |
 |---|---|
 | `docs/DOC_MAP.md` | Document map — which doc to read, when, and why. Start here if lost. |

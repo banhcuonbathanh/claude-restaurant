@@ -185,6 +185,19 @@ Reading code before requirements are clear is never the right first move for a s
 
 **How to apply:** Before any task (code or not) — state the goal, confirm it matches what the owner asked, then do the minimum work to reach it. The mechanics differ; the discipline does not.
 
+### Weakness 12 — Unwanted code changes with no clean rollback point (2026-06-05)
+
+**Problem:** When the owner asks for "a bit more" on top of a task, Claude sometimes misunderstands the scope and edits code the owner did not want changed. Worse, because work piles up as uncommitted changes on the branch, there is no clean point to return to — the owner cannot cheaply undo just the unwanted change.
+**Root cause:** Two gaps. (1) ALIGN confirmed the *plan* but never pinned down the *exact file set*, so scope crept silently during IMPLEMENT. (2) No checkpoint discipline — uncommitted changes accumulated, so "go back to before this task" was not a single command.
+**Rule — Checkpoint + Scope Contract (two layers):**
+
+| Layer | Rule |
+|---|---|
+| **Recover (git)** | Before IMPLEMENT, commit current state: `git add -A && git commit -m "checkpoint: before <task>"`. Rollback is then one command: `git reset --hard HEAD~1` (or to the checkpoint hash). |
+| **Prevent (scope)** | In ALIGN, list the **exact files I will change and why**. Touch only those. If mid-task a file not on the list must change → STOP and ask first. |
+
+**Effect:** The scope contract catches most unwanted edits before a line changes (owner approves the file list); anything that slips through is reversible in one command because the pre-task state is always committed. On "revert"/"undo", reset to the last checkpoint — do not patch over the unwanted change.
+
 ---
 
 ## 💡 0.5 — Tips Để Làm Việc Hiệu Quả Nhất Với Claude

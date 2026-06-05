@@ -85,17 +85,26 @@
 
 | Endpoint | Request body | Success | Notable errors |
 |---|---|---|---|
-| `POST /orders` | `{table_id?, source: req oneof(online qr pos), customer_name?, customer_phone?, note?, items:[{product_id|combo_id (exactly one), quantity: req min1, topping_ids[], note}] req min1}` | `201 {data:{id}}` | `TABLE_HAS_ACTIVE_ORDER`, item must have product_id XOR combo_id |
+| `POST /orders` | `{table_id?, source: req oneof(online qr pos), customer_name?, customer_phone?, note?, items:[{product_id|combo_id (exactly one), quantity: req min1, topping_ids[], note, filling?(thit\|moc_nhi), combo_items?:[{product_id req(∈combo), quantity req min1, note?, filling?}]}] req min1}` | `201 {data:{id}}` | `TABLE_HAS_ACTIVE_ORDER`, item must have product_id XOR combo_id, combo_items product ∉ combo → `INVALID_INPUT` |
 | `GET /orders`, `/orders/live`, `/orders/history` | — | `200 {data:[OrderJSON]}` | — |
 | `GET /orders/:id` | — | `200 {data: OrderJSON}` | `NOT_FOUND` |
 | `PATCH /orders/:id/status` | `{status: req}` | `200 {message}` | invalid transition → `INVALID_INPUT`/409 |
 | `DELETE /orders/:id` (cancel) | — | `200 {message}` | `CANCEL_THRESHOLD` (≥30% served) |
-| `POST /orders/:id/items` | `{items:[{product_id|combo_id, quantity: req min1, topping_ids[]}] req min1}` | `200 {data:{...}}` | recalculates `total_amount` |
+| `POST /orders/:id/items` | `{items:[{product_id|combo_id, quantity: req min1, topping_ids[], note, filling?, combo_items?}] req min1}` — same item schema as `POST /orders` | `200 {data:{...}}` | recalculates `total_amount` |
 | `PATCH /orders/items/:id/quantity` | `{quantity: req min1}` | `200 {message}` | recalculates `total_amount` |
 | `PATCH /orders/items/:id` (served) | `{qty_served: min0}` | `200 {message}` | chef+; `qty_served ≤ quantity` |
 | `DELETE /orders/items/:id` | — | `200 {message}` | recalculates `total_amount` |
 
 > No `order_items.status` column — derive from `qty_served` (0=pending, partial=preparing, =quantity=done).
+
+### Where order items get serialized (keep these in sync — touch ALL when adding an item field)
+
+| Serializer | File | Feeds | Per-item fields |
+|---|---|---|---|
+| `orderJSON()` → **OrderJSON** | `handler/order_handler.go` | `GET /orders`, `/orders/:id`, `/live`, `/history` (customer order page, POS, history) | id, product_id, combo_id, combo_ref_id, name, unit_price, quantity, qty_served, item_status, toppings_snapshot, note, **filling** |
+| `buildItemsJSON()` via `GroupOrderJSON()` | `service/group_service.go` | Admin **Overview** SSE + order-group views (WaitingSection, PrepPanel) | id, name, quantity, qty_served, unit_price, item_status, product_id, combo_id, combo_ref_id, note, **filling**, toppings_snapshot |
+
+> **Combo row convention (do not break — caused a double-count bug once):** a combo expands to **1 header row** (`combo_id` set, `combo_ref_id` NULL, `unit_price = 0` — it is a label) + **N sub-item rows** (`combo_ref_id` = header id, real prices). `recalculateTotalAmount` sums every row, so the header MUST be 0 or the combo is counted twice. Every FE read view hides the header (`combo_id && !combo_ref_id`) and sums the sub-items. `filling` lives on the standalone/sub-item rows, never the header. Client `combo_items` overrides replace the canonical template (server prices only); see `expandCombo` in `service/order_service.go`.
 
 ## Payments
 

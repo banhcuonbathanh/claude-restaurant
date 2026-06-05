@@ -261,6 +261,7 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 | UUID strings not integers | All IDs are `string` in TypeScript, `string` in Go (CHAR(36)) |
 | Correct field names | `price` not `base_price` · `image_path` not `image_url` · `created_by` not `staff_id` · `gateway_data` not `webhook_payload` · payment status `completed` not `success` |
 | total_amount drift | Call `recalculateTotalAmount()` after EVERY order_items mutation |
+| Combo header price = 0 | A combo = 1 header row (`unit_price=0`, label only) + N sub-item rows (real prices). Recalc sums ALL rows — header MUST be 0 or the combo double-counts. FE read views hide the header. `filling` on sub-items, never header. → `BE_API_DTO.md §Orders` |
 | No order_items.status column | Derive from `qty_served` (0=pending, 0<x<qty=preparing, x=qty=done) |
 | Payment only when ready | POST /payments must reject if `order.status ≠ 'ready'` |
 | 1 table 1 active order | Check before INSERT into orders |
