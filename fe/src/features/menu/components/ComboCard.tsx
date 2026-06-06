@@ -79,15 +79,12 @@ export function ComboCard({ combo }: Props) {
 
       {/* Content */}
       <div className="flex-1 min-w-0 flex flex-col gap-1">
-        {/* Name + price */}
-        <div className="flex items-start justify-between gap-2">
-          <p className="text-foreground text-sm font-semibold leading-snug flex-1">{combo.name}</p>
-          <p className="text-primary font-bold text-sm flex-shrink-0">{formatVND(combo.price)}</p>
-        </div>
+        {/* Name */}
+        <p className="text-foreground text-sm font-semibold leading-snug">{combo.name}</p>
 
         {/* Combo items — always visible, one per line */}
         {comboItems.length > 0 && (
-          <ul className="space-y-0.5 mt-0.5">
+          <ul className="space-y-0.5 mt-1">
             {comboItems.map(item => (
               <li key={item.product_id} className="text-muted-fg text-xs flex items-center gap-1.5">
                 <span className="bg-primary/10 text-primary text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
@@ -99,11 +96,48 @@ export function ComboCard({ combo }: Props) {
           </ul>
         )}
 
-        {/* Filling selector */}
-        <div className="flex items-center gap-1.5 mt-1">
+        {/* Detail link */}
+        <div className="mt-2">
+          <Link
+            href={`/menu/combo/${combo.id}`}
+            className="text-xs text-primary underline underline-offset-2"
+          >
+            Chi tiết
+          </Link>
+        </div>
+      </div>
+
+      {/* Right column — equal-width stack: price · qty control · filling toggle */}
+      <div className="flex-shrink-0 w-28 flex flex-col items-stretch gap-2.5">
+        {/* Price — top, full width */}
+        <p className="text-primary font-bold text-sm text-center">{formatVND(combo.price)}</p>
+
+        {/* Qty control — centered, spans full width */}
+        <div className="flex-1 flex items-center justify-between">
+          <button
+            onClick={() => updateQty(cartId, qty - 1)}
+            disabled={qty === 0}
+            className="bg-muted text-foreground w-8 h-8 rounded-full flex items-center justify-center
+                       hover:bg-muted/80 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Minus size={14} />
+          </button>
+          <span className="text-foreground text-sm font-bold text-center">{qty}</span>
+          <button
+            onClick={handleAdd}
+            disabled={!combo.is_available}
+            className="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center
+                       hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Plus size={14} />
+          </button>
+        </div>
+
+        {/* Filling selector — full-width pills stacked vertically */}
+        <div className="flex flex-col gap-1.5">
           <button
             onClick={() => setFilling('thit')}
-            className={`text-[11px] px-2.5 py-0.5 rounded-full border transition-colors ${
+            className={`w-full text-center text-[11px] px-2 py-1 rounded-full border transition-colors ${
               filling === 'thit'
                 ? 'bg-primary text-white border-primary running-border'
                 : 'border-border text-muted-fg hover:border-primary/50'
@@ -113,7 +147,7 @@ export function ComboCard({ combo }: Props) {
           </button>
           <button
             onClick={() => setFilling('moc_nhi')}
-            className={`text-[11px] px-2.5 py-0.5 rounded-full border transition-colors ${
+            className={`w-full text-center text-[11px] px-2 py-1 rounded-full border transition-colors ${
               filling === 'moc_nhi'
                 ? 'bg-primary text-white border-primary running-border'
                 : 'border-border text-muted-fg hover:border-primary/50'
@@ -121,42 +155,6 @@ export function ComboCard({ combo }: Props) {
           >
             Nhân mộc nhĩ
           </button>
-        </div>
-
-        {/* Detail link + qty control */}
-        <div className="flex items-center justify-between mt-2">
-          <Link
-            href={`/menu/combo/${combo.id}`}
-            className="text-xs text-primary underline underline-offset-2"
-          >
-            Chi tiết
-          </Link>
-          {qty === 0 ? (
-            <button
-              onClick={handleAdd}
-              disabled={!combo.is_available}
-              className="bg-primary text-white w-7 h-7 rounded-full flex items-center justify-center
-                         hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Plus size={14} />
-            </button>
-          ) : (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => updateQty(cartId, qty - 1)}
-                className="bg-muted text-foreground w-7 h-7 rounded-full flex items-center justify-center hover:bg-muted/80 transition-colors"
-              >
-                <Minus size={14} />
-              </button>
-              <span className="text-foreground text-sm font-bold w-4 text-center">{qty}</span>
-              <button
-                onClick={handleAdd}
-                className="bg-primary text-white w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors"
-              >
-                <Plus size={14} />
-              </button>
-            </div>
-          )}
         </div>
       </div>
 

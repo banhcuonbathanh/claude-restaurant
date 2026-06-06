@@ -1,4 +1,73 @@
+### Stop BE / FE (local dev)
+
+```bash
+# Start whole system
+./dev.sh
+# Stop BE
+pkill -f "go run ./cmd/server"
+
+# Stop FE
+pkill -f "next dev"
+```
+
 # Dev Commands — Bánh Cuốn Restaurant
+
+## Staff & Admin Links (localhost:3000)
+
+### Auth
+
+| Page  | URL                         |
+| ----- | --------------------------- |
+| Login | http://localhost:3000/login |
+
+### Auto-Login Links (Dev Only)
+
+> Open any link → auto-logs in and redirects (admin/manager → `/admin`, cashier → `/pos`, chef → `/kds`)
+
+| Role    | Link                                         |
+| ------- | -------------------------------------------- |
+| Admin   | http://localhost:3000/dev-login?role=admin   |
+| Manager | http://localhost:3000/dev-login?role=manager |
+| Cashier | http://localhost:3000/dev-login?role=cashier |
+| Chef    | http://localhost:3000/dev-login?role=chef    |
+| Staff   | http://localhost:3000/dev-login?role=staff   |
+
+### Kitchen & Floor
+
+| Page                  | URL                               | Role    |
+| --------------------- | --------------------------------- | ------- |
+| KDS (Kitchen Display) | http://localhost:3000/kds         | Chef    |
+| POS (Point of Sale)   | http://localhost:3000/pos         | Cashier |
+| Live Orders           | http://localhost:3000/orders/live | Staff+  |
+
+### Admin Dashboard
+
+| Page                 | URL                                    | Role     |
+| -------------------- | -------------------------------------- | -------- |
+| Overview (Floor Map) | http://localhost:3000/admin/overview   | Manager+ |
+| Products             | http://localhost:3000/admin/products   | Manager+ |
+| Categories           | http://localhost:3000/admin/categories | Manager+ |
+| Toppings             | http://localhost:3000/admin/toppings   | Manager+ |
+| Combos               | http://localhost:3000/admin/combos     | Manager+ |
+| Staff Management     | http://localhost:3000/admin/staff      | Admin    |
+| Marketing (QR Codes) | http://localhost:3000/admin/marketing  | Manager+ |
+| Summary / Reports    | http://localhost:3000/admin/summary    | Manager+ |
+
+---
+
+## Table QR Links
+
+### Current QR Links (localhost)
+
+| Table | URL                                                                                          |
+| ----- | -------------------------------------------------------------------------------------------- |
+| Bàn 1 | http://localhost:3000/table/c914cac8a66cf2f8d5d8682830512bf43d9e85b1480bc12a243712e52c0be1d7 |
+| Bàn 2 | http://localhost:3000/table/1fce680084d98d6cabd1368306636c34aa2ce10640378350444f6475db4caeb9 |
+| Bàn 3 | http://localhost:3000/table/b46af37334844f107731c3a0d6dcc6ee2bfaf31f7ff52d88bf0aa9af2ac0673d |
+| Bàn 4 | http://localhost:3000/table/313e0fde49f8a752453472067747ffc53d28d24b64e51e52dc59d9274254684b |
+| Bàn 5 | http://localhost:3000/table/abf43a07fdf0a099732809f5b8cc35733eda933ffe1a20e4707931a3091ba4aa |
+
+````bash
 
 ---
 
@@ -14,7 +83,7 @@ docker compose build --no-cache fe && docker compose up -d fe
 
 docker compose stop fe
 
-```
+````
 
 ---
 
@@ -70,18 +139,6 @@ cd fe && npm run dev
 ```
 
 </details>
-
-### Stop BE / FE (local dev)
-
-```bash
-# Start whole system
-./dev.sh
-# Stop BE
-pkill -f "go run ./cmd/server"
-
-# Stop FE
-pkill -f "next dev"
-```
 
 ---
 
@@ -171,25 +228,15 @@ Truncates all tables in FK-safe order. Re-run `seed.sql` → `seed_real_menu.sql
 
 ---
 
-## Table QR Links
-
-### Current QR Links (localhost)
-
-| Table | URL                                                                                          |
-| ----- | -------------------------------------------------------------------------------------------- |
-| Bàn 1 | http://localhost:3000/table/c914cac8a66cf2f8d5d8682830512bf43d9e85b1480bc12a243712e52c0be1d7 |
-| Bàn 2 | http://localhost:3000/table/1fce680084d98d6cabd1368306636c34aa2ce10640378350444f6475db4caeb9 |
-| Bàn 3 | http://localhost:3000/table/b46af37334844f107731c3a0d6dcc6ee2bfaf31f7ff52d88bf0aa9af2ac0673d |
-| Bàn 4 | http://localhost:3000/table/313e0fde49f8a752453472067747ffc53d28d24b64e51e52dc59d9274254684b |
-| Bàn 5 | http://localhost:3000/table/abf43a07fdf0a099732809f5b8cc35733eda933ffe1a20e4707931a3091ba4aa |
-
-```bash
 # Reprint all QR URLs from the DB (e.g. after recreating tables)
+
 go run ./be/cmd/qr/main.go
 
 # On mobile — replace localhost with your LAN IP
+
 FE_HOST=http://192.168.1.x:3000 go run ./be/cmd/qr/main.go
-```
+
+````
 
 ---
 
@@ -206,7 +253,7 @@ go run ./be/cmd/demo_order/main.go --table "Bàn 2"
 
 # Specific table + number of items
 go run ./be/cmd/demo_order/main.go --table "Bàn 3" --items 4
-```
+````
 
 > Fails with `TABLE_HAS_ACTIVE_ORDER` if the table already has an active order — pick a free table or cancel/deliver the existing one first.
 
@@ -221,49 +268,6 @@ go run ./be/cmd/demo_order/main.go --table "Bàn 3" --items 4
 | Thu Ngân (cashier)    | `cashier` | `Admin@123` |
 | Đầu Bếp (chef)        | `chef`    | `Admin@123` |
 | Nhân Viên (staff)     | `staff`   | `Admin@123` |
-
----
-
-## Staff & Admin Links (localhost:3000)
-
-### Auth
-
-| Page  | URL                         |
-| ----- | --------------------------- |
-| Login | http://localhost:3000/login |
-
-### Auto-Login Links (Dev Only)
-
-> Open any link → auto-logs in and redirects (admin/manager → `/admin`, cashier → `/pos`, chef → `/kds`)
-
-| Role    | Link                                         |
-| ------- | -------------------------------------------- |
-| Admin   | http://localhost:3000/dev-login?role=admin   |
-| Manager | http://localhost:3000/dev-login?role=manager |
-| Cashier | http://localhost:3000/dev-login?role=cashier |
-| Chef    | http://localhost:3000/dev-login?role=chef    |
-| Staff   | http://localhost:3000/dev-login?role=staff   |
-
-### Kitchen & Floor
-
-| Page                  | URL                               | Role    |
-| --------------------- | --------------------------------- | ------- |
-| KDS (Kitchen Display) | http://localhost:3000/kds         | Chef    |
-| POS (Point of Sale)   | http://localhost:3000/pos         | Cashier |
-| Live Orders           | http://localhost:3000/orders/live | Staff+  |
-
-### Admin Dashboard
-
-| Page                 | URL                                    | Role     |
-| -------------------- | -------------------------------------- | -------- |
-| Overview (Floor Map) | http://localhost:3000/admin/overview   | Manager+ |
-| Products             | http://localhost:3000/admin/products   | Manager+ |
-| Categories           | http://localhost:3000/admin/categories | Manager+ |
-| Toppings             | http://localhost:3000/admin/toppings   | Manager+ |
-| Combos               | http://localhost:3000/admin/combos     | Manager+ |
-| Staff Management     | http://localhost:3000/admin/staff      | Admin    |
-| Marketing (QR Codes) | http://localhost:3000/admin/marketing  | Manager+ |
-| Summary / Reports    | http://localhost:3000/admin/summary    | Manager+ |
 
 ---
 

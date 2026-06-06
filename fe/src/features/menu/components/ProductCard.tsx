@@ -93,15 +93,12 @@ export function ProductCard({ product }: Props) {
 
       {/* Content */}
       <div className="flex-1 min-w-0 flex flex-col gap-1">
-        {/* Name + price */}
-        <div className="flex items-start justify-between gap-2">
-          <Link href={`/menu/product/${product.id}`} className="flex-1">
-            <p className="text-foreground text-sm font-semibold leading-snug line-clamp-2">
-              {product.name}
-            </p>
-          </Link>
-          <p className="text-primary font-bold text-sm flex-shrink-0">{formatVND(product.price)}</p>
-        </div>
+        {/* Name */}
+        <Link href={`/menu/product/${product.id}`}>
+          <p className="text-foreground text-sm font-semibold leading-snug line-clamp-2">
+            {product.name}
+          </p>
+        </Link>
 
         {/* Description */}
         {product.description && (
@@ -113,11 +110,49 @@ export function ProductCard({ product }: Props) {
           <p className="text-muted-fg text-xs">Có thể chọn topping</p>
         )}
 
-        {/* Filling selector */}
-        <div className="flex items-center gap-1.5 mt-1">
+        {/* Chi tiết */}
+        <div className="mt-auto pt-1">
+          <Link
+            href={`/menu/product/${product.id}`}
+            className="text-xs text-primary underline underline-offset-2"
+          >
+            Chi tiết
+          </Link>
+        </div>
+      </div>
+
+      {/* Right column — equal-width stack: price · qty control · filling toggle */}
+      <div className="flex-shrink-0 w-28 flex flex-col items-stretch gap-2.5">
+        {/* Price — top, full width */}
+        <p className="text-primary font-bold text-sm text-center">{formatVND(product.price)}</p>
+
+        {/* Qty control — centered, spans full width */}
+        <div className="flex-1 flex items-center justify-between">
+          <button
+            onClick={() => updateQty(noToppingCartId, noToppingQty - 1)}
+            disabled={noToppingQty === 0}
+            className="bg-muted text-foreground w-8 h-8 rounded-full flex items-center justify-center
+                       hover:bg-muted/80 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Minus size={14} />
+          </button>
+          <span className="text-foreground text-sm font-bold text-center">{noToppingQty}</span>
+          <button
+            onClick={handleDirectAdd}
+            disabled={!product.is_available}
+            aria-label="Thêm vào giỏ hàng"
+            className="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center
+                       hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Plus size={14} />
+          </button>
+        </div>
+
+        {/* Filling selector — full-width pills stacked vertically */}
+        <div className="flex flex-col gap-1.5">
           <button
             onClick={() => setFilling('thit')}
-            className={`text-[11px] px-2.5 py-0.5 rounded-full border transition-colors ${
+            className={`w-full text-center text-[11px] px-2 py-1 rounded-full border transition-colors ${
               filling === 'thit'
                 ? 'bg-primary text-white border-primary running-border'
                 : 'border-border text-muted-fg hover:border-primary/50'
@@ -127,7 +162,7 @@ export function ProductCard({ product }: Props) {
           </button>
           <button
             onClick={() => setFilling('moc_nhi')}
-            className={`text-[11px] px-2.5 py-0.5 rounded-full border transition-colors ${
+            className={`w-full text-center text-[11px] px-2 py-1 rounded-full border transition-colors ${
               filling === 'moc_nhi'
                 ? 'bg-primary text-white border-primary running-border'
                 : 'border-border text-muted-fg hover:border-primary/50'
@@ -135,54 +170,6 @@ export function ProductCard({ product }: Props) {
           >
             Nhân mộc nhĩ
           </button>
-        </div>
-
-        {/* Chi tiết + qty / add control */}
-        <div className="flex items-center justify-between mt-auto pt-1">
-          <Link
-            href={`/menu/product/${product.id}`}
-            className="text-xs text-primary underline underline-offset-2"
-          >
-            Chi tiết
-          </Link>
-
-          {hasToppings ? (
-            <button
-              onClick={() => setModalOpen(true)}
-              disabled={!product.is_available}
-              aria-label="Thêm vào giỏ hàng"
-              className="bg-primary text-white w-7 h-7 rounded-full flex items-center justify-center
-                         hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Plus size={14} />
-            </button>
-          ) : noToppingQty === 0 ? (
-            <button
-              onClick={handleDirectAdd}
-              disabled={!product.is_available}
-              aria-label="Thêm vào giỏ hàng"
-              className="bg-primary text-white w-7 h-7 rounded-full flex items-center justify-center
-                         hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Plus size={14} />
-            </button>
-          ) : (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => updateQty(noToppingCartId, noToppingQty - 1)}
-                className="bg-muted text-foreground w-7 h-7 rounded-full flex items-center justify-center hover:bg-muted/80 transition-colors"
-              >
-                <Minus size={14} />
-              </button>
-              <span className="text-foreground text-sm font-bold w-4 text-center">{noToppingQty}</span>
-              <button
-                onClick={handleDirectAdd}
-                className="bg-primary text-white w-7 h-7 rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors"
-              >
-                <Plus size={14} />
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
