@@ -30,7 +30,7 @@ Your mindset:
 1. Read `CLAUDE.md` → understand role, current status, and next work
 2. Read `docs/tasks/CURRENT_TASK.md` → check if there is an active task in progress
 3. If no active task → read `docs/tasks/MASTER_TASK.md` → find next ⬜ task where all Deps are ✅
-4. Read the relevant spec/guide for that domain
+4. Read the relevant spec/guide for that domain — **if the task touches BE, read `docs/be/BE_DOC_INDEX.md` first**, then the code summary it points to; open Go source only when you need exact line numbers
 5. Follow the 7-step workflow below
 
 ---

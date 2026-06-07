@@ -25,9 +25,9 @@
 
 | # | Page | Command | Status | Last Run | Concerns / Notes |
 |---|------|---------|--------|----------|-----------------|
-| C1 | Menu | `/status-routing-reference client_menu_page` | N/A | — | No entity status routing (catalog only) |
+| C1 | Menu | `/status-routing-reference client_menu_page` | N/A | 2026-06-07 | No entity status routing (catalog only). Concerns: (1) banner.jpg 404; (2) Canh price 0₫; (3) 🚨 toppings unselectable from menu list (`ProductCard hasToppings=false`); (4) 🚨 toppings never shown in "Tóm tắt đơn hàng" (OrderSummary ignores `item.toppings`) — active, seed gives every bánh nhân toppings; (5) ⚠️ menu card uses `filling` field but DB models nhân/rau as toppings → 2 add paths disagree. |
 | C2 | Product Detail | `/status-routing-reference client_product_detail` | N/A | — | No entity status routing |
-| C3 | Order | `/status-routing-reference client_order_page` | ⚠️ | 2026-06-05 | Done, all cells traced. ⚠️ `paid` treated as active (isActive excludes only delivered/cancelled) → stepper/cancel/Thêm món still show on paid. ⚠️ pending can't whole-order cancel (canCancelOrder = confirmed/preparing only). Both flagged for BE confirm. |
+| C3 | Order | `/status-routing-reference client_order_page` | ⚠️ | 2026-06-07 | Refreshed to new skill shape (Live Snapshot + FROM/TO/CROSS-PAGE headings). All code cells traced. Live snapshot NOT captured (Playwright profile locked + needs auth'd real order). ⚠️ `paid` treated as active. ⚠️ pending can't whole-order cancel. ⚠️ dead SSE branches `order_init`/`order_completed` never emitted by BE. Fixed: FE OrderItem has `flagged`, not `item_status`. |
 | C4 | Monitoring / Servicing Table | `/status-routing-reference client_monitoring_servicing_table` | ⬜ | — | SSE-gated zones by order status |
 | C5 | Favourites | `/status-routing-reference client_favourite_page` | N/A | — | No entity status routing |
 | C6 | Info | `/status-routing-reference client_info_page` | N/A | — | No entity status routing |
@@ -76,6 +76,9 @@
 |------|------|---------|------------------------|
 | 2026-06-05 | admin_main/admin_overview | ✅ | Seeded as the model reference (pre-existing file renamed from table_status.md → Admin_Overview_Status_Routing_Reference.md). All zones, statuses, buttons, and per-zone rules captured. |
 | 2026-06-05 | client_order_page | ⚠️ | Tracking page `order/[id]`. Reframed matrix: single order, status gates buttons/banners/modals (not zone routing). Found 2 BE inconsistencies: `paid` is active (X4), `pending` can't whole-order cancel. Notification modal = SSE-transition-driven, separate from stored status. |
+| 2026-06-07 | client_menu_page | N/A | Confirmed N/A (catalog + cart, no entity-status read). Wrote `Menu_Status_Routing_Reference.md` reframed as a data-flow reference (zones · 4 GET queries · single POST /orders write · cross-page stores · OrderSummary rules) instead of a status matrix. 2 concerns logged: banner.jpg 404, Canh price 0₫. |
+| 2026-06-07 | client_order_page | ⚠️ | Refresh to new skill structure. Added Live Page Snapshot (couldn't capture — browser profile locked + page needs auth'd real order id; documented why). Restructured Data Management into the 3 canonical headings (FROM BE reads / TO BE writes / CROSS-PAGE) + DishRow preview-math breakdown. Code re-verified against current `[id]/page.tsx` + `useOrderSSE.ts`. Accuracy fix: FE `OrderItem` carries `flagged`, not `item_status` (old §1 was wrong). 3 standing flags unchanged (paid-active, pending no whole-cancel, dead `order_init`/`order_completed` SSE branches). |
+| 2026-06-07 | client_menu_page | N/A | Topping audit (selection → cart → "Tóm tắt đơn hàng"). Verdict: filling + combo items + canh/rau correct; toppings WRONG. Seed confirms nhân thịt/mộc nhĩ + rau mùi tàu are DB toppings on every bánh → gap is active. 3 concerns added (3/4/5): menu list can't pick toppings (hasToppings=false), OrderSummary never renders item.toppings, menu-card `filling` vs detail-page topping = 2 disagreeing add paths. Logic fix proposed, awaiting owner align (MASTER row + confirm before coding). |
 
 ---
 

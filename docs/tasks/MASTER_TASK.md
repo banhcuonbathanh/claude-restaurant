@@ -39,6 +39,7 @@
 | P-MON — Client Order Monitoring Page | BE+FE | ✅ COMPLETE | 0 | — |
 | P-FIX-CANH — Stale canh count in cart | FE | ✅ COMPLETE | 0 | — |
 | P-PREP-3COL — WaitingSection prep list → 3 columns (Title · Topping · Quantity) | FE | ✅ COMPLETE | 0 | — |
+| **TOP — Topping Unification (nhân/rau = topping, drop `filling`)** | BE+FE | 🔄 IN PROGRESS | 5 | TOP-1 |
 
 ---
 
@@ -88,6 +89,26 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 | OC-2 | BE | Order-create contract honors filling + custom combo contents. Added `filling` + `combo_items` overrides to order DTO + `CreateOrderItemInput` (both `POST /orders` and `POST /orders/:id/items`); `expandCombo` honors overrides (validate product ∈ combo, server-side prices, qty×comboQty, note, filling) with canonical fallback; `buildProductRow` sets filling; exposed `filling`+`note`+combo fields in `orderJSON` & overview `buildItemsJSON`. **Also fixed pre-existing combo double-count**: header `unit_price` now 0 (was bundle price) → `total_amount` no longer counts combo twice. `API_CONTRACT_v1.2.md` updated (openapi has no /orders paths — pre-existing gap, flagged). | OC-1 | 1 | ✅ | Live smoke test: filling persists, overrides honored, total 72k→42k (double-count fixed); 2 new unit tests green; full BE suite green |
 | OC-3 | FE | Checkout payload sends filling + expanded combo contents + unified canh split. Created single `lib/order-payload.ts` builder; wired all 3 cart-driven paths (menu table-confirm, `/checkout`, CartDrawer add-to-order). Threaded `product_id` into cart `combo_items` (type + ComboCard + combo detail); added filling to ProductCard topping path. POS/TableGrid left as-is (staff UI, no combo/filling/canh selection). | OC-2 | 1 | ✅ | 5 builder unit tests green; FE typecheck clean (pre-existing AuthState test errors unrelated); BE accepts shape (OC-2 live smoke). **Note:** favourites quick-add combos carry no `combo_items` → BE canonical path (incl. their canh ×1) — flagged, secondary path |
 | OC-4 | FE | Read views show filling + cross-page consistency. Added `filling` to `OrderItem` type + `fillingLabel()`; `toppingLabel` (admin WaitingSection + PrepPanel) now reads real `filling`+`note` instead of deriving from toppings; `order/[id]` DishRow shows filling badge; KDS shows nhân/rau variant. | OC-3 | 1 | ✅ | Live GET verified `filling` flows through read JSON ('thit'/'moc_nhi'); total 20k (no double-count); FE typecheck clean; admin/order/KDS render filling |
+
+---
+
+## Phase TOP — Topping Unification
+
+> **Owner:** BE + FE
+> **Dependency:** OC ✅ (this epic **reverses** the OC `filling` design)
+> **Status:** 🔄 IN PROGRESS
+> **Added:** 2026-06-07
+> **Problem:** `nhân` (Thịt/Mộc nhĩ) and canh `rau` are modeled **twice** — the DB seed (`scripts/seed_real_menu.sql`) defines them as **toppings** (`bbbbbbbb-…0001/0002/0003`, price 0, linked via `product_toppings`), but the FE menu cards use a bespoke `filling` field + `drinkConfig` veg/noveg note. Result: (1) toppings unselectable from the menu list (`ProductCard hasToppings=false`); (2) toppings never rendered in "Tóm tắt đơn hàng" (`OrderSummary` ignores `item.toppings`); (3) the menu card and product detail page record nhân two different ways (filling vs topping) → divergent cart lines.
+> **Decision (owner, 2026-06-07):** Toppings become the single model. Drop the `filling` field/column; nhân = a **required single-select** topping group; canh rau = the "Rau mùi tàu" topping. Enable the topping picker on menu cards.
+> **Order:** TOP-1 → TOP-2 → TOP-3 → TOP-4 → TOP-5 (strict; BE contract first)
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| TOP-1 | BE | Migration to backfill `order_items.filling` → topping snapshot then drop `filling` col + `chk_oi_filling`; order-create contract accepts nhân via `topping_ids` (remove `filling` from DTO/`CreateOrderItemInput`/`buildProductRow`/`expandCombo`/`orderJSON`/overview JSON); update `query/orders.sql` + `sqlc generate`. Files: `be/migrations/`, `be/query/orders.sql`, `order_service.go`, `group_service.go`, `order_handler.go`, `order_service_test.go`, regenerated `db/*.go`. | OC ✅ | 1 | ⬜ | `sqlc generate` + `go build ./...` clean; BE suite green; new order stores nhân as topping snapshot; existing orders still read |
+| TOP-2 | FE | Drop `filling` from `CartItem` (`types/cart.ts`) + `types/order.ts`; `order-payload.ts` emits nhân as `topping_ids` only; fix `order-payload.test.ts`. | TOP-1 | 1 | ⬜ | Cart→payload carries nhân topping id; builder tests green; FE typecheck clean |
+| TOP-3 | FE | ProductCard: `+` opens `ToppingModal` with nhân as **required single-select** group; ComboCard: nhân as combo topping override; remove filling pill buttons from both. | TOP-2 | 1 | ⬜ | Selecting nhân on a card adds correct topping id; can't add with 0/2 nhân |
+| TOP-4 | FE | `OrderSummary` renders toppings (drop filling badge + `name\|filling` aggregation key → `name\|toppingIds`); read views `order/[id]` DishRow, `kds/page.tsx`, `PrepPanel.tsx`, `overview.helpers.ts` show toppings. | TOP-3 | 1 | ⬜ | "Tóm tắt đơn hàng" + KDS/admin show selected toppings faithfully |
+| TOP-5 | FE | Canh `rau`: replace `drinkConfig` veg/noveg **note** with "Rau mùi tàu" **topping** on canh rows (`OrderSummary` canh block + `order-payload.ts`). | TOP-4 | 1 | ⬜ | Canh "có rau" = canh + Rau topping id, not a note string |
 
 ---
 
