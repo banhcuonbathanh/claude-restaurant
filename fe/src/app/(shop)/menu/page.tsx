@@ -1,24 +1,25 @@
 'use client'
 import { useMemo, useState, useEffect, useRef, Suspense } from 'react'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { PlusCircle } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { useFavouritesStore } from '@/store/favourites'
 import { api } from '@/lib/api-client'
 import { useCartStore } from '@/store/cart'
 import { CategoryTabs } from '@/features/menu/components/CategoryTabs'
-import { ProductCard } from '@/features/menu/components/ProductCard'
-import { ProductGridCard } from '@/features/menu/components/ProductGridCard'
-import { ComboCard } from '@/features/menu/components/ComboCard'
+import { ComboSection } from '@/features/menu/components/ComboSection'
+import { ProductList } from '@/features/menu/components/ProductList'
 import { CartDrawer } from '@/features/menu/components/CartDrawer'
 import { MenuHeader } from '@/features/menu/components/MenuHeader'
 import { MiniCartStrip } from '@/features/menu/components/MiniCartStrip'
 import { CartBottomBar } from '@/features/menu/components/CartBottomBar'
 import { SearchBar } from '@/features/menu/components/SearchBar'
+import { RestaurantBanner } from '@/features/menu/components/RestaurantBanner'
+import { AddToOrderBanner } from '@/features/menu/components/AddToOrderBanner'
 import { FavouritesRail } from '@/features/menu/components/FavouritesRail'
 import { OrderSummary } from '@/features/menu/components/OrderSummary'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { Button } from '@/components/ui/button'
 import { formatVND } from '@/lib/utils'
 import { buildOrderItemsPayload } from '@/lib/order-payload'
 import type { Product, Combo, ComboRaw, Category } from '@/types/product'
@@ -217,38 +218,13 @@ function MenuContent() {
       <MiniCartStrip onClick={() => setCartOpen(true)} />
 
       {/* Restaurant banner */}
-      <div className="relative w-full h-44 overflow-hidden">
-        <img
-          src="/restaurant-banner.jpg"
-          alt="Quán Bánh Cuốn"
-          className="w-full h-full object-cover"
-          onError={e => {
-            const img = e.currentTarget
-            img.style.display = 'none'
-            img.parentElement!.classList.add('bg-gradient-to-br', 'from-primary/30', 'to-background')
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-background/70 to-transparent" />
-        <div className="absolute bottom-3 left-4">
-          <p className="text-white/90 text-sm font-medium drop-shadow">Bánh cuốn tươi — ngon mỗi ngày</p>
-        </div>
-      </div>
+      <RestaurantBanner />
 
       {/* Add-to-order mode banner */}
-      {addToOrderId && (
-        <div className="mx-4 mt-3 flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-xl px-4 py-2.5">
-          <PlusCircle size={16} className="text-primary shrink-0" />
-          <p className="text-sm text-primary font-medium flex-1">
-            Chọn món để thêm vào đơn hàng hiện tại
-          </p>
-          <button
-            onClick={() => router.push(`/order/${addToOrderId}`)}
-            className="text-xs text-primary underline underline-offset-2 shrink-0"
-          >
-            Xem đơn
-          </button>
-        </div>
-      )}
+      <AddToOrderBanner
+        orderId={addToOrderId}
+        onViewOrder={() => router.push(`/order/${addToOrderId}`)}
+      />
 
       {/* Zone B — SearchBar */}
       <SearchBar onSearch={setSearchQuery} />
@@ -270,12 +246,9 @@ function MenuContent() {
         {isError ? (
           <div className="flex flex-col items-center justify-center py-16 gap-4">
             <p className="text-muted-fg text-sm">⚠ Kết nối mạng yếu</p>
-            <button
-              onClick={() => refetch()}
-              className="bg-primary text-white px-6 py-2.5 rounded-xl text-sm font-medium min-h-[44px]"
-            >
+            <Button onClick={() => refetch()} size="lg" className="min-h-[44px]">
               Thử lại
-            </button>
+            </Button>
           </div>
         ) : loadingProducts ? (
           <>
@@ -300,41 +273,10 @@ function MenuContent() {
         ) : (
           <div className="flex flex-col gap-3">
             {/* Zone E — ComboSection */}
-            {showCombos && (
-              <section>
-                <h2 className="text-muted-fg font-semibold mb-2 text-sm uppercase tracking-wide">
-                  Combo
-                </h2>
-                <div className="flex flex-col gap-3">
-                  {combos.map(combo => (
-                    <ComboCard key={combo.id} combo={combo} />
-                  ))}
-                </div>
-              </section>
-            )}
+            <ComboSection combos={combos} visible={selectedCategory === null} />
 
             {/* Zone F — ProductList */}
-            {products.length > 0 && (
-              <section>
-                {showCombos && (
-                  <h2 className="text-muted-fg font-semibold mb-2 mt-2 text-sm uppercase tracking-wide">
-                    Món lẻ
-                  </h2>
-                )}
-                {/* Mobile: 1-col list */}
-                <div className="flex flex-col gap-3 sm:hidden">
-                  {products.map(product => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
-                </div>
-                {/* Tablet / Desktop: responsive grid (2 → 3 → 4 cols) */}
-                <div className="hidden sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                  {products.map(product => (
-                    <ProductGridCard key={product.id} product={product} />
-                  ))}
-                </div>
-              </section>
-            )}
+            <ProductList products={products} withComboHeading={showCombos} />
           </div>
         )}
 

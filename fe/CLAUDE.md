@@ -3,6 +3,11 @@
 > Tầng 1 — FE map only. KHÔNG chứa: business rules, hex colors, token values.
 > Full FE dev guide → `docs/claude/CLAUDE_FE.md`
 
+> **MANDATORY before touching `fe/src/**`:** the `frontend-nextjs` skill is the modular rule router
+> (`.claude/skills/frontend-nextjs/SKILL.md`). Read its index, then read the rule file matching the work:
+> `rules/01-structure` · `02-design` · `03-data-and-state` · `04-rendering-and-loading` · `05-forms-auth-realtime`.
+> Each rule pairs with a living registry in `docs/fe/wireframes/shared/_INDEX_*.md`.
+
 ---
 
 ## Đọc Trước Khi Code (Tầng 2)

@@ -1,66 +1,48 @@
 ---
-description: Apply whenever writing or reviewing Next.js frontend code — components, pages, hooks, stores, or API calls. Encodes the non-obvious rules and patterns for this project's Next.js 14 App Router + TypeScript + Tailwind stack.
+description: Apply whenever writing or reviewing Next.js frontend code — components, pages, hooks, stores, API calls, or styling. Modular rule router for this project's Next.js 14 App Router + TypeScript + Tailwind stack. ALWAYS read this index first, then read the rule file matching the work.
 ---
 
-# Frontend Next.js Skill — BanhCuon Project
+# Frontend Rules — BanhCuon Project (Router)
 
-## State ownership (strict — wrong choice causes bugs)
+> **How to use this skill — no exceptions.**
+> 1. You are touching FE code (`fe/src/**`). This index is already loaded — read it.
+> 2. Find the row(s) below matching the work you are about to do.
+> 3. **READ the listed rule file with the Read tool BEFORE writing code** for that concern.
+> 4. A task often spans concerns (e.g. a new page = structure + design + data + loading). Read every matching rule file.
+> 5. Follow the rule completely. If a rule conflicts with the code you see, STOP and flag it — do not silently diverge.
 
-| Data type | Correct home | Wrong alternative |
+---
+
+## Rule map — task → file to read
+
+| When you are… | Read this rule | Pairs with shared index |
 |---|---|---|
-| Products, orders (server data) | TanStack Query `useQuery` | `useState` + `useEffect` + `fetch` |
-| Auth token, cart (client state) | Zustand store | `localStorage` · React Context |
-| Form data | React Hook Form + Zod | `useState` per field |
-| API calls | `api-client.ts` only | raw `fetch` · direct `axios.get()` |
-| Page auth guard | `AuthGuard` wrapping page | manual redirect in each page |
-| Color values | Tailwind token names | hardcoded hex |
-| Price display | `formatVND()` from `lib/utils.ts` | `.toLocaleString()` |
-| localStorage keys | `src/lib/storage-keys.ts` ONLY | hardcoded strings anywhere |
+| Creating/splitting a page · extracting zones into components · deciding folder/file placement · naming | [rules/01-structure.md](rules/01-structure.md) | `docs/fe/wireframes/shared/_INDEX_SHARING_COMPONENT.md` |
+| Styling · colors · typography · buttons/badges/inputs · spacing · mobile/touch targets · visual layout | [rules/02-design.md](rules/02-design.md) | `docs/fe/wireframes/shared/_INDEX_SHARING_COMPONENT.md` (Tier 1) |
+| Fetching server data · adding a query/store · managing state in one page · sharing state across pages · building order payloads | [rules/03-data-and-state.md](rules/03-data-and-state.md) | `docs/fe/wireframes/shared/_INDEX_STATE_MANAGEMENT.md` |
+| Choosing how a page renders (SSR/ISR/client) · loading skeletons · error / empty states · realtime hydration | [rules/04-rendering-and-loading.md](rules/04-rendering-and-loading.md) | `docs/fe/wireframes/shared/_INDEX_RENDERING_STRATEGY.md` |
+| Building forms · auth/token handling · API error mapping · SSE/WebSocket | [rules/05-forms-auth-realtime.md](rules/05-forms-auth-realtime.md) | `docs/core/MASTER_v1.2.md §5 · §6` |
+
+The four `docs/fe/wireframes/shared/_INDEX_*.md` files are the **living registries** — query keys, stores, shared components, and rendering strategy per page. The rule files tell you *how* to work; the indexes tell you *what already exists*. **Check the index before creating; update the index the moment you create.**
 
 ---
 
-## Folder conventions (enforce on every new page)
+## Always-on invariants (true for every FE change)
 
-- Shared query hooks → `src/hooks/` (NOT inside page folders)
-- Stores → `src/store/` (top-level, NOT inside page folders)
-- Shared components → `src/components/shared/`
-- Atoms/primitives → `src/components/ui/`
-- All localStorage keys → `src/lib/storage-keys.ts` ONLY
+These are non-negotiable regardless of which rule file applies:
+
+- **IDs are `string` (UUID), never `number`** — everywhere.
+- **No hardcoded hex** — only Tailwind token classes (`bg-primary`, `text-muted-fg`, …). → rule 02.
+- **No hardcoded localStorage keys** — import from `src/lib/storage-keys.ts` only.
+- **No raw `fetch`/`axios`** — go through `src/lib/api-client.ts`.
+- **No `.toLocaleString()` for money** — use `formatVND()` from `src/lib/utils.ts`.
+- **Server data → TanStack Query · client state → Zustand · forms → RHF+Zod.** Never `useState`+`useEffect`+`fetch` for server data. → rule 03.
+- **Every cart→order payload goes through `src/lib/order-payload.ts`** (`buildOrderItemsPayload`) — never hand-build `items[]` in a page. → rule 03.
+- **New shared thing (component / query key / store / page rendering strategy) → add a row to the matching `_INDEX_*.md` immediately**, not later.
 
 ---
 
-## TypeScript: critical type rules
-
-### All IDs are `string` (UUID), never `number`
-
-```ts
-// ❌ WRONG
-interface Product { id: number }
-// ✅ CORRECT
-interface Product { id: string }  // "550e8400-e29b-41d4-a716-446655440000"
-```
-
-### Role enum
-
-```ts
-// fe/src/types/auth.ts
-export const Role = {
-  CUSTOMER: 1, CHEF: 2, CASHIER: 3, MANAGER: 4, ADMIN: 5,
-} as const
-export type RoleValue = typeof Role[keyof typeof Role]
-```
-
-### item_status — DERIVE from qty_served, never a stored field
-
-```ts
-export function deriveItemStatus(qty_served: number, quantity: number): ItemStatus {
-  if (qty_served === 0) return 'pending'
-  if (qty_served >= quantity) return 'done'
-  return 'preparing'
-}
-```
-
-### Product field names (match BE exactly)
+## Field-name traps (match BE exactly — wrong name = silent bug)
 
 | Wrong | Correct |
 |---|---|
@@ -70,106 +52,4 @@ export function deriveItemStatus(qty_served: number, quantity: number): ItemStat
 | `slug` | — does not exist |
 | `id: number` | `id: string` |
 
-### Image URL construction
-
-```ts
-const imageUrl = product.image_path
-  ? `${process.env.NEXT_PUBLIC_STORAGE_URL}/${product.image_path}`
-  : '/placeholder.jpg'
-```
-
----
-
-## Design tokens (NEVER hardcode hex)
-
-| Token | Tailwind class | Use case |
-|---|---|---|
-| Primary accent | `bg-primary` · `text-primary` | Prices · badges · active states |
-| Page background | `bg-background` | Dark page bg |
-| Card | `bg-card` | Cards · modals |
-| Success | `text-success` | Done status |
-| Warning | `text-warning` | Preparing · KDS 10-20min |
-| Urgent | `text-urgent` | Cancelled · >20min · out of stock |
-| Foreground | `text-foreground` | Main text |
-| Border | `border-border` | Dividers |
-| Muted bg | `bg-muted` | Disabled · secondary areas |
-| Muted text | `text-muted-fg` | Placeholders |
-
-```tsx
-// ❌ WRONG
-<div className="bg-[#FF7A1A] text-[#9CA3AF]" />
-
-// ✅ CORRECT
-<div className="bg-primary text-muted-fg" />
-```
-
-Typography: body = `font-body` (Be Vietnam Pro) · headings = `font-display` (Playfair Display)
-
----
-
-## Auth rules
-
-| Token | TTL | Storage | Never |
-|---|---|---|---|
-| Staff access token | 24h | Zustand memory only | localStorage |
-| Staff refresh token | 30d | httpOnly cookie (BE sets it) | FE never reads |
-| Guest JWT | 2h | Zustand memory only | localStorage |
-
-- `withCredentials: true` on axios — browser auto-sends httpOnly refresh cookie
-- On mount/F5: call `GET /auth/me` — refresh cookie silently restores session
-- Guest exception: if `token.sub === 'guest'` → do NOT call `/auth/refresh` → redirect `/table/:tableId`
-
-**Login → role redirect:**
-
-```ts
-const redirectByRole: Record<string, string> = {
-  chef: '/kds', cashier: '/pos', staff: '/pos',
-  manager: '/dashboard', admin: '/dashboard', customer: '/menu',
-}
-```
-
----
-
-## Error handling (interceptor pattern)
-
-```ts
-switch (error.code) {
-  case 'TOKEN_EXPIRED':
-    // Staff: auto-refresh; Guest (sub='guest'): redirect /table/:tableId
-  case 'MISSING_TOKEN':
-  case 'ACCOUNT_DISABLED':
-  case 'REFRESH_TOKEN_INVALID':
-    clearAuth(); router.push('/login'); break
-  case 'TABLE_HAS_ACTIVE_ORDER':
-    router.push(`/order/${details?.active_order_id}`); break
-  case 'CANCEL_THRESHOLD':
-    toast.error('Không thể huỷ đơn khi đã phục vụ hơn 30% món'); break
-  default:
-    toast.error(message ?? 'Đã xảy ra lỗi')
-}
-```
-
-**INVALID_INPUT → map to RHF fields:**
-
-```ts
-const fields = err.response?.data?.details?.fields ?? []
-fields.forEach(({ field, message }) =>
-  setError(field as keyof FormValues, { message })
-)
-```
-
----
-
-## Realtime reconnect config
-
-```ts
-const RECONNECT = {
-  maxAttempts: 5,
-  baseDelay: 1000,      // ms, doubles each retry
-  maxDelay: 30000,
-  showBannerAfter: 3,   // show ConnectionErrorBanner after 3 fails
-}
-```
-
-- SSE auth: `Authorization: Bearer <token>` header (use `@microsoft/fetch-event-source`)
-- WS auth: `?token=<access_token>` query param (browser WS API cannot set custom headers)
+`item_status` is **derived** from `qty_served` vs `quantity` — never a stored field (see rule 03).
