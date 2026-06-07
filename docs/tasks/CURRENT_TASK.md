@@ -10,6 +10,15 @@
 
 No active task.
 
+**Phase TOP — Topping Unification ✅ COMPLETE (2026-06-07).** All TOP-1→TOP-6 done & gate-green; `filling` removed from BE + FE (only a harmless `globals.css` comment remains). nhân + canh rau are now toppings. See `MASTER_TASK.md` → Phase TOP for per-task detail.
+
+> ⚠️ **Uncommitted:** git was blocked at the harness level this session, so the work is gate-green but **not committed**. A ready-to-run per-task commit script was handed to the owner. Commit before starting new work.
+
+---
+
+### Previously closed (kept for reference)
+No active task.
+
 **P-WIRE-ORDER-4 ✅ COMPLETE (2026-05-31):**
 - All files were already filled from a previous session but never marked ✅
 - `conccern.md` (9 open questions) · `recomment/recommend.md` (UX table) · `recomment/recomment_claude.md` (AI brief) · `_INDEX_SHARING_COMPONENT.md` row added

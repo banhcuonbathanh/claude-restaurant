@@ -4,27 +4,37 @@ import type { Product, Topping } from '@/types/product'
 import { formatVND } from '@/lib/utils'
 
 interface Props {
-  product:   Product
-  open:      boolean
-  onClose:   () => void
-  onConfirm: (selected: Topping[]) => void
+  product:       Product
+  open:          boolean
+  onClose:       () => void
+  onConfirm:     (selected: Topping[]) => void
+  requireSingle?: boolean
 }
 
-export function ToppingModal({ product, open, onClose, onConfirm }: Props) {
+export function ToppingModal({ product, open, onClose, onConfirm, requireSingle = false }: Props) {
   const [selected, setSelected] = useState<Set<string>>(new Set())
 
   if (!open) return null
 
-  const toggle = (id: string) =>
-    setSelected((prev) => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
+  const toggle = (id: string) => {
+    if (requireSingle) {
+      // Radio behaviour: selecting replaces the current selection
+      setSelected(new Set([id]))
+    } else {
+      setSelected((prev) => {
+        const next = new Set(prev)
+        next.has(id) ? next.delete(id) : next.add(id)
+        return next
+      })
+    }
+  }
 
-  const selectedToppings = product.toppings.filter(t => selected.has(t.id))
-  const toppingTotal = selectedToppings.reduce((s, t) => s + t.price, 0)
-  const total = product.price + toppingTotal
+  const availableToppings = product.toppings.filter(t => t.is_available)
+  const selectedToppings  = availableToppings.filter(t => selected.has(t.id))
+  const toppingTotal      = selectedToppings.reduce((s, t) => s + t.price, 0)
+  const total             = product.price + toppingTotal
+
+  const isConfirmDisabled = requireSingle && selected.size !== 1
 
   const handleConfirm = () => {
     onConfirm(selectedToppings)
@@ -38,17 +48,20 @@ export function ToppingModal({ product, open, onClose, onConfirm }: Props) {
         <h2 className="font-display text-lg text-foreground font-semibold mb-1">
           {product.name}
         </h2>
-        <p className="text-muted-fg text-sm mb-4">Chọn thêm topping (tuỳ chọn)</p>
+        <p className="text-muted-fg text-sm mb-4">
+          {requireSingle ? 'Chọn nhân (bắt buộc)' : 'Chọn thêm topping (tuỳ chọn)'}
+        </p>
 
         <div className="space-y-2 max-h-56 overflow-y-auto mb-4">
-          {product.toppings.filter(t => t.is_available).map((topping) => (
+          {availableToppings.map((topping) => (
             <label
               key={topping.id}
               className="flex items-center justify-between gap-3 cursor-pointer py-1"
             >
               <div className="flex items-center gap-3">
                 <input
-                  type="checkbox"
+                  type={requireSingle ? 'radio' : 'checkbox'}
+                  name={requireSingle ? 'nhan-select' : undefined}
                   checked={selected.has(topping.id)}
                   onChange={() => toggle(topping.id)}
                   className="w-4 h-4 accent-primary"
@@ -74,7 +87,8 @@ export function ToppingModal({ product, open, onClose, onConfirm }: Props) {
           </button>
           <button
             onClick={handleConfirm}
-            className="flex-1 py-2 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors"
+            disabled={isConfirmDisabled}
+            className="flex-1 py-2 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Thêm vào giỏ
           </button>

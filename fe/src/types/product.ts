@@ -29,6 +29,7 @@ export interface ComboItem {
   product_name: string
   quantity:     number
   unit_price?:  number
+  toppings?:    Topping[]
 }
 
 // Raw shape from the API (/combos endpoint)

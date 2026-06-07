@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"testing"
 	"time"
@@ -276,7 +277,7 @@ func TestCreateOrder_ComboExpand(t *testing.T) {
 }
 
 // TestCreateOrder_ComboOverrides verifies that client-supplied combo contents
-// (quantity, note, filling) replace the canonical template, that prices still
+// (quantity, note, toppings) replace the canonical template, that prices still
 // come from the server template, and that an out-of-combo product is rejected.
 func TestCreateOrder_ComboOverrides(t *testing.T) {
 	const comboID = "combo-uuid-1"
@@ -287,8 +288,15 @@ func TestCreateOrder_ComboOverrides(t *testing.T) {
 			{ProductID: "prod-2", Name: "Canh", UnitPrice: 0, Quantity: 1},
 		},
 	}
+	const nhanThitID = "bbbbbbbb-bbbb-bbbb-bbbb-000000000001"
 	lookup := &mockProductLookup{
 		getComboSnapshotFn: func(_ context.Context, _ string) (ComboSnapshot, error) { return comboSnap, nil },
+		getToppingSnapshotFn: func(_ context.Context, toppingID string) (ToppingSnapshot, error) {
+			if toppingID == nhanThitID {
+				return ToppingSnapshot{ID: nhanThitID, Name: "Nhân thịt", Price: 0}, nil
+			}
+			return ToppingSnapshot{}, ErrNotFound
+		},
 	}
 
 	t.Run("overrides honored", func(t *testing.T) {
@@ -304,7 +312,7 @@ func TestCreateOrder_ComboOverrides(t *testing.T) {
 				ComboID:  comboID,
 				Quantity: 2, // combo qty multiplies sub-item qty
 				ComboItems: []ComboItemOverrideInput{
-					{ProductID: "prod-1", Quantity: 3, Filling: "thit"},
+					{ProductID: "prod-1", Quantity: 3, ToppingIDs: []string{nhanThitID}},
 					{ProductID: "prod-2", Quantity: 1, Note: "Không rau"},
 				},
 			}},
@@ -323,8 +331,18 @@ func TestCreateOrder_ComboOverrides(t *testing.T) {
 		if bc.UnitPrice != "4000" {
 			t.Errorf("bánh cuốn unit_price = %q, want \"4000\" (from template)", bc.UnitPrice)
 		}
-		if bc.Filling.String != "thit" || !bc.Filling.Valid {
-			t.Errorf("bánh cuốn filling = %+v, want thit", bc.Filling)
+		var bcToppings []toppingSnapshotEntry
+		if err := json.Unmarshal(bc.ToppingsSnapshot, &bcToppings); err != nil {
+			t.Fatalf("bánh cuốn toppings_snapshot unmarshal: %v", err)
+		}
+		foundNhan := false
+		for _, tp := range bcToppings {
+			if tp.ID == nhanThitID && tp.Name == "Nhân thịt" {
+				foundNhan = true
+			}
+		}
+		if !foundNhan {
+			t.Errorf("bánh cuốn toppings = %+v, want to contain Nhân thịt (%s)", bcToppings, nhanThitID)
 		}
 		canh := captured.Items[2]
 		if canh.Note.String != "Không rau" {

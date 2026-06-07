@@ -39,7 +39,7 @@
 | P-MON — Client Order Monitoring Page | BE+FE | ✅ COMPLETE | 0 | — |
 | P-FIX-CANH — Stale canh count in cart | FE | ✅ COMPLETE | 0 | — |
 | P-PREP-3COL — WaitingSection prep list → 3 columns (Title · Topping · Quantity) | FE | ✅ COMPLETE | 0 | — |
-| **TOP — Topping Unification (nhân/rau = topping, drop `filling`)** | BE+FE | 🔄 IN PROGRESS | 5 | TOP-1 |
+| **TOP — Topping Unification (nhân/rau = topping, drop `filling`)** | BE+FE | ✅ COMPLETE | 0 | — |
 
 ---
 
@@ -96,7 +96,7 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 > **Owner:** BE + FE
 > **Dependency:** OC ✅ (this epic **reverses** the OC `filling` design)
-> **Status:** 🔄 IN PROGRESS
+> **Status:** ✅ COMPLETE (2026-06-07)
 > **Added:** 2026-06-07
 > **Problem:** `nhân` (Thịt/Mộc nhĩ) and canh `rau` are modeled **twice** — the DB seed (`scripts/seed_real_menu.sql`) defines them as **toppings** (`bbbbbbbb-…0001/0002/0003`, price 0, linked via `product_toppings`), but the FE menu cards use a bespoke `filling` field + `drinkConfig` veg/noveg note. Result: (1) toppings unselectable from the menu list (`ProductCard hasToppings=false`); (2) toppings never rendered in "Tóm tắt đơn hàng" (`OrderSummary` ignores `item.toppings`); (3) the menu card and product detail page record nhân two different ways (filling vs topping) → divergent cart lines.
 > **Decision (owner, 2026-06-07):** Toppings become the single model. Drop the `filling` field/column; nhân = a **required single-select** topping group; canh rau = the "Rau mùi tàu" topping. Enable the topping picker on menu cards.
@@ -104,11 +104,12 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| TOP-1 | BE | Migration to backfill `order_items.filling` → topping snapshot then drop `filling` col + `chk_oi_filling`; order-create contract accepts nhân via `topping_ids` (remove `filling` from DTO/`CreateOrderItemInput`/`buildProductRow`/`expandCombo`/`orderJSON`/overview JSON); update `query/orders.sql` + `sqlc generate`. Files: `be/migrations/`, `be/query/orders.sql`, `order_service.go`, `group_service.go`, `order_handler.go`, `order_service_test.go`, regenerated `db/*.go`. | OC ✅ | 1 | ⬜ | `sqlc generate` + `go build ./...` clean; BE suite green; new order stores nhân as topping snapshot; existing orders still read |
-| TOP-2 | FE | Drop `filling` from `CartItem` (`types/cart.ts`) + `types/order.ts`; `order-payload.ts` emits nhân as `topping_ids` only; fix `order-payload.test.ts`. | TOP-1 | 1 | ⬜ | Cart→payload carries nhân topping id; builder tests green; FE typecheck clean |
-| TOP-3 | FE | ProductCard: `+` opens `ToppingModal` with nhân as **required single-select** group; ComboCard: nhân as combo topping override; remove filling pill buttons from both. | TOP-2 | 1 | ⬜ | Selecting nhân on a card adds correct topping id; can't add with 0/2 nhân |
-| TOP-4 | FE | `OrderSummary` renders toppings (drop filling badge + `name\|filling` aggregation key → `name\|toppingIds`); read views `order/[id]` DishRow, `kds/page.tsx`, `PrepPanel.tsx`, `overview.helpers.ts` show toppings. | TOP-3 | 1 | ⬜ | "Tóm tắt đơn hàng" + KDS/admin show selected toppings faithfully |
-| TOP-5 | FE | Canh `rau`: replace `drinkConfig` veg/noveg **note** with "Rau mùi tàu" **topping** on canh rows (`OrderSummary` canh block + `order-payload.ts`). | TOP-4 | 1 | ⬜ | Canh "có rau" = canh + Rau topping id, not a note string |
+| TOP-1 | BE | Migration to backfill `order_items.filling` → topping snapshot then drop `filling` col + `chk_oi_filling`; order-create contract accepts nhân via `topping_ids` (remove `filling` from DTO/`CreateOrderItemInput`/`buildProductRow`/`expandCombo`/`orderJSON`/overview JSON); update `query/orders.sql` + `sqlc generate`. Files: `be/migrations/`, `be/query/orders.sql`, `order_service.go`, `group_service.go`, `order_handler.go`, `order_service_test.go`, regenerated `db/*.go`. | OC ✅ | 1 | ✅ | `sqlc generate` + `go build ./...` clean; BE suite green; new order stores nhân as topping snapshot; existing orders still read. Migration `017_drop_order_item_filling.sql` (backfill→drop); combo override now uses `topping_ids` (contract for TOP-3) |
+| TOP-2 | FE | Drop `filling` from `CartItem` (`types/cart.ts`) + `types/order.ts`; `order-payload.ts` emits nhân as `topping_ids` only; fix `order-payload.test.ts`. | TOP-1 | 1 | ✅ | `order-payload.ts` emits nhân via `topping_ids` (standalone + combo overrides); 5/5 builder tests green; tsc clean. **Type-field deletion (cart.ts/order.ts) deferred to final cleanup step** (owner decision — TOP-3/4 consumers must keep compiling) |
+| TOP-3 | FE | ProductCard: `+` opens `ToppingModal` with nhân as **required single-select** group; ComboCard: nhân as combo topping override; remove filling pill buttons from both. | TOP-2 | 1 | ✅ | ProductCard `+`→ToppingModal (`requireSingle`, confirm disabled until 1 nhân); ComboCard nhân pills data-driven from sub-item toppings → combo cartItem `toppings`; tsc clean. **Scope +3 files** (ToppingModal single-select mode, `ComboItem.toppings?`, `menu/page.tsx` enrichment passthrough) — orchestrator-approved, data-driven (no hardcoded UUIDs) |
+| TOP-4 | FE | `OrderSummary` renders toppings (drop filling badge + `name\|filling` aggregation key → `name\|toppingIds`); read views `order/[id]` DishRow, `kds/page.tsx`, `PrepPanel.tsx`, `overview.helpers.ts` show toppings. | TOP-3 | 1 | ✅ | OrderSummary dishSummary keyed by `name\|toppingIds` + per-line topping pills; `order/[id]`/kds/overview.helpers read `toppings_snapshot` (filling reads removed, `fillingLabel` imports dropped); PrepPanel comment-only; tsc clean, 107 pass/2 known fail |
+| TOP-5 | FE | Canh `rau`: replace `drinkConfig` veg/noveg **note** with "Rau mùi tàu" **topping** on canh rows (`OrderSummary` canh block + `order-payload.ts`). | TOP-4 | 1 | ✅ | `order-payload` canh rows emit `topping_ids:[rauId]` (có rau) / `[]` (không rau), no note; read views (overview.helpers, kds) detect rau via `toppings_snapshot` w/ legacy-note fallback; **orchestrator fix**: ComboCard now copies sub-item `toppings` into cart `combo_items` (+`ComboItemSummary.toppings?`) so combo-canh rau is captured live; OrderSummary unchanged (drinkConfig correct). tsc clean, 107 pass/2 known fail |
+| TOP-6 | FE | **Final type cleanup** (deferred from TOP-2 per owner): delete `filling` from `types/cart.ts` (`CartItem`) + `types/order.ts` (`OrderItem`) and remove `fillingLabel()`; stale comment in `order/[id]` fixed. | TOP-5 | 0 | ✅ | No `filling` in FE/BE source except a harmless `globals.css` comment (running-border class still used); tsc + tests green |
 
 ---
 

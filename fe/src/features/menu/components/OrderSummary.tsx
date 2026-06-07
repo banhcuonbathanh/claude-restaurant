@@ -65,28 +65,32 @@ export function OrderSummary({ embedded, shakeKey }: { embedded?: boolean; shake
   const isSoupName = (name: string) =>
     name.toLowerCase().includes('canh') || name.toLowerCase().includes('nước dùng')
   const dishSummary = (() => {
-    const map = new Map<string, { name: string; filling?: string; qty: number }>()
+    const map = new Map<string, { name: string; nhan: string; qty: number }>()
     for (const item of items) {
       if (item.type === 'combo' && item.combo_items) {
         for (const ci of item.combo_items) {
           if (isSoupName(ci.product_name)) continue // canh comes from drinkConfig, added below
-          const key = `${ci.product_name}|${item.filling ?? ''}`
+          const toppingKey = item.toppings.map(t => t.id).sort().join(',')
+          const toppingNames = item.toppings.map(t => t.name).join(', ')
+          const key = `${ci.product_name}|${toppingKey}`
           const prev = map.get(key)
-          map.set(key, { name: ci.product_name, filling: item.filling, qty: (prev?.qty ?? 0) + ci.quantity * item.quantity })
+          map.set(key, { name: ci.product_name, nhan: toppingNames, qty: (prev?.qty ?? 0) + ci.quantity * item.quantity })
         }
       } else if (item.type === 'product') {
         if (isSoupName(item.name)) continue // canh comes from drinkConfig, added below
-        const key = `${item.name}|${item.filling ?? ''}`
+        const toppingKey = item.toppings.map(t => t.id).sort().join(',')
+        const toppingNames = item.toppings.map(t => t.name).join(', ')
+        const key = `${item.name}|${toppingKey}`
         const prev = map.get(key)
-        map.set(key, { name: item.name, filling: item.filling, qty: (prev?.qty ?? 0) + item.quantity })
+        map.set(key, { name: item.name, nhan: toppingNames, qty: (prev?.qty ?? 0) + item.quantity })
       }
     }
     const rows = Array.from(map.values()).sort((a, b) => b.qty - a.qty)
     // Canh is driven by the CANH stepper (drinkConfig), split into có rau / không rau —
     // mirrors the checkout payload in menu/page.tsx, not the combo's literal canh qty.
     const nonVegBowls = drinkConfig.bowls - drinkConfig.vegBowls
-    if (drinkConfig.vegBowls > 0) rows.push({ name: 'Canh (có rau)', qty: drinkConfig.vegBowls })
-    if (nonVegBowls > 0)          rows.push({ name: 'Canh (không rau)', qty: nonVegBowls })
+    if (drinkConfig.vegBowls > 0) rows.push({ name: 'Canh (có rau)', nhan: '', qty: drinkConfig.vegBowls })
+    if (nonVegBowls > 0)          rows.push({ name: 'Canh (không rau)', nhan: '', qty: nonVegBowls })
     return rows
   })()
   return (
@@ -210,13 +214,13 @@ export function OrderSummary({ embedded, shakeKey }: { embedded?: boolean; shake
                     <span className="text-[11px] text-muted-fg uppercase tracking-wide w-16 text-right">Đơn giá</span>
                     <span className="text-[11px] text-muted-fg uppercase tracking-wide w-16 text-right">Thành tiền</span>
                   </div>
-                  {dishSummary.map(({ name, filling, qty }) => {
+                  {dishSummary.map(({ name, nhan, qty }) => {
                     const unitPrice = productPriceMap.get(name)
                     return (
-                      <div key={`${name}|${filling ?? ''}`} className="flex items-center py-1 gap-1">
+                      <div key={`${name}|${nhan}`} className="flex items-center py-1 gap-1">
                         <span className="text-xs text-foreground flex-1 pr-1 leading-snug">{name}</span>
                         <span className="text-[11px] text-primary w-16 text-center">
-                          {filling === 'thit' ? 'Thịt' : filling === 'moc_nhi' ? 'Mộc nhĩ' : '—'}
+                          {nhan || '—'}
                         </span>
                         <span className="text-xs font-bold text-primary w-8 text-center">×{qty}</span>
                         <span className="text-[11px] text-muted-fg w-16 text-right">
@@ -314,10 +318,14 @@ function ItemGroup({
               <div className="flex items-center gap-2">
                 <div className="flex-1 min-w-0">
                   <span className="text-foreground text-sm line-clamp-1 leading-snug">{item.name}</span>
-                  {item.filling && (
-                    <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full mt-0.5 inline-block">
-                      {item.filling === 'thit' ? 'Nhân thịt' : 'Nhân mộc nhĩ'}
-                    </span>
+                  {item.toppings.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-0.5">
+                      {item.toppings.map(t => (
+                        <span key={t.id} className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full inline-block">
+                          {t.name}
+                        </span>
+                      ))}
+                    </div>
                   )}
                 </div>
                 <QtyControls

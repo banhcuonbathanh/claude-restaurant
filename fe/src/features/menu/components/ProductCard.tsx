@@ -15,39 +15,21 @@ interface Props {
 
 export function ProductCard({ product }: Props) {
   const [modalOpen, setModalOpen] = useState(false)
-  const [filling, setFilling] = useState<'thit' | 'moc_nhi'>('thit')
   const { items, addItem, updateQty } = useCartStore()
 
   const { toggleFav, isFavourite } = useFavouritesStore()
   const fav = isFavourite(product.id, 'product')
 
-  const hasToppings = false
+  const availableToppings = product.toppings.filter(t => t.is_available)
+  const hasToppings       = availableToppings.length > 0
 
-  // Cart ID includes filling so different fillings are separate entries
-  const noToppingCartId = `product_${product.id}_${filling}`
-  const noToppingItem   = items.find(i => i.id === noToppingCartId)
-  const noToppingQty    = noToppingItem?.quantity ?? 0
+  // Aggregate qty across all variants of this product (different topping combos)
+  const variants  = items.filter(i => i.type === 'product' && i.product_id === product.id)
+  const totalQty  = variants.reduce((s, v) => s + v.quantity, 0)
 
   const imageUrl = product.image_path
     ? `${process.env.NEXT_PUBLIC_STORAGE_URL ?? ''}/${product.image_path}`
     : null
-
-  const handleDirectAdd = () => {
-    if (noToppingQty === 0) {
-      addItem({
-        id:         noToppingCartId,
-        type:       'product',
-        product_id: product.id,
-        name:       product.name,
-        quantity:   1,
-        price:      product.price,
-        toppings:   [],
-        filling,
-      })
-    } else {
-      updateQty(noToppingCartId, noToppingQty + 1)
-    }
-  }
 
   const handleModalConfirm = (selected: Topping[]) => {
     const sortedIds = selected.map(t => t.id).sort().join('-')
@@ -61,9 +43,32 @@ export function ProductCard({ product }: Props) {
       quantity:   1,
       price,
       toppings:   selected,
-      filling,
     })
     setModalOpen(false)
+  }
+
+  const handleDirectAdd = () => {
+    const cartId    = `product_${product.id}_plain`
+    const cartItem  = items.find(i => i.id === cartId)
+    const qty       = cartItem?.quantity ?? 0
+    if (qty === 0) {
+      addItem({
+        id:         cartId,
+        type:       'product',
+        product_id: product.id,
+        name:       product.name,
+        quantity:   1,
+        price:      product.price,
+        toppings:   [],
+      })
+    } else {
+      updateQty(cartId, qty + 1)
+    }
+  }
+
+  const handleMinus = () => {
+    const last = variants[variants.length - 1]
+    if (last) updateQty(last.id, last.quantity - 1)
   }
 
   return (
@@ -105,9 +110,9 @@ export function ProductCard({ product }: Props) {
           <p className="text-muted-fg text-xs line-clamp-2">{product.description}</p>
         )}
 
-        {/* Topping hint — opens modal */}
+        {/* Nhân hint — opens modal */}
         {hasToppings && (
-          <p className="text-muted-fg text-xs">Có thể chọn topping</p>
+          <p className="text-muted-fg text-xs">Chọn nhân khi thêm vào giỏ</p>
         )}
 
         {/* Chi tiết */}
@@ -121,7 +126,7 @@ export function ProductCard({ product }: Props) {
         </div>
       </div>
 
-      {/* Right column — equal-width stack: price · qty control · filling toggle */}
+      {/* Right column — price · qty control */}
       <div className="flex-shrink-0 w-28 flex flex-col items-stretch gap-2.5">
         {/* Price — top, full width */}
         <p className="text-primary font-bold text-sm text-center">{formatVND(product.price)}</p>
@@ -129,46 +134,22 @@ export function ProductCard({ product }: Props) {
         {/* Qty control — centered, spans full width */}
         <div className="flex-1 flex items-center justify-between">
           <button
-            onClick={() => updateQty(noToppingCartId, noToppingQty - 1)}
-            disabled={noToppingQty === 0}
+            onClick={handleMinus}
+            disabled={totalQty === 0}
             className="bg-muted text-foreground w-8 h-8 rounded-full flex items-center justify-center
                        hover:bg-muted/80 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Minus size={14} />
           </button>
-          <span className="text-foreground text-sm font-bold text-center">{noToppingQty}</span>
+          <span className="text-foreground text-sm font-bold text-center">{totalQty}</span>
           <button
-            onClick={handleDirectAdd}
+            onClick={hasToppings ? () => setModalOpen(true) : handleDirectAdd}
             disabled={!product.is_available}
             aria-label="Thêm vào giỏ hàng"
             className="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center
                        hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Plus size={14} />
-          </button>
-        </div>
-
-        {/* Filling selector — full-width pills stacked vertically */}
-        <div className="flex flex-col gap-1.5">
-          <button
-            onClick={() => setFilling('thit')}
-            className={`w-full text-center text-[11px] px-2 py-1 rounded-full border transition-colors ${
-              filling === 'thit'
-                ? 'bg-primary text-white border-primary running-border'
-                : 'border-border text-muted-fg hover:border-primary/50'
-            }`}
-          >
-            Nhân thịt
-          </button>
-          <button
-            onClick={() => setFilling('moc_nhi')}
-            className={`w-full text-center text-[11px] px-2 py-1 rounded-full border transition-colors ${
-              filling === 'moc_nhi'
-                ? 'bg-primary text-white border-primary running-border'
-                : 'border-border text-muted-fg hover:border-primary/50'
-            }`}
-          >
-            Nhân mộc nhĩ
           </button>
         </div>
       </div>
@@ -178,6 +159,7 @@ export function ProductCard({ product }: Props) {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onConfirm={handleModalConfirm}
+        requireSingle
       />
     </div>
   )

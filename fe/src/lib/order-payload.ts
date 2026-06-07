@@ -7,8 +7,7 @@ export interface OrderItemPayload {
   quantity:     number
   topping_ids:  string[]
   note?:        string
-  filling?:     string
-  combo_items?: { product_id: string; quantity: number; note?: string; filling?: string }[]
+  combo_items?: { product_id: string; quantity: number; note?: string; topping_ids?: string[] }[]
 }
 
 const isSoupName = (name: string) =>
@@ -19,25 +18,30 @@ const isSoupName = (name: string) =>
 // must use it so the saved order matches the menu's "Tổng số món" preview exactly.
 //
 // Three rules mirror OrderSummary's preview:
-//   1. Combo contents → combo_items overrides (per-dish quantity + the combo's filling).
-//   2. Filling (thịt/mộc nhĩ) → carried on standalone products and combo sub-items.
+//   1. Combo contents → combo_items overrides (per-dish quantity + the combo's topping_ids).
+//   2. Nhân (thịt/mộc nhĩ) → carried as topping_ids on standalone products and combo sub-items.
 //   3. Canh is global: driven by the CANH stepper (drinkConfig), split into
-//      có rau / không rau, and emitted as standalone rows — never inside a combo.
+//      có rau / không rau. "Có rau" rows carry the Rau topping via topping_ids (not a note).
+//      "Không rau" rows carry topping_ids: []. Emitted as standalone rows — never inside a combo.
 export function buildOrderItemsPayload(items: CartItem[], drink: DrinkConfig): OrderItemPayload[] {
   const rows: OrderItemPayload[] = []
-  let canhProductId: string | null = null
+  let canhProductId:     string | null = null
+  let canhRauToppingId:  string | null = null
 
   for (const item of items) {
     if (item.type === 'combo') {
       const subs = item.combo_items ?? []
-      // Remember the canh product so the global drinkConfig rows can reference it.
+      // Remember the canh product and its Rau topping so the global drinkConfig rows can reference them.
       for (const ci of subs) {
-        if (isSoupName(ci.product_name) && ci.product_id) canhProductId = ci.product_id
+        if (isSoupName(ci.product_name) && ci.product_id) {
+          canhProductId = ci.product_id
+          canhRauToppingId = (ci.toppings ?? []).find(t => t.is_available)?.id ?? canhRauToppingId
+        }
       }
       // Override the combo with its non-canh dishes (canh is handled globally).
       const overrides = subs
         .filter(ci => !isSoupName(ci.product_name) && ci.product_id)
-        .map(ci => ({ product_id: ci.product_id!, quantity: ci.quantity, filling: item.filling ?? '' }))
+        .map(ci => ({ product_id: ci.product_id!, quantity: ci.quantity, topping_ids: item.toppings.map(t => t.id) }))
 
       const row: OrderItemPayload = {
         product_id:  null,
@@ -51,6 +55,7 @@ export function buildOrderItemsPayload(items: CartItem[], drink: DrinkConfig): O
       // Standalone canh is folded into the global drinkConfig rows below.
       if (isSoupName(item.name)) {
         if (item.product_id) canhProductId = item.product_id
+        canhRauToppingId = item.toppings.find(t => t.is_available)?.id ?? canhRauToppingId
         continue
       }
       rows.push({
@@ -58,17 +63,17 @@ export function buildOrderItemsPayload(items: CartItem[], drink: DrinkConfig): O
         combo_id:    null,
         quantity:    item.quantity,
         topping_ids: item.toppings.map(t => t.id),
-        filling:     item.filling ?? '',
       })
     }
   }
 
   // Global canh rows from the CANH stepper, split có rau / không rau.
+  // "Có rau" rows carry the Rau topping via topping_ids; "Không rau" rows carry topping_ids: [].
   const { bowls, vegBowls } = drink
   const nonVeg = bowls - vegBowls
   if (bowls > 0 && canhProductId) {
-    if (vegBowls > 0) rows.push({ product_id: canhProductId, combo_id: null, quantity: vegBowls, topping_ids: [], note: 'Có rau' })
-    if (nonVeg   > 0) rows.push({ product_id: canhProductId, combo_id: null, quantity: nonVeg,   topping_ids: [], note: 'Không rau' })
+    if (vegBowls > 0) rows.push({ product_id: canhProductId, combo_id: null, quantity: vegBowls, topping_ids: canhRauToppingId ? [canhRauToppingId] : [] })
+    if (nonVeg   > 0) rows.push({ product_id: canhProductId, combo_id: null, quantity: nonVeg,   topping_ids: [] })
   }
 
   return rows

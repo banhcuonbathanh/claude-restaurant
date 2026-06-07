@@ -4,11 +4,15 @@
       "Bash(rm *)",
       "Bash(rm -rf *)",
       "Bash(rmdir *)",
-      "Bash(git commit *)",
       "Bash(git push *)"
     ],
     "allow": [
       "Grep",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git status)",
+      "Bash(git status *)",
+      "Bash(git log *)",
       "Bash(ls)",
       "Bash(ls *)",
       "Bash(find)",

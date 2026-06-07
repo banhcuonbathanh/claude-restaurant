@@ -49,8 +49,8 @@ updated_at = NOW()
 WHERE orders.id = ?;
 
 -- name: CreateOrderItem :exec
-INSERT INTO order_items (id, order_id, product_id, combo_id, combo_ref_id, name, unit_price, quantity, qty_served, toppings_snapshot, note, filling)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?);
+INSERT INTO order_items (id, order_id, product_id, combo_id, combo_ref_id, name, unit_price, quantity, qty_served, toppings_snapshot, note)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?);
 
 -- name: GetOrderItemsByOrderID :many
 SELECT * FROM order_items

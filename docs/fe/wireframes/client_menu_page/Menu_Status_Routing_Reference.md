@@ -55,6 +55,130 @@ What actually renders right now (empty cart):
 
 ---
 
+## Component Tree (what renders inside what)
+
+```
+MenuPage (page.tsx)                         ← Suspense boundary only
+└── MenuContent                             ← all page logic + 4 TanStack queries
+    ├── <header>            (Zone A)        ← inline JSX, not a component
+    │   ├── Heart link → /menu/favourites   (badge = favItems.length)
+    │   ├── Settings link → /menu/settings
+    │   ├── "Đơn hàng" button → /order      (dot when order_cache_* exists)
+    │   └── "Giỏ hàng" button → opens CartDrawer (badge = itemCount)
+    ├── Mini cart strip     (inline)        ← only when itemCount() > 0
+    ├── Banner <img>        (inline)        ← 404 → gradient fallback
+    ├── Add-to-order banner (inline)        ← only when ?add_to_order=<id>
+    ├── SearchBar           (Zone B)        ← leaf, debounced 300ms
+    ├── CategoryTabs        (Zone C)        ← leaf, "Tất cả" + N category tabs
+    ├── FavouritesRail      (Zone D)        ← only when no category + favs>0
+    │   └── FavCard ×N                      ← internal sub-component
+    ├── ComboCard ×N        (Zone E)        ← only when no category + combos>0
+    │   └── ComboModal                      ← child modal (built but NOT opened — see note)
+    ├── ProductCard ×N      (Zone F mobile, <sm)
+    │   └── ToppingModal    (requireSingle) ← opens on "+" only if hasToppings
+    ├── ProductGridCard ×N  (Zone F ≥sm)    ← desktop/tablet grid variant
+    │   └── ToppingModal    (multi-select)
+    ├── OrderSummary        (Zone I)        ← returns null when cart empty
+    │   └── ItemGroup ×(1–2)                ← "COMBO" + "MÓN LẺ" groups
+    │       └── QtyControls ×N              ← stepper + delete (per line & sub-item)
+    ├── CartBottomBar       (Zone J)        ← inline, fixed bottom, only itemCount>0
+    ├── CartDrawer          (modal)         ← right slide-over
+    └── TableConfirmModal   (modal)         ← defined INSIDE page.tsx, QR checkout
+```
+
+**Sibling components in `features/menu/components/` NOT rendered on `/menu`:** `DrinkCustomize.tsx` and `OrderNote.tsx`. `/menu` uses `OrderSummary`'s own inline canh stepper + note textarea instead; these two are standalone equivalents used on other surfaces (checkout/cart). Documented at the end for completeness.
+
+---
+
+## Component Inventory — detail per component
+
+Legend: **Opens** = child modal/overlay it can mount · **Expand** = collapsible regions inside · **Store** = Zustand reads/writes.
+
+### Zone A — `<header>` (inline in page.tsx:206-259)
+Not a component. 4 interactive controls: ❤ favourites link (badge `favItems.length`, max "9+"), ⚙ settings link, "Đơn hàng" button (dot when any `order_cache_*` key exists), "Giỏ hàng" button (count badge, opens `CartDrawer`). Subtitle = `tableLabel` from settings store.
+
+### `SearchBar` (Zone B) — `SearchBar.tsx`
+- **Props:** `onSearch(query)`.
+- **State:** local `value`; `useEffect` debounces 300ms before calling `onSearch`.
+- **Expand:** none. Shows clear-✕ when `value>0`; hint "Nhập ít nhất 2 ký tự" when `0<len<2`.
+- **Store:** none (parent gates query `enabled` on len 0 or ≥2).
+
+### `CategoryTabs` (Zone C) — `CategoryTabs.tsx`
+- **Props:** `categories[]` · `selected` · `onSelect`.
+- Renders "Tất cả" (`onSelect(null)`) + one tab per category. Pure controlled, horizontal scroll, sticky `top-[108px]`. No state, no store.
+
+### `FavouritesRail` (Zone D) — `FavouritesRail.tsx`
+- **Props:** `products[]` · `combos[]`.
+- **Sub-component:** `FavCard` (internal, 1 file) — image, name, price, ❤ toggle; whole card links to `/menu/favourites`.
+- Filters incoming products/combos against favourites store; returns `null` if none.
+- **Store:** favourites (`items`, `toggleFav`). No cart, no BE.
+
+### `ComboCard` (Zone E) — `ComboCard.tsx`  ← the model the rest follow
+- **Props:** `combo: Combo` (enriched, with `items[]`).
+- **Child modal — `ComboModal`:** mounted at the bottom but **`modalOpen` is never set true** → dead in current code (Plus adds directly via `handleAdd`). `Chi tiết` link goes to `/menu/combo/:id` instead.
+- **Expand:** none — combo sub-items list is **always visible** (one `<li>` per dish with `×qty` chip).
+- **Interactive parts (3):**
+  1. ❤ favourite toggle (top-right of image).
+  2. Qty stepper (−/value/+); − calls `updateQty`, + calls `handleAdd` (first press `addItem` with full `combo_items` snapshot, later presses increment).
+  3. **Nhân pills** — data-driven, single-select, derived from sub-items' available toppings (canh excluded). Selecting changes `cartId` (`combo_<id>_<nhanId>`), so different nhân = different cart line.
+- **Store:** cart (`items`, `addItem`, `updateQty`) + favourites.
+
+### `ComboModal` — `ComboModal.tsx`
+- **Props:** `combo` · `open` · `onClose` · `onConfirm`.
+- Full-screen overlay: image, name, price, plain `qty x name` list, Đóng / "Thêm combo vào giỏ". Disabled when `!is_available`. **Currently unreachable** (parent never opens it). No state, no store.
+
+### `ProductCard` (Zone F, mobile <sm) — `ProductCard.tsx`
+- **Props:** `product: Product`.
+- **Child modal — `ToppingModal` (`requireSingle`):** opens on "+" only when `hasToppings`; else "+" does `handleDirectAdd` (cart-id `product_<id>_plain`). Modal confirm builds cart-id `product_<id>_<sortedToppingIds>` and adds topping price.
+- **Expand:** none. Image + name + `Chi tiết` link all navigate to `/menu/product/:id`.
+- **Qty:** `totalQty` aggregates **all variants** of the product; − removes from the last variant.
+- **Store:** cart + favourites.
+- ⚠️ See Concern #3/#5: `hasToppings` here is real (`availableToppings.length>0`), unlike the older hardcoded note in earlier audits.
+
+### `ProductGridCard` (Zone F, ≥sm grid) — `ProductGridCard.tsx`
+- **Props:** `product: Product`. Desktop/tablet square-image variant of `ProductCard`.
+- **Child modal — `ToppingModal` (multi-select, no `requireSingle`).**
+- **Expand:** none. Three render branches for the add control: hasToppings → "+" opens modal · no toppings & qty 0 → "+" direct add · no toppings & qty>0 → inline −/qty/+ stepper. Cart-id for direct add = `product_<id>_` (trailing underscore — differs from ProductCard's `_plain`).
+- **Store:** cart + favourites.
+
+### `ToppingModal` — `ToppingModal.tsx`
+- **Props:** `product` · `open` · `onClose` · `onConfirm(selected[])` · `requireSingle?`.
+- **State:** `selected: Set<id>`. `requireSingle` → radio (replace); else checkbox (toggle).
+- Lists available toppings + price, live total = `product.price + Σ topping.price`. Confirm disabled when `requireSingle` and selection ≠ 1. Returns selected toppings to parent (parent does the `addItem`). No store, no BE.
+
+### `OrderSummary` (Zone I) — `OrderSummary.tsx`  ← most complex, 4 collapsible regions
+- **Props:** `embedded?` · `shakeKey?` (parent bumps `shakeKey` to scroll-to + shake the Canh block when checkout is blocked).
+- **Returns `null` when cart empty** (line 45).
+- **Sub-components (internal):** `ItemGroup` (renders a titled group + per-line rows + subtotal) and `QtyControls` (−/value/+/🗑 + optional price). Both defined in the same file.
+- **Expand / collapse — 3 toggles + per-combo expand:**
+  1. **Whole panel** — header "Tóm tắt đơn hàng" toggles `open` (Ẩn/Hiện).
+  2. **COMBO / MÓN LẺ lines** — each combo line has "Xem chi tiết / Ẩn chi tiết" → editable sub-items (`updateComboItem` recomputes combo price).
+  3. **Tổng số món** — `dishSummaryOpen` toggle; table Món·Nhân·SL·Đơn giá·Thành tiền.
+  4. **Canh block** — always-visible steppers (có rau / không rau); amber warning + running-border when `bowls===0`; `shakeKey` scroll+shake target.
+- Plus an inline **Ghi chú** textarea (debounced "Đã lưu ✓" after 800ms).
+- **Store:** cart — reads `items, total, tableName, drinkConfig, orderNote`; writes via `setDrinkConfig, setOrderNote, updateQty, removeItem, updateComboItem`. 100% client-side, sends nothing to BE. (Full data rules in the dedicated section below.)
+
+### Zone J — `CartBottomBar` (inline in page.tsx:416-436)
+Not a component. Fixed bottom button: count badge · "Thanh toán" · total. Click logic: `canhMissing` → block + shake + toast; else `tableId` set → open `TableConfirmModal`; no table → `router.push('/checkout')`.
+
+### `CartDrawer` (modal) — `CartDrawer.tsx`
+- **Props:** `open` · `onClose` · `addToOrderId?` · `onTableCheckout?`.
+- Right slide-over (`translate-x` transition) with backdrop. Header shows customer/table; "Xem đơn hàng" chip when `activeOrderId` set.
+- **Expand:** per-combo dish list collapsible (`expandedCombos: Set`, Chevron toggle); collapsed shows "N món · bấm để xem". Product lines show toppings inline.
+- Each line: −/qty/+ + 🗑 (`updateQty` / `removeItem`).
+- **Footer — two mutually-exclusive CTAs:** `addToOrderId` present → **"Thêm vào đơn hàng"** (`addItemsToOrder` mutation → POST add-items → `/order/:id`); else → **"Thanh toán"** (`tableId` → `onTableCheckout()` opens TableConfirmModal; else `/checkout`).
+- **Store:** cart (full) + settings. **BE write:** `addItemsToOrder` (only in add-to-order mode).
+
+### `TableConfirmModal` (modal) — defined inside `page.tsx:26-119`
+- **Props:** `onClose`. Not in the components folder — local to the page.
+- The page's **only order-create mutation**: `POST /orders` (source `qr`) via `buildOrderItemsPayload`. Shows line list + total + optional kitchen note. On success → fetch full order → cache to `order_cache_<id>` → `clearCart` → `router.replace('/order/:id')`. Handles `TABLE_HAS_ACTIVE_ORDER` redirect. (Full request/response in the SENT-TO-BE section.)
+
+### Not rendered on `/menu` (folder siblings)
+- **`DrinkCustomize.tsx`** — standalone canh stepper section (Bát có rau / Bát không rau) gated on cart having a combo or "nước dùng" product. `/menu` uses OrderSummary's inline canh block instead.
+- **`OrderNote.tsx`** — standalone note textarea with debounced "Đã lưu" badge. `/menu` uses OrderSummary's inline note instead.
+
+---
+
 ## Why There Is No Status Matrix
 
 | Concept | What this page does | Status routing? |

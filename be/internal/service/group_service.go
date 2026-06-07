@@ -164,7 +164,6 @@ func buildItemsJSON(items []OrderItemDetails) []map[string]interface{} {
 			"combo_id":          nullStr(it.ComboID),
 			"combo_ref_id":      nullStr(it.ComboRefID),
 			"note":              nullStr(it.Note),
-			"filling":           nullStr(it.Filling),
 			"toppings_snapshot": it.ToppingsSnapshot,
 		})
 	}

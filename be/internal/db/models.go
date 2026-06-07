@@ -592,7 +592,6 @@ type OrderItem struct {
 	Note             sql.NullString  `json:"note"`
 	CreatedAt        time.Time       `json:"created_at"`
 	UpdatedAt        time.Time       `json:"updated_at"`
-	Filling          sql.NullString  `json:"filling"`
 }
 
 type OrderSequence struct {

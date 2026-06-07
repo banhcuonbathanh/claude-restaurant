@@ -4,7 +4,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { api } from '@/lib/api-client'
 import { useOrdersWSContext } from '@/context/OrdersWSContext'
-import { fillingLabel, type Order, type OrderItem } from '@/types/order'
+import { type Order, type OrderItem } from '@/types/order'
 
 function useBeep() {
   const ctxRef = useRef<AudioContext | null>(null)
@@ -76,11 +76,17 @@ function isKitchenItem(item: OrderItem): boolean {
   return !(item.combo_id !== null && item.combo_ref_id === null)
 }
 
-// Prep variant the chef needs: nhân (thịt/mộc nhĩ) or, for canh, the rau note.
+// Prep variant the chef needs: for canh, "có rau" / "không rau" (from the Rau topping
+// in toppings_snapshot; note kept as legacy fallback). For other items, nhân names.
 function kdsVariant(item: OrderItem): string {
-  const f = fillingLabel(item.filling)
-  if (f) return f
-  if (item.name.toLowerCase().includes('canh') && item.note) return item.note
+  const names = (item.toppings_snapshot ?? []).map(t => t.name)
+  if (item.name.toLowerCase().includes('canh')) {
+    const hasRau = names.some(n => n.toLowerCase().includes('rau'))
+    if (hasRau) return 'có rau'
+    if (item.note) return item.note   // legacy fallback
+    return 'không rau'
+  }
+  if (names.length > 0) return names.join(', ')
   return ''
 }
 

@@ -38,8 +38,8 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
   }
 
   // Aggregate: dish name → { remaining, tables, minCreatedAt, orders, noteCounts, toppingCounts }
-  // toppingCounts = filling/veg breakdown via toppingLabel():
-  //   Bánh/Trứng/Giò → "nhân thịt" / "nhân mộc nhĩ" / "không nhân"
+  // toppingCounts = topping/veg breakdown via toppingLabel():
+  //   Bánh/Trứng/Giò → nhân names from toppings_snapshot / "không nhân"
   //   Canh           → "có rau" / "không rau"
   const remainMap = new Map<string, {
     remaining: number

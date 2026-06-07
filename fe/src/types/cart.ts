@@ -10,6 +10,7 @@ export interface ComboItemSummary {
   product_name: string
   quantity:     number
   unit_price?:  number
+  toppings?:    Topping[]  // available toppings on this sub-item's product (TOP-3 enrichment)
 }
 
 export interface CartItem {
@@ -22,5 +23,4 @@ export interface CartItem {
   price:             number    // unit price (product.price + selected toppings)
   toppings:          Topping[]
   combo_items?:      ComboItemSummary[]
-  filling?:          'thit' | 'moc_nhi'
 }

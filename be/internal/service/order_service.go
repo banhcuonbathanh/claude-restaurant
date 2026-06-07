@@ -232,26 +232,18 @@ type CreateOrderItemInput struct {
 	Quantity   int32
 	ToppingIDs []string
 	Note       string
-	Filling    string                   // standalone product filling: ""|thit|moc_nhi
 	ComboItems []ComboItemOverrideInput // optional combo content overrides
 }
 
 // ComboItemOverrideInput customizes one dish inside a combo. When a combo line
 // carries overrides, they replace the canonical combo template (quantity, note,
-// filling). ProductID must belong to the combo.
+// toppings). ProductID must belong to the combo. ToppingIDs carries nhân (and any
+// other topping) for the overridden sub-item — nhân is a topping now (TOP epic).
 type ComboItemOverrideInput struct {
-	ProductID string
-	Quantity  int32
-	Note      string
-	Filling   string
-}
-
-// fillingNull converts a filling string to a nullable column value.
-func fillingNull(f string) sql.NullString {
-	if f == "" {
-		return sql.NullString{}
-	}
-	return sql.NullString{String: f, Valid: true}
+	ProductID  string
+	Quantity   int32
+	Note       string
+	ToppingIDs []string
 }
 
 // toppingSnapshotEntry is stored in order_items.toppings_snapshot.
@@ -357,30 +349,32 @@ func (s *OrderService) buildProductRow(ctx context.Context, item CreateOrderItem
 		return repository.OrderItemRow{}, fmt.Errorf("order: product %s: %w", item.ProductID, err)
 	}
 
-	// Build toppings snapshot with name+price for display on the order page.
-	toppingsJSON, _ := json.Marshal([]toppingSnapshotEntry{})
-	if len(item.ToppingIDs) > 0 {
-		entries := make([]toppingSnapshotEntry, 0, len(item.ToppingIDs))
-		for _, tid := range item.ToppingIDs {
-			snap, err := s.productLookup.GetToppingSnapshot(ctx, tid)
-			if err != nil {
-				continue // skip unknown/unavailable toppings gracefully
-			}
-			entries = append(entries, toppingSnapshotEntry{ID: snap.ID, Name: snap.Name, Price: snap.Price})
-		}
-		toppingsJSON, _ = json.Marshal(entries)
-	}
-
 	return repository.OrderItemRow{
 		ID:        newUUID(),
 		ProductID: sql.NullString{String: item.ProductID, Valid: true},
 		Name:      snap.Name,
 		UnitPrice: formatPrice(snap.UnitPrice),
 		Quantity:  item.Quantity,
-		ToppingsSnapshot: toppingsJSON,
+		ToppingsSnapshot: s.buildToppingsSnapshot(ctx, item.ToppingIDs),
 		Note:      sql.NullString{String: item.Note, Valid: item.Note != ""},
-		Filling:   fillingNull(item.Filling),
 	}, nil
+}
+
+// buildToppingsSnapshot resolves topping IDs to display entries (id+name+price)
+// and marshals them into the toppings_snapshot JSON array. Unknown/unavailable
+// toppings are skipped. An empty input yields an empty JSON array. nhân is a
+// topping now (TOP epic), so this is the single path for both product and combo rows.
+func (s *OrderService) buildToppingsSnapshot(ctx context.Context, toppingIDs []string) []byte {
+	entries := make([]toppingSnapshotEntry, 0, len(toppingIDs))
+	for _, tid := range toppingIDs {
+		snap, err := s.productLookup.GetToppingSnapshot(ctx, tid)
+		if err != nil {
+			continue // skip unknown/unavailable toppings gracefully
+		}
+		entries = append(entries, toppingSnapshotEntry{ID: snap.ID, Name: snap.Name, Price: snap.Price})
+	}
+	out, _ := json.Marshal(entries)
+	return out
 }
 
 func (s *OrderService) expandCombo(ctx context.Context, orderID string, item CreateOrderItemInput) ([]repository.OrderItemRow, error) {
@@ -409,7 +403,7 @@ func (s *OrderService) expandCombo(ctx context.Context, orderID string, item Cre
 	}
 
 	// Sub-item rows. With client overrides we honor the customized contents
-	// (quantity, note, filling); without them we fall back to the canonical
+	// (quantity, note, toppings); without them we fall back to the canonical
 	// template. Prices always come from the server-side template — never the
 	// client — so product_id must belong to the combo.
 	if len(item.ComboItems) > 0 {
@@ -430,9 +424,8 @@ func (s *OrderService) expandCombo(ctx context.Context, orderID string, item Cre
 				Name:             t.Name,
 				UnitPrice:        formatPrice(t.UnitPrice),
 				Quantity:         ov.Quantity * item.Quantity,
-				ToppingsSnapshot: emptyToppings,
+				ToppingsSnapshot: s.buildToppingsSnapshot(ctx, ov.ToppingIDs),
 				Note:             sql.NullString{String: ov.Note, Valid: ov.Note != ""},
-				Filling:          fillingNull(ov.Filling),
 			})
 		}
 		return rows, nil

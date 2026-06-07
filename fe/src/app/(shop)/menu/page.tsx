@@ -1,11 +1,9 @@
 'use client'
 import { useMemo, useState, useEffect, useRef, Suspense } from 'react'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { ShoppingCart, ClipboardList, Settings, PlusCircle, Heart } from 'lucide-react'
+import { PlusCircle } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Link from 'next/link'
 import { toast } from 'sonner'
-import { useSettingsStore } from '@/store/settings'
 import { useFavouritesStore } from '@/store/favourites'
 import { api } from '@/lib/api-client'
 import { useCartStore } from '@/store/cart'
@@ -14,6 +12,9 @@ import { ProductCard } from '@/features/menu/components/ProductCard'
 import { ProductGridCard } from '@/features/menu/components/ProductGridCard'
 import { ComboCard } from '@/features/menu/components/ComboCard'
 import { CartDrawer } from '@/features/menu/components/CartDrawer'
+import { MenuHeader } from '@/features/menu/components/MenuHeader'
+import { MiniCartStrip } from '@/features/menu/components/MiniCartStrip'
+import { CartBottomBar } from '@/features/menu/components/CartBottomBar'
 import { SearchBar } from '@/features/menu/components/SearchBar'
 import { FavouritesRail } from '@/features/menu/components/FavouritesRail'
 import { OrderSummary } from '@/features/menu/components/OrderSummary'
@@ -134,12 +135,20 @@ function MenuContent() {
     setHasOrders(found)
   }, [])
 
-  const { items, itemCount, total, tableId, drinkConfig } = useCartStore()
+  const { tableId, drinkConfig } = useCartStore()
 
   // Canh is always required: any order must have at least 1 bowl before checkout.
   const canhMissing  = drinkConfig.bowls === 0
-  const { tableLabel } = useSettingsStore()
   const { items: favItems } = useFavouritesStore()
+
+  const handleCheckout = () => {
+    if (canhMissing) {
+      setCanhShakeKey(k => k + 1)
+      toast.error('Vui lòng chọn số bát canh trước khi thanh toán')
+      return
+    }
+    tableId ? setConfirmOpen(true) : router.push('/checkout')
+  }
 
   const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ['categories'],
@@ -176,7 +185,7 @@ function MenuContent() {
 
   // Enrich combos: map combo_items → items with product_name + unit_price resolved
   const combos = useMemo<Combo[]>(() => {
-    const productMap = new Map(allProducts.map(p => [p.id, { name: p.name, price: p.price }]))
+    const productMap = new Map(allProducts.map(p => [p.id, { name: p.name, price: p.price, toppings: p.toppings }]))
     return rawCombos.map(raw => ({
       id:           raw.id,
       category_id:  raw.category_id,
@@ -191,98 +200,21 @@ function MenuContent() {
         product_name: productMap.get(ci.product_id)?.name ?? ci.product_id,
         unit_price:   productMap.get(ci.product_id)?.price,
         quantity:     ci.quantity,
+        toppings:     productMap.get(ci.product_id)?.toppings ?? [],
       })),
     }))
   }, [rawCombos, allProducts])
 
-  const count      = itemCount()
   const showCombos = selectedCategory === null && combos.length > 0
   const showFavs   = selectedCategory === null && favItems.length > 0
 
   return (
     <div className="min-h-screen bg-background">
       {/* Zone A — Header */}
-      <header className="sticky top-0 z-20 bg-background border-b border-border px-4 py-3 flex items-center justify-between">
-        <div className="flex flex-col leading-none min-w-0">
-          <h1 className="font-display text-xl text-foreground font-semibold truncate">Quán Bánh Cuốn</h1>
-          {tableLabel && (
-            <span className="text-xs text-muted-fg mt-0.5 truncate">{tableLabel}</span>
-          )}
-        </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <Link
-            href="/menu/favourites"
-            className="relative flex items-center justify-center w-8 h-8 rounded-full hover:bg-muted transition-colors"
-            aria-label="Yêu thích"
-          >
-            <Heart
-              size={18}
-              className={favItems.length > 0 ? 'text-red-500 fill-red-500' : 'text-red-400/60'}
-            />
-            {favItems.length > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center leading-none">
-                {favItems.length > 9 ? '9+' : favItems.length}
-              </span>
-            )}
-          </Link>
-          <Link
-            href="/menu/settings"
-            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-muted transition-colors"
-            aria-label="Cài đặt"
-          >
-            <Settings size={18} className="text-muted-fg" />
-          </Link>
-          <button
-            onClick={() => router.push('/order')}
-            className="relative flex items-center gap-1.5 bg-muted text-foreground px-3 py-1.5 rounded-full text-sm font-medium"
-          >
-            <ClipboardList size={16} />
-            <span className="hidden sm:inline">Đơn hàng</span>
-            {hasOrders && (
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-primary rounded-full" />
-            )}
-          </button>
-          <button
-            onClick={() => setCartOpen(true)}
-            aria-label="Giỏ hàng"
-            className="relative flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-full text-sm font-medium"
-          >
-            <ShoppingCart size={16} />
-            {count > 0 && (
-              <span className="absolute -top-1 -right-1 bg-primary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                {count}
-              </span>
-            )}
-          </button>
-        </div>
-      </header>
+      <MenuHeader hasOrders={hasOrders} onCartClick={() => setCartOpen(true)} />
 
       {/* Mini cart strip — sticky, shows when cart has items */}
-      {count > 0 && (
-        <div className="sticky top-[57px] z-10 bg-background border-b border-border/60 px-4 py-2">
-          <button
-            onClick={() => setCartOpen(true)}
-            className="w-full flex items-center gap-2 text-left"
-          >
-            <span className="bg-primary text-white text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0">
-              {count} món
-            </span>
-            <div className="flex-1 overflow-hidden">
-              <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
-                {items.map(item => (
-                  <span
-                    key={item.id}
-                    className="shrink-0 text-xs text-foreground bg-muted px-2 py-0.5 rounded-full whitespace-nowrap"
-                  >
-                    {item.name} ×{item.quantity}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <span className="shrink-0 text-xs font-bold text-primary ml-1">{formatVND(total())}</span>
-          </button>
-        </div>
-      )}
+      <MiniCartStrip onClick={() => setCartOpen(true)} />
 
       {/* Restaurant banner */}
       <div className="relative w-full h-44 overflow-hidden">
@@ -412,27 +344,7 @@ function MenuContent() {
       </main>
 
       {/* Zone J — CartBottomBar */}
-      {count > 0 && (
-        <div className="fixed bottom-6 left-4 right-4 z-30">
-          <button
-            onClick={() => {
-              if (canhMissing) {
-                setCanhShakeKey(k => k + 1)
-                toast.error('Vui lòng chọn số bát canh trước khi thanh toán')
-                return
-              }
-              tableId ? setConfirmOpen(true) : router.push('/checkout')
-            }}
-            className={`w-full bg-primary text-white py-3.5 rounded-2xl font-semibold flex items-center justify-between px-5 shadow-lg min-h-[44px] transition-opacity ${canhMissing ? 'opacity-60 cursor-not-allowed' : ''}`}
-          >
-            <span className="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-              {count}
-            </span>
-            <span>Thanh toán</span>
-            <span className="font-bold">{formatVND(total())}</span>
-          </button>
-        </div>
-      )}
+      <CartBottomBar dimmed={canhMissing} onCheckout={handleCheckout} />
 
       <CartDrawer
         open={cartOpen}
