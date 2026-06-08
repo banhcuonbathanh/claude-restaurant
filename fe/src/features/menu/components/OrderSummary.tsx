@@ -3,7 +3,39 @@ import { useState, useEffect, useRef } from 'react'
 import { Check, ChevronDown, ChevronRight, ChevronUp, Minus, Plus, Trash2 } from 'lucide-react'
 import { useCartStore } from '@/store/cart'
 import type { CartItem } from '@/types/cart'
+import type { Topping } from '@/types/product'
 import { formatVND } from '@/lib/utils'
+
+const isSoupName = (name: string) =>
+  name.toLowerCase().includes('canh') || name.toLowerCase().includes('nước dùng')
+
+// Discover the canh productId and rau Topping from whatever is already in the cart
+// (existing canh items or combo sub-items that include canh).
+function discoverCanhInfo(items: CartItem[]): { productId: string | null; rauTopping: Topping | null } {
+  let productId: string | null = null
+  let rauTopping: Topping | null = null
+
+  for (const item of items) {
+    // From existing canh standalone items (canh_<id>_rau or canh_<id>_plain)
+    if (item.type === 'product' && item.product_id && isSoupName(item.name)) {
+      productId = item.product_id
+      const rau = item.toppings.find(t => t.is_available)
+      if (rau) rauTopping = rau
+    }
+    // From combo sub-items
+    if (item.type === 'combo' && item.combo_items) {
+      for (const ci of item.combo_items) {
+        if (isSoupName(ci.product_name) && ci.product_id) {
+          productId = ci.product_id
+          const rau = (ci.toppings ?? []).find(t => t.is_available)
+          if (rau) rauTopping = rau
+        }
+      }
+    }
+  }
+
+  return { productId, rauTopping }
+}
 
 export function OrderSummary({ embedded, shakeKey }: { embedded?: boolean; shakeKey?: number }) {
   const [open, setOpen] = useState(true)
@@ -12,7 +44,7 @@ export function OrderSummary({ embedded, shakeKey }: { embedded?: boolean; shake
   const [noteSaved, setNoteSaved] = useState(false)
   const noteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const canhRef      = useRef<HTMLDivElement>(null)
-  const { items, total, tableName, drinkConfig, setDrinkConfig, orderNote, setOrderNote, updateQty, removeItem, updateComboItem } = useCartStore()
+  const { items, total, tableName, setCanhQty, orderNote, setOrderNote, updateQty, removeItem, updateComboItem } = useCartStore()
 
   useEffect(() => {
     if (!shakeKey) return
@@ -44,6 +76,19 @@ export function OrderSummary({ embedded, shakeKey }: { embedded?: boolean; shake
 
   if (items.length === 0) return null
 
+  // Discover canh product info from current items
+  const { productId: canhProductId, rauTopping: canhRauTopping } = discoverCanhInfo(items)
+
+  // Canh quantities from cart items
+  const rauItem    = items.find(i => i.id === `canh_${canhProductId}_rau`)
+  const plainItem  = items.find(i => i.id === `canh_${canhProductId}_plain`)
+  const rauCount   = rauItem?.quantity   ?? 0
+  const plainCount = plainItem?.quantity ?? 0
+  const totalCanh  = rauCount + plainCount
+
+  // Checkout gate: no canh items in cart at all
+  const canhMissing = totalCanh === 0
+
   const combos   = items.filter(i => i.type === 'combo')
   const products = items.filter(i => i.type === 'product')
   const comboTotal   = combos.reduce((s, i) => s + i.price * i.quantity, 0)
@@ -62,14 +107,13 @@ export function OrderSummary({ embedded, shakeKey }: { embedded?: boolean; shake
       }
     }
   }
-  const isSoupName = (name: string) =>
-    name.toLowerCase().includes('canh') || name.toLowerCase().includes('nước dùng')
+
   const dishSummary = (() => {
     const map = new Map<string, { name: string; nhan: string; qty: number }>()
     for (const item of items) {
       if (item.type === 'combo' && item.combo_items) {
         for (const ci of item.combo_items) {
-          if (isSoupName(ci.product_name)) continue // canh comes from drinkConfig, added below
+          if (isSoupName(ci.product_name)) continue // canh is handled from canh items below
           const toppingKey = item.toppings.map(t => t.id).sort().join(',')
           const toppingNames = item.toppings.map(t => t.name).join(', ')
           const key = `${ci.product_name}|${toppingKey}`
@@ -77,7 +121,7 @@ export function OrderSummary({ embedded, shakeKey }: { embedded?: boolean; shake
           map.set(key, { name: ci.product_name, nhan: toppingNames, qty: (prev?.qty ?? 0) + ci.quantity * item.quantity })
         }
       } else if (item.type === 'product') {
-        if (isSoupName(item.name)) continue // canh comes from drinkConfig, added below
+        if (isSoupName(item.name)) continue // canh items added separately below
         const toppingKey = item.toppings.map(t => t.id).sort().join(',')
         const toppingNames = item.toppings.map(t => t.name).join(', ')
         const key = `${item.name}|${toppingKey}`
@@ -86,13 +130,12 @@ export function OrderSummary({ embedded, shakeKey }: { embedded?: boolean; shake
       }
     }
     const rows = Array.from(map.values()).sort((a, b) => b.qty - a.qty)
-    // Canh is driven by the CANH stepper (drinkConfig), split into có rau / không rau —
-    // mirrors the checkout payload in menu/page.tsx, not the combo's literal canh qty.
-    const nonVegBowls = drinkConfig.bowls - drinkConfig.vegBowls
-    if (drinkConfig.vegBowls > 0) rows.push({ name: 'Canh (có rau)', nhan: '', qty: drinkConfig.vegBowls })
-    if (nonVegBowls > 0)          rows.push({ name: 'Canh (không rau)', nhan: '', qty: nonVegBowls })
+    // Add canh rows from cart items — mirrors the checkout payload exactly
+    if (rauCount > 0)   rows.push({ name: 'Canh (có rau)',    nhan: '', qty: rauCount })
+    if (plainCount > 0) rows.push({ name: 'Canh (không rau)', nhan: '', qty: plainCount })
     return rows
   })()
+
   return (
     <section className={embedded ? 'border-t border-border px-5 py-4' : 'mx-4 mt-4 bg-card rounded-xl p-4 shadow-sm mb-4'}>
       <button
@@ -145,27 +188,28 @@ export function OrderSummary({ embedded, shakeKey }: { embedded?: boolean; shake
             <span className="text-primary font-bold">{formatVND(total())}</span>
           </div>
 
-          {/* Canh summary */}
+          {/* Canh summary — steppers write canh CartItems */}
           <div
             ref={canhRef}
             className={`p-2 space-y-2 rounded-lg transition-colors ${
-              drinkConfig.bowls === 0
+              canhMissing
                 ? 'border border-primary running-border'
                 : 'border-t border-border'
             }`}
           >
             <p className="text-xs font-semibold text-muted-fg uppercase tracking-wide">Canh</p>
-            {drinkConfig.bowls === 0 && (
+            {canhMissing && (
               <p className="text-xs text-amber-500">⚠ Bạn chưa chọn canh — thêm số bát bên dưới nếu cần.</p>
             )}
             {(['veg', 'noveg'] as const).map((kind) => {
-              const val = kind === 'veg' ? drinkConfig.vegBowls : drinkConfig.bowls - drinkConfig.vegBowls
+              const val  = kind === 'veg' ? rauCount : plainCount
               const setVal = (n: number) => {
+                if (!canhProductId) return
                 const next = Math.max(0, n)
                 if (kind === 'veg') {
-                  setDrinkConfig({ bowls: next + (drinkConfig.bowls - drinkConfig.vegBowls), vegBowls: next })
+                  setCanhQty(canhProductId, canhRauTopping, 'rau', next)
                 } else {
-                  setDrinkConfig({ bowls: drinkConfig.vegBowls + next, vegBowls: drinkConfig.vegBowls })
+                  setCanhQty(canhProductId, canhRauTopping, 'plain', next)
                 }
               }
               return (
@@ -181,7 +225,8 @@ export function OrderSummary({ embedded, shakeKey }: { embedded?: boolean; shake
                     <span className="text-xs font-bold text-primary w-5 text-center">{val}</span>
                     <button
                       onClick={() => setVal(val + 1)}
-                      className="w-6 h-6 rounded-full border border-border flex items-center justify-center text-muted-fg hover:text-foreground"
+                      disabled={!canhProductId}
+                      className="w-6 h-6 rounded-full border border-border flex items-center justify-center text-muted-fg hover:text-foreground disabled:opacity-40"
                     >
                       <Plus size={10} />
                     </button>

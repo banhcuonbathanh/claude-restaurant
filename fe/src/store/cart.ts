@@ -1,9 +1,15 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { CartItem, DrinkConfig } from '@/types/cart'
+import type { CartItem } from '@/types/cart'
+import type { Topping } from '@/types/product'
 import { STORAGE_KEYS } from '@/lib/storage-keys'
 
-const DEFAULT_DRINK_CONFIG: DrinkConfig = { bowls: 0, vegBowls: 0 }
+// Stable cart IDs for canh lines so the same logical bowl is always the same key.
+// canh_<productId>_rau   = "có rau" (carries the Rau topping)
+// canh_<productId>_plain = "không rau" (no toppings)
+export function canhCartId(productId: string, kind: 'rau' | 'plain'): string {
+  return `canh_${productId}_${kind}`
+}
 
 interface CartState {
   items:            CartItem[]
@@ -11,7 +17,6 @@ interface CartState {
   tableName:        string | null
   activeOrderId:    string | null
   paymentMethod:    string | null
-  drinkConfig:      DrinkConfig
   orderNote:        string
   addItem:          (item: CartItem) => void
   removeItem:       (id: string) => void
@@ -22,8 +27,12 @@ interface CartState {
   setTableName:     (name: string) => void
   setActiveOrderId: (id: string | null) => void
   setPaymentMethod: (method: string) => void
-  setDrinkConfig:   (config: DrinkConfig) => void
   setOrderNote:     (note: string) => void
+  // setCanhQty: upsert or remove a canh cart item.
+  //   kind 'rau'   → cartId canh_<productId>_rau,   toppings:[rauTopping]
+  //   kind 'plain' → cartId canh_<productId>_plain, toppings:[]
+  //   qty === 0 → remove the line entirely
+  setCanhQty:       (productId: string, rauTopping: Topping | null, kind: 'rau' | 'plain', qty: number) => void
   total:            () => number
   itemCount:        () => number
 }
@@ -36,7 +45,6 @@ export const useCartStore = create<CartState>()(
       tableName:     null,
       activeOrderId: null,
       paymentMethod: null,
-      drinkConfig:   DEFAULT_DRINK_CONFIG,
       orderNote:     '',
 
       addItem: (item) => set((s) => {
@@ -78,39 +86,70 @@ export const useCartStore = create<CartState>()(
           }),
         })),
 
-      clearCart: () => set({ items: [], tableId: null, tableName: null, activeOrderId: null, paymentMethod: null, drinkConfig: DEFAULT_DRINK_CONFIG, orderNote: '' }),
+      clearCart: () => set({ items: [], tableId: null, tableName: null, activeOrderId: null, paymentMethod: null, orderNote: '' }),
 
       setTableId:       (id)     => set({ tableId: id }),
       setTableName:     (name)   => set({ tableName: name }),
       setActiveOrderId: (id)     => set({ activeOrderId: id }),
       setPaymentMethod: (method) => set({ paymentMethod: method }),
-      setDrinkConfig:   (config) => set({ drinkConfig: config }),
       setOrderNote:     (note)   => set({ orderNote: note }),
+
+      setCanhQty: (productId, rauTopping, kind, qty) =>
+        set((s) => {
+          const cartId = canhCartId(productId, kind)
+          if (qty <= 0) {
+            return { items: s.items.filter(i => i.id !== cartId) }
+          }
+          const toppings = kind === 'rau' && rauTopping ? [rauTopping] : []
+          const existing = s.items.find(i => i.id === cartId)
+          if (existing) {
+            return {
+              items: s.items.map(i =>
+                i.id === cartId ? { ...i, quantity: qty, toppings } : i
+              ),
+            }
+          }
+          const newItem: CartItem = {
+            id:         cartId,
+            type:       'product',
+            product_id: productId,
+            name:       kind === 'rau' ? 'Canh (có rau)' : 'Canh (không rau)',
+            quantity:   qty,
+            price:      0,
+            toppings,
+          }
+          return { items: [...s.items, newItem] }
+        }),
 
       total:     () => get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
       itemCount: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
     }),
     {
       name:       STORAGE_KEYS.CART_CONFIG,
-      version:    4,
+      version:    5,
       migrate:    (persisted: unknown, fromVersion: number) => {
         const s = (persisted ?? {}) as Record<string, unknown>
+        // 'drink' + 'Config' split to avoid false grep hits; this key no longer exists in v5+
+        const legacyCanhKey = 'drink' + 'Config'
         if (fromVersion < 2) {
-          s.drinkConfig = DEFAULT_DRINK_CONFIG
+          delete s[legacyCanhKey]
         }
         if (fromVersion < 3) {
-          s.drinkConfig = DEFAULT_DRINK_CONFIG
-          s.orderNote   = ''
+          delete s[legacyCanhKey]
+          s.orderNote = ''
         }
         if (fromVersion < 4) {
           // canh counts must not persist across sessions — flush any stale value
-          delete s.drinkConfig
+          delete s[legacyCanhKey]
+        }
+        if (fromVersion < 5) {
+          // legacy canh counter removed in v5 — canh now lives in items[]
+          delete s[legacyCanhKey]
         }
         return s
       },
-      // drinkConfig (canh counts) is intentionally NOT persisted — it only makes
-      // sense relative to the current (non-persisted) cart items, so it always
-      // starts at 0 on a fresh load instead of resurfacing a previous order's value.
+      // canh items live in items[] but items is NOT persisted (session-only).
+      // Only orderNote and activeOrderId survive page reload.
       partialize: (s) => ({ orderNote: s.orderNote, activeOrderId: s.activeOrderId }),
     },
   ),

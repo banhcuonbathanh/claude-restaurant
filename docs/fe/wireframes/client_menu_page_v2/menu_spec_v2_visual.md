@@ -114,7 +114,7 @@ Two layers only. **Global mutable → Zustand. Page-local UI → `useState` in `
 ```
 GLOBAL (Zustand, any zone subscribes directly)
 ┌────────────────┬──────────────────────────────────────────────┐
-│ useCartStore   │ items · tableId · drinkConfig(canh) ·          │
+│ useCartStore   │ items (incl. canh CartItems) · tableId ·      │
 │                │ orderNote · activeOrderId                       │
 │ useFavourites  │ items (heart badge + Zone D rail)              │
 │ useSettings    │ customerName · tableLabel (header subtitle)    │
@@ -141,11 +141,11 @@ Canh, table and note live in their OWN fields, NOT as cart items.
 
 ```
 useCartStore  (store/cart.ts)
-├── items: CartItem[] ........ the cart lines            ← cards write here
+├── items: CartItem[] ........ the cart lines            ← cards + setCanhQty write here
+│         canh lines are CartItems with id canh_<productId>_rau / canh_<productId>_plain
 ├── tableId / tableName ...... which table (QR scan)
 ├── activeOrderId ........... an in-progress order, if any
 ├── paymentMethod ........... chosen later at checkout
-├── drinkConfig {bowls,vegBowls} ... canh count (separate from items!)
 └── orderNote: string ....... free-text note to kitchen
 ```
 
@@ -197,6 +197,58 @@ addItem(item):
 differently (the `filling`-vs-topping issue, IMP-1) create DUPLICATE lines for the same dish.
 ⚠️ `items` is NOT persisted (see §5) — everything you add lives in memory until the order is placed.
 
+### 4d · Canh as a normal `CartItem` (CANH epic, 2026-06-08)
+
+Canh (broth) lives in `items[]` exactly like any other product — two possible lines:
+
+```
+cartId canh_<canhProductId>_rau    → product_id: <canhId>, toppings:[RauTopping]   (có rau)
+cartId canh_<canhProductId>_plain  → product_id: <canhId>, toppings:[]              (không rau)
+```
+
+`drinkConfig` is **gone**. Both the FE cart and the BE `order_items` table model canh the same way.
+
+**Lifecycle:**
+
+```
+① LIVES in items[] — session-only (items is NOT persisted)
+   persist v5 migration deletes any legacy drinkConfig key (store/cart.ts migrate)
+   → always resets to 0 on reload; a stale order's canh count never resurfaces
+
+② SET via steppers — setCanhQty(productId, rauTopping, 'rau'|'plain', qty)
+   OrderSummary canh block −/+ → setCanhQty() (store/cart.ts:79-100)
+   DrinkCustomize (Zone G, shown only when hasCombo || hasNuocDung) also uses setCanhQty
+   qty === 0 → removes the CartItem; qty > 0 → upserts it
+
+③ GATES checkout
+   canhMissing = !items.some(i => i.id.startsWith('canh_'))   (page.tsx)
+   tap Thanh toán while no canh items → BLOCK + toast + bump canhShakeKey → OrderSummary shakes
+   (canh = 0 is the ONLY thing that can stop an order)
+
+④ PASSES THROUGH order-payload.ts unchanged
+   buildOrderItemsPayload(items) — canh CartItems are plain product rows, no special handling
+   ONLY exception: combo sub-items named 'canh' are still stripped (isSoupName filter keeps combos
+   clean); the canh quantity the customer chose is expressed via the canh CartItems in items[].
+   ⇒ canh is ALWAYS 1–2 standalone rows (one per kind), NEVER inside a combo
+
+⑤ PREVIEW stays honest
+   OrderSummary "Tổng số món" EXCLUDES canh items from the main aggregation (isSoupName skip),
+   then RE-ADDS from the rauCount / plainCount derived from canh CartItems (OrderSummary.tsx)
+   → on-screen preview == POST payload, exactly
+```
+
+Two non-obvious bits:
+- The canh **product id** + **Rau topping** are discovered dynamically: first from existing canh
+  CartItems in `items[]`, else from combo sub-items that include canh. Never hardcoded.
+- "Có rau" carries rau as a **`topping_id`** on the CartItem (and thus in the payload), NOT a note.
+
+**Live-verified** (the 5-bowl example, §6f): adding 2 rau + 3 plain canh items → BE stores exactly
+two canh rows — `qty 2` with the Rau topping snapshot + `qty 3` empty, both `unit_price 0`.
+
+**In one line:** canh = two optional CartItems in `items[]` (`canh_*_rau` / `canh_*_plain`), edited
+via steppers, blocking checkout when absent, passed through `order-payload.ts` like any product —
+FE and BE now use the identical model.
+
 ---
 
 ## 5 · Cross-Page Data (what survives, what doesn't)
@@ -207,15 +259,15 @@ State split by **lifetime** across 3 stores + localStorage:
 ┌────────────┬──────────────────┬─────────────────────────────────────────┐
 │ store      │ localStorage      │ persisted?                                │
 ├────────────┼──────────────────┼─────────────────────────────────────────┤
-│ cart       │ cart-config-v3    │ PARTIAL → orderNote + activeOrderId only  │
-│            │                   │ items / tableId / drinkConfig = MEMORY    │
+│ cart       │ cart-config (v5)  │ PARTIAL → orderNote + activeOrderId only  │
+│            │                   │ items / tableId = MEMORY (session-only)   │
 │ settings   │ customer-settings │ FULL (name, tableLabel)                   │
 │ favourites │ favourites        │ FULL                                      │
 └────────────┴──────────────────┴─────────────────────────────────────────┘
 ```
 
-⚠️ Why canh (`drinkConfig`) is NOT persisted: it only makes sense vs the current (non-persisted)
-cart — migration v4 wipes any stale value so a previous order's canh count never resurfaces.
+⚠️ Why canh (now ordinary CartItems in `items[]`) is NOT persisted: `items` is session-only —
+migration v5 drops any legacy `drinkConfig` remnant so a previous order's canh count never resurfaces.
 
 **Handoff Menu → Order (no shared route state — via localStorage cache):**
 
@@ -280,17 +332,18 @@ TableConfirmModal  → submitOrder.mutate()
      note: <modal note>.trim() || null,
      table_id: cart.tableId,
      source: 'qr',
-     items: buildOrderItemsPayload(cart.items, cart.drinkConfig)   ← lib/order-payload.ts
-  }                                                  3 rules:
+     items: buildOrderItemsPayload(cart.items)      ← lib/order-payload.ts
+  }                                                  2 rules:
                                                      1. combo → combo_items overrides
-                                                     2. filling thit/moc_nhi → topping_ids
-                                                     3. canh → global rows from drinkConfig
-                                                        (note: Có rau / Không rau)
+                                                        (canh sub-item stripped from combo)
+                                                     2. nhân → topping_ids on products/sub-items
+                                                     canh CartItems pass through like any product
 ```
 
-> Invariant: OrderSummary preview == POST payload **exactly** — canh is excluded from line
-> items then re-added from `drinkConfig` the same way the builder does. ONE builder feeds all
-> 3 checkout paths (menu / checkout / add-to-order) so they can never drift.
+> Invariant: OrderSummary preview == POST payload **exactly** — canh CartItems are excluded
+> from the main dish aggregation (isSoupName), then re-added from the canh items directly.
+> ONE builder (`buildOrderItemsPayload`) feeds all 3 checkout paths (menu / checkout /
+> add-to-order) so they can never drift.
 
 ### 6c · RECEIVING + error handling (mutation callbacks)
 
@@ -338,6 +391,144 @@ just re-lands on the catalog instead of hitting a login wall.
 | **Query error** (read) | products/categories/combos fetch fails | `<main>` → "⚠ Kết nối mạng yếu" + **[Thử lại]** (`refetch`) |
 | **Mutation error** (write) | POST /orders fails | **toast** (info for active-order redirect, error otherwise) |
 | **401 anywhere** | expired/invalid token | interceptor refresh or redirect — no in-page UI |
+
+### 6f · Worked Example — full round-trip (verified against FE + BE code)
+
+**Cart:** 3 combos + 4 món lẻ + 2 canh CartItems (2 có rau / 3 không rau).
+Real seed IDs: nhân thịt `bbbb…0001` · nhân mộc nhĩ `bbbb…0002` · rau `bbbb…0003` · canh product `cccc…0006`.
+
+| Cart line | id | Qty | Nhân |
+|---|---|---|---|
+| Combo Suất Đầy Đủ Trứng Chín (`dddd…0001`) | `combo_dddd…0001_thit` | 1 | thịt |
+| Combo Suất Giò (`dddd…0003`) | `combo_dddd…0003_mocnhi` | 1 | mộc nhĩ |
+| Combo Suất Trứng Bánh Không (`dddd…0004`) | `combo_dddd…0004_thit` | 1 | thịt |
+| Giò (`cccc…0001`) | `product_cccc…0001_thit` | 1 | thịt |
+| Bánh Cuốn (`cccc…0005`) | `product_cccc…0005_mocnhi` | 2 | mộc nhĩ |
+| Bánh Trứng Tái (`cccc…0002`) | `product_cccc…0002_thit` | 1 | thịt |
+| Bánh Trứng Chín (`cccc…0003`) | `product_cccc…0003_mocnhi` | 1 | mộc nhĩ |
+| Canh có rau | `canh_cccc…0006_rau` | 2 | rau (`bbbb…0003`) |
+| Canh không rau | `canh_cccc…0006_plain` | 3 | — |
+
+**9 total cart lines** — canh is now two ordinary CartItems, not a separate counter.
+
+#### FE SENDS → `POST /orders` (built by `order-payload.ts` — canh stripped from combos, nhân = topping_ids)
+
+9 rows: 3 combos + 4 món lẻ + 2 canh.
+
+```jsonc
+{
+  "customer_name": "", "customer_phone": "", "note": null,
+  "table_id": "<tableId>", "source": "qr",
+  "items": [
+    // 3 combos — canh removed, nhân pushed onto every sub-item
+    { "product_id": null, "combo_id": "dddd…0001", "quantity": 1, "topping_ids": [],
+      "combo_items": [
+        { "product_id": "cccc…0003", "quantity": 1, "topping_ids": ["bbbb…0001"] },   // Bánh Trứng Chín · thịt
+        { "product_id": "cccc…0001", "quantity": 1, "topping_ids": ["bbbb…0001"] },   // Giò · thịt
+        { "product_id": "cccc…0005", "quantity": 3, "topping_ids": ["bbbb…0001"] } ]}, // Bánh Cuốn ×3 · thịt
+    { "product_id": null, "combo_id": "dddd…0003", "quantity": 1, "topping_ids": [],
+      "combo_items": [
+        { "product_id": "cccc…0001", "quantity": 1, "topping_ids": ["bbbb…0002"] },
+        { "product_id": "cccc…0005", "quantity": 3, "topping_ids": ["bbbb…0002"] } ]},
+    { "product_id": null, "combo_id": "dddd…0004", "quantity": 1, "topping_ids": [],
+      "combo_items": [
+        { "product_id": "cccc…0004", "quantity": 1, "topping_ids": ["bbbb…0001"] },
+        { "product_id": "cccc…0005", "quantity": 3, "topping_ids": ["bbbb…0001"] } ]},
+    // 4 món lẻ — nhân = topping_ids
+    { "product_id": "cccc…0001", "combo_id": null, "quantity": 1, "topping_ids": ["bbbb…0001"] },
+    { "product_id": "cccc…0005", "combo_id": null, "quantity": 2, "topping_ids": ["bbbb…0002"] },
+    { "product_id": "cccc…0002", "combo_id": null, "quantity": 1, "topping_ids": ["bbbb…0001"] },
+    { "product_id": "cccc…0003", "combo_id": null, "quantity": 1, "topping_ids": ["bbbb…0002"] },
+    // canh — global, split (NEVER inside a combo)
+    { "product_id": "cccc…0006", "combo_id": null, "quantity": 2, "topping_ids": ["bbbb…0003"] }, // 2 CÓ rau
+    { "product_id": "cccc…0006", "combo_id": null, "quantity": 3, "topping_ids": [] }             // 3 KHÔNG rau
+  ]
+}
+```
+
+FE sends **no prices** — BE computes all money from its own catalog.
+
+#### BE returns from `POST /orders` → ONLY the id
+
+```jsonc
+{ "data": { "id": "6c39ea8a-1a0c-4e78-b325-c3a39e70ed0f" } }
+```
+
+The FE then immediately does `GET /orders/:id` to fetch the full order and cache it.
+
+#### BE SENDS BACK → `GET /orders/:id` (cached to `localStorage["order_cache_<id>"]`)
+
+BE flattens each combo into a **header row + child rows** linked by `combo_ref_id`
+(`order_service.go expandCombo`). Critical rule (OC epic): **combo header `unit_price = 0`;
+the children carry the money** (server template prices) → so summing all rows isn't double-counted.
+
+> ⚠️ **Items come back UNORDERED** — sorted by item UUID, so combo headers and their children are
+> **interleaved**, NOT grouped. The ONLY thing that ties a combo together is `combo_ref_id` (child)
+> → matching a header row's `id`. Read views (order page, KDS, admin) reconstruct the grouping from
+> that link; never rely on array order.
+
+**Real captured response** (live run 2026-06-08, Bàn 2 — IDs are real, abridged to representative
+rows; full order = 16 item rows: 3 combo headers + 8 combo children + 3 món lẻ + 2 canh):
+
+```jsonc
+{ "data": {
+  "id": "6c39ea8a-1a0c-4e78-b325-c3a39e70ed0f",
+  "order_number": "ORD-20260608-0001",      // format ORD-YYYYMMDD-NNNN (Redis daily seq)
+  "status": "pending",                       // BE-assigned; FE never sends status
+  "source": "qr",
+  "table_id": "8fd570c2-66c9-4284-a93d-9e49faaafea8", "table_name": "Bàn 2",
+  "customer_name": "", "customer_phone": "", "note": "",
+  "created_by": "", "created_at": "2026-06-08T08:14:19Z", "updated_at": "2026-06-08T08:14:19Z",
+  "total_amount": 107000,                    // BE-computed sum of every row
+  "items": [
+    // ── combo HEADER (unit_price 0 — just a grouping label) ──
+    { "id":"14c2e47e-…","combo_id":"dddddddd-…0001","product_id":null,"combo_ref_id":null,
+      "name":"Suất Đầy Đủ Trứng Chín","unit_price":0,"quantity":1,"qty_served":0,
+      "item_status":"pending","toppings_snapshot":[],"note":"" },
+    // ── its CHILDREN carry the money + nhân, linked by combo_ref_id = the header id ──
+    { "id":"941b3ee0-…","product_id":"cccc…0003","combo_ref_id":"14c2e47e-…","name":"Bánh Trứng Chín",
+      "unit_price":9000,"quantity":1,"qty_served":0,"item_status":"pending",
+      "toppings_snapshot":[{"id":"bbbb…0001","name":"Nhân thịt","price":0}],"note":"" },
+    { "id":"e092a821-…","product_id":"cccc…0001","combo_ref_id":"14c2e47e-…","name":"Giò",
+      "unit_price":9000,"quantity":1,"toppings_snapshot":[{"id":"bbbb…0001","name":"Nhân thịt","price":0}], … },
+    { "id":"e3c52fc6-…","product_id":"cccc…0005","combo_ref_id":"14c2e47e-…","name":"Bánh Cuốn",
+      "unit_price":4000,"quantity":3,"toppings_snapshot":[{"id":"bbbb…0001","name":"Nhân thịt","price":0}], … },
+    //  … (combo 2 "Suất Giò" + combo 3 "Suất Trứng Bánh Không" same shape — header 0 + children) …
+    //  … interleaved in the real array by UUID; shown grouped here for readability …
+
+    // ── 4 MÓN LẺ (combo_ref_id: null) ──
+    { "id":"0cbeb82d-…","product_id":"cccc…0001","combo_ref_id":null,"name":"Giò","unit_price":9000,"quantity":1,
+      "toppings_snapshot":[{"id":"bbbb…0001","name":"Nhân thịt","price":0}], … },
+    { "id":"12a66be9-…","product_id":"cccc…0005","combo_ref_id":null,"name":"Bánh Cuốn","unit_price":4000,"quantity":2,
+      "toppings_snapshot":[{"id":"bbbb…0002","name":"Nhân mộc nhĩ","price":0}], … },
+    { "id":"9e83f699-…","product_id":"cccc…0002","combo_ref_id":null,"name":"Bánh Trứng Tái","unit_price":9000,"quantity":1,
+      "toppings_snapshot":[{"id":"bbbb…0001","name":"Nhân thịt","price":0}], … },
+    { "id":"e893ef7b-…","product_id":"cccc…0003","combo_ref_id":null,"name":"Bánh Trứng Chín","unit_price":9000,"quantity":1,
+      "toppings_snapshot":[{"id":"bbbb…0002","name":"Nhân mộc nhĩ","price":0}], … },
+
+    // ── 2 CANH rows (unit_price 0; có rau carries the Rau topping, không rau is empty) ──
+    { "id":"3610bd23-…","product_id":"cccc…0006","combo_ref_id":null,"name":"Canh","unit_price":0,"quantity":2,
+      "toppings_snapshot":[{"id":"bbbb…0003","name":"Rau mùi tàu","price":0}], … },
+    { "id":"f66c998f-…","product_id":"cccc…0006","combo_ref_id":null,"name":"Canh","unit_price":0,"quantity":3,
+      "toppings_snapshot":[], … }
+  ]
+} }
+```
+
+**total_amount math** (all rows, combo headers = 0):
+`(9000+9000+4000×3) + (9000+4000×3) + (9000+4000×3) + 9000 + 4000×2 + 9000 + 9000 + 0`
+`= 30000 + 21000 + 21000 + 9000 + 8000 + 9000 + 9000 = ` **107 000 ₫** ✅ matches live `total_amount`.
+
+**What BE ADDS that FE never sent:** `id` per row · `order_number` · `status` · `total_amount` ·
+per-line `unit_price` · `qty_served` (0 = not cooked) · `item_status` · `combo_ref_id` linkage ·
+`toppings_snapshot` (frozen name+price copy, so the order stays correct if a topping changes later) ·
+`created_by` / `created_at` / `updated_at`.
+
+> ✅ **Verified live** 2026-06-08: `docker compose` stack → `POST /auth/guest` (Bàn 2 QR token) →
+> `POST /orders` (id `6c39ea8a…`, `order_number` ORD-20260608-0001) → `GET /orders/:id`.
+> FE send shape from `lib/order-payload.ts`; BE behaviour from `order_service.go` (`expandCombo`,
+> `buildProductRow`, `generateOrderNumber`) + `order_handler.go`. Note: the FE `OrderItem` type
+> declares a `flagged` field but the GET handler does **not** emit it (FE/BE drift).
 
 ---
 

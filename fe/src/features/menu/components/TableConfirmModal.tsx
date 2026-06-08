@@ -23,7 +23,7 @@ export function TableConfirmModal({ onClose }: { onClose: () => void }) {
         note:           note.trim() || null,
         table_id:       cart.tableId,
         source:         'qr',
-        items: buildOrderItemsPayload(cart.items, cart.drinkConfig),
+        items: buildOrderItemsPayload(cart.items),
       })
       return data
     },

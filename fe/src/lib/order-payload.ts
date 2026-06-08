@@ -1,4 +1,4 @@
-import type { CartItem, DrinkConfig } from '@/types/cart'
+import type { CartItem } from '@/types/cart'
 
 // One item in a POST /orders (or POST /orders/:id/items) request body.
 export interface OrderItemPayload {
@@ -17,28 +17,20 @@ const isSoupName = (name: string) =>
 // API payload. Every checkout path (table confirm, online checkout, add-to-order)
 // must use it so the saved order matches the menu's "Tổng số món" preview exactly.
 //
-// Three rules mirror OrderSummary's preview:
+// Two rules mirror OrderSummary's preview:
 //   1. Combo contents → combo_items overrides (per-dish quantity + the combo's topping_ids).
+//      Canh sub-items are stripped from combos — canh lives as standalone CartItems.
 //   2. Nhân (thịt/mộc nhĩ) → carried as topping_ids on standalone products and combo sub-items.
-//   3. Canh is global: driven by the CANH stepper (drinkConfig), split into
-//      có rau / không rau. "Có rau" rows carry the Rau topping via topping_ids (not a note).
-//      "Không rau" rows carry topping_ids: []. Emitted as standalone rows — never inside a combo.
-export function buildOrderItemsPayload(items: CartItem[], drink: DrinkConfig): OrderItemPayload[] {
+//   3. Canh: each canh CartItem (cartId canh_<id>_rau / canh_<id>_plain) passes through as a
+//      normal product row. "Có rau" carries the Rau topping via topping_ids (already on the item).
+//      "Không rau" carries topping_ids: []. Never inside a combo.
+export function buildOrderItemsPayload(items: CartItem[]): OrderItemPayload[] {
   const rows: OrderItemPayload[] = []
-  let canhProductId:     string | null = null
-  let canhRauToppingId:  string | null = null
 
   for (const item of items) {
     if (item.type === 'combo') {
       const subs = item.combo_items ?? []
-      // Remember the canh product and its Rau topping so the global drinkConfig rows can reference them.
-      for (const ci of subs) {
-        if (isSoupName(ci.product_name) && ci.product_id) {
-          canhProductId = ci.product_id
-          canhRauToppingId = (ci.toppings ?? []).find(t => t.is_available)?.id ?? canhRauToppingId
-        }
-      }
-      // Override the combo with its non-canh dishes (canh is handled globally).
+      // Override the combo with its non-canh dishes (canh is a standalone CartItem).
       const overrides = subs
         .filter(ci => !isSoupName(ci.product_name) && ci.product_id)
         .map(ci => ({ product_id: ci.product_id!, quantity: ci.quantity, topping_ids: item.toppings.map(t => t.id) }))
@@ -52,12 +44,7 @@ export function buildOrderItemsPayload(items: CartItem[], drink: DrinkConfig): O
       if (overrides.length > 0) row.combo_items = overrides
       rows.push(row)
     } else {
-      // Standalone canh is folded into the global drinkConfig rows below.
-      if (isSoupName(item.name)) {
-        if (item.product_id) canhProductId = item.product_id
-        canhRauToppingId = item.toppings.find(t => t.is_available)?.id ?? canhRauToppingId
-        continue
-      }
+      // Standalone products (including canh items) pass through directly.
       rows.push({
         product_id:  item.product_id ?? null,
         combo_id:    null,
@@ -65,15 +52,6 @@ export function buildOrderItemsPayload(items: CartItem[], drink: DrinkConfig): O
         topping_ids: item.toppings.map(t => t.id),
       })
     }
-  }
-
-  // Global canh rows from the CANH stepper, split có rau / không rau.
-  // "Có rau" rows carry the Rau topping via topping_ids; "Không rau" rows carry topping_ids: [].
-  const { bowls, vegBowls } = drink
-  const nonVeg = bowls - vegBowls
-  if (bowls > 0 && canhProductId) {
-    if (vegBowls > 0) rows.push({ product_id: canhProductId, combo_id: null, quantity: vegBowls, topping_ids: canhRauToppingId ? [canhRauToppingId] : [] })
-    if (nonVeg   > 0) rows.push({ product_id: canhProductId, combo_id: null, quantity: nonVeg,   topping_ids: [] })
   }
 
   return rows

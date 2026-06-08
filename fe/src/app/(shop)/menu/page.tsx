@@ -40,10 +40,11 @@ function MenuContent() {
     setHasOrders(found)
   }, [])
 
-  const { tableId, drinkConfig } = useCartStore()
+  const { tableId, items } = useCartStore()
 
   // Canh is always required: any order must have at least 1 bowl before checkout.
-  const canhMissing  = drinkConfig.bowls === 0
+  // Canh lives as CartItems with ids starting 'canh_*'; missing = no such item in the cart.
+  const canhMissing  = !items.some(i => i.id.startsWith('canh_'))
   const { items: favItems } = useFavouritesStore()
 
   const handleCheckout = () => {

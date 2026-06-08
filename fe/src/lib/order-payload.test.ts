@@ -1,13 +1,20 @@
 /**
- * buildOrderItemsPayload — OC-3
+ * buildOrderItemsPayload — CANH-2
  *
  * Verifies the single checkout payload builder mirrors the menu "Tổng số món"
- * preview: combo content overrides + nhân toppings + global canh split (có/không rau).
+ * preview: combo content overrides + nhân toppings + canh as normal CartItems.
+ *
+ * After CANH epic: canh items live in items[] with stable cartIds
+ *   canh_<productId>_rau   → toppings:[rauTopping]   (có rau)
+ *   canh_<productId>_plain → toppings:[]              (không rau)
+ * No drink param — canh passes through like any product.
  */
 
 import { describe, expect, it } from 'vitest'
 import { buildOrderItemsPayload } from '@/lib/order-payload'
 import type { CartItem } from '@/types/cart'
+
+const RAU_TOPPING = { id: 't-rau', name: 'Rau mùi tàu', price: 0, is_available: true }
 
 const combo = (over: Partial<CartItem> = {}): CartItem => ({
   id: 'combo_x_thit',
@@ -20,7 +27,7 @@ const combo = (over: Partial<CartItem> = {}): CartItem => ({
   combo_items: [
     { product_id: 'p-bc', product_name: 'Bánh Cuốn', quantity: 3, unit_price: 4000 },
     { product_id: 'p-gio', product_name: 'Giò', quantity: 1, unit_price: 9000 },
-    { product_id: 'p-canh', product_name: 'Canh', quantity: 1, unit_price: 0, toppings: [{ id: 't-rau', name: 'Rau mùi tàu', price: 0, is_available: true }] },
+    { product_id: 'p-canh', product_name: 'Canh', quantity: 1, unit_price: 0, toppings: [RAU_TOPPING] },
   ],
   ...over,
 })
@@ -36,9 +43,30 @@ const standalone = (over: Partial<CartItem> = {}): CartItem => ({
   ...over,
 })
 
+// Canh CartItems — in items[], not a separate counter
+const canhRau = (qty: number): CartItem => ({
+  id: 'canh_p-canh_rau',
+  type: 'product',
+  product_id: 'p-canh',
+  name: 'Canh (có rau)',
+  quantity: qty,
+  price: 0,
+  toppings: [RAU_TOPPING],
+})
+
+const canhPlain = (qty: number): CartItem => ({
+  id: 'canh_p-canh_plain',
+  type: 'product',
+  product_id: 'p-canh',
+  name: 'Canh (không rau)',
+  quantity: qty,
+  price: 0,
+  toppings: [],
+})
+
 describe('buildOrderItemsPayload', () => {
   it('combo → overrides with topping_ids, canh excluded from combo', () => {
-    const rows = buildOrderItemsPayload([combo()], { bowls: 5, vegBowls: 3 })
+    const rows = buildOrderItemsPayload([combo(), canhRau(3), canhPlain(2)])
     const comboRow = rows.find(r => r.combo_id === 'combo-x')!
     expect(comboRow.combo_items).toEqual([
       { product_id: 'p-bc', quantity: 3, topping_ids: ['t-thit'] },
@@ -48,8 +76,8 @@ describe('buildOrderItemsPayload', () => {
     expect(comboRow.combo_items!.some(ci => ci.product_id === 'p-canh')).toBe(false)
   })
 
-  it('canh is global: split into có rau / không rau from drinkConfig', () => {
-    const rows = buildOrderItemsPayload([combo()], { bowls: 5, vegBowls: 3 })
+  it('canh CartItems emit as standalone rows: có rau / không rau', () => {
+    const rows = buildOrderItemsPayload([combo(), canhRau(3), canhPlain(2)])
     const canhRows = rows.filter(r => r.product_id === 'p-canh')
     expect(canhRows).toEqual([
       { product_id: 'p-canh', combo_id: null, quantity: 3, topping_ids: ['t-rau'] },
@@ -58,22 +86,28 @@ describe('buildOrderItemsPayload', () => {
   })
 
   it('standalone product carries topping_ids', () => {
-    const rows = buildOrderItemsPayload([standalone()], { bowls: 0, vegBowls: 0 })
+    const rows = buildOrderItemsPayload([standalone()])
     expect(rows).toEqual([
       { product_id: 'p-bc', combo_id: null, quantity: 3, topping_ids: ['t-thit'] },
     ])
   })
 
-  it('no canh rows when stepper is 0', () => {
-    const rows = buildOrderItemsPayload([standalone()], { bowls: 0, vegBowls: 0 })
+  it('no canh rows when no canh items in cart', () => {
+    const rows = buildOrderItemsPayload([standalone()])
     expect(rows.some(r => r.product_id === 'p-canh')).toBe(false)
   })
 
   it('all veg or all non-veg emits a single canh row', () => {
-    const allVeg = buildOrderItemsPayload([combo()], { bowls: 2, vegBowls: 2 })
+    const allVeg = buildOrderItemsPayload([combo(), canhRau(2)])
       .filter(r => r.product_id === 'p-canh')
     expect(allVeg).toEqual([
       { product_id: 'p-canh', combo_id: null, quantity: 2, topping_ids: ['t-rau'] },
+    ])
+
+    const allPlain = buildOrderItemsPayload([combo(), canhPlain(3)])
+      .filter(r => r.product_id === 'p-canh')
+    expect(allPlain).toEqual([
+      { product_id: 'p-canh', combo_id: null, quantity: 3, topping_ids: [] },
     ])
   })
 })

@@ -52,7 +52,7 @@ export default function CheckoutPage() {
         note:           form.note ?? null,
         table_id:       cart.tableId ?? null,
         source:         cart.tableId ? 'qr' : 'online',
-        items: buildOrderItemsPayload(cart.items, cart.drinkConfig),
+        items: buildOrderItemsPayload(cart.items),
       }
 
       const { data } = await api.post('/orders', payload)

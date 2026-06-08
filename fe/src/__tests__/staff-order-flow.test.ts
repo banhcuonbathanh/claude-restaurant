@@ -35,7 +35,7 @@ const AUTH_RESET: Parameters<typeof useAuthStore.setState>[0] = {
 const CART_RESET: Parameters<typeof useCartStore.setState>[0] = {
   items: [], tableId: null, tableName: null,
   activeOrderId: null, paymentMethod: null,
-  drinkConfig: { bowls: 1, vegBowls: 0 }, orderNote: '',
+  orderNote: '',
 }
 
 /** Cancel rule from docs/core/MASTER_v1.2.md §4.2 */

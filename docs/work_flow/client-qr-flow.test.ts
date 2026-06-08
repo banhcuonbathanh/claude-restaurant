@@ -31,7 +31,7 @@ Object.defineProperty(global, 'localStorage', { value: localStorageMock, writabl
 const CART_RESET: Parameters<typeof useCartStore.setState>[0] = {
   items: [], tableId: null, tableName: null,
   activeOrderId: null, paymentMethod: null,
-  drinkConfig: { bowls: 1, vegBowls: 0 }, orderNote: '',
+  orderNote: '',
 }
 
 const AUTH_RESET: Parameters<typeof useAuthStore.setState>[0] = {
@@ -274,10 +274,9 @@ describe('Invariant 7 — activeOrderId survives page reload (cart persist parti
   it('partialize config persists activeOrderId under CART_CONFIG key', () => {
     // Simulate: activeOrderId is set, then page "reloads" (state reset + hydrate from storage)
     useCartStore.getState().setActiveOrderId('order-xyz')
-    // Manually write what persist would write
+    // Manually write what persist would write (partialize: orderNote + activeOrderId only)
     const persistedState = {
-      drinkConfig: useCartStore.getState().drinkConfig,
-      orderNote:   useCartStore.getState().orderNote,
+      orderNote:     useCartStore.getState().orderNote,
       activeOrderId: useCartStore.getState().activeOrderId,
     }
     localStorage.setItem(STORAGE_KEYS.CART_CONFIG, JSON.stringify({ state: persistedState, version: 0 }))
@@ -289,8 +288,7 @@ describe('Invariant 7 — activeOrderId survives page reload (cart persist parti
   it('activeOrderId is NOT in partialize when null', () => {
     useCartStore.getState().clearCart()
     const persistedState = {
-      drinkConfig: useCartStore.getState().drinkConfig,
-      orderNote:   useCartStore.getState().orderNote,
+      orderNote:     useCartStore.getState().orderNote,
       activeOrderId: useCartStore.getState().activeOrderId,
     }
     expect(persistedState.activeOrderId).toBeNull()
@@ -327,7 +325,7 @@ describe('Step 3 — Optional order note (QR path)', () => {
     useCartStore.getState().setOrderNote('Ít đường')
     useCartStore.getState().clearCart()
     // clearCart only clears: items, tableId, tableName, activeOrderId, paymentMethod
-    // orderNote and drinkConfig are intentionally preserved
+    // orderNote is intentionally preserved (part of persist config)
     expect(useCartStore.getState().orderNote).toBe('Ít đường')
   })
 })

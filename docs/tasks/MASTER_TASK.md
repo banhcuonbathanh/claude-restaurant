@@ -40,6 +40,7 @@
 | P-FIX-CANH — Stale canh count in cart | FE | ✅ COMPLETE | 0 | — |
 | P-PREP-3COL — WaitingSection prep list → 3 columns (Title · Topping · Quantity) | FE | ✅ COMPLETE | 0 | — |
 | **TOP — Topping Unification (nhân/rau = topping, drop `filling`)** | BE+FE | ✅ COMPLETE | 0 | — |
+| **CANH — Canh as Normal Cart Item (FE/BE model unification)** | FE | ✅ COMPLETE | 0 | — |
 
 ---
 
@@ -110,6 +111,25 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 | TOP-4 | FE | `OrderSummary` renders toppings (drop filling badge + `name\|filling` aggregation key → `name\|toppingIds`); read views `order/[id]` DishRow, `kds/page.tsx`, `PrepPanel.tsx`, `overview.helpers.ts` show toppings. | TOP-3 | 1 | ✅ | OrderSummary dishSummary keyed by `name\|toppingIds` + per-line topping pills; `order/[id]`/kds/overview.helpers read `toppings_snapshot` (filling reads removed, `fillingLabel` imports dropped); PrepPanel comment-only; tsc clean, 107 pass/2 known fail |
 | TOP-5 | FE | Canh `rau`: replace `drinkConfig` veg/noveg **note** with "Rau mùi tàu" **topping** on canh rows (`OrderSummary` canh block + `order-payload.ts`). | TOP-4 | 1 | ✅ | `order-payload` canh rows emit `topping_ids:[rauId]` (có rau) / `[]` (không rau), no note; read views (overview.helpers, kds) detect rau via `toppings_snapshot` w/ legacy-note fallback; **orchestrator fix**: ComboCard now copies sub-item `toppings` into cart `combo_items` (+`ComboItemSummary.toppings?`) so combo-canh rau is captured live; OrderSummary unchanged (drinkConfig correct). tsc clean, 107 pass/2 known fail |
 | TOP-6 | FE | **Final type cleanup** (deferred from TOP-2 per owner): delete `filling` from `types/cart.ts` (`CartItem`) + `types/order.ts` (`OrderItem`) and remove `fillingLabel()`; stale comment in `order/[id]` fixed. | TOP-5 | 0 | ✅ | No `filling` in FE/BE source except a harmless `globals.css` comment (running-border class still used); tsc + tests green |
+
+---
+
+## Phase CANH — Canh as Normal Cart Item (FE/BE Order Model Unification)
+
+> **Owner:** FE
+> **Dependency:** TOP ✅ (topping model is unified; canh rau = topping already)
+> **Status:** ✅ COMPLETE (CANH-1 → CANH-4 all ✅, 2026-06-08)
+> **Added:** 2026-06-08
+> **Problem:** FE models canh via a separate `drinkConfig {bowls, vegBowls}` counter while BE stores canh as ordinary `order_items` rows. After TOP, canh có rau = canh product + Rau topping — the only remaining FE/BE divergence is the bespoke `drinkConfig` field. Removing it unifies the model: canh items live in `items[]` exactly like any other product.
+> **Decision (owner, 2026-06-08, pre-approved):** Option A — canh becomes a normal `CartItem`. Two stable cart IDs: `canh_<canhProductId>_rau` (có rau) and `canh_<canhProductId>_plain` (không rau). Steppers in UI stay but now read/write those items. `drinkConfig` deleted entirely. BE: ZERO changes needed.
+> **Order:** CANH-1 → CANH-2 → CANH-3 → CANH-4 (strict)
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| CANH-1 | FE | Remove `DrinkConfig` type + `drinkConfig`/`setDrinkConfig`/`DEFAULT_DRINK_CONFIG` from `store/cart.ts` and `types/cart.ts`. Add `setCanhQty(productId, rauTopping\|null, kind, qty)` helper to write canh cart items with stable cartIds `canh_<id>_rau` / `canh_<id>_plain`. Bump persist version to 5; migrate: drop old drinkConfig. Build green. | TOP ✅ | 1 | ✅ | `DrinkConfig` type removed; `setCanhQty` added to cart store; persist v5 with migration cleanup; `npm run build` green |
+| CANH-2 | FE | `order-payload.ts`: drop `drink: DrinkConfig` param, change signature to `buildOrderItemsPayload(items)`. Canh items pass through like any product (no reconciliation needed). KEEP combo canh-strip (`isSoupName`). Update `order-payload.test.ts` to use canh items in `items[]`. | CANH-1 | 1 | ✅ | 5 builder tests pass; combo canh-strip still works; canh CartItems emit identical rows to old drinkConfig output; `npm run build` green |
+| CANH-3 | FE | `OrderSummary.tsx`: steppers read/write canh CartItems via `setCanhQty`; `discoverCanhInfo()` finds productId/rauTopping from items or combo sub-items; checkout gate = no `canh_*` items in cart; `Tổng số món` reads rauCount/plainCount from canh items. Amber warning + shake kept. | CANH-2 | 1 | ✅ | Steppers produce canh CartItems; gate uses `items.some(i => i.id.startsWith('canh_'))`; preview == payload; `npm run build` green |
+| CANH-4 | FE | Wire callers + cleanup: updated `menu/page.tsx`, `checkout/page.tsx`, `TableConfirmModal.tsx`, `CartDrawer.tsx`, `DrinkCustomize.tsx`; updated 4 test files (fe/src/__tests__/ + docs/work_flow/); updated `menu_spec_v2_visual.md §4a/§4d/§5/§6b/§6f`. | CANH-3 | 1 | ✅ | Zero `drinkConfig`/`vegBowls` refs in fe/src (grep clean); `npm run build` green; 107 pass / 2 pre-existing failures (clearCart orderNote + CART_CONFIG key) unchanged |
 
 ---
 

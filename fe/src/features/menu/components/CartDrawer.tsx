@@ -19,7 +19,7 @@ interface Props {
 
 export function CartDrawer({ open, onClose, addToOrderId, onTableCheckout }: Props) {
   const router = useRouter()
-  const { items, updateQty, removeItem, total, itemCount, activeOrderId, clearCart, tableId, drinkConfig } = useCartStore()
+  const { items, updateQty, removeItem, total, itemCount, activeOrderId, clearCart, tableId } = useCartStore()
   const { customerName, tableLabel } = useSettingsStore()
 
   // Track which combos have their dish list expanded
@@ -28,7 +28,7 @@ export function CartDrawer({ open, onClose, addToOrderId, onTableCheckout }: Pro
   const addItemsMutation = useMutation({
     mutationFn: () => addItemsToOrder(
       addToOrderId!,
-      buildOrderItemsPayload(items, drinkConfig),
+      buildOrderItemsPayload(items),
     ),
     onSuccess: () => {
       toast.success('Đã thêm món thành công')
