@@ -1,20 +1,27 @@
 ---
-page: Menu (Ordering Experience) — combined as-built reference
+page: Menu (Ordering Experience)
 route: /(shop)/menu/page.tsx
 spec_ref: Spec_3 §4
 created: 2026-06-07
-updated: 2026-06-07 — ALL menu zones (incl. TableConfirmModal) extracted from page.tsx into feature components (branch Refactor-menu); page.tsx is now purely orchestration (queries + page state + zone composition).
-status: ✅ As-built — documents current code exactly
-combines:
-  - menu_spec_ver1.md (zone/visual spec — exact classes, sticky positions, subpages, deviations)
-  - Menu_Status_Routing_Reference.md (data flow — BE reads/writes, store lifetime, component tree, concerns)
+updated: 2026-06-08 — promoted to the single canonical page spec; Acceptance Criteria appended.
+status: ✅ As-built — documents current code exactly · CANONICAL
+canonical: true
+supersedes:
+  - ../client_menu_page/menu_wireframe_v1.md  (design wireframe, pre-build)
+  - ../client_menu_page/menu_spec.md          (design spec — ACs carried over below)
+  - ../client_menu_page/menu_spec_ver1.md     (as-built zone spec — merged here)
+  - ../client_menu_page/Menu_Status_Routing_Reference.md  (data flow — merged here)
+assets:  # binaries not duplicated — live in the old folder
+  - ../client_menu_page/menu_ver3_ux.excalidraw   (latest UX wireframe)
+  - ../client_menu_page/menu_ver1_done.png        (PNG export)
 ---
 
-# Menu Page — Combined Reference (As-Built)
+# Menu Page — Canonical Spec (As-Built)
 
-> **Purpose:** single source documenting what is *actually implemented* at
-> `http://localhost:3000/menu`. Read-from-code, not aspirational. Merges the visual/zone
-> spec with the data-flow / status-routing reference. Every cell traced to code as of 2026-06-07.
+> **Purpose:** THE single source documenting what is *actually implemented* at
+> `http://localhost:3000/menu`. Read-from-code, not aspirational. Every cell traced to code
+> as of 2026-06-07. Replaces the four older menu docs listed in `supersedes:` above — do not
+> edit those; edit this file.
 >
 > **Source page:** `fe/src/app/(shop)/menu/page.tsx` + `src/features/menu/components/*`
 >
@@ -22,6 +29,44 @@ combines:
 > **Who sees it:** Customer (guest JWT from QR scan, or direct browser access)
 > **Entry:** QR scan → `/table/[id]` → redirect to `/menu` | direct URL
 > **?add_to_order=<id>:** activates Add-to-Order mode (banner + CartDrawer CTA changes)
+
+---
+
+## 📌 Summary (read this first)
+
+**What this doc is:** the one canonical, read-from-code spec for the customer **Menu** page
+(`/(shop)/menu`). If you only read this section you'll understand the page; drop into the detailed
+sections below only when you need exact classes, props, or payloads.
+
+**What the page is:** a mobile-first **catalog + cart builder**. The customer arrives by QR scan
+(or direct URL), browses categories / combos / món lẻ, customizes (filling, canh, toppings, note),
+and places one order. It **creates** an order but never reads order status back.
+
+**The 8 things to know:**
+
+| # | Fact |
+|---|---|
+| 1 | **Rendering:** Pattern B — **Full Client** (`'use client'`); all 4 queries run client-side. *(The shared index says Pattern A — that's drift; see §Rendering.)* |
+| 2 | **Reads from BE:** 4 `GET` queries — `categories` · `products` (all) · `products` (filtered) · `combos`. Combos enriched client-side from the all-products list. |
+| 3 | **Writes to BE:** exactly **one** mutation — `POST /orders` (source `qr`) from `TableConfirmModal`. Nothing else is sent. |
+| 4 | **State:** global **Zustand** (`cart` · `favourites` · `settings`) + **TanStack Query** cache + page-local `useState` lifted to `MenuContent` and passed down by props. No zone-to-zone calls. |
+| 5 | **Layout:** ~12 zones (A header → J cart bar) + 2 modals (CartDrawer, TableConfirmModal). All extracted into `features/menu/components/`; `page.tsx` only orchestrates. |
+| 6 | **Checkout fork:** QR table (`tableId` set) → `TableConfirmModal`; no table → `/checkout`. Blocked with a shake when canh bowls = 0. |
+| 7 | **Persistence:** cart `orderNote` + `activeOrderId` persist to localStorage; `items` / `tableId` / `drinkConfig` are session-only (reset on reload). |
+| 8 | **Open risks:** toppings unselectable from the list card + not shown in the summary; "nhân" modeled two ways (filling vs topping). See §Concerns + **§Improvement Strategy** (prioritized backlog + migration plan). |
+
+**Where to go next (section map):**
+
+| If you want… | Go to |
+|---|---|
+| Zone-by-zone components, classes, props | §Per-Zone / Per-Component Spec · §Component Tree |
+| Exactly what's fetched / sent to BE | §What Comes FROM BE · §What Is SENT TO BE |
+| In-page + cross-component state | §State Management |
+| ISR/RSC vs client, loading/skeletons | §Rendering & Loading Strategy |
+| Reusable / shared components | §Shared Components |
+| Cross-page handoffs (Menu → Order) | §How It Manages Data CROSS-PAGE |
+| Testable behaviours | §Acceptance Criteria |
+| Known issues / decisions pending | §Concerns |
 
 ---
 
@@ -426,6 +471,95 @@ State is split by lifetime across **3 Zustand stores + localStorage**:
 
 ---
 
+## State Management (in-page + cross-component)
+
+> **Canonical registry:** [`../shared/_INDEX_STATE_MANAGEMENT.md`](../shared/_INDEX_STATE_MANAGEMENT.md) — reuse the stores
+> and query keys registered there; never invent a duplicate key for the same resource.
+
+**Layers used on this page** (per the index's State Layers table):
+
+| Layer | Tool | What lives here on `/menu` |
+|---|---|---|
+| Global client state | **Zustand** | `useCartStore` · `useFavouritesStore` · `useSettingsStore` (cross-page — see index §Global Zustand Stores) |
+| Server cache | **TanStack Query** | `['categories']` · `['products-all']` · `['products', cat, search]` · `['combos']` (see index §Server Cache Keys) |
+| UI-only local state | **`useState`** | owned by `MenuContent`, passed down by props (below) |
+| Form state (RHF+Zod) | — | **not used** on this page; the only text input (note) writes straight to `useCartStore` |
+
+**Page-local state — owned by `MenuContent`** (`page.tsx:30-37`), lifted to the orchestrator and pushed down as props (this is the cross-component channel — zones do not talk to each other directly):
+
+| Local state | Type | Drives | Consumed by |
+|---|---|---|---|
+| `selectedCategory` | `string \| null` | product/combo filtering + D/E visibility | CategoryTabs, ComboSection, ProductList, FavouritesRail |
+| `searchQuery` | `string` | `['products', cat, search]` query (debounced in SearchBar) | SearchBar, ProductList |
+| `cartOpen` | `boolean` | CartDrawer open | MenuHeader, MiniCartStrip, CartBottomBar → CartDrawer |
+| `confirmOpen` | `boolean` | TableConfirmModal open (QR flow) | CartBottomBar / CartDrawer → TableConfirmModal |
+| `hasOrders` | `boolean` | "Đơn hàng" active dot (scans `localStorage` for `ORDER_CACHE*`) | MenuHeader |
+| `canhShakeKey` | `number` | bumped to scroll-to + shake the Canh block when checkout is blocked | OrderSummary (`shakeKey` prop) |
+| `addToOrderId` | `string \| undefined` | from `?add_to_order` param → Add-to-Order mode | AddToOrderBanner, CartDrawer |
+
+**Cross-component communication:** all shared mutable state is either (a) **global Zustand** (any zone subscribes directly — cart/favourites/settings) or (b) **lifted to `MenuContent`** and passed by props. No context, no event bus, no zone-to-zone calls.
+
+> ⚠️ **Index reconciliation needed** (don't trust silently): the index's §Server Cache Keys lists
+> `['categories']` at `60s` but §Per-Page (Menu) and this page use `5 min` — pick one. Also
+> `['products-all']` (the unfiltered fetch used for combo enrichment) is **not registered** in the
+> index — add it. The index's Per-Page Menu row also omits `cartOpen/confirmOpen/hasOrders/canhShakeKey`.
+
+---
+
+## Rendering & Loading Strategy
+
+> **Canonical patterns:** [`../shared/_INDEX_RENDERING_STRATEGY.md`](../shared/_INDEX_RENDERING_STRATEGY.md) (Pattern A/B/C definitions).
+
+**As-built = Pattern B (Full Client).** `page.tsx` is `'use client'` (line 1); all 4 queries run
+client-side via `useQuery` inside `MenuContent`; there is **no** `revalidate`, `HydrationBoundary`,
+`dehydrate`, or `prefetchQuery`. The `<Suspense>` wrapper (page.tsx:209) has no `fallback`.
+
+> 🚨 **DRIFT — index says Pattern A.** `_INDEX_RENDERING_STRATEGY.md` row 15 records Menu as
+> "Pattern A — ISR + RSC, revalidate 300s, RSC prefetches `['categories']`·`['products',…]`·`['combos']`",
+> and `tech_description.md` shows the same aspirational RSC `page.tsx`. **Neither matches the code.**
+> Either migrate the page to Pattern A (add an RSC shell that prefetches, keep `MenuContent` as the client child)
+> or correct the index row to Pattern B. Until then, treat **Pattern B** as the truth for this page.
+
+**Runtime loading / error / empty states** (all client-side, inside `MenuContent`):
+
+| State | Trigger | UI |
+|---|---|---|
+| Loading | `loadingProducts` | skeletons — mobile 5× `h-24`, tablet+ 8× `aspect-square` (`animate-pulse`) |
+| Error | `isError` on products | "⚠ Kết nối mạng yếu" + "Thử lại" → `refetch()` |
+| Empty | 0 results | `<EmptyState>` — "Không tìm thấy món nào…" (search) / "Không có món nào trong danh mục này" (category) |
+
+**Known gaps** (from the index's Known Gaps table — carried here so they aren't lost):
+- No `prefetchQuery` on category-tab hover → each tab tap waits a network round-trip.
+- No skeleton for Zone C (tabs), Zone E (combos), Zone F (grid) → flash of empty on cold paint.
+- Because the page is Pattern B (not the claimed Pattern A), **every cold visit shows a loading flash** —
+  there is no server-pre-hydrated HTML.
+
+---
+
+## Shared Components (reuse)
+
+> **Canonical registry:** [`../shared/_INDEX_SHARING_COMPONENT.md`](../shared/_INDEX_SHARING_COMPONENT.md) — check before building; register after.
+
+**Reused on `/menu` (from the index):**
+
+| Component | Tier | File | Used where |
+|---|---|---|---|
+| `Button` | UI atom | `components/ui/button.tsx` | `page.tsx` (error-state "Thử lại", CTAs) |
+| `EmptyState` | Shared | `components/shared/EmptyState.tsx` | Zone F empty/no-result states |
+
+**Menu feature components this page OWNS that the index marks reusable elsewhere** (Tier 3 — `components/menu/` → now `features/menu/components/`): `ProductCard` · `ComboCard` · `CategoryTabs` · `CartDrawer` · `ToppingModal` · `ComboModal`.
+
+> ⚠️ **Reuse opportunity:** the menu feature components import **no** design-system atoms (verified —
+> they use raw Tailwind). The custom −/qty/+ steppers (`w-6 h-6`) duplicate the shared
+> **`QuantityStepper`** (`shared/QuantityStepper.tsx`, already used by favourites + product-detail), and the
+> "Hết" / filling pills could use **`Badge`**. Adopting these would unify touch-target + a11y behaviour.
+>
+> ⚠️ **Index row is stale:** the Page Directory row for Menu (line 118) still lists pre-refactor names
+> (`Header`, `FavoritesRail`, `ProductGridCard`, `NướcDùngCustomize`, `OrderNoteInput`, `CartFAB`) and links to
+> the superseded `menu_wireframe_v1.md`. Update it to the as-built names + this spec when the indexes are repointed.
+
+---
+
 ## Subpages (part of this route group)
 
 | Route | File | Purpose |
@@ -510,5 +644,82 @@ State is split by lifetime across **3 Zustand stores + localStorage**:
 
 ---
 
-*Combined from `menu_spec_ver1.md` + `Menu_Status_Routing_Reference.md` — 2026-06-07*
+## 🔧 Improvement Strategy (Source-of-Truth Backlog)
+
+> Added 2026-06-08 from a strategic review of this spec against the page's stated goals:
+> **good rendering strategy · clean cross-component data · clean cross-page data · clean BE contract.**
+> Each item = problem → impact → fix → scope. Priority order is the recommended execution order.
+> The §Concerns above record *what is wrong*; this section records *what to do about it*.
+> **When an item is implemented, update the matching §/AC and flip its row here to ✅.**
+
+**What is already healthy (do not "fix"):**
+- ✅ One mutation, one payload builder (`order-payload.ts`) feeding all 3 checkout paths → the
+  "preview == POST payload exactly" invariant. Keep it. (§What Is SENT TO BE)
+- ✅ State split by lifetime: global mutable → Zustand; page-local UI → `useState` lifted to
+  `MenuContent` → props down; no zone-to-zone calls. Structure is correct. (§State Management)
+
+### Prioritized backlog
+
+| # | Severity | Finding | Impact | Fix | Files / layer | Status |
+|---|---|---|---|---|---|---|
+| **IMP-1** | 🚨 correctness | **"Nhân" double-modeled** (filling vs topping). Menu card → `filling:'thit'`, `toppings:[]`, cart-id `product_<id>_<filling>`; detail page → `toppings:[Nhân thịt]`, no `filling`, cart-id `product_<id>_<toppingKey\|'plain'>`. (Concern #5) | Same dish from 2 surfaces = **duplicate cart lines + inconsistent data to the kitchen**. Inconsistent key suffix (`_plain` vs trailing `_`) is the same drift. | Pick ONE model (DB seed treats nhân as a **topping** → topping model is the likely source of truth). Make both surfaces + the cart-id key builder agree. | `ProductCard.tsx` · `ProductGridCard.tsx` · product-detail · `store/cart.ts` (cart-id) · `order-payload.ts` | ⬜ |
+| **IMP-2** | 🚨 perf/race | **`products-all` fetched only to enrich combos** client-side (`useMemo` joins `combo_items` → name+price). (§Data Sources) | Whole catalog downloaded twice; combo price can flash blank/stale until `products-all` resolves. | Move enrichment to BE: `GET /combos` returns `combo_items` with `product_name` + `unit_price`. Delete the query + the `useMemo`. | BE `/combos` handler+service · `page.tsx` (drop `['products-all']` + enrichment) | ⬜ |
+| **IMP-3** | 🚨 UX | **Pattern B (full client) on the QR landing page.** Every cold visit = blank → skeleton → content; no server-pre-hydrated HTML. (§Rendering DRIFT) | Worst first-paint on the most-seen customer screen. | Migrate to **Pattern A**: RSC shell `prefetchQuery(['categories'],['combos'],['products'])` → `dehydrate` → `<HydrationBoundary>` → keep `MenuContent` as the `'use client'` child unchanged. | `(shop)/menu/page.tsx` (split RSC shell + client child) | ⬜ |
+| **IMP-4** | 🚨 contract | **Toppings invisible in OrderSummary.** `item.toppings` read nowhere; only name + filling badge + qty shown. (Concern #4) | Violates the page's own "preview = saved order" promise — customer can't see which toppings they chose (they still reach BE via `topping_ids`). | Render each line's `item.toppings` in the COMBO/MÓN LẺ rows and in "Tổng số món". | `OrderSummary.tsx` | ⬜ |
+| **IMP-5** | 🚨 bug | **Toppings unselectable from the list card.** `ProductCard.tsx` hardcodes `hasToppings = false` → `ToppingModal` is dead code on `/menu` (<sm); "+" always adds `toppings:[]`. (Concern #3, AC-11) | Mobile customers can't pick toppings except via detail page. Folds into IMP-1's model decision. | Drive `hasToppings` from real `product.toppings`; align with IMP-1 model. | `ProductCard.tsx` | ⬜ |
+| **IMP-6** | ⚠️ UX/data | **Persistence split is inconsistent:** `orderNote` persists but `items` do not. (§Cross-Page) | On mobile QR (screen-lock / app-switch / reload) the half-built cart is wiped, but a now-orphan note survives. | Decide one rule: either persist `items` too (with a version/TTL guard like the drinkConfig v4 migration) OR drop `orderNote` from persistence. `drinkConfig`-resets-to-0 reasoning stays valid. | `store/cart.ts` (`partialize`) | ⬜ |
+| **IMP-7** | ⚠️ hygiene | **`order_cache_<id>` keys never pruned;** `hasOrders` scans them on every mount. (§Cross-Page) | Unbounded localStorage growth on shared/repeat devices; slower scan over time. | Add a cap or TTL sweep when writing a new cache entry. | `TableConfirmModal.tsx` (write) · `page.tsx` (scan) | ⬜ |
+| **IMP-8** | ℹ️ docs | **staleTime drift:** index says `['categories'] = 60s`, this page uses `5min`. Also `['products-all']` not registered in the index; index Per-Page Menu row omits `cartOpen/confirmOpen/hasOrders/canhShakeKey`. (§State Management) | Index and as-built disagree. | Reconcile `_INDEX_STATE_MANAGEMENT.md` to match this spec (or delete `['products-all']` via IMP-2, which moots it). | `../shared/_INDEX_STATE_MANAGEMENT.md` | ⬜ |
+
+### Sequencing notes
+- **IMP-1 + IMP-5** are one decision (the nhân model) — do them together; IMP-4 then renders whatever model wins.
+- **IMP-2 and IMP-3** are independent of the data-model work and of each other — either can go first; doing IMP-2 first shrinks the query set IMP-3's RSC shell must prefetch.
+- **IMP-6 / IMP-7 / IMP-8** are small, low-risk, batchable.
+- Each item is sized to fit the < 100k-token / 1-session rule; register a `MASTER_TASK.md` row before starting any.
+
+---
+
+## Acceptance Criteria
+
+> Carried over from the original design spec (`../client_menu_page/menu_spec.md`).
+> ✅ = matches as-built · ⚠️ = as-built differs from the original AC (note inline).
+
+```
+AC-01  QR scan → /table/[id] → redirects to /menu with tableLabel set in settingsStore        ✅
+AC-02  Header shows shop name, tableLabel from settingsStore, and cart item count badge         ✅
+AC-03  CategoryTabs loads from GET /categories; "Tất cả" is selected by default                 ✅
+AC-04  Selecting a category → ProductList filters; ComboSection + FavouritesRail hide           ✅
+AC-05  SearchBar debounces input 300ms before query; shows × clear button when typing           ✅
+AC-06  Search with < 2 characters → no API call; shows "Nhập ít nhất 2 ký tự"                   ✅
+AC-07  Search with no results → EmptyState: "Không tìm thấy món nào · Thử từ khóa khác nhé!"    ✅
+AC-08  FavouritesRail appears only when selectedCategory === null AND favItems.length > 0       ✅
+AC-09  Tapping heart on ProductCard/ComboCard → toggles favourite (persisted)                   ✅
+AC-10  ComboSection appears only when selectedCategory === null (and combos.length > 0)         ✅
+AC-11  Tapping [+] on a product with toppings → opens ToppingModal                              ⚠️ only on ProductGridCard (≥sm). ProductCard (<sm) hardcodes hasToppings=false → modal never opens. See Concern #3.
+AC-12  Tapping [+] on a product without toppings → adds directly to cart; qty control shown     ✅
+AC-13  Tapping product name/image → navigates to /menu/product/[id]                             ✅
+AC-14  CartBottomBar appears only when itemCount > 0; shows count + total                       ✅
+AC-15  Tapping CartBottomBar → checkout flow                                                    ⚠️ QR (tableId set) → TableConfirmModal; no tableId → /checkout. Blocked with shake when canh bowls === 0.
+AC-16  CartDrawer footer CTA proceeds to order                                                  ⚠️ label "Thanh toán" (or "Thêm vào đơn hàng" in add-to-order mode), not "Đặt hàng".
+AC-17  drinkConfig changes → updates cartStore.drinkConfig instantly                            ✅ (canh steppers inline in OrderSummary; Zone G only when hasCombo||hasNuocDung)
+AC-18  orderNote persists across reloads (localStorage via Zustand persist)                     ✅
+AC-19  OrderSummary groups items by Combo and Món lẻ; subtotal per group + grand total          ✅ (+ canh block + "Tổng số món" table + note)
+AC-20  Product image fails → shows 🍜 placeholder (no broken image icon)                         ✅
+AC-21  Network error on product/category fetch → error state with [Thử lại] button              ✅
+AC-22  All interactive elements: min touch target 44 × 44 px                                    ✅
+AC-23  is_available: false → product card shows "Hết" overlay; [+] disabled                     ✅
+```
+
+**As-built ACs (behaviour not in the original design spec):**
+
+```
+AC-24  Combo/product cards show "Nhân thịt / Nhân mộc nhĩ" pills; cart key includes filling     ✅
+AC-25  Canh count = 0 → amber warning in OrderSummary; checkout blocked + Canh block shakes     ✅
+AC-26  TableConfirmModal (QR flow): "Đặt hàng" → POST /orders → /order/:id; TABLE_HAS_ACTIVE_ORDER → redirect to active order  ✅
+AC-27  ?add_to_order=<id> → Add-to-Order banner shows; CartDrawer CTA = "Thêm vào đơn hàng"      ✅
+```
+
+---
+
+*Canonical as-built spec. Merged from `menu_spec_ver1.md` + `Menu_Status_Routing_Reference.md`, ACs from `menu_spec.md` — 2026-06-08*
 *Source files: `src/app/(shop)/menu/page.tsx` + `src/features/menu/components/*`*
