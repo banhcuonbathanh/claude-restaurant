@@ -3,7 +3,7 @@ page: Menu (Ordering Experience)
 route: /(shop)/menu/page.tsx
 spec_ref: Spec_3 §4
 created: 2026-06-07
-updated: 2026-06-08 — promoted to the single canonical page spec; Acceptance Criteria appended.
+updated: 2026-06-08 — promoted to the single canonical page spec; Acceptance Criteria appended; Detailed Workflow (Event Flow) section added.
 status: ✅ As-built — documents current code exactly · CANONICAL
 canonical: true
 supersedes:
@@ -59,6 +59,7 @@ and places one order. It **creates** an order but never reads order status back.
 
 | If you want… | Go to |
 |---|---|
+| **End-to-end runtime flow** (load → favourite → add → checkout) | **§Detailed Workflow (Event Flow)** |
 | Zone-by-zone components, classes, props | §Per-Zone / Per-Component Spec · §Component Tree |
 | Exactly what's fetched / sent to BE | §What Comes FROM BE · §What Is SENT TO BE |
 | In-page + cross-component state | §State Management |
@@ -206,6 +207,160 @@ MenuPage (page.tsx)                         ← Suspense boundary only
 (used inline as Zone G only when `hasCombo || hasNuocDung`) and `OrderNote.tsx`. `/menu` uses
 `OrderSummary`'s own inline canh stepper + note textarea instead; these are standalone equivalents
 used on other surfaces (checkout/cart). Documented at the end for completeness.
+
+---
+
+## Detailed Workflow (Event Flow) — Load → Favourite → Build Cart → Checkout
+
+> The sections above describe the page *statically* (zones, data, props). This section traces what
+> actually happens *at runtime*, step by step, from the user's first action to the order being saved.
+> Every step is traced to a file + line. The single rule that makes it all hang together:
+> **no zone calls another zone — they communicate only through the Zustand stores (cart/favourites/settings)
+> or through page-local `useState` lifted to `MenuContent` and passed down as props.** A component writes
+> to a store; every other component subscribed to that store re-renders automatically.
+
+### ① Page Load (cold visit)
+
+```
+MenuPage (page.tsx:207)  →  <Suspense>  →  <MenuContent>
+```
+
+1. **Mount.** `MenuContent` (page.tsx:27) reads `?add_to_order` from the URL (`searchParams.get`, line 30) → `addToOrderId`. Initializes 6 page-local `useState`: `selectedCategory=null`, `cartOpen=false`, `confirmOpen=false`, `hasOrders=false`, `searchQuery=''`, `canhShakeKey=0` (lines 31-36).
+2. **Active-order probe.** A mount-only `useEffect` (lines 38-41) scans `localStorage` for any key starting with `STORAGE_KEYS.ORDER_CACHE` → `setHasOrders(found)`. Drives the "Đơn hàng" dot in `MenuHeader`.
+3. **Store subscriptions.** `MenuContent` subscribes to `useCartStore` (`tableId`, `drinkConfig`, line 43) and `useFavouritesStore` (`favItems`, line 47). `canhMissing = drinkConfig.bowls === 0` is recomputed on every render (line 46). On a fresh load `drinkConfig` is **always `{bowls:0, vegBowls:0}`** because cart `partialize` (cart.ts:114) does not persist it.
+4. **4 queries fire** (lines 58-89), all client-side (Pattern B):
+   - `['categories']`, `['products-all']`, `['combos']` → always enabled.
+   - `['products', selectedCategory, searchQuery]` → gated by `enabled: searchQuery.length === 0 || >= 2` (line 82).
+5. **Combo enrichment** (`useMemo`, lines 92-111): `rawCombos` joined against `allProducts` → each `combo.items[]` gets `product_name`, `unit_price`, `toppings`. This is why `products-all` is fetched even though it isn't rendered directly. `nhanOptions` later derive from these sub-item `toppings`.
+6. **Visibility flags** computed each render: `showCombos = selectedCategory===null && combos.length>0` (line 113), `showFavs = selectedCategory===null && favItems.length>0` (line 114).
+7. **Render order** (lines 116-203): Header → MiniCartStrip → Banner → AddToOrderBanner → SearchBar → CategoryTabs → (FavouritesRail) → `<main>` content branch (`isError` → `loadingProducts` skeletons → empty `EmptyState` → ComboSection + ProductList) → OrderSummary → CartBottomBar → CartDrawer → (TableConfirmModal).
+   - **First paint sequence** (Pattern B, no SSR HTML): blank → skeleton (`loadingProducts`) → content once queries resolve. `OrderSummary` and `CartBottomBar` render **nothing** while the cart is empty (each self-guards on `items.length`/`itemCount()`).
+
+### ② Tapping the ❤ Favourite button
+
+Heart button lives on `ProductCard` (line 90-96), `ComboCard` (line 94-100), `ProductGridCard`, and `FavCard`.
+
+```
+onClick → toggleFav(id, type)               (favourites.ts:83-90)
+        → store removes (if present) or appends { id, type, qty:1, toppingIds:[] }
+        → persists FULL store to localStorage["favourites"]   (no partialize)
+        → every subscriber re-renders:
+            • the card's own ❤  (fav = isFavourite(id,type)) flips filled/outline
+            • MenuHeader badge  (favItems.length) increments
+            • FavouritesRail    appears when favItems.length crosses 0→1  (only if selectedCategory===null)
+```
+
+- **No cart write. No BE call.** Favourites are a purely client-side, fully-persisted list — independent of the cart and of any order. (favourites.ts:43-93, persisted under `STORAGE_KEYS.FAVOURITES`, **no** `partialize` so the whole store survives reloads.)
+- The favourite entry stores only `{id, type, qty, toppingIds}` — **not** price/name. The `/menu/favourites` page re-resolves those from the product/combo queries when rendering.
+
+### ③ Adding a COMBO (with nhân choice)
+
+`ComboCard.tsx` holds **one** local `useState`: `nhanId` (line 18). Everything else is derived.
+
+1. **Nhân options** (lines 29-37): flattened from the combo's non-canh sub-item `toppings`, deduped by id, `is_available` only. Canh's "Rau" topping is excluded — it's driven by the global canh stepper, not here.
+2. **Selected nhân** (line 40): `nhanOptions.find(id===nhanId) ?? nhanOptions[0]` (defaults to first).
+3. **Cart line identity** (line 42): `cartId = combo_${combo.id}_${selectedNhan?.id ?? 'plain'}`. **Changing the nhân pill changes `cartId`** → a different nhân = a different cart line. `qty` (line 44) reads back from the store by that id.
+4. **Tap a nhân pill** (line 165): `setNhanId(nhan.id)` → re-renders the card → `cartId`/`qty` recompute. Pure local; the cart is untouched until [+].
+5. **Tap [+]** → `handleAdd` (lines 50-71):
+   - `qty === 0` → `addItem({ id:cartId, type:'combo', combo_id, name, quantity:1, price:combo.price, toppings:[selectedNhan], combo_items:[full snapshot of product_id/name/qty/unit_price/toppings] })`.
+   - `qty > 0` → `updateQty(cartId, qty+1)` (just bump quantity).
+6. **Tap [−]** (line 141): `updateQty(cartId, qty-1)`; cart store drops the line when quantity hits 0 (cart.ts:61 `.filter(quantity>0)`).
+7. `ComboModal` exists but is **dead** — `modalOpen` is never set true (handleAdd adds directly).
+
+### ④ Adding a MÓN LẺ product
+
+**`ProductCard` (mobile `<sm`)** — `ProductCard.tsx`:
+- `hasToppings = availableToppings.length > 0` (line 24); `totalQty` aggregates **all** variants of the product (line 28).
+- **Tap [+]** (line 146): `hasToppings ? setModalOpen(true) : handleDirectAdd`.
+  - `handleDirectAdd` (lines 50-67): `cartId = product_${id}_plain`; `addItem(...toppings:[])` if new, else `updateQty(+1)`.
+  - **ToppingModal → confirm** `handleModalConfirm(selected)` (lines 34-48): `cartId = product_${id}_${sortedToppingIds}`, `price = base + Σ topping.price`, `addItem({..., toppings:selected})`. *(`requireSingle` → one topping acts as the nhân.)*
+- **Tap [−]** `handleMinus` (lines 69-72): decrements the **last** variant.
+
+**`ProductGridCard` (`≥sm`)** uses a multi-select `ToppingModal` and a trailing-underscore direct-add key (`product_${id}_`) — see §Per-Zone. Same store calls.
+
+> ⚠️ **Known divergence (Concern #3/#5, IMP-1):** `ProductCard` actually adds via a `filling`-less path here, while the product **detail** page records nhân as a topping. The two surfaces can produce different cart lines for the same dish. Treat the live `hasToppings` value as authoritative.
+
+### ⑤ How the add propagates: Component → Zustand → OrderSummary (and siblings)
+
+This is the heart of the cross-component story. **No card ever calls `OrderSummary`.** The path is:
+
+```
+ProductCard/ComboCard  ──addItem()──►  useCartStore (cart.ts:42-52)
+                                           │ set() mutates items[]
+                                           │ (dedup by id: existing → quantity += ; new → append)
+                                           ▼
+              ┌──────────────┬──────────────┬───────────────┬──────────────┐
+        OrderSummary    MiniCartStrip   CartBottomBar    MenuHeader     CartDrawer
+        (re-renders     (chips +        (appears once    (cart badge    (item list,
+         live)           count)          itemCount>0)     itemCount)      if open)
+```
+
+Every one of those components calls `useCartStore(...)` independently, so Zustand's `set()` re-renders all of them in the same tick. What `OrderSummary` does with the new `items` (OrderSummary.tsx):
+- `items.length === 0` guard lifts (line 45) → the panel mounts.
+- Splits `combos` / `products` by `type` (lines 47-48); computes `comboTotal`/`productTotal`.
+- Builds `productPriceMap` (lines 53-64) from standalone product prices + combo sub-item `unit_price`.
+- Builds **`dishSummary`** (lines 67-95): aggregates dishes keyed by `name|toppingKey`, **excludes canh** (lines 72,80), then **re-adds canh from `drinkConfig`** split into "có rau"/"không rau" (lines 91-93) — so the on-screen "Tổng số món" matches the eventual POST payload exactly.
+- "Tổng cộng" = `total()` = Σ `price × quantity` (cart.ts:90).
+
+**Editing inside OrderSummary** (all write back to the same store, same propagation):
+- Line qty −/+/🗑 → `updateQty` / `removeItem` (lines 333-335).
+- Combo "Xem chi tiết" → expand → sub-item −/+/🗑 → `updateComboItem(comboCartId, productName, qty)` (lines 358-360), which **recomputes the combo's price** by `unit_price × delta` (cart.ts:64-79).
+
+### ⑥ The Canh stepper (global, drives the checkout gate)
+
+The canh steppers render inline in `OrderSummary` (lines 161-191), **not** as line items:
+- −/+ → `setVal` → `setDrinkConfig({ bowls, vegBowls })` (lines 163-169).
+- `drinkConfig` is **session-only** (cart.ts:114 `partialize` omits it; migration v4 deletes any stale persisted value, cart.ts:105-108) — it always starts at 0 on reload so a previous order's canh count never resurfaces.
+- `MenuContent` reads `drinkConfig.bowls` → `canhMissing` (page.tsx:46). When `bowls === 0`: OrderSummary shows the amber warning + running-border (lines 158-159), and `CartBottomBar` receives `dimmed` (page.tsx:193).
+
+### ⑦ The note (persisted)
+
+`OrderSummary` note textarea → `handleNoteChange` (lines 29-34): `setOrderNote(value)` immediately + a debounced 800ms "✓ Đã lưu". `orderNote` **is** persisted (cart.ts:114 partialize) — it survives reloads even though `items` do not (see IMP-6 for that inconsistency).
+
+### ⑧ Tapping "Thanh toán" (checkout)
+
+```
+CartBottomBar tap  →  onCheckout  →  handleCheckout()   (page.tsx:49-56)
+```
+
+`handleCheckout` owns the entire routing decision:
+
+| Condition | What happens | Code |
+|---|---|---|
+| `canhMissing` (`drinkConfig.bowls === 0`) | **BLOCK.** `setCanhShakeKey(k+1)` + `toast.error('Vui lòng chọn số bát canh…')`, return. The bumped `canhShakeKey` flows to `OrderSummary`'s `shakeKey` prop → `useEffect` (OrderSummary.tsx:17-27) scrolls to + shakes the Canh block. | page.tsx:50-54 |
+| `tableId` set (QR flow) | `setConfirmOpen(true)` → mounts `TableConfirmModal` | page.tsx:55 |
+| no `tableId` (online flow) | `router.push('/checkout')` (collects name/phone there) | page.tsx:55 |
+
+> The CartDrawer footer "Thanh toán" reaches the same fork via the `onTableCheckout` prop (`() => setConfirmOpen(true)`, page.tsx:199) for the QR branch.
+
+### ⑨ Order create — the one and only mutation
+
+`TableConfirmModal.tsx` → `submitOrder` mutation (lines 18-57):
+
+```
+POST /orders {
+  customer_name:'', customer_phone:'',          // always empty from QR menu
+  note: <modal note> || null,
+  table_id: cart.tableId,
+  source: 'qr',
+  items: buildOrderItemsPayload(cart.items, cart.drinkConfig)   // order-payload.ts — the single builder
+}
+```
+
+`buildOrderItemsPayload` (order-payload.ts:26-80) applies the **3 rules** that mirror OrderSummary's preview exactly:
+1. **Combo** → `combo_items` overrides (non-canh dishes only; nhán carried as `topping_ids`).
+2. **Filling/nhân** → `topping_ids` on standalone products + combo sub-items.
+3. **Canh** → global rows from `drinkConfig`, split có rau (carries Rau `topping_id`) / không rau (`topping_ids:[]`); **never** inside a combo.
+
+**Outcomes** (lines 30-56):
+
+| Result | Action |
+|---|---|
+| Success | `GET /orders/:id` → cache full order to `localStorage["order_cache_<id>"]` → `cart.clearCart()` → `router.replace('/order/:id')` (replace, not push, to keep the auth token alive in Zustand) |
+| `TABLE_HAS_ACTIVE_ORDER` | `toast.info` + `router.replace('/order/<active_order_id>')` |
+| other error | `toast.error(message ?? 'Đặt hàng thất bại')` |
+
+After success the cart is empty again, `drinkConfig` resets, and the next visit's mount-effect (step ①.2) finds the new `order_cache_` key → lights the "Đơn hàng" dot. **The page never reads the order status back — it only creates.**
 
 ---
 
