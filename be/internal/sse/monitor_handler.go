@@ -18,8 +18,12 @@ import (
 //   - queue.update   — published on queue:broadcast after any order status change
 //   - tables.status  — published on tables:broadcast after any order status change
 //
+// snapshot, if non-nil, returns the current queue.update + tables.status payloads
+// so the client gets an immediate picture on connect (the broadcast channels
+// otherwise only emit after a status change).
+//
 // Auth is validated upstream by middleware before this handler is called.
-func StreamOrderMonitor(rdb *redis.Client) gin.HandlerFunc {
+func StreamOrderMonitor(rdb *redis.Client, snapshot func(context.Context) (string, string, bool)) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		orderID := c.Param("id")
 		if orderID == "" {
@@ -49,6 +53,16 @@ func StreamOrderMonitor(rdb *redis.Client) gin.HandlerFunc {
 
 		fmt.Fprintf(c.Writer, "event: connected\ndata: {\"order_id\":\"%s\"}\n\n", orderID)
 		c.Writer.Flush()
+
+		// Initial snapshot so the floor list + table grid render immediately,
+		// before the next status-change broadcast arrives.
+		if snapshot != nil {
+			if queueJSON, tablesJSON, ok := snapshot(ctx); ok {
+				fmt.Fprintf(c.Writer, "event: queue.update\ndata: %s\n\n", queueJSON)
+				fmt.Fprintf(c.Writer, "event: tables.status\ndata: %s\n\n", tablesJSON)
+				c.Writer.Flush()
+			}
+		}
 
 		for {
 			select {

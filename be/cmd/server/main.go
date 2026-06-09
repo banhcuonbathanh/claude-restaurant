@@ -331,7 +331,7 @@ func main() {
 	v1.GET("/sse/admin", authMW, middleware.AtLeast("manager"), sse.StreamAdmin(rdb))
 
 	// ── Guest order monitor SSE ───────────────────────────────────────────────
-	v1.GET("/sse/order-monitor/:id", authMW, sse.StreamOrderMonitor(rdb))
+	v1.GET("/sse/order-monitor/:id", authMW, sse.StreamOrderMonitor(rdb, orderSvc.MonitorSnapshot))
 
 	// ── WebSocket ─────────────────────────────────────────────────────────────
 	wsR := v1.Group("/ws")

@@ -8,9 +8,7 @@ import { useCartStore } from '@/store/cart'
 import { useOrderMonitorSSE } from '@/hooks/useOrderMonitorSSE'
 import { MonitoringTopBar } from './components/MonitoringTopBar'
 import { TableInfoBanner } from './components/TableInfoBanner'
-import { OrderDetailCard } from './components/OrderDetailCard'
-import { ServiceQueueList } from './components/ServiceQueueList'
-import { TableLayoutMap } from '@/components/shared/TableLayoutMap'
+import { WholeFloorPrepList } from './components/WholeFloorPrepList'
 import { ClientBottomNav } from '@/components/shared/ClientBottomNav'
 import { ConnectionErrorBanner } from '@/components/shared/ConnectionErrorBanner'
 import type { Order } from '@/types/order'
@@ -34,7 +32,7 @@ export default function TrackingPage() {
     },
   })
 
-  const { orderStatus, queueData, tableStatuses, sseConnected, isUnauthorized, itemsChangedAt, reconnect } =
+  const { orderStatus, queueData, sseConnected, isUnauthorized, itemsChangedAt, reconnect } =
     useOrderMonitorSSE(orderId ?? '')
 
   // Refetch order detail when items are added/updated/cancelled from POS or staff.
@@ -117,7 +115,6 @@ export default function TrackingPage() {
           <div className="bg-card rounded-xl h-20 border border-border" />
           <div className="bg-card rounded-xl h-40 border border-border" />
           <div className="bg-card rounded-xl h-36 border border-border" />
-          <div className="bg-card rounded-xl h-48 border border-border" />
         </div>
         <div className="fixed bottom-0 left-0 right-0 h-14 bg-card border-t border-border" />
       </div>
@@ -141,21 +138,10 @@ export default function TrackingPage() {
           />
         )}
 
-        {order && <OrderDetailCard order={order} />}
-
         {queueData && queueData.queue.length > 0 && (
-          <ServiceQueueList
+          <WholeFloorPrepList
             queue={queueData.queue}
             currentOrderId={orderId}
-            queuePosition={queueData.position}
-            queueTotal={queueData.total}
-          />
-        )}
-
-        {tableStatuses.length > 0 && (
-          <TableLayoutMap
-            tables={tableStatuses}
-            highlightTableId={order?.table_id ?? undefined}
           />
         )}
       </div>

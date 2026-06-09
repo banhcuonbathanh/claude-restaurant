@@ -828,41 +828,49 @@ func (s *OrderService) publishAdminOrderEvent(ctx context.Context, orderID, orde
 	s.rdb.Publish(ctx, "orders:admin", string(payload))
 }
 
-// publishMonitorBroadcast publishes queue and table status snapshots to the two
-// broadcast channels consumed by StreamOrderMonitor. Runs in a goroutine so it
-// never blocks the status-update call path.
-func (s *OrderService) publishMonitorBroadcast(ctx context.Context) {
-	orders, err := s.repo.ListActiveOrders(ctx)
+// buildMonitorPayloads builds the queue.update + tables.status JSON snapshots
+// consumed by StreamOrderMonitor. Returns ok=false if the underlying data could
+// not be loaded.
+func (s *OrderService) buildMonitorPayloads(ctx context.Context) (queueJSON, tablesJSON string, ok bool) {
+	// Use ListActiveOrders (service method) which hydrates items — avoids a
+	// separate CountActiveOrderItems query and gives us dish lines for the FE.
+	enrichedOrders, err := s.ListActiveOrders(ctx)
 	if err != nil {
 		slog.WarnContext(ctx, "monitor: list active orders failed", "err", err)
-		return
+		return "", "", false
 	}
 
-	// Fetch tables first so we can resolve table names for the queue broadcast.
+	// Fetch tables for the tables.status broadcast (still needed below).
 	tables, err := s.tableRepo.ListTables(ctx)
 	if err != nil {
 		slog.WarnContext(ctx, "monitor: list tables failed", "err", err)
-		return
-	}
-	tableNames := make(map[string]string, len(tables))
-	for _, t := range tables {
-		tableNames[t.ID] = t.Name
+		return "", "", false
 	}
 
-	// Single batch query — no N+1.
-	itemCounts, err := s.repo.CountActiveOrderItems(ctx)
-	if err != nil {
-		slog.WarnContext(ctx, "monitor: count items failed", "err", err)
-		itemCounts = map[string]int{}
+	// dishLine is the clean DTO the FE WholeFloorPrepList consumes.
+	// NullString/json.RawMessage fields from db.OrderItem are unwrapped here so
+	// the JSON shape matches the FE OrderItem type exactly.
+	type dishLine struct {
+		ID               string          `json:"id"`
+		ProductID        interface{}     `json:"product_id"`
+		ComboID          interface{}     `json:"combo_id"`
+		ComboRefID       interface{}     `json:"combo_ref_id"`
+		Name             string          `json:"name"`
+		Quantity         int32           `json:"quantity"`
+		QtyServed        int32           `json:"qty_served"`
+		Note             interface{}     `json:"note"`
+		ToppingsSnapshot json.RawMessage `json:"toppings_snapshot"`
 	}
 
 	// ── Queue broadcast ───────────────────────────────────────────────────────
 	type queueItem struct {
-		Type       string `json:"type"`
-		OrderID    string `json:"orderId"`
-		TableLabel string `json:"tableLabel"`
-		Status     string `json:"status"`
-		ItemCount  int    `json:"itemCount"`
+		OrderID     string     `json:"orderId"`
+		TableLabel  string     `json:"tableLabel"`
+		Status      string     `json:"status"`
+		ItemCount   int        `json:"itemCount"`
+		OrderNumber string     `json:"orderNumber"`
+		CreatedAt   string     `json:"createdAt"`
+		Dishes      []dishLine `json:"dishes"`
 	}
 	type queuePayload struct {
 		Type             string      `json:"type"`
@@ -872,21 +880,44 @@ func (s *OrderService) publishMonitorBroadcast(ctx context.Context) {
 		EstimatedMinutes int         `json:"estimatedMinutes"`
 	}
 
-	queueItems := make([]queueItem, 0, len(orders))
-	for _, o := range orders {
-		label := ""
-		if o.TableID.Valid {
-			if name, ok := tableNames[o.TableID.String]; ok {
-				label = name
-			} else {
-				label = o.TableID.String
+	queueItems := make([]queueItem, 0, len(enrichedOrders))
+	for _, o := range enrichedOrders {
+		dishes := make([]dishLine, 0, len(o.Items))
+		for _, it := range o.Items {
+			var productID, comboID, comboRefID, note interface{}
+			if it.ProductID.Valid {
+				productID = it.ProductID.String
 			}
+			if it.ComboID.Valid {
+				comboID = it.ComboID.String
+			}
+			if it.ComboRefID.Valid {
+				comboRefID = it.ComboRefID.String
+			}
+			if it.Note.Valid {
+				note = it.Note.String
+			}
+			dishes = append(dishes, dishLine{
+				ID:               it.ID,
+				ProductID:        productID,
+				ComboID:          comboID,
+				ComboRefID:       comboRefID,
+				Name:             it.Name,
+				Quantity:         it.Quantity,
+				QtyServed:        it.QtyServed,
+				Note:             note,
+				ToppingsSnapshot: it.ToppingsSnapshot,
+			})
 		}
+
 		queueItems = append(queueItems, queueItem{
-			OrderID:    o.ID,
-			TableLabel: label,
-			Status:     string(o.Status),
-			ItemCount:  itemCounts[o.ID],
+			OrderID:     o.Order.ID,
+			TableLabel:  o.TableName,
+			Status:      string(o.Order.Status),
+			ItemCount:   len(o.Items),
+			OrderNumber: o.Order.OrderNumber,
+			CreatedAt:   o.Order.CreatedAt.Format(time.RFC3339),
+			Dishes:      dishes,
 		})
 	}
 
@@ -895,7 +926,13 @@ func (s *OrderService) publishMonitorBroadcast(ctx context.Context) {
 		Queue: queueItems,
 		Total: len(queueItems),
 	})
-	s.rdb.Publish(ctx, "queue:broadcast", string(qp))
+
+	// Rebuild flat orders slice for the tables.status broadcast below.
+	// (enrichedOrders already has all active orders.)
+	orders := make([]db.Order, 0, len(enrichedOrders))
+	for _, o := range enrichedOrders {
+		orders = append(orders, o.Order)
+	}
 
 	// Map table_id → order status (to derive serving/waiting/empty)
 	tableStatus := make(map[string]string, len(orders))
@@ -936,7 +973,26 @@ func (s *OrderService) publishMonitorBroadcast(ctx context.Context) {
 	}
 
 	tp, _ := json.Marshal(tablesPayload{Type: "tables.status", Tables: tableItems})
-	s.rdb.Publish(ctx, "tables:broadcast", string(tp))
+	return string(qp), string(tp), true
+}
+
+// publishMonitorBroadcast publishes the queue + table snapshots to the two
+// broadcast channels consumed by StreamOrderMonitor. Runs in a goroutine so it
+// never blocks the status-update call path.
+func (s *OrderService) publishMonitorBroadcast(ctx context.Context) {
+	q, t, ok := s.buildMonitorPayloads(ctx)
+	if !ok {
+		return
+	}
+	s.rdb.Publish(ctx, "queue:broadcast", q)
+	s.rdb.Publish(ctx, "tables:broadcast", t)
+}
+
+// MonitorSnapshot returns the current queue + tables payloads so the SSE handler
+// can push an initial snapshot to a client immediately on connect — the broadcast
+// channels otherwise only emit after a status change.
+func (s *OrderService) MonitorSnapshot(ctx context.Context) (queueJSON, tablesJSON string, ok bool) {
+	return s.buildMonitorPayloads(ctx)
 }
 
 func (s *OrderService) publishItemEvent(ctx context.Context, orderID, itemID string, qtyServed, quantity int32) {

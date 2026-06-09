@@ -59,6 +59,9 @@ export interface QueueItem {
   status: OrderStatus
   itemCount: number
   estimatedMinutes?: number
+  orderNumber?: string
+  createdAt?: string
+  dishes?: OrderItem[]
 }
 
 export interface QueueState {

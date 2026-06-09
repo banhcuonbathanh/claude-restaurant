@@ -8,6 +8,19 @@ pkill -f "go run ./cmd/server"
 
 # Stop FE
 pkill -f "next dev"
+
+# Free the ports first, then run the script again:
+
+docker compose stop be fe      # release :8080 and :3000
+./dev.sh                       # restarts mysql/redis + local BE + local FE
+
+
+# Terminal 1 — backend
+cd be && set -a && source .env.local && set +a && go run ./cmd/server
+
+# Terminal 2 — frontend
+cd fe && npm run dev
+
 ```
 
 # Dev Commands — Bánh Cuốn Restaurant
