@@ -13,7 +13,7 @@ updated: 2026-05-28
 ## SSE & Realtime
 
 - SSE disconnect + reconnect gap is not resolved: if bếp completes 2 items while the customer's phone is offline, the `còn×N` badge will be stale until the next event. `refetchOnWindowFocus: true` is the mitigation — but is that enough on iOS Safari where background tabs lose the EventSource entirely?
-- iOS Safari kills EventSource when the screen locks. Is there a `visibilitychange` reconnect handler planned? This is the same gap as `client_monitoring_servicing_table`.
+- iOS Safari kills EventSource when the screen locks. Is there a `visibilitychange` reconnect handler planned? This is the same gap as `client_tracking`.
 - If the SSE stream is replaced with polling as a fallback (every 10s), does that conflict with `staleTime: 0` on the query? Need to confirm there's no double-fetch.
 
 ---

@@ -39,7 +39,7 @@ Shared components to wire in:
 
 ## 3. SSE Architecture Pattern
 
-This is the same SSE pattern as `client_monitoring_servicing_table` and `admin_overview`. Follow the same approach:
+This is the same SSE pattern as `client_tracking` and `admin_overview`. Follow the same approach:
 
 ```tsx
 // hooks/useOrderTracking.ts — single entry point for all order data
@@ -151,7 +151,7 @@ Server cache (TanStack Query):
 
 ## 7. Cross-Page Notes
 
-- `['order', orderId]` is shared with `client_monitoring_servicing_table`. If the monitoring page is open in another tab, both will receive SSE updates independently. This is fine — no coordination needed.
+- `['order', orderId]` is shared with `client_tracking`. If the monitoring page is open in another tab, both will receive SSE updates independently. This is fine — no coordination needed.
 - `useSettingsStore.guestToken` must be present before this page renders. If absent (expired or null), redirect to QR scan entry at the hook level before any query fires.
 - Zone 6 "＋ Thêm món" should navigate to `/(shop)/menu` with `activeOrderId` passed via search params or via `useCartStore.activeOrderId`. Confirm the handoff mechanism with the Menu page implementation before building this zone.
 

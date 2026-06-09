@@ -40,16 +40,16 @@ export function WholeFloorPrepList({ queue, currentOrderId }: Props) {
   )
 
   return (
-    <section className="bg-card rounded-xl border border-border overflow-hidden">
+    <section className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-border/60 bg-background/20 flex items-center justify-between">
+      <div className="px-4 py-3 border-b border-border bg-gradient-to-r from-primary/10 to-transparent flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold text-foreground">Danh sách bàn cần chuẩn bị</p>
           <p className="text-xs text-muted-fg mt-0.5">
             {activeItems.length} bàn · {dishTypes} loại món · {totalRemain} phần còn lại
           </p>
         </div>
-        <span className="text-xs font-bold bg-primary text-primary-foreground px-2.5 py-1 rounded-lg">
+        <span className="shrink-0 text-xs font-bold bg-primary text-primary-foreground px-2.5 py-1 rounded-full">
           {totalRemain} phần
         </span>
       </div>

@@ -273,7 +273,7 @@ QUALITY / DOCS
 /dev-page client_menu_page
 /dev-page client_product_detail
 /dev-page client_order_page
-/dev-page client_monitoring_servicing_table
+/dev-page client_tracking
 /dev-page client_favourite_page
 /dev-page client_info_page
 /dev-page admin_main/admin_main_product

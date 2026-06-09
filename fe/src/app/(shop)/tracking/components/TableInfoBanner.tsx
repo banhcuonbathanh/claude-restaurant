@@ -13,13 +13,14 @@ export function TableInfoBanner({ tableLabel, status, queuePosition, queueTotal,
   const isDelivered = status === 'delivered'
 
   return (
-    <section className="bg-card rounded-xl p-4 border border-border">
+    <section className="bg-card rounded-2xl p-4 border border-border shadow-sm">
       <div className="flex items-start gap-4">
-        <div className="shrink-0 w-20 h-14 rounded-lg border-2 border-primary flex items-center justify-center bg-primary/10">
-          <span className="text-sm font-bold text-primary">{tableLabel}</span>
+        <div className="shrink-0 w-20 h-16 rounded-xl border border-primary/40 flex flex-col items-center justify-center bg-gradient-to-br from-primary/20 to-primary/5">
+          <span className="text-[10px] font-medium text-primary/70 uppercase tracking-wide">Bàn</span>
+          <span className="text-base font-bold text-primary leading-tight">{tableLabel}</span>
         </div>
 
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 pt-0.5">
           {isDelivered ? (
             <p className="text-sm font-semibold text-success">
               Đơn của bạn đã được phục vụ — Cảm ơn!

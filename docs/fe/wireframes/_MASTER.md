@@ -40,7 +40,7 @@
 | Order List | `/(shop)/order` | [client_order_page/](client_order_page/) | ⬜ needs spec | — | ✅ | — |
 | Favourites | — | [client_favourite_page/](client_favourite_page/) | ⬜ needs spec | [favourites.excalidraw](client_favourite_page/favourites.excalidraw) | ⬜ | `favouritesStore` |
 | Info / Profile | — | [client_info_page/](client_info_page/) | ⬜ needs spec | [client_info.excalidraw](client_info_page/client_info.excalidraw) | ⬜ | `settingsStore` |
-| Monitoring | — | [client_monitoring_servicing_table/](client_monitoring_servicing_table/) | ⬜ needs spec | [restaurant-monitor.excalidraw](client_monitoring_servicing_table/restaurant-monitor.excalidraw) | ⬜ | — |
+| Monitoring | — | [client_tracking/](client_tracking/) | ⬜ needs spec | [restaurant-monitor.excalidraw](client_tracking/restaurant-monitor.excalidraw) | ⬜ | — |
 
 ### Auth
 

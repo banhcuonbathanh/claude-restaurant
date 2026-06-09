@@ -1,5 +1,5 @@
 ---
-page: client_monitoring_servicing_table
+page: client_tracking
 route: /(shop)/tracking
 created: 2026-05-27
 status: Draft
@@ -268,7 +268,7 @@ function useOrderMonitorSSE(orderId: string, guestToken: string) {
 
 | ID | Owner | Task | Status | Draw Ref |
 |----|-------|------|--------|----------|
-| MON-1 | FE | Wireframe + zone table | ✅ | wireframes/client_monitoring_servicing_table/client_monitoring_servicing_table_wireframe_v1.md |
+| MON-1 | FE | Wireframe + zone table | ✅ | wireframes/client_tracking/client_tracking_wireframe_v1.md |
 | MON-2 | FE | MonitoringTopBar + TableInfoBanner + ConnectionErrorBanner wiring | ⬜ | Zone A, B |
 | MON-3 | FE | OrderDetailCard — initial fetch via `['order', orderId]` | ⬜ | Zone C |
 | MON-4 | FE | ServiceQueueList + ServiceQueueItem + useOrderMonitorSSE hook | ⬜ | Zone D |

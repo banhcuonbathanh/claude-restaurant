@@ -17,6 +17,13 @@
   --radius:           0.5rem;
 }
 
+@layer utilities {
+  /* Respect the iOS home-indicator inset for fixed bottom bars */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
 @layer base {
   * {
     border-color: var(--color-border);

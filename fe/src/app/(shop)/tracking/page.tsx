@@ -112,9 +112,9 @@ export default function TrackingPage() {
       <div className="min-h-screen bg-background pb-20 animate-pulse">
         <div className="sticky top-0 z-20 bg-card border-b border-border h-12" />
         <div className="max-w-lg mx-auto px-4 pt-4 space-y-3">
-          <div className="bg-card rounded-xl h-20 border border-border" />
-          <div className="bg-card rounded-xl h-40 border border-border" />
-          <div className="bg-card rounded-xl h-36 border border-border" />
+          <div className="bg-card rounded-2xl h-20 border border-border" />
+          <div className="bg-card rounded-2xl h-40 border border-border" />
+          <div className="bg-card rounded-2xl h-36 border border-border" />
         </div>
         <div className="fixed bottom-0 left-0 right-0 h-14 bg-card border-t border-border" />
       </div>
@@ -146,7 +146,7 @@ export default function TrackingPage() {
         )}
       </div>
 
-      <ClientBottomNav onRefresh={reconnect} />
+      <ClientBottomNav orderId={orderId} onRefresh={reconnect} />
     </div>
   )
 }

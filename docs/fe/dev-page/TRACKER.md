@@ -24,7 +24,7 @@
 | C1 | Menu | `/dev-page client_menu_page` | ⬜ | — | — |
 | C2 | Product Detail | `/dev-page client_product_detail` | ✅ | 2026-05-30 | Visual 6/6 · Func 8/8. Built CustomerTopNav+QuantityStepper shared; 5 product-detail components; fixed TS error in favourites/page.tsx unblocking Docker build. |
 | C3 | Order | `/dev-page client_order_page` | ✅ | 2026-05-31 | 25/25 ACs. Qty stepper fixed: BE PATCH /orders/items/:id/quantity (guest+cashier+) + FE QuantityStepper in DishRow (qty_served=0 items only). Visual 10/10 · Func 7/7. |
-| C4 | Monitoring / Servicing Table | `/dev-page client_monitoring_servicing_table` | ✅ | 2026-05-31 | Route /tracking (no param). Visual 4/6 (D+E hidden until first SSE push — correct). Func 7/7. Fixed: itemCount (batch JOIN) + tableLabel (name not UUID) + F-01 401 (AuthError sentinel stops retry; page shows "Phiên làm việc hết hạn" on 401/403). |
+| C4 | Monitoring / Servicing Table | `/dev-page client_tracking` | ✅ | 2026-05-31 | Route /tracking (no param). Visual 4/6 (D+E hidden until first SSE push — correct). Func 7/7. Fixed: itemCount (batch JOIN) + tableLabel (name not UUID) + F-01 401 (AuthError sentinel stops retry; page shows "Phiên làm việc hết hạn" on 401/403). |
 | C5 | Favourites | `/dev-page client_favourite_page` | ✅ | 2026-05-31 | Visual 11/11 · Func 12/12. Fixed: product-404 auto-remove + toast (useEffect on isSuccess); blank combo/product-in-combo name fallbacks in page.tsx + save/page.tsx. |
 | C6 | Info | `/dev-page client_info_page` | ✅ | 2026-05-30 | Visual 6/6 · Func 6/6. FE complete. BE CI-8+CI-9 deferred — no customer account system. ClientMainBottomNav (5-tab) built. CustomerTopNav.cartCount optional + cart hidden when undefined. |
 
@@ -75,7 +75,7 @@
 | 2026-05-29 | client_favourite_page | ⚠️ | Built all 3 screens from scratch; store rebuilt to FavouriteItem[]+FavouriteSet[] (Option A); updated ProductCard/ComboCard/FavouritesRail; QuantityStepper updated with size prop; 11/12 ACs — product-404 toast open |
 | 2026-05-29 | client_favourite_page | Phase 4 | Visual 10/11 · Func 12/12. ⚠️ S2 ZC combo name blank (pre-existing API encoding). All 3 screens navigable, all interactive elements verified. |
 | 2026-05-30 | client_product_detail | ✅ | Built 9 files (2 shared + 5 product-detail + 1 hook + refactored page.tsx). Fixed pre-existing TS error in favourites/page.tsx. Visual 6/6 · Func 8/8. All ACs covered. |
-| 2026-05-30 | client_monitoring_servicing_table | ⚠️ | Built 10 files: 5 local components + 2 shared (TableLayoutMap, ClientBottomNav) + hook + page.tsx + BE (monitor_handler.go + publishMonitorBroadcast + route). Route /tracking/[id] (spec omits param). itemCount=0 in queue broadcast. Visual 4/6 · Func 6/7. F-01 401 env-only (guest token from QR flow). |
+| 2026-05-30 | client_tracking | ⚠️ | Built 10 files: 5 local components + 2 shared (TableLayoutMap, ClientBottomNav) + hook + page.tsx + BE (monitor_handler.go + publishMonitorBroadcast + route). Route /tracking/[id] (spec omits param). itemCount=0 in queue broadcast. Visual 4/6 · Func 6/7. F-01 401 env-only (guest token from QR flow). |
 | 2026-05-30 | admin_main/admin_overview | ✅ | Audit-only (page existed). Fixed 5 bugs: B1 urgent card red bg; B2 WaitingSection covers all active statuses; B3 duplicate button; B4 PrepPanel always visible; B5 WS disconnect banner. Also fixed pre-existing ESLint error in ServiceQueueItem.tsx. Visual 7/7 · Func 10/10. |
 | 2026-05-30 | admin_main/admin_main_product | ✅ | Extracted page into 3 local components (ProductPageHeader, ProductsTable, ProductFormModal). Fixed: topping overflow cap, price > 0 validation, EmptyState, Badge for status, 409 duplicate-name field error, 409 active-order delete error. Visual 4/4 · Func 8/8. |
 | 2026-05-30 | admin_main/admin_main_marketing | ✅ | Built 9 new components (MarketingPageHeader, DateRangePicker, KPICard, ProgressBar, BudgetSummaryCards, SpendBreakdownTable, BudgetDonutChart, LoveScoreSection, CampaignTimeline) + BE stub GET /admin/marketing/spend + hook. Replaced QR-management page. Fixed TZ bug in date init. Visual 6/6 · Func 11/11. |
@@ -92,7 +92,7 @@
 | 2026-05-31 | client_order_page | ✅ | Qty stepper fix: added PATCH /orders/items/:id/quantity BE endpoint (UpdateItemQuantity SQL+repo+service+handler). Fixed sqlc.yaml shifts override ([]byte→json.RawMessage). FE: patchOrderItemQty in api-client + QuantityStepper in DishRow (visible only when qty_served=0). 25/25 ACs. |
 | 2026-05-31 | client_favourite_page | ✅ | Fixed 2 open concerns: (1) product-404 toast — useEffect on isSuccess detects stale IDs, calls removeItem + toast.warning; (2) blank combo/product-in-combo names — added fallback strings in page.tsx + save/page.tsx. |
 | 2026-05-31 | admin_main/admin_main_staff_task_boad | ✅ | Phase 4 browser audit. Visual 7/7 · Func 13/13. Fixed: staff pre-selection not applying when "Giao việc" clicked — root cause: useForm not re-initialising on re-open; fix: Controller for staffId select + conditional mount in page.tsx. |
-| 2026-05-31 | client_monitoring_servicing_table | ✅ | Bug fixes + full browser verification. BE: (1) table_name missing from orderJSON → added; (2) itemCount=0 in publishMonitorBroadcast → batch JOIN query; (3) tableLabel=UUID → table name lookup. FE: (4) activeOrderId not persisted → added to partialize in cart.ts; (5) /tracking unreachable → added "Theo dõi bàn" button on order page (calls setActiveOrderId + router.push). Verified: normal flow (table name shows, LIVE SSE) + F-01 (no auth → "Phiên làm việc hết hạn"). Func 7/7 · Visual 4/6 (D+E correct — SSE-gated). |
+| 2026-05-31 | client_tracking | ✅ | Bug fixes + full browser verification. BE: (1) table_name missing from orderJSON → added; (2) itemCount=0 in publishMonitorBroadcast → batch JOIN query; (3) tableLabel=UUID → table name lookup. FE: (4) activeOrderId not persisted → added to partialize in cart.ts; (5) /tracking unreachable → added "Theo dõi bàn" button on order page (calls setActiveOrderId + router.push). Verified: normal flow (table name shows, LIVE SSE) + F-01 (no auth → "Phiên làm việc hết hạn"). Func 7/7 · Visual 4/6 (D+E correct — SSE-gated). |
 
 ---
 
@@ -104,7 +104,7 @@ Run in this order to catch shared component gaps early:
 1. /dev-page client_menu_page                       ← highest traffic, sets shared patterns
 2. /dev-page client_product_detail                  ← reuses menu components
 3. /dev-page client_order_page                      ← reuses cart/checkout state
-4. /dev-page client_monitoring_servicing_table      ← SSE/realtime
+4. /dev-page client_tracking      ← SSE/realtime
 5. /dev-page client_favourite_page
 6. /dev-page client_info_page
 7. /dev-page admin_main/admin_main_product          ← sets admin CRUD pattern

@@ -19,7 +19,7 @@
 | 13 | Client — Favourites | [client_favourite_page_wireframe_v1.md](client_favourite_page/client_favourite_page_wireframe_v1.md) · [favourites.excalidraw](client_favourite_page/favourites.excalidraw) |
 | 14 | Client — Info | [client_info_page_wireframe_v1.md](client_info_page/client_info_page_wireframe_v1.md) · [client_info.excalidraw](client_info_page/client_info.excalidraw) |
 | 15 | Client — Menu | [menu_wireframe_v1.md](client_menu_page/menu_wireframe_v1.md) · [menu_ver3_ux.excalidraw](client_menu_page/menu_ver3_ux.excalidraw) |
-| 16 | Client — Restaurant Monitor | [client_monitoring_servicing_table_wireframe_v1.md](client_monitoring_servicing_table/client_monitoring_servicing_table_wireframe_v1.md) · [restaurant-monitor.excalidraw](client_monitoring_servicing_table/restaurant-monitor.excalidraw) |
+| 16 | Client — Restaurant Monitor | [client_tracking_wireframe_v1.md](client_tracking/client_tracking_wireframe_v1.md) · [restaurant-monitor.excalidraw](client_tracking/restaurant-monitor.excalidraw) |
 | 17 | Client — Product Detail | [client_product_detail_wireframe_v1.md](client_product_detail/client_product_detail_wireframe_v1.md) · [product-detail.excalidraw](client_product_detail/product-detail.excalidraw) |
 | 18 | Admin — Staff Task List | [admin_main_todo_list_wireframe_v1.md](admin_main/admin_main_todo_list/admin_main_todo_list_wireframe_v1.md) |
 | 19 | Client — Order Tracking | [client_order_page_wireframe_v1.md](client_order_page/client_order_page_wireframe_v1.md) · [order_ver2.excalidraw](client_order_page/order_ver2.excalidraw) |
