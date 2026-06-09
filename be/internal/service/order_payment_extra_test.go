@@ -20,7 +20,7 @@ import (
 func TestCreateOrder_EmptyItems(t *testing.T) {
 	svc := newTestOrderService(&mockOrderRepo{}, &mockProductLookup{})
 
-	_, err := svc.CreateOrder(context.Background(), CreateOrderInput{
+	_, _, err := svc.CreateOrder(context.Background(), CreateOrderInput{
 		CustomerName:  "Test",
 		CustomerPhone: "0901234567",
 		Items:         []CreateOrderItemInput{}, // zero items
@@ -54,7 +54,7 @@ func TestCreateOrder_ProductNotFound(t *testing.T) {
 	}
 	svc := newTestOrderService(repo, lookup)
 
-	_, err := svc.CreateOrder(context.Background(), CreateOrderInput{
+	_, _, err := svc.CreateOrder(context.Background(), CreateOrderInput{
 		Items: []CreateOrderItemInput{
 			{ProductID: "non-existent-prod", Quantity: 1},
 		},
@@ -86,7 +86,7 @@ func TestCreateOrder_TakeawayNoTable(t *testing.T) {
 	}
 	svc := newTestOrderService(repo, &mockProductLookup{})
 
-	_, err := svc.CreateOrder(context.Background(), CreateOrderInput{
+	_, _, err := svc.CreateOrder(context.Background(), CreateOrderInput{
 		TableID:      "", // no table — takeaway
 		CustomerName: "Take Away",
 		Items:        []CreateOrderItemInput{{ProductID: "prod-1", Quantity: 2}},
@@ -198,9 +198,9 @@ func TestCreatePayment_DuplicatePayment(t *testing.T) {
 	reader := &mockOrderReader{
 		getForPaymentFn: func(_ context.Context, _ string) (OrderPaymentView, error) {
 			return OrderPaymentView{
-				OrderID:     orderID,
+				ID:          orderID,
 				Status:      "ready",
-				TotalAmount: "100000",
+				TotalAmount: 100000,
 			}, nil
 		},
 	}

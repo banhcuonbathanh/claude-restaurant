@@ -103,7 +103,7 @@ func (h *OrderHandler) Create(c *gin.Context) {
 		})
 	}
 
-	orderID, err := h.svc.CreateOrder(c.Request.Context(), service.CreateOrderInput{
+	orderID, tableBusy, err := h.svc.CreateOrder(c.Request.Context(), service.CreateOrderInput{
 		TableID:       req.TableID,
 		Source:        req.Source,
 		CustomerName:  req.CustomerName,
@@ -116,7 +116,9 @@ func (h *OrderHandler) Create(c *gin.Context) {
 		handleServiceError(c, err)
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"data": gin.H{"id": orderID}})
+	// table_busy: the table already had another active order — the client shows a
+	// short "served after the current order" notice. Order is still created normally.
+	c.JSON(http.StatusCreated, gin.H{"data": gin.H{"id": orderID, "table_busy": tableBusy}})
 }
 
 // Get handles GET /orders/:id

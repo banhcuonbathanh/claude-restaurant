@@ -281,8 +281,7 @@ Xây dựng Orders API đầy đủ: tạo đơn, cập nhật trạng thái, th
 - Cart không được rỗng
 - product_id hoặc combo_id phải có 1 (không được cả 2 null)
 - unit_price > 0
-- table_id nếu có: kiểm tra không có ACTIVE order ở bàn đó (status IN pending,confirmed,preparing,ready)
-- 1 table → max 1 ACTIVE order — trả 409 nếu vi phạm
+- table_id nếu có: 1 bàn ĐƯỢC PHÉP có nhiều order active đồng thời (khách mới ngồi vào khi order của khách trước chưa xong) → mỗi khách theo dõi ĐƠN CỦA RIÊNG MÌNH. Create KHÔNG chặn; trả `data.table_busy=true` (chỉ để hiện thông báo ngắn "phục vụ sau"), KHÔNG còn 409 `TABLE_HAS_ACTIVE_ORDER`.
 **Combo expand (trong transaction)**
 | // Khi item có combo_id: |
 | --- |
@@ -483,7 +482,7 @@ Xây dựng Orders API đầy đủ: tạo đơn, cập nhật trạng thái, th
 **9. Business Rules Quan Trọng**
 | Rule | Xử lý |
 | --- | --- |
-| 1 bàn 1 đơn active | Kiểm tra trước khi tạo → 409 nếu vi phạm |
+| 1 bàn nhiều đơn active | Cho phép — mỗi khách 1 đơn riêng. Create trả `table_busy` (thông báo), KHÔNG chặn |
 | Chỉ tạo Payment khi ready | Check trong Payment handler (spec 5) |
 | Huỷ < 30% | DELETE /orders/:id kiểm tra: SUM(qty_served)/SUM(quantity) < 0.30 → 409 nếu không |
 | Customer chỉ xem đơn của mình | GET /orders/:id: kiểm tra JWT sub match với order's guest token |
@@ -504,7 +503,7 @@ Xây dựng Orders API đầy đủ: tạo đơn, cập nhật trạng thái, th
 
 **11. Acceptance Criteria**
 - [ ] POST /orders tạo đúng order_items (kể cả combo expand)
-- [ ] 1 bàn 1 active order — trả 409 khi vi phạm
+- [ ] 1 bàn nhiều active order — create thành công + trả `table_busy=true`
 - [ ] State machine đúng thứ tự — không skip
 - [ ] Chef click KDS → status cycle → SSE push tới customer
 - [ ] Inventory deduction thất bại → rollback → 409 (không 500)

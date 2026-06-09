@@ -261,12 +261,14 @@ describe('Invariant 5 — clearCart resets tableId', () => {
   })
 })
 
-describe('Invariant 6 — TABLE_HAS_ACTIVE_ORDER must redirect, not show generic error', () => {
-  it('error code constant is a known string, not a number', () => {
-    // The FE must match this exact error code from the API response
-    const expected = 'TABLE_HAS_ACTIVE_ORDER'
-    expect(typeof expected).toBe('string')
-    expect(expected).not.toMatch(/^\d+$/)
+describe('Invariant 6 — a busy table still creates the guest\'s OWN order (table_busy notice, no block)', () => {
+  it('order create response carries table_busy as a boolean flag, not a blocking error', () => {
+    // A table may hold concurrent orders so every guest tracks their own order.
+    // The API returns data.table_busy=true (informational) instead of a 409 — the FE
+    // shows a short "served after the current order" notice and routes to the new order.
+    const resp = { data: { id: 'new-order-uuid', table_busy: true } }
+    expect(typeof resp.data.table_busy).toBe('boolean')
+    expect(resp.data.id).toBeTruthy()
   })
 })
 

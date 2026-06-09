@@ -224,7 +224,7 @@ func TestCreateOrder_ComboExpand(t *testing.T) {
 	}
 	svc := newTestOrderService(repo, lookup)
 
-	_, err := svc.CreateOrder(context.Background(), CreateOrderInput{
+	_, _, err := svc.CreateOrder(context.Background(), CreateOrderInput{
 		CustomerName:  "Test",
 		CustomerPhone: "0901234567",
 		Items: []CreateOrderItemInput{
@@ -307,7 +307,7 @@ func TestCreateOrder_ComboOverrides(t *testing.T) {
 		}}
 		svc := newTestOrderService(repo, lookup)
 
-		_, err := svc.CreateOrder(context.Background(), CreateOrderInput{
+		_, _, err := svc.CreateOrder(context.Background(), CreateOrderInput{
 			Items: []CreateOrderItemInput{{
 				ComboID:  comboID,
 				Quantity: 2, // combo qty multiplies sub-item qty
@@ -352,7 +352,7 @@ func TestCreateOrder_ComboOverrides(t *testing.T) {
 
 	t.Run("rejects product not in combo", func(t *testing.T) {
 		svc := newTestOrderService(&mockOrderRepo{createOrderFn: func(_ context.Context, _ repository.CreateOrderWithItemsInput) error { return nil }}, lookup)
-		_, err := svc.CreateOrder(context.Background(), CreateOrderInput{
+		_, _, err := svc.CreateOrder(context.Background(), CreateOrderInput{
 			Items: []CreateOrderItemInput{{
 				ComboID:    comboID,
 				Quantity:   1,
@@ -365,9 +365,11 @@ func TestCreateOrder_ComboOverrides(t *testing.T) {
 	})
 }
 
-// TestCreateOrder_DuplicateTable verifies that creating a second order for a table
-// that already has an active order returns a 409 TABLE_HAS_ACTIVE_ORDER error (Spec4 §5).
-func TestCreateOrder_DuplicateTable(t *testing.T) {
+// TestCreateOrder_TableBusy verifies that a second order for a table that already
+// has an active order is still created (a table may hold concurrent orders so every
+// guest tracks their OWN order), and that tableBusy=true is returned so the client
+// can show a short "served after the current order" notice (Spec4 §5).
+func TestCreateOrder_TableBusy(t *testing.T) {
 	const tableID = "table-uuid-A3"
 
 	existing := db.Order{
@@ -383,7 +385,7 @@ func TestCreateOrder_DuplicateTable(t *testing.T) {
 	}
 	svc := newTestOrderService(repo, &mockProductLookup{})
 
-	_, err := svc.CreateOrder(context.Background(), CreateOrderInput{
+	orderID, tableBusy, err := svc.CreateOrder(context.Background(), CreateOrderInput{
 		TableID:       tableID,
 		CustomerName:  "Test",
 		CustomerPhone: "0901234567",
@@ -391,19 +393,14 @@ func TestCreateOrder_DuplicateTable(t *testing.T) {
 			{ProductID: "prod-1", Quantity: 1},
 		},
 	})
-	if err == nil {
-		t.Fatal("expected error for duplicate table order, got nil")
+	if err != nil {
+		t.Fatalf("expected order to be created on a busy table, got error: %v", err)
 	}
-
-	var appErr *AppError
-	if !errors.As(err, &appErr) {
-		t.Fatalf("expected *AppError, got %T: %v", err, err)
+	if orderID == "" {
+		t.Fatal("expected a new order id, got empty string")
 	}
-	if appErr.Code != "TABLE_HAS_ACTIVE_ORDER" {
-		t.Fatalf("expected code TABLE_HAS_ACTIVE_ORDER, got %q", appErr.Code)
-	}
-	if appErr.Status != 409 {
-		t.Fatalf("expected HTTP 409, got %d", appErr.Status)
+	if !tableBusy {
+		t.Fatal("expected tableBusy=true when the table already has an active order")
 	}
 }
 

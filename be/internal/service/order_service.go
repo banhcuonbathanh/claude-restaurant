@@ -254,21 +254,30 @@ type toppingSnapshotEntry struct {
 }
 
 // CreateOrder validates and creates an order with combo expansion.
-func (s *OrderService) CreateOrder(ctx context.Context, in CreateOrderInput) (string, error) {
-	// 1 table → 1 active order check
+// A table may hold several concurrent orders (e.g. a new guest sits down while a
+// previous guest's order is still open). Each order is independent so every guest
+// tracks their OWN order. tableBusy reports whether the table already had another
+// active order at creation time, so the client can be shown a short "served after
+// the current order" notice — it is informational only and never blocks creation.
+func (s *OrderService) CreateOrder(ctx context.Context, in CreateOrderInput) (orderID string, tableBusy bool, err error) {
+	// Defense-in-depth: the handler binds items with min=1, but the service must
+	// never persist an empty order (Spec4 §5).
+	if len(in.Items) == 0 {
+		return "", false, NewAppError(400, "INVALID_INPUT", "Đơn hàng phải có ít nhất 1 món")
+	}
+
+	// Informational only: does the table already have another active order?
 	if in.TableID != "" {
 		tableID := sql.NullString{String: in.TableID, Valid: true}
-		if existing, err := s.repo.GetActiveOrderByTable(ctx, tableID); err == nil {
-			return "", NewAppError(409, "TABLE_HAS_ACTIVE_ORDER",
-				"Bàn đã có đơn đang xử lý",
-			).withDetail("active_order_id", existing.ID)
+		if _, qErr := s.repo.GetActiveOrderByTable(ctx, tableID); qErr == nil {
+			tableBusy = true
 		}
 	}
 
-	orderID := newUUID()
+	orderID = newUUID()
 	orderNumber, err := s.generateOrderNumber(ctx)
 	if err != nil {
-		return "", fmt.Errorf("order: generate number: %w", err)
+		return "", false, fmt.Errorf("order: generate number: %w", err)
 	}
 
 	// Build order_item rows (with combo expansion)
@@ -277,13 +286,13 @@ func (s *OrderService) CreateOrder(ctx context.Context, in CreateOrderInput) (st
 		if item.ComboID != "" {
 			comboRows, err := s.expandCombo(ctx, orderID, item)
 			if err != nil {
-				return "", err
+				return "", false, err
 			}
 			rows = append(rows, comboRows...)
 		} else {
 			row, err := s.buildProductRow(ctx, item)
 			if err != nil {
-				return "", err
+				return "", false, err
 			}
 			rows = append(rows, row)
 		}
@@ -329,18 +338,18 @@ func (s *OrderService) CreateOrder(ctx context.Context, in CreateOrderInput) (st
 		if attempt < 2 && strings.Contains(err.Error(), "uq_orders_order_number") {
 			orderNumber, err = s.generateOrderNumber(ctx)
 			if err != nil {
-				return "", fmt.Errorf("order: generate number retry: %w", err)
+				return "", false, fmt.Errorf("order: generate number retry: %w", err)
 			}
 			continue
 		}
-		return "", fmt.Errorf("order: create with items: %w", err)
+		return "", false, fmt.Errorf("order: create with items: %w", err)
 	}
 
 	s.publishOrderEvent(ctx, "new_order", orderID)
 	s.publishAdminOrderEvent(ctx, orderID, orderNumber, in.TableID)
 	go s.publishMonitorBroadcast(context.Background())
 
-	return orderID, nil
+	return orderID, tableBusy, nil
 }
 
 func (s *OrderService) buildProductRow(ctx context.Context, item CreateOrderItemInput) (repository.OrderItemRow, error) {

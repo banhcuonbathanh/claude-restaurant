@@ -11,7 +11,10 @@ CREATE TABLE IF NOT EXISTS order_sequences (
 
 -- source: NOT payment_method. created_by: NOT staff_id.
 -- total_amount is DENORMALIZED — recalculate after EVERY order_items mutation.
--- 1 table = 1 active order enforced via idx_orders_table_status.
+-- A table MAY hold several concurrent active orders (a new guest can sit down while a
+-- previous guest's order is still open) so every guest tracks their OWN order. The
+-- create path reports tableBusy (informational notice) but never blocks. idx_orders_table_status
+-- is a plain lookup index, NOT a uniqueness constraint.
 CREATE TABLE IF NOT EXISTS orders (
     id             CHAR(36)      NOT NULL DEFAULT (UUID()),
     order_number   VARCHAR(30)   NOT NULL,

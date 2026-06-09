@@ -39,19 +39,18 @@ export function TableConfirmModal({ onClose }: { onClose: () => void }) {
           try { localStorage.setItem(`${STORAGE_KEYS.ORDER_CACHE}${order.id}`, JSON.stringify(order)) } catch {}
         }
       }
+      // table_busy: the table already had another active guest's order. This order is
+      // still placed and tracked on its OWN page — show a short notice that it will be
+      // served after the current order.
+      if (order?.table_busy) {
+        toast.info('Bàn đang phục vụ khách khác — đơn của bạn đã được ghi nhận và sẽ phục vụ sau.', { duration: 6000 })
+      }
       cart.clearCart()
       // Use router.replace (client-side nav) to preserve auth token in Zustand across navigation
       router.replace(order?.id ? `/order/${order.id}` : '/order')
     },
     onError: (err: unknown) => {
-      const resp = (err as { response?: { data?: { error?: string; message?: string; details?: { active_order_id?: string } } } }).response
-      if (resp?.data?.error === 'TABLE_HAS_ACTIVE_ORDER') {
-        const activeId = resp?.data?.details?.active_order_id
-        toast.info('Bàn này đang có đơn chưa hoàn tất — đây là đơn hiện tại của bàn.')
-        // Use router.replace (client-side nav) to preserve auth token in Zustand across navigation
-        router.replace(activeId ? `/order/${activeId}` : '/order')
-        return
-      }
+      const resp = (err as { response?: { data?: { message?: string } } }).response
       toast.error(resp?.data?.message ?? 'Đặt hàng thất bại')
     },
   })
