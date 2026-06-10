@@ -1,15 +1,8 @@
 'use client'
-import { Fragment } from 'react'
 import type { QueueItem, OrderStatus } from '@/types/order'
-import {
-  elapsedMins,
-  isKitchenItem,
-  statusColors,
-  statusLabel,
-  summarizePending,
-} from '@/features/admin/overview.helpers'
+import { statusColors, statusLabel } from '@/features/admin/overview.helpers'
 
-// All active statuses shown in the floor prep list.
+// All active statuses shown in the waiting list.
 const ACTIVE_STATUSES: OrderStatus[] = ['pending', 'confirmed', 'preparing', 'ready']
 
 interface Props {
@@ -18,70 +11,37 @@ interface Props {
 }
 
 export function WholeFloorPrepList({ queue, currentOrderId }: Props) {
-  const now = Date.now()
-
-  // Show all active orders; sort by createdAt desc (most recent first).
+  // Show all active orders; sort by createdAt asc (oldest first) so the most
+  // recent order — i.e. the current guest who just ordered — sits at the bottom.
   const activeItems = queue
     .filter(item => ACTIVE_STATUSES.includes(item.status))
     .sort((a, b) => {
       const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0
       const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0
-      return tb - ta
+      return ta - tb
     })
-
-  // Summary counts across all tables.
-  const allKitItems = activeItems.flatMap(item =>
-    (item.dishes ?? []).filter(isKitchenItem),
-  )
-  const dishTypes  = new Set(allKitItems.map(i => i.name)).size
-  const totalRemain = allKitItems.reduce(
-    (s, i) => s + Math.max(0, i.quantity - i.qty_served),
-    0,
-  )
 
   return (
     <section className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
       {/* Header */}
       <div className="px-4 py-3 border-b border-border bg-gradient-to-r from-primary/10 to-transparent flex items-center justify-between">
-        <div>
-          <p className="text-sm font-semibold text-foreground">Danh sách bàn cần chuẩn bị</p>
-          <p className="text-xs text-muted-fg mt-0.5">
-            {activeItems.length} bàn · {dishTypes} loại món · {totalRemain} phần còn lại
-          </p>
-        </div>
+        <p className="text-sm font-semibold text-foreground">Hàng chờ phục vụ</p>
         <span className="shrink-0 text-xs font-bold bg-primary text-primary-foreground px-2.5 py-1 rounded-full">
-          {totalRemain} phần
+          {activeItems.length} bàn
         </span>
       </div>
 
-      {/* Rows */}
+      {/* Rows — table number + status + order number only */}
       <div className="divide-y divide-border/60">
         {activeItems.length === 0 && (
           <p className="px-4 py-4 text-sm text-muted-fg text-center">
-            Chưa có đơn hàng nào đang hoạt động.
+            Chưa có bàn nào đang chờ.
           </p>
         )}
 
-        {activeItems.map(item => {
-          const isOwn      = item.orderId === currentOrderId
-          const dishes     = item.dishes ?? []
-          const kitItems   = dishes.filter(isKitchenItem)
-          const pending    = kitItems.filter(i => i.quantity - i.qty_served > 0)
-          const summaryRows = summarizePending(pending)
-
-          const mins = item.createdAt ? elapsedMins(item.createdAt, now) : null
-          const timeColor =
-            mins === null      ? 'text-muted-fg'
-            : mins > 20        ? 'text-red-600 font-semibold dark:text-red-400'
-            : mins >= 10       ? 'text-yellow-600 dark:text-yellow-400'
-            :                    'text-orange-500 dark:text-orange-400'
-
-          const borderL =
-            mins === null ? ''
-            : mins > 20   ? 'border-l-4 border-l-red-400'
-            : mins >= 10  ? 'border-l-4 border-l-yellow-400'
-            :               'border-l-4 border-l-orange-400'
-
+        {activeItems.map((item, idx) => {
+          const isOwn = item.orderId === currentOrderId
+          const position = idx + 1
           const orderSuffix = item.orderNumber
             ? item.orderNumber.split('-').pop()
             : null
@@ -89,56 +49,33 @@ export function WholeFloorPrepList({ queue, currentOrderId }: Props) {
           return (
             <div
               key={item.orderId}
-              className={`px-4 py-3 transition-colors ${borderL} ${isOwn ? 'bg-primary/5' : ''}`}
+              className={`px-4 py-3 flex items-center gap-2 flex-wrap ${
+                isOwn ? 'border-2 border-primary rounded-xl bg-primary/5' : ''
+              }`}
             >
-              {/* Top row: table label + status badge + (own order highlight) */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className={`font-bold text-base ${isOwn ? 'text-primary' : 'text-foreground'}`}>
-                  {item.tableLabel || '?'}
-                  {isOwn && (
-                    <span className="ml-1.5 text-xs font-normal text-primary">(bàn bạn)</span>
-                  )}
-                </span>
+              <span
+                className={`shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold tabular-nums ${
+                  isOwn ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-fg'
+                }`}
+              >
+                {position}
+              </span>
 
-                <span
-                  className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full ${statusColors(item.status)}`}
-                >
-                  {statusLabel(item.status)}
-                </span>
-
-                {orderSuffix && (
-                  <span className="text-xs font-mono text-muted-fg">#{orderSuffix}</span>
+              <span className={`font-bold text-base ${isOwn ? 'text-primary' : 'text-foreground'}`}>
+                {item.tableLabel || '?'}
+                {isOwn && (
+                  <span className="ml-1.5 text-xs font-normal text-primary">(bàn bạn)</span>
                 )}
+              </span>
 
-                {mins !== null && (
-                  <span className={`ml-auto text-xs ${timeColor}`}>{mins} phút</span>
-                )}
-              </div>
+              <span
+                className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full ${statusColors(item.status)}`}
+              >
+                {statusLabel(item.status)}
+              </span>
 
-              {/* Dish summary rows (only if dishes payload is present) */}
-              {dishes.length === 0 ? null : pending.length === 0 ? (
-                <p className="text-xs text-green-600 dark:text-green-400 mt-1.5">
-                  Xong hết
-                </p>
-              ) : (
-                <div className="mt-1.5 grid grid-cols-[1fr_auto_auto] gap-x-3 gap-y-0.5 text-xs text-muted-fg">
-                  {summaryRows.map(r => (
-                    <Fragment key={r.key}>
-                      <span className="truncate text-foreground">
-                        {r.name}
-                        {r.note && (
-                          <span className="text-amber-500 dark:text-amber-400 italic ml-1">
-                            ({r.note})
-                          </span>
-                        )}
-                      </span>
-                      <span className="italic whitespace-nowrap">{r.topping}</span>
-                      <span className="font-semibold text-right tabular-nums text-foreground">
-                        ×{r.qty}
-                      </span>
-                    </Fragment>
-                  ))}
-                </div>
+              {orderSuffix && (
+                <span className="ml-auto text-xs font-mono text-muted-fg">#{orderSuffix}</span>
               )}
             </div>
           )

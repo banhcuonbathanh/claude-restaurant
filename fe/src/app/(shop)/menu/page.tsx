@@ -147,7 +147,7 @@ function MenuContent() {
       )}
 
       {/* Content */}
-      <main className="px-4 py-4 pb-28">
+      <main className="px-4 py-4 pb-40">
         {isError ? (
           <div className="flex flex-col items-center justify-center py-16 gap-4">
             <p className="text-muted-fg text-sm">⚠ Kết nối mạng yếu</p>

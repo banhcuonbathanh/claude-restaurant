@@ -1,21 +1,22 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Eye, EyeOff } from 'lucide-react'
 import { api } from '@/lib/api-client'
 import { useCartStore } from '@/store/cart'
 import { useOrderMonitorSSE } from '@/hooks/useOrderMonitorSSE'
 import { MonitoringTopBar } from './components/MonitoringTopBar'
 import { TableInfoBanner } from './components/TableInfoBanner'
+import { OrderDetailCard } from './components/OrderDetailCard'
 import { WholeFloorPrepList } from './components/WholeFloorPrepList'
-import { ClientBottomNav } from '@/components/shared/ClientBottomNav'
 import { ConnectionErrorBanner } from '@/components/shared/ConnectionErrorBanner'
 import type { Order } from '@/types/order'
 
 export default function TrackingPage() {
   const router  = useRouter()
   const orderId = useCartStore(s => s.activeOrderId)
+  const [showTable, setShowTable] = useState(true)
 
   const { data: order, isLoading, isError, refetch } = useQuery<Order>({
     queryKey: ['order', orderId],
@@ -32,7 +33,7 @@ export default function TrackingPage() {
     },
   })
 
-  const { orderStatus, queueData, sseConnected, isUnauthorized, itemsChangedAt, reconnect } =
+  const { orderStatus, queueData, sseConnected, isUnauthorized, itemsChangedAt } =
     useOrderMonitorSSE(orderId ?? '')
 
   // Refetch order detail when items are added/updated/cancelled from POS or staff.
@@ -129,13 +130,27 @@ export default function TrackingPage() {
 
       <div className="max-w-lg mx-auto px-4 pt-4 space-y-3">
         {order && effectiveStatus && (
-          <TableInfoBanner
-            tableLabel={tableLabel}
-            status={effectiveStatus}
-            queuePosition={queueData?.position ?? null}
-            queueTotal={queueData?.total ?? null}
-            estimatedMinutes={queueData?.estimatedMinutes ?? null}
-          />
+          <div className="space-y-2">
+            <button
+              onClick={() => setShowTable(v => !v)}
+              className="flex items-center gap-1.5 text-xs font-medium text-muted-fg hover:text-foreground min-h-[36px]"
+            >
+              {showTable ? <EyeOff size={14} /> : <Eye size={14} />}
+              {showTable ? 'Ẩn bàn của bạn' : 'Hiện bàn của bạn'}
+            </button>
+            {showTable && (
+              <>
+                <TableInfoBanner
+                  tableLabel={tableLabel}
+                  status={effectiveStatus}
+                  queuePosition={queueData?.position ?? null}
+                  queueTotal={queueData?.total ?? null}
+                  estimatedMinutes={queueData?.estimatedMinutes ?? null}
+                />
+                {order && <OrderDetailCard order={order} />}
+              </>
+            )}
+          </div>
         )}
 
         {queueData && queueData.queue.length > 0 && (
@@ -145,8 +160,6 @@ export default function TrackingPage() {
           />
         )}
       </div>
-
-      <ClientBottomNav orderId={orderId} onRefresh={reconnect} />
     </div>
   )
 }

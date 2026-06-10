@@ -1,7 +1,6 @@
 'use client'
 import { useRouter } from 'next/navigation'
 import { CustomerTopNav } from '@/components/shared/CustomerTopNav'
-import { ClientMainBottomNav } from '@/components/shared/ClientMainBottomNav'
 import { ProfileAvatarHeader } from './components/ProfileAvatarHeader'
 import { PersonalInfoForm } from './components/PersonalInfoForm'
 import { QuickNavGrid } from './components/QuickNavGrid'
@@ -76,9 +75,6 @@ export default function ProfilePage() {
           </>
         )}
       </main>
-
-      {/* Zone F */}
-      <ClientMainBottomNav />
     </div>
   )
 }

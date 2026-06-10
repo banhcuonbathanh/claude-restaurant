@@ -15,7 +15,7 @@ export function CartBottomBar({ onCheckout, dimmed = false }: Props) {
   if (count === 0) return null
 
   return (
-    <div className="fixed bottom-6 left-4 right-4 z-30">
+    <div className="fixed bottom-[calc(80px+env(safe-area-inset-bottom))] left-4 right-4 z-30">
       <button
         onClick={onCheckout}
         className={`w-full bg-primary text-white py-3.5 rounded-2xl font-semibold flex items-center justify-between px-5 shadow-lg min-h-[44px] transition-opacity ${dimmed ? 'opacity-60 cursor-not-allowed' : ''}`}
