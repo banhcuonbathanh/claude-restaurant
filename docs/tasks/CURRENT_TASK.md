@@ -8,8 +8,9 @@
 
 ## Active Task
 
-**Phase DEPLOY — D-1 → D-5 (Stage A: Mac test server, LAN clients)** — started 2026-06-11.
-Plan approved (file `crispy-conjuring-valley`): D-1 migration auto-run entrypoint → D-2 Mac `.env` → D-3 stack up behind Caddy → D-4 QR + LAN smoke test → D-5 `docs/devops/DEPLOY_RUNBOOK.md`. Stage B (D-6→D-8 VPS) blocked on owner buying VPS + domain. Details → `MASTER_TASK.md` → Phase DEPLOY.
+**Phase DEPLOY — Stage A ✅ COMPLETE (D-1→D-5, 2026-06-11).** Mac test server live at `http://192.168.102.9` (Caddy → BE/FE), fresh DB auto-migrated via new `be/entrypoint.sh`, seeded, smoke test 8/8, guest QR order verified end-to-end. Runbook: `docs/devops/DEPLOY_RUNBOOK.md`.
+
+**Next: D-6 (OWNER ACTION)** — buy VPS (Vultr/DO Singapore, 2 vCPU/2 GB, Ubuntu 24.04) + domain, point DNS A record. Then D-7 first deploy via push to `main` (runbook §B). Owner should also: (1) scan a printed QR from a phone on shop Wi-Fi to confirm LAN access, (2) run the commit script below — work is uncommitted (git blocked for Claude).
 
 ---
 

@@ -41,7 +41,7 @@
 | P-PREP-3COL — WaitingSection prep list → 3 columns (Title · Topping · Quantity) | FE | ✅ COMPLETE | 0 | — |
 | **TOP — Topping Unification (nhân/rau = topping, drop `filling`)** | BE+FE | ✅ COMPLETE | 0 | — |
 | **CANH — Canh as Normal Cart Item (FE/BE model unification)** | FE | ✅ COMPLETE | 0 | — |
-| **DEPLOY — Server Deployment (Mac test server → VPS go-live)** | DevOps | 🔄 IN PROGRESS | ~3 | D-1 |
+| **DEPLOY — Server Deployment (Mac test server → VPS go-live)** | DevOps | 🔄 Stage A ✅ (D-1→D-5) · Stage B blocked on owner | ~2 | D-6 (owner: buy VPS + domain) |
 | P-FEQA — FE Code Quality Audit | FE | 🔄 IN PROGRESS | TBD | P-FEQA-2 (apply findings from `docs/fe/quality_audit/SUMMARY.md`) |
 
 ---
@@ -147,11 +147,11 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| D-1 | DevOps | Migration auto-run: new `be/entrypoint.sh` (wait MySQL → `goose up` → `exec ./server`, reuse `scripts/migrate.sh` logic) + install goose in `be/Dockerfile` runtime stage, switch ENTRYPOINT | — | 1 | ⬜ | Fresh `mysql_data` volume + `docker compose up --build be` → 17/17 migrations applied, `/health` 200 |
-| D-2 | DevOps | Production-like `.env` for Mac: real secrets (`openssl rand -hex 32`), `CADDY_HOST=:80`, all URLs = `http://<mac-ip>` (`NEXT_PUBLIC_API_URL` · `CORS_ORIGINS` · `STORAGE_BASE_URL` · `WEBHOOK_BASE_URL`) | — | 1 | ⬜ | No `CHANGE_ME` values remain; `.env` stays gitignored |
-| D-3 | DevOps | Full stack up behind Caddy: `docker compose up -d --build`; verify `http://<mac-ip>/health` + FE from a phone on shop Wi-Fi; SSE cross-device | D-1 · D-2 | 1 | ⬜ | Phone loads menu via Caddy :80; order on phone appears live on Mac KDS |
-| D-4 | DevOps | QR codes for Mac IP (`FE_HOST=http://<mac-ip>` via `be/cmd/qr`) + E2E LAN smoke test per `CLIENT_QR_FLOW.md` + `STAFF_ORDER_FLOW.md` (payment webhooks stay deferred to P7-7) | D-3 | 1 | ⬜ | Scan → guest → order → KDS confirm → POS bill → cash paid, from 2 devices |
-| D-5 | DevOps | `docs/devops/DEPLOY_RUNBOOK.md` — Mac-test checklist (D-2…D-4) + VPS section; extends (not duplicates) `docs/GOLIVE_RUNBOOK.md` | D-4 | 1 | ⬜ | Owner can redo Stage A and execute Stage B from the doc alone |
+| D-1 | DevOps | Migration auto-run: new `be/entrypoint.sh` (goose-retry loop → `goose up` → `exec ./server`) + goose installed in `be/Dockerfile`, ENTRYPOINT switched | — | 1 | ✅ | Verified 2026-06-11: fresh `mysql_data` → `goose: successfully migrated database to version: 17`, `/health` 200 |
+| D-2 | DevOps | Production-like `.env` for Mac (real secrets, all URLs = `http://192.168.102.9`, `NEXT_PUBLIC_API_URL` **with `/api/v1`**). **Scope +3 (required, flagged):** compose mysql healthcheck `-p${MYSQL_PASSWORD}` (was hardcoded); Caddyfile `/uploads/*` → be:8080 (images 404'd through Caddy otherwise); caddy service now receives `CADDY_HOST`/`ACME_EMAIL` env (root cause of pre-existing caddy crash-loop: empty `email` directive = fatal parse error) | — | 1 | ✅ | No `CHANGE_ME`; old dev `.env` → `.env.bak.dev` |
+| D-3 | DevOps | Full stack up behind Caddy on fresh DB + re-seed (`seed.sql` + `seed_real_menu.sql`). Also fixed pre-existing loki crash-loop (volume chown 10001 + WAL dir in `loki-config.yml`) and `smoke_test.sh` bugs (`curl -f` corrupted status capture; bad-creds password too short → 400 not 401) | D-1 · D-2 | 1 | ✅ | All 10 containers stable; `BASE_URL=http://192.168.102.9 ./scripts/smoke_test.sh` → **8/8 pass** |
+| D-4 | DevOps | QR URLs for Mac IP + E2E smoke from Mac: browser opened `/table/<token>` → guest session → menu rendered; API: guest `POST /orders` (topping snapshot, server prices) → admin `GET /orders/:id` OK → cancelled. SSE streams through Caddy. **Owner to repeat once from a phone on shop Wi-Fi** (QR URL list in runbook §A1.6) | D-3 | 1 | ✅ | Guest order ORD-20260611-0001 created + visible to admin via `http://192.168.102.9`; full staff-UI click-through stays in P7-5.4 |
+| D-5 | DevOps | `docs/devops/DEPLOY_RUNBOOK.md` — flow diagram, Mac checklist, gotcha table, VPS deltas. Also corrected `docs/GOLIVE_RUNBOOK.md`: `NEXT_PUBLIC_API_URL` must end `/api/v1` (×2) + migration log line now from `entrypoint.sh` | D-4 | 1 | ✅ | Owner can redo Stage A / execute Stage B from docs alone |
 | D-6 | Owner | Buy VPS (Vultr/DO Singapore, Ubuntu 24.04, 2 vCPU/2 GB) + domain (~$10/yr); DNS A record → VPS IP | D-5 | 1 | ⬜ | `dig <domain>` resolves to VPS IP |
 | D-7 | DevOps+Owner | VPS prep (deploy user, Docker, UFW 22/80/443 only, clone → `/opt/banhcuon`, prod `.env` with NEW secrets) + 5 GitHub secrets (`DEPLOY_HOST/USER/KEY/PATH`, `NEXT_PUBLIC_API_URL`) + first deploy via push to `main` | D-6 | 1 | ⬜ | `https://<domain>` valid LE cert; `/health` 200; pipeline rollback path proven once |
 | D-8 | DevOps | Go-live ops: QR codes for `https://<domain>`; nightly `mysqldump` backup script + cron; Grafana/Prometheus only via SSH tunnel; unblocks P7-7 (real webhook URL) | D-7 | 1 | ⬜ | Backup file appears after cron; only 22/80/443 open in `ufw status` |

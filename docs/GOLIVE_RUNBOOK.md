@@ -71,7 +71,7 @@ In the GitHub repository → **Settings → Secrets → Actions**, add:
 | `DEPLOY_USER` | SSH user (e.g. `ubuntu`) |
 | `DEPLOY_KEY` | SSH private key (generate: `ssh-keygen -t ed25519`) |
 | `DEPLOY_PATH` | `/opt/banhcuon` |
-| `NEXT_PUBLIC_API_URL` | `https://yourdomain.com` |
+| `NEXT_PUBLIC_API_URL` | `https://yourdomain.com/api/v1` — **must end with `/api/v1`** (FE api-client/SSE append paths to it) |
 
 Add the SSH public key to `~/.ssh/authorized_keys` on the VPS.
 
@@ -101,7 +101,7 @@ JWT_SECRET=$(openssl rand -hex 32)
 CADDY_HOST=yourdomain.com
 ACME_EMAIL=admin@yourdomain.com
 CORS_ORIGINS=https://yourdomain.com
-NEXT_PUBLIC_API_URL=https://yourdomain.com
+NEXT_PUBLIC_API_URL=https://yourdomain.com/api/v1   # must end with /api/v1
 WEBHOOK_BASE_URL=https://yourdomain.com
 STORAGE_BASE_URL=https://yourdomain.com/uploads
 
