@@ -5,60 +5,49 @@ import Image from 'next/image'
 import { Plus, Minus, Heart } from 'lucide-react'
 import { useCartStore } from '@/store/cart'
 import { useFavouritesStore } from '@/store/favourites'
-import type { Product, Topping } from '@/types/product'
+import type { Product } from '@/types/product'
 import { formatVND } from '@/lib/utils'
-import { ToppingModal } from './ToppingModal'
 
 interface Props {
   product: Product
 }
 
 export function ProductGridCard({ product }: Props) {
-  const [modalOpen, setModalOpen] = useState(false)
+  const [nhanId, setNhanId] = useState<string>('')
   const { items, addItem, updateQty } = useCartStore()
   const { toggleFav, isFavourite } = useFavouritesStore()
 
   const fav = isFavourite(product.id, 'product')
-  const hasToppings = (product.toppings ?? []).some(t => t.is_available)
 
-  const noToppingCartId = `product_${product.id}_`
-  const noToppingItem   = items.find(i => i.id === noToppingCartId)
-  const noToppingQty    = noToppingItem?.quantity ?? 0
+  // Nhân options come straight from the product's available toppings — picked
+  // inline on the card (same pattern as ComboCard), no modal.
+  const nhanOptions  = (product.toppings ?? []).filter(t => t.is_available)
+  const selectedNhan = nhanOptions.find(t => t.id === nhanId) ?? nhanOptions[0]
+
+  const cartId   = `product_${product.id}_${selectedNhan?.id ?? 'plain'}`
+  const cartItem = items.find(i => i.id === cartId)
+  const qty      = cartItem?.quantity ?? 0
+
+  const price = product.price + (selectedNhan?.price ?? 0)
 
   const imageUrl = product.image_path
     ? `${process.env.NEXT_PUBLIC_STORAGE_URL ?? ''}/${product.image_path}`
     : null
 
-  const handleDirectAdd = () => {
-    if (noToppingQty === 0) {
+  const handleAdd = () => {
+    if (qty === 0) {
       addItem({
-        id:         noToppingCartId,
+        id:         cartId,
         type:       'product',
         product_id: product.id,
         name:       product.name,
         quantity:   1,
-        price:      product.price,
-        toppings:   [],
+        price,
+        toppings:   selectedNhan ? [selectedNhan] : [],
       })
     } else {
-      updateQty(noToppingCartId, noToppingQty + 1)
+      updateQty(cartId, qty + 1)
     }
-  }
-
-  const handleModalConfirm = (selected: Topping[]) => {
-    const sortedIds = selected.map(t => t.id).sort().join('-')
-    const cartId    = `product_${product.id}_${sortedIds}`
-    const price     = product.price + selected.reduce((s, t) => s + t.price, 0)
-    addItem({
-      id:         cartId,
-      type:       'product',
-      product_id: product.id,
-      name:       product.name,
-      quantity:   1,
-      price,
-      toppings:   selected,
-    })
-    setModalOpen(false)
   }
 
   return (
@@ -93,18 +82,34 @@ export function ProductGridCard({ product }: Props) {
       </div>
 
       {/* Content */}
-      <div className="flex flex-col gap-1 p-2.5 flex-1">
+      <div className="flex flex-col gap-1.5 p-2.5 flex-1">
         <Link href={`/menu/product/${product.id}`}>
           <p className="text-foreground text-sm font-semibold leading-snug line-clamp-2">
             {product.name}
           </p>
         </Link>
-        <p className="text-primary font-bold text-sm">{formatVND(product.price)}</p>
-        {hasToppings && (
-          <p className="text-muted-fg text-xs leading-none">Có thể chọn topping</p>
+        <p className="text-primary font-bold text-sm">{formatVND(price)}</p>
+
+        {/* Nhân selector — data-driven pills, single-select */}
+        {nhanOptions.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            {nhanOptions.map(nhan => (
+              <button
+                key={nhan.id}
+                onClick={() => setNhanId(nhan.id)}
+                className={`w-full text-center text-[11px] px-2 py-1 rounded-full border transition-colors ${
+                  (selectedNhan?.id === nhan.id)
+                    ? 'bg-primary text-white border-primary'
+                    : 'border-border text-muted-fg hover:border-primary/50'
+                }`}
+              >
+                {nhan.name}
+              </button>
+            ))}
+          </div>
         )}
 
-        {/* Bottom row: chi tiết + add/stepper */}
+        {/* Bottom row: chi tiết + qty control */}
         <div className="flex items-center justify-between mt-auto pt-1.5">
           <Link
             href={`/menu/product/${product.id}`}
@@ -113,52 +118,28 @@ export function ProductGridCard({ product }: Props) {
             Chi tiết
           </Link>
 
-          {hasToppings ? (
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => setModalOpen(true)}
+              onClick={() => updateQty(cartId, qty - 1)}
+              disabled={qty === 0}
+              className="bg-muted text-foreground w-7 h-7 rounded-full flex items-center justify-center
+                         hover:bg-muted/80 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Minus size={12} />
+            </button>
+            <span className="text-foreground text-xs font-bold w-4 text-center">{qty}</span>
+            <button
+              onClick={handleAdd}
               disabled={!product.is_available}
               aria-label={`Thêm ${product.name} vào giỏ`}
               className="bg-primary text-white w-7 h-7 rounded-full flex items-center justify-center
                          hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <Plus size={14} />
+              <Plus size={12} />
             </button>
-          ) : noToppingQty === 0 ? (
-            <button
-              onClick={handleDirectAdd}
-              disabled={!product.is_available}
-              aria-label={`Thêm ${product.name} vào giỏ`}
-              className="bg-primary text-white w-7 h-7 rounded-full flex items-center justify-center
-                         hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Plus size={14} />
-            </button>
-          ) : (
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => updateQty(noToppingCartId, noToppingQty - 1)}
-                className="bg-muted text-foreground w-6 h-6 rounded-full flex items-center justify-center hover:bg-muted/80 transition-colors"
-              >
-                <Minus size={11} />
-              </button>
-              <span className="text-foreground text-xs font-bold w-4 text-center">{noToppingQty}</span>
-              <button
-                onClick={handleDirectAdd}
-                className="bg-primary text-white w-6 h-6 rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors"
-              >
-                <Plus size={11} />
-              </button>
-            </div>
-          )}
+          </div>
         </div>
       </div>
-
-      <ToppingModal
-        product={product}
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onConfirm={handleModalConfirm}
-      />
     </div>
   )
 }

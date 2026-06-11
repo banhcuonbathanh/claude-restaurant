@@ -16,6 +16,7 @@ Business truth still lives in `docs/spec/`, `docs/core/`, `docs/contract/`.
 | [CLAUDE_MD_GUIDE.md](CLAUDE_MD_GUIDE.md) | *How do I write or edit a `CLAUDE.md` correctly?* |
 | [SKILLS_REGISTRY.md](SKILLS_REGISTRY.md) | *Which skills exist, when do they fire, what do they own?* |
 | [CLEANUP_LOG.md](CLEANUP_LOG.md) | *Which docs are stale / duplicated and should be retired?* |
+| [usage_review/](usage_review/README.md) | *Is the way we use Claude good? Audit + improvement plan (2026-06-11).* |
 
 ---
 

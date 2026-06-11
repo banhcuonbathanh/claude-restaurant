@@ -152,12 +152,12 @@ caddy       running
 
 ## Step 6 — Run Database Migrations
 
-Migrations run automatically on BE startup via `scripts/migrate.sh`.
+Migrations run automatically on BE startup via `be/entrypoint.sh` (goose up, then server).
 Verify they completed:
 
 ```bash
-docker compose logs be | grep "migrate"
-# Expected: "[migrate.sh] Migrations done."
+docker compose logs be | grep "entrypoint"
+# Expected: "[entrypoint] migrations up to date, starting server"
 ```
 
 If migrations failed, check and run manually:

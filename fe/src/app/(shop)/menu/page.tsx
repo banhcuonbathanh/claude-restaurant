@@ -1,5 +1,5 @@
 'use client'
-import { useMemo, useState, useEffect, Suspense } from 'react'
+import { useMemo, useState, Suspense } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
@@ -22,7 +22,6 @@ import { TableConfirmModal } from '@/features/menu/components/TableConfirmModal'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { Button } from '@/components/ui/button'
 import type { Product, Combo, ComboRaw, Category } from '@/types/product'
-import { STORAGE_KEYS } from '@/lib/storage-keys'
 
 function MenuContent() {
   const router        = useRouter()
@@ -31,14 +30,8 @@ function MenuContent() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [cartOpen, setCartOpen]                 = useState(false)
   const [confirmOpen, setConfirmOpen]           = useState(false)
-  const [hasOrders, setHasOrders]               = useState(false)
   const [searchQuery, setSearchQuery]           = useState('')
   const [canhShakeKey, setCanhShakeKey]         = useState(0)
-
-  useEffect(() => {
-    const found = Object.keys(localStorage).some(k => k.startsWith(STORAGE_KEYS.ORDER_CACHE))
-    setHasOrders(found)
-  }, [])
 
   const { tableId, items } = useCartStore()
 
@@ -117,7 +110,7 @@ function MenuContent() {
   return (
     <div className="min-h-screen bg-background">
       {/* Zone A — Header */}
-      <MenuHeader hasOrders={hasOrders} onCartClick={() => setCartOpen(true)} />
+      <MenuHeader />
 
       {/* Mini cart strip — sticky, shows when cart has items */}
       <MiniCartStrip onClick={() => setCartOpen(true)} />

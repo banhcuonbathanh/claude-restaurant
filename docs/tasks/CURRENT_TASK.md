@@ -8,7 +8,12 @@
 
 ## Active Task
 
-No active task.
+**Phase DEPLOY — D-1 → D-5 (Stage A: Mac test server, LAN clients)** — started 2026-06-11.
+Plan approved (file `crispy-conjuring-valley`): D-1 migration auto-run entrypoint → D-2 Mac `.env` → D-3 stack up behind Caddy → D-4 QR + LAN smoke test → D-5 `docs/devops/DEPLOY_RUNBOOK.md`. Stage B (D-6→D-8 VPS) blocked on owner buying VPS + domain. Details → `MASTER_TASK.md` → Phase DEPLOY.
+
+---
+
+### Previously closed
 
 **Phase TOP — Topping Unification ✅ COMPLETE (2026-06-07).** All TOP-1→TOP-6 done & gate-green; `filling` removed from BE + FE (only a harmless `globals.css` comment remains). nhân + canh rau are now toppings. See `MASTER_TASK.md` → Phase TOP for per-task detail.
 

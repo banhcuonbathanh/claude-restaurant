@@ -66,11 +66,10 @@ In your Component Map (Step 5), write the component name and point to this file:
 
 | Component | File | Key Props | When to use | Used by |
 |-----------|------|-----------|-------------|---------|
-| `ProductCard` | `menu/ProductCard.tsx` | `product: Product` | Any page that lists products. Handles add-to-cart + favourite toggle internally | — |
+| `ProductCard` | `menu/ProductCard.tsx` | `product: Product` | Any page that lists products. Handles add-to-cart + favourite toggle internally. Nhân picked inline via pills (ComboCard pattern) — no modal | — |
 | `ComboCard` | `menu/ComboCard.tsx` | `combo: Combo` | Any page that lists combos | menu |
 | `CategoryTabs` | `menu/CategoryTabs.tsx` | `categories` · `selected` · `onSelect` | Horizontal scroll category filter. Sticky-aware | menu |
 | `CartDrawer` | `menu/CartDrawer.tsx` | `open` · `onClose` · `addToOrderId?` | Slide-in cart panel. Also handles "add to existing order" flow | menu |
-| `ToppingModal` | `menu/ToppingModal.tsx` | `product` · `open` · `onClose` · `onConfirm` | Bottom sheet for topping selection. Used inside `ProductCard` | menu |
 | `ComboModal` | `menu/ComboModal.tsx` | `combo` · `open` · `onClose` · `onConfirm` | Bottom sheet for combo detail. Used inside `ComboCard` | menu |
 
 ---
@@ -115,7 +114,7 @@ In your Component Map (Step 5), write the component name and point to this file:
 
 | Page | Route | Wireframe | Shared (from this index) | Local-only components |
 |------|-------|-----------|--------------------------|----------------------|
-| Menu | `/(shop)/menu` | [menu_wireframe_v1.md](../client_menu_page/menu_wireframe_v1.md) | `CategoryTabs` · `ComboCard` · `ToppingModal` · `ComboModal` · `CartDrawer` · `useCartStore` · `useFavouritesStore` · `useSettingsStore` | `Header` · `SearchBar` · `FavoritesRail` · `ProductGridCard` · `NướcDùngCustomize` · `OrderNoteInput` · `OrderSummary` · `CartFAB` |
+| Menu | `/(shop)/menu` | [menu_wireframe_v1.md](../client_menu_page/menu_wireframe_v1.md) | `CategoryTabs` · `ComboCard` · `ComboModal` · `CartDrawer` · `useCartStore` · `useFavouritesStore` · `useSettingsStore` | `Header` · `SearchBar` · `FavoritesRail` · `ProductGridCard` · `NướcDùngCustomize` · `OrderNoteInput` · `OrderSummary` · `CartFAB` |
 | Admin — Categories | `/admin/categories` | [admin_main_categories_wireframe_v1.md](../admin_main/admin_main_categories/admin_main_categories_wireframe_v1.md) | `AdminTopNav` · `AuthGuard` · `RoleGuard` · `useAuthStore` | `CategoryPageHeader` · `CategoryTable` · `AddCategoryModal` · `EditCategoryModal` |
 | Admin — Training | `/admin/training` | [admin_staff_training_wireframe_v1.md](../admin_main/admin_main_training/admin_staff_training_wireframe_v1.md) | `AdminSidebar` · `AuthGuard` · `RoleGuard` · `useAuthStore` | `RoleFilterTabs` · `JobGuideCardGrid` · `JobGuideCard` · `CompletionTrackingTable` · `CreateEditGuideModal` · `TrainingProgressModal` |
 | Admin — Combos | `/admin/combos` | [admin_main_combos_wireframe_v1.md](../admin_main/admin_main_combos/admin_main_combos_wireframe_v1.md) | `AdminTopNav` · `AuthGuard` · `RoleGuard` · `useAuthStore` · `Button` · `Badge` · `Input` · `Card` · `EmptyState` | `ComboPageHeader` · `ComboTable` · `ComboFormModal` · `ProductSearchList` |

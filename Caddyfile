@@ -20,6 +20,11 @@
 		reverse_proxy be:8080
 	}
 
+	# product images — BE serves STORAGE_BASE_PATH under /uploads
+	handle /uploads/* {
+		reverse_proxy be:8080
+	}
+
 	handle {
 		reverse_proxy fe:3000
 	}

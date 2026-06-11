@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { UtensilsCrossed, ReceiptText, Heart, MapPin } from 'lucide-react'
+import { UtensilsCrossed, ReceiptText, Heart, MapPin, Settings } from 'lucide-react'
 
 /** Springy easing shared by the indicator + pills — overshoots, then settles. */
 const SPRING = '[transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]'
@@ -23,10 +23,10 @@ function label(active: boolean) {
   }`
 }
 
-/** active index among the 4 nav tabs (-1 = none active, indicator hidden) */
+/** active index among the 5 nav tabs (-1 = none active, indicator hidden) */
 function indicatorClass(active: number) {
   const visible = active >= 0
-  return `pointer-events-none absolute top-0 left-0 h-[3px] w-1/4 px-3 duration-500 ${SPRING} transition-all ${
+  return `pointer-events-none absolute top-0 left-0 h-[3px] w-1/5 px-3 duration-500 ${SPRING} transition-all ${
     visible ? 'opacity-100' : 'opacity-0'
   }`
 }
@@ -34,12 +34,15 @@ function indicatorClass(active: number) {
 export function ClientBottomNav() {
   const pathname = usePathname()
 
-  const isMenu     = pathname?.startsWith('/menu') && !pathname.startsWith('/menu/favourites')
+  const isMenu     = pathname?.startsWith('/menu')
+    && !pathname.startsWith('/menu/favourites')
+    && !pathname.startsWith('/menu/settings')
   const isOrder    = pathname?.startsWith('/order')
   const isFav      = pathname?.startsWith('/menu/favourites')
   const isTracking = pathname?.startsWith('/tracking')
+  const isSettings = pathname?.startsWith('/menu/settings')
 
-  const activeIndex = isMenu ? 0 : isOrder ? 1 : isFav ? 2 : isTracking ? 3 : -1
+  const activeIndex = isMenu ? 0 : isOrder ? 1 : isFav ? 2 : isTracking ? 3 : isSettings ? 4 : -1
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-border bg-card shadow-[0_-4px_24px_-10px_rgba(0,0,0,0.7)] pb-safe">
@@ -82,6 +85,17 @@ export function ClientBottomNav() {
             <MapPin size={19} />
           </span>
           <span className={label(!!isTracking)}>Theo Dõi</span>
+        </Link>
+
+        <Link
+          href="/menu/settings"
+          className={itemBase}
+          aria-current={isSettings ? 'page' : undefined}
+        >
+          <span className={pill(!!isSettings)}>
+            <Settings size={19} />
+          </span>
+          <span className={label(!!isSettings)}>Cài Đặt</span>
         </Link>
       </div>
     </nav>

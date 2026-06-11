@@ -41,6 +41,7 @@
 | P-PREP-3COL — WaitingSection prep list → 3 columns (Title · Topping · Quantity) | FE | ✅ COMPLETE | 0 | — |
 | **TOP — Topping Unification (nhân/rau = topping, drop `filling`)** | BE+FE | ✅ COMPLETE | 0 | — |
 | **CANH — Canh as Normal Cart Item (FE/BE model unification)** | FE | ✅ COMPLETE | 0 | — |
+| **DEPLOY — Server Deployment (Mac test server → VPS go-live)** | DevOps | 🔄 IN PROGRESS | ~3 | D-1 |
 
 ---
 
@@ -130,6 +131,29 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 | CANH-2 | FE | `order-payload.ts`: drop `drink: DrinkConfig` param, change signature to `buildOrderItemsPayload(items)`. Canh items pass through like any product (no reconciliation needed). KEEP combo canh-strip (`isSoupName`). Update `order-payload.test.ts` to use canh items in `items[]`. | CANH-1 | 1 | ✅ | 5 builder tests pass; combo canh-strip still works; canh CartItems emit identical rows to old drinkConfig output; `npm run build` green |
 | CANH-3 | FE | `OrderSummary.tsx`: steppers read/write canh CartItems via `setCanhQty`; `discoverCanhInfo()` finds productId/rauTopping from items or combo sub-items; checkout gate = no `canh_*` items in cart; `Tổng số món` reads rauCount/plainCount from canh items. Amber warning + shake kept. | CANH-2 | 1 | ✅ | Steppers produce canh CartItems; gate uses `items.some(i => i.id.startsWith('canh_'))`; preview == payload; `npm run build` green |
 | CANH-4 | FE | Wire callers + cleanup: updated `menu/page.tsx`, `checkout/page.tsx`, `TableConfirmModal.tsx`, `CartDrawer.tsx`, `DrinkCustomize.tsx`; updated 4 test files (fe/src/__tests__/ + docs/work_flow/); updated `menu_spec_v2_visual.md §4a/§4d/§5/§6b/§6f`. | CANH-3 | 1 | ✅ | Zero `drinkConfig`/`vegBowls` refs in fe/src (grep clean); `npm run build` green; 107 pass / 2 pre-existing failures (clearCart orderNote + CART_CONFIG key) unchanged |
+
+---
+
+## Phase DEPLOY — Server Deployment (Mac Test Server → VPS Go-Live)
+
+> **Owner:** DevOps
+> **Dependency:** P6 ✅ (compose/Caddy/CI-CD exist) · P7-10 ✅ (`docs/GOLIVE_RUNBOOK.md`)
+> **Status:** 🔄 IN PROGRESS
+> **Added:** 2026-06-11
+> **Goal:** Stage A — production-like test server on the owner's Mac, clients access via LAN (`http://<mac-ip>` through Caddy). Stage B — real VPS + domain + auto-HTTPS, deploys driven by existing GitHub Actions (`deploy.yml`).
+> **Plan:** approved 2026-06-11 (plan file `crispy-conjuring-valley`). Key gap found: BE container never runs migrations (ENTRYPOINT is bare `./server`).
+> **Order:** D-1 → D-2 → D-3 → D-4 → D-5 (Stage A) → D-6 → D-7 → D-8 (Stage B; D-6/D-7 need owner: buy VPS+domain, set GitHub secrets, push)
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| D-1 | DevOps | Migration auto-run: new `be/entrypoint.sh` (wait MySQL → `goose up` → `exec ./server`, reuse `scripts/migrate.sh` logic) + install goose in `be/Dockerfile` runtime stage, switch ENTRYPOINT | — | 1 | ⬜ | Fresh `mysql_data` volume + `docker compose up --build be` → 17/17 migrations applied, `/health` 200 |
+| D-2 | DevOps | Production-like `.env` for Mac: real secrets (`openssl rand -hex 32`), `CADDY_HOST=:80`, all URLs = `http://<mac-ip>` (`NEXT_PUBLIC_API_URL` · `CORS_ORIGINS` · `STORAGE_BASE_URL` · `WEBHOOK_BASE_URL`) | — | 1 | ⬜ | No `CHANGE_ME` values remain; `.env` stays gitignored |
+| D-3 | DevOps | Full stack up behind Caddy: `docker compose up -d --build`; verify `http://<mac-ip>/health` + FE from a phone on shop Wi-Fi; SSE cross-device | D-1 · D-2 | 1 | ⬜ | Phone loads menu via Caddy :80; order on phone appears live on Mac KDS |
+| D-4 | DevOps | QR codes for Mac IP (`FE_HOST=http://<mac-ip>` via `be/cmd/qr`) + E2E LAN smoke test per `CLIENT_QR_FLOW.md` + `STAFF_ORDER_FLOW.md` (payment webhooks stay deferred to P7-7) | D-3 | 1 | ⬜ | Scan → guest → order → KDS confirm → POS bill → cash paid, from 2 devices |
+| D-5 | DevOps | `docs/devops/DEPLOY_RUNBOOK.md` — Mac-test checklist (D-2…D-4) + VPS section; extends (not duplicates) `docs/GOLIVE_RUNBOOK.md` | D-4 | 1 | ⬜ | Owner can redo Stage A and execute Stage B from the doc alone |
+| D-6 | Owner | Buy VPS (Vultr/DO Singapore, Ubuntu 24.04, 2 vCPU/2 GB) + domain (~$10/yr); DNS A record → VPS IP | D-5 | 1 | ⬜ | `dig <domain>` resolves to VPS IP |
+| D-7 | DevOps+Owner | VPS prep (deploy user, Docker, UFW 22/80/443 only, clone → `/opt/banhcuon`, prod `.env` with NEW secrets) + 5 GitHub secrets (`DEPLOY_HOST/USER/KEY/PATH`, `NEXT_PUBLIC_API_URL`) + first deploy via push to `main` | D-6 | 1 | ⬜ | `https://<domain>` valid LE cert; `/health` 200; pipeline rollback path proven once |
+| D-8 | DevOps | Go-live ops: QR codes for `https://<domain>`; nightly `mysqldump` backup script + cron; Grafana/Prometheus only via SSH tunnel; unblocks P7-7 (real webhook URL) | D-7 | 1 | ⬜ | Backup file appears after cron; only 22/80/443 open in `ufw status` |
 
 ---
 
@@ -288,6 +312,17 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
 | P-FIX-CANH-1 | FE | `OrderSummary` CANH section showed leftover bowl counts (e.g. 2/2) on a fresh menu load. Root cause: `cart.ts` persisted `drinkConfig` but not `items`, so old canh counts resurfaced without their order. Fix: drop `drinkConfig` from `partialize`; bump persist `version` 3→4 with migrate that deletes stale `drinkConfig`. | — | 1 | ✅ | Canh starts at 0/0 on fresh load; existing stale localStorage value flushed on next load |
+
+## Phase P-FEQA — FE Code Quality Audit
+
+> **Owner:** FE
+> **Dependency:** none
+> **Status:** 🔄 IN PROGRESS
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P-FEQA-1 | FE | Audit FE code quality across 8 aspects (structure · data fetching · loading states · client state · security · type safety · logic · performance). Output: `docs/fe/quality_audit/` folder — one report per aspect + prioritized SUMMARY. Read-only, no code changes. | — | 1 | 🔄 | Every finding has ID, severity, file:line, and concrete fix; owner can apply findings one by one |
+| P-FEQA-2 | FE | Apply audit findings one by one (owner-driven, picked from SUMMARY) | P-FEQA-1 | TBD | ⬜ | Each applied finding verified; report updated with ✅ |
 
 ---
 

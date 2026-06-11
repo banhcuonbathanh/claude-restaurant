@@ -6,6 +6,8 @@ Here’s a list of common Git uses in a code project, from daily basics to team 
 - `git log` – review commit history.
 
 ### 2. Branching for features & fixes
+- `git checkout -b experience_claude.md_system_1` – create a new branch and awitch.
+
 - `git branch <name>` – create a new branch.
 - `git checkout <branch>` or `git switch <branch>` – move between branches.
 - `git merge <branch>` – integrate changes from another branch.
