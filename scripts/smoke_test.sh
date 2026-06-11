@@ -19,7 +19,7 @@ check() {
   local url="$2"
   local expected="$3"
   local actual
-  actual=$(curl -sf -o /dev/null -w "%{http_code}" --max-time 10 "$url" 2>/dev/null || echo "000")
+  actual=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$url" 2>/dev/null || echo "000")
   if [ "$actual" = "$expected" ]; then
     printf "  \033[32m✓\033[0m %s (%s)\n" "$name" "$actual"
     PASS=$((PASS + 1))
@@ -35,7 +35,7 @@ check_post() {
   local body="$3"
   local expected="$4"
   local actual
-  actual=$(curl -sf -o /dev/null -w "%{http_code}" --max-time 10 \
+  actual=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 \
     -X POST -H "Content-Type: application/json" -d "$body" "$url" 2>/dev/null || echo "000")
   if [ "$actual" = "$expected" ]; then
     printf "  \033[32m✓\033[0m %s (%s)\n" "$name" "$actual"
@@ -66,7 +66,7 @@ check_post "Login admin"    "$BASE_URL/api/v1/auth/login" \
 check_post "Login cashier"  "$BASE_URL/api/v1/auth/login" \
   '{"username":"cashier1","password":"cashier123"}' 200
 check_post "Login bad creds" "$BASE_URL/api/v1/auth/login" \
-  '{"username":"admin","password":"wrong"}'      401
+  '{"username":"admin","password":"wrongpassword123"}'      401
 
 echo ""
 echo "────────────────────────────────"

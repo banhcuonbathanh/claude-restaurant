@@ -1,7 +1,9 @@
 {
 	admin off
-	# ACME email for Let's Encrypt notifications (production only)
-	email {$ACME_EMAIL:}
+	# ACME email for Let's Encrypt notifications (production only).
+	# Fallback keeps the config parseable when ACME_EMAIL is unset —
+	# an empty value makes the email directive a fatal parse error.
+	email {$ACME_EMAIL:noreply@example.invalid}
 }
 
 # CADDY_HOST controls where Caddy listens:

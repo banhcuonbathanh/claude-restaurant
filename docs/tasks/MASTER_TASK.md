@@ -42,6 +42,7 @@
 | **TOP — Topping Unification (nhân/rau = topping, drop `filling`)** | BE+FE | ✅ COMPLETE | 0 | — |
 | **CANH — Canh as Normal Cart Item (FE/BE model unification)** | FE | ✅ COMPLETE | 0 | — |
 | **DEPLOY — Server Deployment (Mac test server → VPS go-live)** | DevOps | 🔄 IN PROGRESS | ~3 | D-1 |
+| P-FEQA — FE Code Quality Audit | FE | 🔄 IN PROGRESS | TBD | P-FEQA-2 (apply findings from `docs/fe/quality_audit/SUMMARY.md`) |
 
 ---
 
@@ -321,7 +322,7 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
 |---|---|---|---|---|---|---|
-| P-FEQA-1 | FE | Audit FE code quality across 8 aspects (structure · data fetching · loading states · client state · security · type safety · logic · performance). Output: `docs/fe/quality_audit/` folder — one report per aspect + prioritized SUMMARY. Read-only, no code changes. | — | 1 | 🔄 | Every finding has ID, severity, file:line, and concrete fix; owner can apply findings one by one |
+| P-FEQA-1 | FE | Audit FE code quality across 8 aspects (structure · data fetching · loading states · client state · security · type safety · logic · performance). Output: `docs/fe/quality_audit/` folder — one report per aspect + prioritized SUMMARY. Read-only, no code changes. | — | 1 | ✅ | 55 findings (5 🔴 · 23 🟠 · 27 🟡), each with ID, severity, file:line, concrete fix; worklist in `SUMMARY.md` |
 | P-FEQA-2 | FE | Apply audit findings one by one (owner-driven, picked from SUMMARY) | P-FEQA-1 | TBD | ⬜ | Each applied finding verified; report updated with ✅ |
 
 ---

@@ -89,6 +89,9 @@ services:
     depends_on:
       - be
       - fe
+    environment:
+      CADDY_HOST: ${CADDY_HOST:-:80}
+      ACME_EMAIL: ${ACME_EMAIL:-noreply@example.invalid}
     ports:
       - "80:80"
       - "443:443"
