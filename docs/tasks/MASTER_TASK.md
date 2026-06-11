@@ -304,6 +304,22 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 | P-BEBLUEPRINT-3 | Docs | New `docs/be/BE_CACHING_STRATEGY.md` — cache-aside pattern, delete-on-write invalidation, fail-open-on-Redis-down behavior, what is/isn't cached. Correct the drifted Redis Key Schema table in `DB_SCHEMA_SUMMARY.md` to match real keys/TTLs (remove 4 non-existent keys; add product/list caches). Flag (docs-only, no code change): `is_active` invalidation key mismatch in `staff_service.go`, and bloom filters defined but never called. | — | 1 | ✅ | Key table matches `grep` of code 1:1; strategy + fail-open documented; known gaps flagged |
 | P-BEBLUEPRINT-4 | BE | Fix `is_active` cache-key mismatch — centralize via `staffActiveKey()` helper in `auth_service.go`; route all 5 call sites (auth read/write/del + staff SetStatus/Delete) through it. Also repair stale service-test mocks blocking compilation (`mockAuthRepo.CreateStaffForRegister`, `mockOrderRepo.{CountActiveOrderItems,ListTodayHistory,UpdateItemQuantity,DeleteOrderItem}`) and update stale VNPay webhook test assertion (`MarkOrderDelivered` → `MarkOrderPaid`, per migration 015). | P-BEBLUEPRINT-3 | 1 | ✅ | `go build ./...` clean; `go test ./be/internal/service/...` green; deactivation now invalidates the real cache |
 
+---
+
+## Phase P-SYSDOC — System Handbook (`docs/system/`)
+
+> **Owner:** Docs
+> **Dependency:** none (read-only synthesis of existing docs + code)
+> **Status:** ✅ COMPLETE (1→4) — 24 files; reusable folder template for other projects
+> **Goal:** One self-contained entry point (`docs/system/README.md`) covering FE + BE: overview, flows, specs, tech/code summaries, state management (Zustand/local), loading, Redis cache, design system, data communication — so anyone can understand the system in 30 min, then dev a new page that fits.
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P-SYSDOC-1 | Docs | BE docs — `03_be/` (tech summary, code summary + route table, REDIS_CACHE, REALTIME_SSE) + `02_spec/` (API_SPEC, DB_SCHEMA, ERROR_SPEC) | — | 1 | ✅ | Verified against code; DB_SCHEMA reflects migration 017 (filling column dropped → toppings_snapshot) |
+| P-SYSDOC-2 | Docs | FE docs — `04_fe/` (tech/code summary, STATE_MANAGEMENT, LOADING_PATTERNS, DESIGN_SYSTEM, DATA_COMMUNICATION) | — | 1 | ✅ | Store/hook/component inventory matches `fe/src/`; tokens from real `globals.css` |
+| P-SYSDOC-3 | Docs | Overview + flows — `00_overview/` + `01_flow/` (client, staff, order state machine, payment) + `02_spec/BUSINESS_RULES.md` | — | 1 | ✅ | Mermaid sequence/state diagrams; links back to MASTER_v1.2 as authority |
+| P-SYSDOC-4 | Docs | Interface + dev guide — `README.md` (entry point, reading paths by role) + `05_dev_guide/` (NEW_PAGE_GUIDE, FOLDER_TEMPLATE for reuse in other projects) | 1–3 | 1 | ✅ | Every file ≤ ~250 lines with TL;DR + Deep Dive Sources footer |
+
 ## Phase P-FIX-CANH — Stale canh count in cart
 
 > **Owner:** FE
