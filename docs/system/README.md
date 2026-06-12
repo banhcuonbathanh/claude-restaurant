@@ -30,6 +30,7 @@ A restaurant management system for a Vietnamese bánh cuốn shop:
 | `03_be/` | [BE_TECH_SUMMARY](03_be/BE_TECH_SUMMARY.md) · [BE_CODE_SUMMARY](03_be/BE_CODE_SUMMARY.md) · [REDIS_CACHE](03_be/REDIS_CACHE.md) · [REALTIME_SSE](03_be/REALTIME_SSE.md) | BE layers, route map, caching strategy, SSE/WS architecture | Any BE task |
 | `04_fe/` | [FE_TECH_SUMMARY](04_fe/FE_TECH_SUMMARY.md) · [FE_CODE_SUMMARY](04_fe/FE_CODE_SUMMARY.md) · [STATE_MANAGEMENT](04_fe/STATE_MANAGEMENT.md) · [LOADING_PATTERNS](04_fe/LOADING_PATTERNS.md) · [DESIGN_SYSTEM](04_fe/DESIGN_SYSTEM.md) · [DATA_COMMUNICATION](04_fe/DATA_COMMUNICATION.md) | FE conventions: state rules, loading UX, design tokens, shared components, data flow | Any FE task |
 | `05_dev_guide/` | [NEW_PAGE_GUIDE](05_dev_guide/NEW_PAGE_GUIDE.md) · [FOLDER_TEMPLATE](05_dev_guide/FOLDER_TEMPLATE.md) | How to build a new page the right way · how to reuse this handbook structure in another project | Before starting a new page / new project |
+| `06_test_build/` | [menu_page/](06_test_build/menu_page/README.md) — reference rebuild of `/menu` (FE+BE, not wired in) + [DEV_PLAN](06_test_build/menu_page/DEV_PLAN.md) template + [DIFF_VS_CURRENT](06_test_build/menu_page/DIFF_VS_CURRENT.md) test results | Proof that this handbook can drive a page build; DEV_PLAN is the Phase 2b template | When writing a DEV_PLAN / auditing handbook gaps |
 
 ---
 

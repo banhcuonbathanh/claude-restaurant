@@ -343,6 +343,18 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 ---
 
+## Phase P-SYSTEST — docs/system Structure Test (Menu Page Rebuild)
+
+> **Owner:** FE + BE (sandbox — no production code touched)
+> **Dependency:** docs/system handbook ✅ · client_menu_page_v2 spec ✅
+> **Status:** ✅ COMPLETE (2026-06-12)
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| P-SYSTEST-1 | FE+BE | Rebuild menu page as **reference code** (not runnable) in `docs/system/06_test_build/menu_page/` — fresh code derived from handbook + `client_menu_page_v2` spec, spec-exact as-built. Includes `DEV_PLAN.md` (visual build plan) + `DIFF_VS_CURRENT.md` (deviations vs production). Tests whether docs/system alone can drive a clean build. **Zero edits to `fe/` or `be/`.** | — | 1 | ✅ | Folder contains FE page+components+stores+lib, BE menu slice (handler/service/repo), 3 docs; production `fe/`+`be/` untouched; NEW_PAGE_GUIDE gains DEV_PLAN step. Test verdict + 4 handbook gaps → `DIFF_VS_CURRENT.md` |
+
+---
+
 ## Critical Rules (Never Forget)
 
 | Rule | Detail |

@@ -49,6 +49,21 @@ Answer these in `tech_description.md`:
 
 ---
 
+## Phase 2b — Dev Redraw (DEV_PLAN — before any UI code)
+
+Redraw the owner's wireframe as the **developer's picture** and get the *differences* approved
+before coding. The wireframe shows what the user sees; the DEV_PLAN shows what the code must
+guarantee — one component file per zone box, each zone's self-guard condition, the sticky/z-index
+stack, the 3 loading/error/empty states as first-class rows, and arrows = store writes.
+
+Template + worked example: [`../06_test_build/menu_page/DEV_PLAN.md`](../06_test_build/menu_page/DEV_PLAN.md)
+(§4 explains exactly how the two drawings differ and why both are needed).
+
+Minimum contents: zone diagram with conditions · build order (dependency-sorted) · data-flow
+diagram (queries → page state → store writes → the mutation).
+
+---
+
 ## Phase 3 — Build Components (zone by zone)
 
 For each zone:
