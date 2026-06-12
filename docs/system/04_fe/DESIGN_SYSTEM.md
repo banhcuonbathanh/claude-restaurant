@@ -3,7 +3,7 @@
 > **TL;DR** — Dark-mode first, mobile-first, orange accent. ALL color values come from CSS
 > custom properties mapped to Tailwind token names. Never hardcode hex in a component.
 > Every new page reuses the shared-component catalog below — no one-off styles.
-> Source of truth: `fe/src/app/globals.css` + `fe/tailwind.config.ts` + `docs/fe/fe_design/DESIGN.md`.
+> Source of truth: `fe/src/app/globals.css` + `fe/tailwind.config.ts` — this file is the in-handbook design spec derived from them.
 
 ---
 
@@ -180,7 +180,7 @@ DON'T: text-white — always text-foreground
 
 1. Add CSS variable to `globals.css` `:root` block.
 2. Add Tailwind alias to `tailwind.config.ts` `theme.extend.colors`.
-3. Document in `docs/fe/fe_design/DESIGN.md`.
+3. Document the new token in this file (token tables above).
 4. Run `docker compose up -d --build fe` — Tailwind JIT purges unused classes at build time.
 
 ---
@@ -189,5 +189,4 @@ DON'T: text-white — always text-foreground
 
 - `fe/src/app/globals.css` — CSS custom properties (single source of hex values)
 - `fe/tailwind.config.ts` — token name → CSS variable mapping
-- `docs/fe/fe_design/DESIGN.md` — full DESIGN.md spec (components + dimensions)
-- `docs/fe/FE_SYSTEM_GUIDE.md §3` — token map with usage examples
+- This file is the in-handbook design spec (components + dimensions + token map), derived from the two files above

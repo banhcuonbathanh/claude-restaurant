@@ -3,6 +3,11 @@
 > **TL;DR:** Customer scans a table QR → receives a stateless 2 h guest JWT (no login, no account)
 > → browses menu → submits order via `TableConfirmModal` (no name/phone — staff handles identity)
 > → watches real-time progress via SSE. One active order per table is enforced server-side.
+> A second entry path is 🔮 PLANNED: customers register/login an account and order online from
+> home (pickup/delivery) — see the "Online Ordering Flow" section below.
+>
+> Status markers: ✅ implemented · 🔮 PLANNED (owner decision 2026-06-12, not in code yet) ·
+> ⚠️ DRIFT (target rule differs from current code).
 
 ---
 
@@ -60,7 +65,7 @@ QR Scan → /table/:qr_token
 | 7 | Clear cart | FE | — | — | `clearCart()` → tableId/tableName/items wiped |
 | 8 | View order | Customer | `/order/[id]/page.tsx` | `GET /api/v1/orders/:id/stream` (SSE) | real-time item progress |
 | 9 | Add more items | Customer | `/menu?add_to_order=<id>` | `POST /api/v1/orders/:id/items` | new items appended to active order |
-| 10 | Cancel item | Customer | `/order/[id]` | `DELETE /api/v1/orders/items/:itemId` | item removed if < 30% served |
+| 10 | Cancel item | Customer | `/order/[id]` | `DELETE /api/v1/orders/items/:itemId` | item removed — current code: only if < 30% served (⚠️ DRIFT, see "Cancel Rule" section below) |
 | 11 | View order list | Customer | `/order/page.tsx` | none (localStorage read) | shows all cached orders |
 | 12 | Live tracking | Customer | `/tracking/page.tsx` | `GET /api/v1/orders/monitor/stream` (SSE) | table map + queue view |
 
@@ -75,6 +80,48 @@ QR Scan → /table/:qr_token
 | `item_progress` | Chef marks item done (`qty_served++`) | Update item progress bar inline |
 | `order_completed` | Order → `delivered` | Show completion screen |
 | `order_cancelled` | Order cancelled (by staff or self) | Redirect to `/menu` |
+
+---
+
+## Online Ordering Flow — 🔮 PLANNED
+
+> Owner decision 2026-06-12. Nothing below exists in code yet — every step is 🔮 PLANNED.
+
+Customers are not QR-only: a customer can register/login a customer account and order food online
+from home (pickup or delivery), then track and pay — same order state machine and kitchen cooking
+pipeline as the QR path after order creation.
+
+```mermaid
+flowchart TD
+    A["🔮 Register / login\ncustomer account"] --> B["🔮 Browse menu\nfrom home"]
+    B --> C["🔮 Submit order\n(pickup / delivery)"]
+    C --> D["🔮 Track order progress\n(live updates)"]
+    D --> E["🔮 Pay\n(online payment)"]
+```
+
+| # | Step | Status | Notes |
+|---|---|---|---|
+| 1 | Login / register customer account | 🔮 PLANNED | Customer account ≠ guest JWT; persistent login |
+| 2 | Browse menu | 🔮 PLANNED | Same product/combo catalogue as the QR menu |
+| 3 | Submit order | 🔮 PLANNED | New order source (no `table_id`); pickup/delivery details TBD |
+| 4 | Track order | 🔮 PLANNED | Live progress, mirroring the SSE tracking of the QR path |
+| 5 | Pay | 🔮 PLANNED | Online payment before/at handoff; gateway reuse TBD |
+
+Open design questions (to be settled in `../07_business_logic/LOGIC_INDEX.md` before implementation):
+order source value, delivery vs pickup states, and how "one active order per table" maps to
+table-less orders.
+
+---
+
+## Cancel Rule — ⚠️ DRIFT
+
+| | Rule |
+|---|---|
+| **Target rule (owner decision 2026-06-12)** | A customer can cancel their meal/order (items or whole order) at **any time before payment is completed**. |
+| **Current code behaviour** | `SUM(qty_served) / SUM(quantity) < 0.30` must hold, and cancel is blocked at `ready` / `delivered` — ⚠️ DRIFT, BE change pending. |
+
+Until the BE change lands, the FE will still receive `409 CANCEL_NOT_ALLOWED` under the current
+rule. Full detail: [ORDER_STATE_MACHINE.md — cancel rules](ORDER_STATE_MACHINE.md#cancel-rules).
 
 ---
 
@@ -121,8 +168,9 @@ Violating this rule (adding name/phone inputs to the QR path) breaks the design 
 
 | File | Purpose |
 |---|---|
-| `docs/work_flow/CLIENT_QR_FLOW.md` | Authoritative source — read before touching this flow |
-| `docs/core/MASTER_v1.2.md §6.4` | Guest JWT spec and rules |
-| `docs/core/MASTER_v1.2.md §4.5` | One active order per table rule |
-| `fe/src/store/cart.ts` | Cart store: tableId, activeOrderId, clearCart |
-| `fe/src/lib/storage-keys.ts` | All localStorage key constants |
+| `../07_business_logic/LOGIC_INDEX.md` | Business-logic index — consult + update before changing this flow |
+| `../02_spec/BUSINESS_RULES.md §5` | Guest JWT spec and rules |
+| `../02_spec/BUSINESS_RULES.md §2.3` | One active order per table rule |
+| `../02_spec/API_SPEC.md` | Endpoint contracts used in this flow |
+| `../04_fe/STATE_MANAGEMENT.md` | Cart store: tableId, activeOrderId, clearCart |
+| `../04_fe/FE_CODE_SUMMARY.md` | localStorage key constants (`storage-keys.ts`) |

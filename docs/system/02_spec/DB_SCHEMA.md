@@ -4,7 +4,7 @@
 > MySQL 8.0. 17 migrations (001–017). All PKs are UUID CHAR(36). All currency is DECIMAL(10,0) VND integer.
 > Soft delete: `deleted_at DATETIME NULL` — always query `WHERE deleted_at IS NULL`.
 > `order_items.filling` column existed (migration 016, OC epic) but was **migrated into `toppings_snapshot`** by migration 017.
-> Single source for field names: `docs/be/be_code_summary/DB_SCHEMA_SUMMARY.md`.
+> This file is the single in-handbook source for field names (derived from `be/migrations/` DDL).
 
 ---
 
@@ -283,6 +283,6 @@ erDiagram
 
 | Topic | File |
 |---|---|
-| Full column definitions + FK graph | `docs/be/be_code_summary/DB_SCHEMA_SUMMARY.md` |
+| Full column definitions + FK graph | `be/migrations/*.sql` (DDL source of truth) |
 | Migration SQL files | `be/migrations/001–017` |
-| Redis key schema | `docs/be/be_code_summary/DB_SCHEMA_SUMMARY.md §Redis Key Schema` |
+| Redis key schema | `../03_be/REDIS_CACHE.md §2–§3` |

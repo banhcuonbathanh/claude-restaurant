@@ -4,7 +4,7 @@
 > All endpoints under base path `/api/v1`. Auth: `Authorization: Bearer <access_token>`.
 > Success: `{"data": ...}`. Error: `{"error": "CODE", "message": "...", "details": {...}?}`.
 > All IDs are UUID strings (CHAR 36). Currency in VND integer (no decimals).
-> Full DTO shapes: `docs/be/be_code_summary/BE_API_DTO.md`.
+> Full DTO shapes: request/response structs in `be/internal/handler/*_handler.go` (Go source).
 
 ---
 
@@ -199,6 +199,6 @@ Note: uses **camelCase** JSON keys unlike the rest of the API (`importDate`, `sh
 
 | Topic | File |
 |---|---|
-| Full DTO shapes (request + response field-by-field) | `docs/be/be_code_summary/BE_API_DTO.md` |
-| Full API contract (original) | `docs/contract/API_CONTRACT_v1.2.md` |
-| OpenAPI spec (Swagger UI at :8090) | `docs/api/openapi.yaml` |
+| Full DTO shapes (request + response field-by-field) | `be/internal/handler/*_handler.go` (Go source) |
+| Route → handler mapping (full table) | `../03_be/BE_CODE_SUMMARY.md §3` |
+| Browsable spec | Swagger UI at :8090 (`docker compose up swagger`) |

@@ -222,7 +222,7 @@ Run `cd be && sqlc generate` after any migration that adds/removes columns. Miss
 5. Add handler in be/internal/handler/<domain>_handler.go
    (bind JSON → call service → respondJSON or respondError)
 6. Register route in be/cmd/server/main.go with correct auth middleware
-7. Update be_code_summary/BE_STRUCTURE.md Route Table
+7. Update the Route Table in §3 of this file
 ```
 
 ---
@@ -231,8 +231,8 @@ Run `cd be && sqlc generate` after any migration that adds/removes columns. Miss
 
 | Topic | File |
 |---|---|
-| Full service method index | `docs/be/be_code_summary/CODEBASE_GRAPH_BE.md` |
-| All env vars | `docs/be/be_code_summary/BE_ENV_CONFIG.md` |
-| Request/response DTO shapes | `docs/be/be_code_summary/BE_API_DTO.md` |
-| sqlc workflow | `docs/be/BE_SQLC_GUIDE.md` |
-| DI wiring skeleton | `docs/be/BE_SYSTEM_GUIDE.md §9` |
+| Full service method index | §2 above (domain → service map) + `be/internal/service/` (Go source) |
+| All env vars | `BE_TECH_SUMMARY.md §5` (same folder) |
+| Request/response DTO shapes | `../02_spec/API_SPEC.md` |
+| sqlc workflow | §4–§5 above |
+| DI wiring skeleton | `be/cmd/server/main.go` (actual wiring) |

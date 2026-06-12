@@ -20,7 +20,7 @@
 ## Build inputs (what the test allowed)
 
 1. `docs/system/` handbook (all 6 folders)
-2. `docs/fe/wireframes/client_menu_page_v2/` — `menu_spec.md` (canonical) + `menu_spec_v3_visual.md` (2026-06-11, code-verified)
+2. The `/menu` page wireframe folder (`client_menu_page_v2`) — `menu_spec.md` (canonical) + `menu_spec_v3_visual.md` (2026-06-11, code-verified); folder layout standard: `../../05_dev_guide/WIREFRAME_STANDARD.md`
 3. Production source **only where the docs were ambiguous or stale** — every such read is logged in `DIFF_VS_CURRENT.md` as a handbook gap
 
 ## Conflict rule used

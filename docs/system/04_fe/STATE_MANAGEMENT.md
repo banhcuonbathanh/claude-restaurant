@@ -183,4 +183,4 @@ queryClient.setQueryData<Order[]>(['orders', 'live'], prev =>
 - `fe/src/features/auth/auth.store.ts` — memory-only auth
 - `fe/src/hooks/useOverviewWS.ts` — SSE → TanStack Query cache update
 - `fe/src/lib/providers.tsx` — QueryClient defaults
-- `docs/fe/FE_STATE_MANAGEMENT.md` — original 3-layer guide
+- This file is the in-handbook 3-layer state guide (server / client / form)

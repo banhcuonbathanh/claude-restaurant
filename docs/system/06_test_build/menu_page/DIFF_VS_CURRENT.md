@@ -32,7 +32,7 @@
    `GetActiveOrderByTable → 409 TABLE_HAS_ACTIVE_ORDER`. Code-verified behavior (v3): the
    order is **always created**; response carries `table_busy: true` and FE shows an info toast.
    `02_spec/ERROR_SPEC.md` also still lists `TABLE_HAS_ACTIVE_ORDER` (409) + its FE redirect branch.
-3. **`docs/graphs/FE_STRUCTURE.md` + `BE_STRUCTURE.md` dated 2026-05-28** — both miss the
+3. **The project's codebase-graph structure docs (FE + BE, dated 2026-05-28)** — both miss the
    TOP/CANH-era reality: cart store fields (`orderNote`, `setCanhQty`, `updateComboItem`,
    `tableName`), 14 menu components (only 6 listed), `CART_CONFIG = 'cart-config-v3'` (graph
    says `'cart-config'`), favourites store shape (`ids: string[]` vs actual `items` objects).
@@ -61,7 +61,7 @@ Known production quirks **kept on purpose** (they are the as-built spec):
 
 ## 4 · Doc drift found incidentally (not blocking, worth fixing)
 
-- `docs/tasks/MASTER_TASK.md` "Critical Rules": rows "Combo header price = 0 … `filling` on
+- The project task list's "Critical Rules": rows "Combo header price = 0 … `filling` on
   sub-items" and "1 table 1 active order — check before INSERT" predate migration 017 +
   the table_busy contract.
 - `ToppingModal.tsx` is imported by nothing (v3 confirms) — dead file, safe to delete in a

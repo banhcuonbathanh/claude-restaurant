@@ -105,7 +105,7 @@ Orders, order items, payments, analytics/summary, ingredients, staff list, table
 
 | Topic | File |
 |---|---|
-| Strategy narrative + fail-open reasoning | `docs/be/BE_CACHING_STRATEGY.md` |
-| Redis key table (verified against code) | `docs/be/be_code_summary/DB_SCHEMA_SUMMARY.md §Redis Key Schema` |
-| Caching + performance audit findings | `docs/quality/be_audit/04_caching_performance.md` |
+| Strategy narrative + fail-open reasoning | this file (§1 + §4) — in-handbook source |
+| Redis key table (verified against code) | §2–§3 above |
+| Cache implementation | `be/internal/service/product_service.go` (`invalidateProductCaches`) + `pkg/redis/` |
 | Realtime pub/sub architecture | `docs/system/03_be/REALTIME_SSE.md` |

@@ -1,8 +1,13 @@
 # Business Rules — Summary Reference
 
 > **TL;DR:** This is a condensed reference for RBAC, order rules, payment rules, cancel rules, and
-> JWT/auth config. **This file is a summary only.** The single source of truth for every rule is
-> `docs/core/MASTER_v1.2.md §3–§6`. Always check there before implementing any rule.
+> JWT/auth config. The single source of truth for business logic is
+> `docs/system/07_business_logic/` ([LOGIC_INDEX.md](../07_business_logic/LOGIC_INDEX.md)) together
+> with this file. **Any change to business logic or flow MUST first consult and update
+> `docs/system/07_business_logic/` (LOGIC_INDEX.md).**
+>
+> Status markers: ✅ implemented · 🔮 PLANNED (owner decision 2026-06-12, not in code yet) ·
+> ⚠️ DRIFT (target rule differs from current code).
 
 ---
 
@@ -41,7 +46,9 @@ RequireOwner()                   // owner of resource OR admin/manager
 pending → confirmed → preparing → ready → delivered
 ```
 
-Cancel path: `pending / confirmed / preparing → cancelled` (if < 30% served)
+Cancel path (current code): `pending / confirmed / preparing → cancelled` (if < 30% served).
+🔮 Target rule (owner decision 2026-06-12): customer may cancel at **any time before payment is
+completed** — including at `ready` — ⚠️ DRIFT, see §3.
 
 ### 2.2 Transition Permissions
 
@@ -53,6 +60,7 @@ Cancel path: `pending / confirmed / preparing → cancelled` (if < 30% served)
 | Finish cooking | preparing | ready | chef, staff (or auto) |
 | Deliver | ready | delivered | cashier, staff (via payment) |
 | Cancel | pending/confirmed/preparing | cancelled | customer (own), cashier, staff, manager |
+| Cancel 🔮 TARGET | ready (anytime before payment) | cancelled | customer (own), cashier, staff, manager — ⚠️ DRIFT, current code blocks |
 
 ### 2.3 One Active Order Per Table
 
@@ -70,7 +78,7 @@ Cancel path: `pending / confirmed / preparing → cancelled` (if < 30% served)
 | `0 < qty_served < quantity` | `preparing` |
 | `qty_served = quantity` | `done` |
 
-> Do NOT add a `status` column to `order_items`. Source: `MASTER_v1.2.md §4.1.1`
+> Do NOT add a `status` column to `order_items`. Detail: `../07_business_logic/LOGIC_INDEX.md`
 
 ### 2.5 Combo Expansion
 
@@ -84,26 +92,33 @@ When creating an order with a combo, the backend creates:
 
 ## 3. Cancel Rules
 
+### 3.1 Target rule (owner decision 2026-06-12) — 🔮 not in code yet
+
+> A customer can cancel their meal/order (single items or the whole order) at **any time before
+> payment is completed**. This replaces the "< 30% served" rule for customers.
+
+### 3.2 Current code behaviour — ⚠️ DRIFT, BE change pending
+
 ```
 cancel_allowed = SUM(qty_served) / SUM(quantity) < 0.30
 ```
 
-| Condition | Result |
+| Condition | Result (current code) |
 |---|---|
 | < 30% served | Cancel allowed |
 | >= 30% served | `409 CANCEL_NOT_ALLOWED` |
 | Status = `ready` or `delivered` | Cancel blocked (regardless of ratio) |
 
-Who can cancel:
+### 3.3 Who can cancel
 
-| Actor | Item | Order |
-|---|---|---|
-| Customer | Own order items only | Own order only (+ < 30%) |
-| Chef | No (KDS status update only) | No |
-| Cashier / Staff / Manager | Any | Any (+ < 30%) |
+| Actor | Item | Order | Condition |
+|---|---|---|---|
+| Customer | Own order items only | Own order only | current code: < 30% · 🔮 target: anytime before payment (⚠️ DRIFT) |
+| Chef | No (KDS status update only) | No | — |
+| Cashier / Staff / Manager | Any | Any | current code: < 30% |
 
 Cancelled orders with existing payment → server triggers refund flow.
-Source: `MASTER_v1.2.md §4.2`
+Detail: `../07_business_logic/LOGIC_INDEX.md`
 
 ---
 
@@ -119,7 +134,7 @@ Source: `MASTER_v1.2.md §4.2`
 | No hard delete | Audit trail — `deleted_at` only |
 | Methods | VNPay QR · MoMo QR · ZaloPay QR · Cash (COD) |
 
-Source: `MASTER_v1.2.md §4.3`
+Detail: `../07_business_logic/LOGIC_INDEX.md` + [`../01_flow/PAYMENT_FLOW.md`](../01_flow/PAYMENT_FLOW.md)
 
 ---
 
@@ -178,7 +193,7 @@ When admin deactivates a staff: `DEL auth:staff:{id}` immediately → near-insta
 
 **One retry only.** Never redirect to `/login` on first 401.
 
-Source: `MASTER_v1.2.md §6`
+Detail: `../07_business_logic/LOGIC_INDEX.md`
 
 ---
 
@@ -208,7 +223,7 @@ Source: `MASTER_v1.2.md §6`
 | Initial event | `order_init` sent immediately on connect |
 | Event types | `order_status_changed`, `item_progress`, `order_completed`, `order_cancelled` |
 
-Source: `MASTER_v1.2.md §5`
+Detail: `../03_be/REALTIME_SSE.md` + `../07_business_logic/LOGIC_INDEX.md`
 
 ---
 
@@ -216,10 +231,10 @@ Source: `MASTER_v1.2.md §5`
 
 | Topic | File |
 |---|---|
-| RBAC full spec | `docs/core/MASTER_v1.2.md §3` |
-| Order business rules | `docs/core/MASTER_v1.2.md §4` |
-| JWT / auth config | `docs/core/MASTER_v1.2.md §6` |
-| Realtime config | `docs/core/MASTER_v1.2.md §5` |
-| Error codes | `docs/contract/ERROR_CONTRACT_v1.1.md` |
-| Auth flow spec | `docs/spec/Spec1_Auth_Updated_v2.md` |
-| Payment spec | `docs/spec/Spec_5_Payment_Webhooks.md` |
+| Business-logic index (single source of truth, with this file) | `../07_business_logic/LOGIC_INDEX.md` |
+| Order state machine + cancel detail | `../01_flow/ORDER_STATE_MACHINE.md` |
+| Realtime implementation (SSE/WS) | `../03_be/REALTIME_SSE.md` |
+| API endpoints | `../02_spec/API_SPEC.md` |
+| Error codes | `../02_spec/ERROR_SPEC.md` |
+| DB schema | `../02_spec/DB_SCHEMA.md` |
+| Payment flow | `../01_flow/PAYMENT_FLOW.md` |

@@ -1,9 +1,14 @@
 # Order State Machine
 
 > **TL;DR:** Five happy-path statuses (`pending → confirmed → preparing → ready → delivered`) plus
-> one terminal failure path (`cancelled`). Cancel is only allowed from the first three statuses and
-> only when < 30% of item quantity has been served. All transitions are server-enforced; invalid
-> transitions return 422.
+> one terminal failure path (`cancelled`). **Cancel rule is in transition:** the target rule (owner
+> decision 2026-06-12) lets a customer cancel at any time before payment is completed; the current
+> code still only allows cancel from the first three statuses when < 30% of item quantity has been
+> served — ⚠️ DRIFT, BE change pending. All transitions are server-enforced; invalid transitions
+> return 422.
+>
+> Status markers: ✅ implemented · 🔮 PLANNED (owner decision 2026-06-12, not in code yet) ·
+> ⚠️ DRIFT (target rule differs from current code).
 
 ---
 
@@ -18,14 +23,17 @@ stateDiagram-v2
     preparing --> ready : All items done (auto)\nor chef sets manually\n(PATCH /orders/:id/status)
     ready --> delivered : Payment completed\n(POST /payments)
 
-    pending --> cancelled : DELETE /orders/:id\n(< 30% served)
-    confirmed --> cancelled : DELETE /orders/:id\n(< 30% served, Cashier+)
-    preparing --> cancelled : DELETE /orders/:id\n(< 30% served, Cashier+)
+    pending --> cancelled : DELETE /orders/:id\n(current code: < 30% served)
+    confirmed --> cancelled : DELETE /orders/:id\n(current code: < 30% served, Cashier+)
+    preparing --> cancelled : DELETE /orders/:id\n(current code: < 30% served, Cashier+)
+    ready --> cancelled : 🔮 TARGET (owner 2026-06-12)\ncancel anytime before payment\n⚠️ DRIFT — current code blocks this
 
-    ready --> ready : ❌ cannot cancel
     delivered --> delivered : ❌ terminal
     cancelled --> cancelled : ❌ terminal
 ```
+
+> `ready → cancelled` is the **target** transition only — the current code still rejects any
+> cancel at `ready` (and applies the < 30% rule at earlier statuses). See [Cancel Rules](#cancel-rules).
 
 ---
 
@@ -41,6 +49,7 @@ stateDiagram-v2
 | `pending` | `cancelled` | Cancel request | `DELETE /api/v1/orders/:id` | customer (own), cashier, staff, manager | SSE `order_cancelled` → customer redirected to `/menu` |
 | `confirmed` | `cancelled` | Cancel request | `DELETE /api/v1/orders/:id` | cashier, staff, manager | SSE `order_cancelled` |
 | `preparing` | `cancelled` | Cancel request | `DELETE /api/v1/orders/:id` | cashier, staff, manager | SSE `order_cancelled`; refund triggered if payment exists |
+| `ready` | `cancelled` 🔮 TARGET | Cancel request (anytime before payment) | `DELETE /api/v1/orders/:id` | customer (own), cashier, staff, manager | ⚠️ DRIFT — current code rejects cancel at `ready`; BE change pending |
 
 ---
 
@@ -67,11 +76,18 @@ Chef clicks item → PATCH /api/v1/orders/:id/items/:itemId/status
 
 ## Cancel Rules
 
+### Target rule (owner decision 2026-06-12) — 🔮 not in code yet
+
+> A customer can cancel their meal/order (single items or the whole order) at **any time before
+> payment is completed**. This replaces the "< 30% served" rule for customers.
+
+### Current code behaviour — ⚠️ DRIFT, BE change pending
+
 ```
 cancel_allowed = SUM(qty_served) / SUM(quantity) < 0.30
 ```
 
-| Condition | Result |
+| Condition | Result (current code) |
 |---|---|
 | Ratio < 30% | Cancel allowed |
 | Ratio >= 30% | Server rejects → `409 CANCEL_NOT_ALLOWED` |
@@ -81,11 +97,11 @@ cancel_allowed = SUM(qty_served) / SUM(quantity) < 0.30
 
 | Actor | Cancel Single Item | Cancel Entire Order | Condition |
 |---|---|---|---|
-| Customer (guest) | Own order items only | Own order only | < 30% served |
+| Customer (guest) | Own order items only | Own order only | current code: < 30% served · 🔮 target: anytime before payment (⚠️ DRIFT) |
 | Chef | Via KDS only (status update) | No direct cancel | — |
-| Cashier | Any order | Any order | < 30% served |
-| Staff | Any order | Any order | < 30% served |
-| Manager | Any order | Any order | < 30% served |
+| Cashier | Any order | Any order | current code: < 30% served |
+| Staff | Any order | Any order | current code: < 30% served |
+| Manager | Any order | Any order | current code: < 30% served |
 
 ---
 
@@ -121,9 +137,8 @@ The combo header has `unit_price = 0`; sub-items carry the prices. The `recalcul
 
 | File | Purpose |
 |---|---|
-| `docs/work_flow/FLOW_08_ORDER_STATE_MACHINE.md` | Authoritative state machine (original) |
-| `docs/work_flow/FLOW_07_CANCEL.md` | Cancel rule detail + error handling |
-| `docs/core/MASTER_v1.2.md §4.1` | State machine transitions (single source of truth) |
-| `docs/core/MASTER_v1.2.md §4.2` | Cancel formula |
-| `docs/core/MASTER_v1.2.md §4.5` | One active order per table rule |
-| `docs/contract/ERROR_CONTRACT_v1.1.md` | `CANCEL_NOT_ALLOWED`, `TABLE_HAS_ACTIVE_ORDER` codes |
+| `../07_business_logic/LOGIC_INDEX.md` | Business-logic index — consult + update before changing transitions or cancel rules |
+| `../02_spec/BUSINESS_RULES.md §2` | State machine transitions + permissions |
+| `../02_spec/BUSINESS_RULES.md §3` | Cancel rule (target vs current code) |
+| `../02_spec/BUSINESS_RULES.md §2.3` | One active order per table rule |
+| `../02_spec/ERROR_SPEC.md` | `CANCEL_NOT_ALLOWED`, `TABLE_HAS_ACTIVE_ORDER` codes |

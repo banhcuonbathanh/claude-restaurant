@@ -181,5 +181,5 @@ sequenceDiagram
 - `fe/src/lib/order-payload.ts` — `buildOrderItemsPayload` implementation
 - `fe/src/hooks/useOrderSSE.ts` — SSE + localStorage cache pattern
 - `fe/src/hooks/useOverviewWS.ts` — WS → TanStack Query cache update
-- `docs/work_flow/CLIENT_QR_FLOW.md` — full QR ordering flow spec
-- `docs/contract/API_CONTRACT_v1.2.md §10` — SSE/WS event definitions
+- `../01_flow/CLIENT_FLOW.md` — full QR ordering flow spec
+- `../02_spec/API_SPEC.md` — endpoint table incl. SSE/WS rows; event config in `../03_be/REALTIME_SSE.md`

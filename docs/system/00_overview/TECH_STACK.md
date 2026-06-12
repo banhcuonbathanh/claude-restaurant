@@ -84,7 +84,7 @@ Reconnect config (shared): exponential backoff 1 s → 2 s → 4 s … max 30 s,
 | MySQL | **3306** | — |
 | Redis | **6379** | — |
 | RedisInsight (UI) | **8001** | Debug Redis in browser |
-| Swagger UI | **8090** | `docker compose up swagger`; reads `docs/api/openapi.yaml` |
+| Swagger UI | **8090** | `docker compose up swagger`; serves the OpenAPI spec (endpoint summary: `../02_spec/API_SPEC.md`) |
 | Caddy (HTTPS) | **443 / 80** | Production only |
 
 ---
@@ -114,11 +114,7 @@ Reconnect config (shared): exponential backoff 1 s → 2 s → 4 s … max 30 s,
 ├── docker-compose.yml
 ├── Caddyfile
 └── docs/                        ← All project documentation
-    ├── system/                  ← THIS handbook
-    ├── core/                    ← MASTER_v1.2.md (rules), SYSTEM_DESCRIPTION
-    ├── contract/                ← API + Error contracts
-    ├── spec/                    ← Domain specs
-    └── work_flow/               ← Flow docs (authoritative per-flow)
+    └── system/                  ← THIS handbook (self-contained)
 ```
 
 ---
@@ -127,9 +123,9 @@ Reconnect config (shared): exponential backoff 1 s → 2 s → 4 s … max 30 s,
 
 | Topic | File |
 |---|---|
-| System description (full) | `docs/core/SYSTEM_DESCRIPTION_v1.md` |
-| Per-spec tech notes | `docs/TECH_OVERVIEW.md` |
-| BE code conventions | `docs/be/BE_SYSTEM_GUIDE.md` |
-| FE code conventions | `docs/fe/FE_SYSTEM_GUIDE.md` |
-| Docker / infra setup | `docs/devops/` |
-| OpenAPI spec | `docs/api/openapi.yaml` |
+| System description (full) | `SYSTEM_OVERVIEW.md` (same folder) |
+| Per-spec tech notes | `../03_be/BE_TECH_SUMMARY.md` + `../04_fe/FE_TECH_SUMMARY.md` |
+| BE code conventions | `../03_be/BE_TECH_SUMMARY.md` |
+| FE code conventions | `../04_fe/FE_TECH_SUMMARY.md` |
+| Docker / infra setup | `docker-compose.yml` + `Caddyfile` (repo root) — summary in §5 above |
+| OpenAPI spec | `../02_spec/API_SPEC.md` — browse via Swagger UI at :8090 |

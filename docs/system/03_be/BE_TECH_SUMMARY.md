@@ -104,7 +104,7 @@ Max sessions per staff: 5. On login, oldest session deleted (LRU by `last_used_a
 | `WEBHOOK_BASE_URL` | yes (online pay) | — | Public URL for payment gateway callbacks |
 | `CORS_ORIGINS` | no | `http://localhost:3000` | Allowed origin |
 
-Payment gateway vars (`VNPAY_*`, `MOMO_*`, `ZALOPAY_*`) and test vars (`TEST_DB_DSN`, `TEST_REDIS_ADDR`) documented fully in `docs/be/be_code_summary/BE_ENV_CONFIG.md`.
+Payment gateway vars (all required only when that gateway is enabled): `VNPAY_TMN_CODE` / `VNPAY_HASH_SECRET` / `VNPAY_BASE_URL` (`internal/payment/vnpay.go`) · `MOMO_PARTNER_CODE` / `MOMO_ACCESS_KEY` / `MOMO_SECRET_KEY` / `MOMO_ENDPOINT` (`internal/payment/momo.go`) · `ZALOPAY_APP_ID` / `ZALOPAY_ENDPOINT` (`internal/payment/zalopay.go` — ⚠️ no `ZALOPAY_KEY1/KEY2` HMAC secret env; confirm the ZaloPay HMAC path before relying on it in prod). Test vars: `TEST_DB_DSN`, `TEST_REDIS_ADDR` (`internal/testhelper/testhelper.go`).
 
 ---
 
@@ -181,9 +181,9 @@ Must be called inside the same transaction after any INSERT/UPDATE/DELETE on `or
 
 | Topic | File |
 |---|---|
-| Full folder tree + route table | `docs/be/be_code_summary/BE_STRUCTURE.md` |
-| All env vars | `docs/be/be_code_summary/BE_ENV_CONFIG.md` |
-| Layer rules + patterns (prose) | `docs/be/BE_SYSTEM_GUIDE.md` |
-| JWT + Guest token rules | `docs/core/MASTER_v1.2.md §6` |
-| RBAC rules | `docs/core/MASTER_v1.2.md §3` |
-| Error format + respondError | `docs/contract/ERROR_CONTRACT_v1.1.md` |
+| Full folder tree + route table | `BE_CODE_SUMMARY.md §1 + §3` (same folder) |
+| All env vars | §5 above |
+| Layer rules + patterns | §2 + §7 above |
+| JWT + Guest token rules | `../02_spec/BUSINESS_RULES.md` |
+| RBAC rules | `../02_spec/BUSINESS_RULES.md` |
+| Error format + respondError | `../02_spec/ERROR_SPEC.md` |

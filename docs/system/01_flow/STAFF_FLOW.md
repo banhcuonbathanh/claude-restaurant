@@ -1,8 +1,14 @@
 # Staff Flow — Login to Payment Confirm
 
-> **TL;DR:** Staff log in once; role determines immediate redirect (chef → KDS, cashier → POS,
-> manager → Overview). The three staff surfaces (KDS, POS, Overview) all feed into the same
-> `/cashier/payment/:id` endpoint. WebSocket is the realtime backbone for all staff screens.
+> **TL;DR:** Staff log in once; role determines immediate redirect (chef → KDS cooking board,
+> cashier → POS, manager → Overview). The chef's job is **cooking**: take confirmed orders through
+> `preparing ("cooking") → ready` on the KDS. The three staff surfaces (KDS, POS, Overview) all
+> feed into the same `/cashier/payment/:id` endpoint. WebSocket is the realtime backbone for all
+> staff screens. 🔮 PLANNED: the cashier can also order on a customer's behalf at POS (customers
+> with no phone).
+>
+> Status markers: ✅ implemented · 🔮 PLANNED (owner decision 2026-06-12, not in code yet) ·
+> ⚠️ DRIFT (target rule differs from current code).
 
 ---
 
@@ -14,7 +20,7 @@ admin  ⊃  manager  ⊃  staff  ⊃  cashier  |  chef
 
 | Role | Primary Screen | What They Can Do |
 |---|---|---|
-| `chef` | `/kds` | Mark items done, update order to preparing/ready |
+| `chef` | `/kds` | **Cooking** — mark items done, move order through `confirmed → preparing ("cooking") → ready` |
 | `cashier` | `/pos` | Create walk-in orders, process payment |
 | `staff` | `/pos` | Everything cashier can + cancel any order/item |
 | `manager` | `/admin/overview` | Everything staff can + confirm orders, force-cancel, view all tables |
@@ -35,10 +41,11 @@ POST /api/v1/auth/login { username, password }
     │   manager/admin → /admin/overview
     │
     ┌─────────────────────────────────────────────────────────────┐
-    │ CHEF: /kds                                                  │
+    │ CHEF: /kds — COOKING                                        │
     │   WS /ws/kds?token= ← receives new_order events            │
     │   Beep alert → order appears on board                      │
-    │   Click item → PATCH /orders/:id/items/:itemId/status      │
+    │   Start cooking: PATCH /orders/:id/status { "preparing" }  │
+    │   Cooking each item → PATCH /orders/:id/items/:itemId/status│
     │     └─ qty_served++ ; all done → order "ready"             │
     │   Manual: PATCH /orders/:id/status { status: "ready" }     │
     └─────────────────────────────────────────────────────────────┘
@@ -48,6 +55,8 @@ POST /api/v1/auth/login { username, password }
     │   Browse products (same /products API as menu)             │
     │   Build cart (component state, NOT Zustand, NOT localStorage)│
     │   POST /orders { source:"pos", customer_name:"Khách tại quán" }│
+    │   🔮 PLANNED: order on customer's behalf — cashier logs in │
+    │     / creates the session for a customer with no phone     │
     │   WS watches for order_status_changed { status:"ready" }   │
     │   Auto-redirect → /cashier/payment/:id                     │
     └─────────────────────────────────────────────────────────────┘
@@ -85,18 +94,20 @@ POST /api/v1/auth/login { username, password }
 | 2 | 401 on any request | FE interceptor | — | `POST /api/v1/auth/refresh` | new access_token → Zustand; retry original request |
 | 3 | KDS connects | Chef | `/kds` | `WS /ws/kds?token=` | order board populated |
 | 4 | New order arrives | Chef | `/kds` | WS `new_order` event | order prepended; audio beep |
-| 5 | Mark item done | Chef | `/kds` | `PATCH /orders/:id/items/:itemId/status` | `qty_served++` |
-| 6 | All items done | System | — | auto | order → `ready`; WS pushes update |
-| 7 | POS: build order | Cashier | `/pos` | `GET /api/v1/products` | cart in component state |
-| 8 | POS: submit order | Cashier | `/pos` | `POST /api/v1/orders` | order → `pending`; cart cleared |
-| 9 | Kitchen ready | WS | `/pos` | WS `order_status_changed` (ready) | auto-redirect → `/cashier/payment/:id` |
-| 10 | Confirm order | Manager | `/admin/overview` | `PATCH /orders/:id/status` | order → `confirmed` |
-| 11 | COD payment | Cashier | `/cashier/payment/:id` | `POST /api/v1/payments { method:"cod" }` | payment → `completed`; order → `delivered` |
-| 12 | QR payment | Cashier | `/cashier/payment/:id` | `POST /api/v1/payments { method:"vnpay"... }` | payment → `pending`; QR code shown |
-| 13 | QR payment confirmed | WS | — | WS `payment_success` | toast → print → `/pos` |
-| 14 | Upload proof | Cashier | `/cashier/payment/:id` | `PATCH /api/v1/payments/:id/proof` | payment marked verified |
-| 15 | Cancel item/order | Staff+ | any order view | `DELETE /orders/items/:itemId` or `DELETE /orders/:id` | item/order removed (< 30% rule) |
-| 16 | Logout | Any staff | — | `POST /api/v1/auth/logout` | jti → Redis blacklist; Zustand cleared |
+| 5 | Start cooking | Chef | `/kds` | `PATCH /orders/:id/status` | order → `preparing` ("cooking") |
+| 6 | Cooking: mark item done | Chef | `/kds` | `PATCH /orders/:id/items/:itemId/status` | `qty_served++` |
+| 7 | All items cooked | System | — | auto | order → `ready`; WS pushes update |
+| 8 | POS: build order | Cashier | `/pos` | `GET /api/v1/products` | cart in component state |
+| 9 | POS: submit order | Cashier | `/pos` | `POST /api/v1/orders` | order → `pending`; cart cleared |
+| 9b | POS: order on customer's behalf 🔮 PLANNED | Cashier | `/pos` | TBD | cashier logs in / creates the session for a phone-less customer and orders for them |
+| 10 | Kitchen ready | WS | `/pos` | WS `order_status_changed` (ready) | auto-redirect → `/cashier/payment/:id` |
+| 11 | Confirm order | Manager | `/admin/overview` | `PATCH /orders/:id/status` | order → `confirmed` |
+| 12 | COD payment | Cashier | `/cashier/payment/:id` | `POST /api/v1/payments { method:"cod" }` | payment → `completed`; order → `delivered` |
+| 13 | QR payment | Cashier | `/cashier/payment/:id` | `POST /api/v1/payments { method:"vnpay"... }` | payment → `pending`; QR code shown |
+| 14 | QR payment confirmed | WS | — | WS `payment_success` | toast → print → `/pos` |
+| 15 | Upload proof | Cashier | `/cashier/payment/:id` | `PATCH /api/v1/payments/:id/proof` | payment marked verified |
+| 16 | Cancel item/order | Staff+ | any order view | `DELETE /orders/items/:itemId` or `DELETE /orders/:id` | item/order removed — current code: < 30% rule (⚠️ DRIFT, see below) |
+| 17 | Logout | Any staff | — | `POST /api/v1/auth/logout` | jti → Redis blacklist; Zustand cleared |
 
 ---
 
@@ -115,13 +126,20 @@ POST /api/v1/auth/login { username, password }
 
 ## Cancel Permissions Summary
 
-| Actor | Cancel Item | Cancel Order | Condition |
+**Target rule (owner decision 2026-06-12):** a customer can cancel items or the whole order at
+**any time before payment is completed**. ⚠️ DRIFT — BE change pending.
+
+**Current code behaviour** (still enforced today):
+
+| Actor | Cancel Item | Cancel Order | Condition (current code) |
 |---|---|---|---|
-| Customer (guest) | Own order only | Own order only | < 30% served |
+| Customer (guest) | Own order only | Own order only | < 30% served — target: anytime before payment ⚠️ DRIFT |
 | Chef | Via KDS status update only | No direct cancel | — |
 | Cashier | Any order | Any order | < 30% served |
 | Staff | Any order | Any order | < 30% served |
 | Manager | Any order | Any order | < 30% served |
+
+Full rule detail: [ORDER_STATE_MACHINE.md — cancel rules](ORDER_STATE_MACHINE.md#cancel-rules).
 
 ---
 
@@ -154,9 +172,9 @@ POST /api/v1/auth/login { username, password }
 
 | File | Purpose |
 |---|---|
-| `docs/work_flow/STAFF_ORDER_FLOW.md` | Authoritative source — read before touching staff flows |
-| `docs/work_flow/FLOW_06_PAYMENT.md` | Payment flow detail |
-| `docs/work_flow/FLOW_09_AUTH_TOKENS.md` | WS vs SSE token transport rules |
-| `docs/core/MASTER_v1.2.md §4.1` | Order state machine + transitions |
-| `docs/core/MASTER_v1.2.md §4.2` | Cancel rule (< 30% formula) |
-| `docs/core/MASTER_v1.2.md §6.1–6.3` | Staff JWT config + interceptor pattern |
+| `../07_business_logic/LOGIC_INDEX.md` | Business-logic index — consult + update before changing staff flows |
+| [PAYMENT_FLOW.md](PAYMENT_FLOW.md) | Payment flow detail |
+| `../02_spec/BUSINESS_RULES.md §6` | WS vs SSE token transport rules |
+| [ORDER_STATE_MACHINE.md](ORDER_STATE_MACHINE.md) | Order state machine + transitions |
+| `../02_spec/BUSINESS_RULES.md §3` | Cancel rule (target vs current code) |
+| `../02_spec/BUSINESS_RULES.md §5` | Staff JWT config + interceptor pattern |

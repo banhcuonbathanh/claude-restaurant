@@ -4,7 +4,7 @@
 > Every error response follows one format: `{"error": "CODE", "message": "...", "details": {...}?}`.
 > No `"success"` field. Error code is SCREAMING_SNAKE_CASE. Message is Vietnamese, human-readable.
 > FE maps error codes to UI actions via a switch/interceptor — see §3.
-> Single source: `docs/contract/ERROR_CONTRACT_v1.1.md`.
+> This file is the single in-handbook source for the error format and code catalog.
 
 ---
 
@@ -205,6 +205,6 @@ details?.fields?.forEach(({ field, message }) => setError(field, { message }))
 
 | Topic | File |
 |---|---|
-| Error contract (single source) | `docs/contract/ERROR_CONTRACT_v1.1.md` |
-| Error code catalog (per-endpoint) | `docs/be/be_code_summary/BE_API_DTO.md §Error code catalog` |
-| Security findings (SEC-05: err.Error() leaks) | `docs/quality/be_audit/05_security.md` |
+| respondError + AppError pattern (BE side) | `../03_be/BE_TECH_SUMMARY.md §7` |
+| Per-endpoint error notes | `API_SPEC.md` (same folder) |
+| Security rule (SEC-05): never return raw `err.Error()` to clients | enforced via `respondError` — see `../03_be/BE_TECH_SUMMARY.md §7` |

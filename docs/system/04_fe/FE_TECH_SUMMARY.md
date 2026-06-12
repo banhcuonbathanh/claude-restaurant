@@ -134,7 +134,7 @@ Single Axios instance. All API calls MUST use `api` from `lib/api-client.ts` —
 
 ## Deep Dive Sources
 
-- `docs/fe/FE_SYSTEM_GUIDE.md` — primary FE guide with code patterns
-- `docs/fe/FE_DOC_INDEX.md` — domain-by-domain reading guide (superseded but still useful)
+- `FE_CODE_SUMMARY.md` (same folder) — folder map + component inventory
+- `../05_dev_guide/NEW_PAGE_GUIDE.md` — how to build a page that fits the system
 - `fe/src/lib/api-client.ts` — actual interceptor implementation
 - `fe/src/app/` — route tree (ground truth)

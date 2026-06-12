@@ -189,4 +189,4 @@ const progress = useMemo(() => {
 - `fe/src/hooks/useOrderSSE.ts` — SSE backoff + progress computation
 - `fe/src/hooks/useOrderMonitorSSE.ts` — auth-aware SSE with reconnect()
 - `fe/src/components/ui/progress-bar.tsx` — progress bar atom
-- `docs/fe/wireframes/client_menu_page_v2/tech_description.md` — ISR + HydrationBoundary pattern
+- `fe/src/app/(shop)/menu/page.tsx` — ISR + HydrationBoundary pattern in production (described in §Menu ISR above)

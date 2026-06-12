@@ -21,8 +21,8 @@
 
 ## Phase 1 — Wireframe & Spec
 
-Create a wireframe folder under `docs/fe/wireframes/<page_name>/` following the existing pattern
-(see `docs/fe/wireframes/client_menu_page_v2/` as the model, standard: `docs/fe/wireframes/FOLDER_STANDARD.md`):
+Create a wireframe folder for the page following [WIREFRAME_STANDARD.md](WIREFRAME_STANDARD.md)
+(ASCII drawings of all existing pages: [../08_pages/PAGES_INDEX.md](../08_pages/PAGES_INDEX.md)):
 
 ```
 <page_name>/
@@ -45,7 +45,7 @@ Answer these in `tech_description.md`:
 2. **What does the page write?** → mutations + which query keys they invalidate.
 3. **Realtime?** → which SSE/WS events update which query cache ([REALTIME_SSE.md](../03_be/REALTIME_SSE.md)).
 4. **Cross-page state?** → which Zustand store; new persisted keys go in `storage-keys.ts`.
-5. **Status routing** — if the page renders entities by status, write the status → zone table first (model: `Admin_Overview_Status_Routing_Reference.md`, or run `/status-routing-reference`).
+5. **Status routing** — if the page renders entities by status, write the status → zone table first (generate it with the `/status-routing-reference` skill).
 
 ---
 
@@ -114,6 +114,6 @@ State placement per component (strict — [STATE_MANAGEMENT.md](../04_fe/STATE_M
 
 ## Deep Dive Sources
 
-- `docs/fe/FE_SYSTEM_GUIDE.md` — full FE guide
-- `docs/fe/wireframes/FOLDER_STANDARD.md` — wireframe folder standard
+- `../04_fe/FE_TECH_SUMMARY.md` + `../04_fe/FE_CODE_SUMMARY.md` — full FE guide
+- `WIREFRAME_STANDARD.md` (same folder) — wireframe folder standard
 - Skills: `/wireframe`, `/excalidraw`, `/dev-page`, `/status-routing-reference`

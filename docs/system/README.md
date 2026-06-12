@@ -31,6 +31,8 @@ A restaurant management system for a Vietnamese bánh cuốn shop:
 | `04_fe/` | [FE_TECH_SUMMARY](04_fe/FE_TECH_SUMMARY.md) · [FE_CODE_SUMMARY](04_fe/FE_CODE_SUMMARY.md) · [STATE_MANAGEMENT](04_fe/STATE_MANAGEMENT.md) · [LOADING_PATTERNS](04_fe/LOADING_PATTERNS.md) · [DESIGN_SYSTEM](04_fe/DESIGN_SYSTEM.md) · [DATA_COMMUNICATION](04_fe/DATA_COMMUNICATION.md) | FE conventions: state rules, loading UX, design tokens, shared components, data flow | Any FE task |
 | `05_dev_guide/` | [NEW_PAGE_GUIDE](05_dev_guide/NEW_PAGE_GUIDE.md) · [FOLDER_TEMPLATE](05_dev_guide/FOLDER_TEMPLATE.md) | How to build a new page the right way · how to reuse this handbook structure in another project | Before starting a new page / new project |
 | `06_test_build/` | [menu_page/](06_test_build/menu_page/README.md) — reference rebuild of `/menu` (FE+BE, not wired in) + [DEV_PLAN](06_test_build/menu_page/DEV_PLAN.md) template + [DIFF_VS_CURRENT](06_test_build/menu_page/DIFF_VS_CURRENT.md) test results | Proof that this handbook can drive a page build; DEV_PLAN is the Phase 2b template | When writing a DEV_PLAN / auditing handbook gaps |
+| `07_business_logic/` | [LOGIC_INDEX](07_business_logic/LOGIC_INDEX.md) · [LOGIC_BE](07_business_logic/LOGIC_BE.md) · [LOGIC_FE](07_business_logic/LOGIC_FE.md) · [LOGIC_DEVOPS](07_business_logic/LOGIC_DEVOPS.md) | **Canonical business-logic home** — per-layer invariants, ⚠️ DRIFT entries, owner Decision Log | **Before changing ANY logic or flow** — consult + update first (Rule #8) |
+| `08_pages/` | [PAGES_INDEX](08_pages/PAGES_INDEX.md) | Page inventory + ASCII drawings for every screen (existing + planned) | Before building or changing any page |
 
 ---
 
@@ -69,11 +71,12 @@ A restaurant management system for a Vietnamese bánh cuốn shop:
 5. **localStorage keys** only in `fe/src/lib/storage-keys.ts`.
 6. **Errors** follow [ERROR_SPEC.md](02_spec/ERROR_SPEC.md) format on BE and the code→message mapping on FE.
 7. **Cache invalidation** — any BE write to cached data must trigger the invalidation listed in [REDIS_CACHE.md](03_be/REDIS_CACHE.md).
+8. **Business logic lives in [07_business_logic/](07_business_logic/LOGIC_INDEX.md)** — any change to logic or flow MUST consult and update it first.
 
 ---
 
 ## How This Handbook Stays Useful
 
-- Every file is a **summary that links to its deep-dive sources** (original specs, contracts, code). When summary and code disagree → **the code wins**; fix the summary.
+- Every file is a **summary that links to its deep-dive sources inside this handbook** (`docs/system/` is self-contained). When summary and code disagree → **the code wins** — fix the summary AND log the drift in the [LOGIC_INDEX Decision Log](07_business_logic/LOGIC_INDEX.md#decision-log).
 - Update the relevant file here whenever a flow, contract, or convention changes — it's the first thing the next developer reads.
 - Reusing this structure for a new project → [05_dev_guide/FOLDER_TEMPLATE.md](05_dev_guide/FOLDER_TEMPLATE.md).

@@ -140,8 +140,8 @@ Known issue (C-03 in audit): SSE handlers do not send a `retry:` directive. On R
 
 | Topic | File |
 |---|---|
-| SSE/WS config (reconnect, heartbeat) | `docs/core/MASTER_v1.2.md §5` |
-| SSE + WS contract (event types) | `docs/contract/API_CONTRACT_v1.2.md §10` |
-| Realtime architecture diagram | `docs/be/be_code_summary/BE_STRUCTURE.md §Realtime Architecture` |
-| Redis pub/sub channels | `docs/be/be_code_summary/DB_SCHEMA_SUMMARY.md §Redis Key Schema` |
-| Caching + pub/sub audit | `docs/quality/be_audit/04_caching_performance.md` |
+| SSE/WS config (reconnect, heartbeat) | `../02_spec/BUSINESS_RULES.md §6` |
+| SSE + WS contract (event types) | `../02_spec/API_SPEC.md` (SSE/WS rows) |
+| Realtime hub implementation | `be/internal/sse/` + `be/internal/websocket/` (Go source) |
+| Redis pub/sub channels | `REDIS_CACHE.md §3` (same folder) |
+| Cache strategy + fail-open reasoning | `REDIS_CACHE.md` (same folder) |
