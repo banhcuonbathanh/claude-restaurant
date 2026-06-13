@@ -161,3 +161,34 @@ Page inventory + ASCII drawings live in [../08_pages/PAGES_INDEX.md](../08_pages
 Before building any of these: follow the routing table in
 [LOGIC_INDEX.md](LOGIC_INDEX.md#routing-table--im-changing-x-what-must-i-read) and update this
 section (🔮 → ✅) as part of the build.
+
+---
+
+## 10 — Inventory / Storage UI
+
+Object model: [../02_spec/object/OBJECT_MODEL_INGREDIENT.md](../02_spec/object/OBJECT_MODEL_INGREDIENT.md) ·
+Page: [../08_pages/admin/admin_storage/admin_storage.md](../08_pages/admin/admin_storage/admin_storage.md) ·
+BE invariants: [LOGIC_BE §12](LOGIC_BE.md#12--inventory--storage-domain).
+
+### 10.1 Current live rules ✅
+
+| # | Rule |
+|---|---|
+| 1 | **Stock is never edited directly** in the UI. The only write path for changing stock is `StockMoveModal` → `POST /admin/stock-movements` (type `in` / `out` / `adjustment`). A direct stock-edit field on the ingredient form is a bug. |
+| 2 | **Low-stock / status badges** mirror the BE status tiers (§12.1 #3): `out_of_stock` → red badge "Hết hàng"; `expiring_soon` → orange badge "Sắp hết hạn"; `low_stock` → yellow badge "Sắp hết"; `in_stock` → green badge "Còn hàng". Badge logic is presentational only — the authoritative status comes from the API response field, never re-computed on the FE. |
+| 3 | **Query key / invalidation pattern:** ingredient list → `['ingredients']`; detail → `['ingredients', id]`; stock movements → `['stock-movements', ingredientId]`. Any mutation (create / update / delete ingredient, record movement) calls `invalidateQueries(['ingredients'])` — reuse the same pattern as admin product CRUD. |
+| 4 | **RBAC guard:** `/admin/storage` is guarded by `RoleGuard` at `manager` level — same as other `/admin/*` routes (§8). FE guard is UX only; BE enforces the rule. |
+
+### 10.2 Planned: Forecast columns ("STOR") 🔮
+
+> **Not built.** Code wins — do not add these columns or the form field until the `avg_daily_usage`
+> migration lands and the BE serializes the forecast fields. Decision Log:
+> [LOGIC_INDEX.md — 2026-06-13 entries](LOGIC_INDEX.md#decision-log).
+
+| # | Planned rule |
+|---|---|
+| 1 | **"Tổng số lượng nhập" column** — display `totalImported` from the API response (Σ `in` movements). Read-only. |
+| 2 | **"Sử dụng mỗi ngày" column + form field** — display and edit `avg_daily_usage`. Rendered as a number input (DECIMAL, min 0) in the ingredient create/edit form. Label: "Sử dụng mỗi ngày". |
+| 3 | **"Dự kiến hết" column** — display `runoutDate` formatted as a date string (`dd/MM/yyyy`). When the API returns `null` (i.e., `avg_daily_usage = 0`) render "—" (em-dash, not an empty cell). |
+| 4 | **"Dự kiến còn X ngày"** — optionally display `daysRemaining` alongside `runoutDate` as secondary text. When `null` → omit entirely. |
+| 5 | Forecast values are **read-only derived display** — never allow the user to edit `daysRemaining` or `runoutDate` directly. Only `avg_daily_usage` is editable. |

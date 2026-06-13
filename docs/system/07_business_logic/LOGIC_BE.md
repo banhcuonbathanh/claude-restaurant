@@ -200,3 +200,37 @@ this section to ✅.
   [BE_CODE_SUMMARY §3](../03_be/BE_CODE_SUMMARY.md)).
 - 🔮 The planned `/admin/storage` page may need new aggregate/reporting endpoints — verify against
   the existing routes before adding any.
+
+---
+
+## 12 — Inventory / Storage Domain
+
+Object model: [../02_spec/object/OBJECT_MODEL_INGREDIENT.md](../02_spec/object/OBJECT_MODEL_INGREDIENT.md) ·
+Page: [../08_pages/admin/admin_storage/admin_storage.md](../08_pages/admin/admin_storage/admin_storage.md) ·
+RBAC: manager+ (`AtLeast(manager)`) on all ingredient + stock-movement endpoints.
+
+### 12.1 Current live invariants ✅
+
+| # | Invariant |
+|---|---|
+| 1 | **Stock is always derived** — `current_stock = Σ stock_movements` where `type='in'` or `type='adjustment'` adds to total and `type='out'` subtracts; result floored at 0. Owners **never** edit `current_stock` directly; every change goes through a movement record. |
+| 2 | **Low-stock threshold (×1.2):** an ingredient is "sắp hết" when `current_stock <= min_stock * 1.2` (used in `ListLowStock`). |
+| 3 | **Status tiers** (evaluated in this priority order in the handler serializer): `out_of_stock` (`stock == 0`) → `expiring_soon` (`expiryDate < today + 7 days`) → `low_stock` (`stock <= min_stock`) → `in_stock`. Each tier is mutually exclusive; the first matching tier wins. |
+| 4 | **Expiry formula:** `expiryDate = import_date + shelf_days` (calendar days). Default `shelf_days = 90` when not provided. |
+| 5 | **Soft delete everywhere:** all queries filter `deleted_at IS NULL`; no hard-deletes on ingredients or movements. |
+| 6 | **Recipe link (BOM):** `product_ingredients.qty_used` maps a product to the ingredients it consumes. Schema present. Consumption-on-order-create is **not** auto-wired — ingredient stock is NOT decremented automatically when an order is placed today. |
+| 7 | A business rule found in a handler (e.g., status tier logic) is a bug — move it to `ingredient_service`. |
+
+### 12.2 Planned: Run-out Forecast ("STOR") 🔮
+
+> **Not in code.** Code wins — do not assume any column, endpoint, or UI exists until the migration
+> lands. Object model ref: [../02_spec/object/OBJECT_MODEL_INGREDIENT.md](../02_spec/object/OBJECT_MODEL_INGREDIENT.md).
+> Decision Log: [LOGIC_INDEX.md — 2026-06-13 entries](LOGIC_INDEX.md#decision-log).
+
+| # | Planned rule |
+|---|---|
+| 1 | **avg_daily_usage column:** new `ingredients.avg_daily_usage DECIMAL(10,3) DEFAULT 0` — a **manual** per-ingredient estimate set by the owner. Chosen over auto-from-history and auto-from-orders×recipe (deterministic; works with zero order history). |
+| 2 | **totalImported:** `Σ stock_movements WHERE type = 'in'` for the ingredient. On ingredient create, the initial quantity is recorded as an `'in'` movement so the total is complete from day one. |
+| 3 | **daysRemaining:** `avg_daily_usage > 0 ? floor(current_stock / avg_daily_usage) : null`. |
+| 4 | **runoutDate:** `avg_daily_usage > 0 ? today + daysRemaining days : null`. When `avg_daily_usage = 0` → both fields are `null`; the serializer emits `null` (FE renders "—"). |
+| 5 | Forecast derivation belongs in the **service serializer** (`ingredient_service`), not the handler or repository — consistent with §12.1 #7. |

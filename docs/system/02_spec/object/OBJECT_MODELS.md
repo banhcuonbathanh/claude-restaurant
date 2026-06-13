@@ -43,12 +43,12 @@ Legend: ✅ home file exists · 🔲 home not written yet (create `OBJECT_MODEL_
 | **Order** (+ items) | [OBJECT_MODEL_ORDER.md](OBJECT_MODEL_ORDER.md) | `Order` / `OrderItem` (`fe/src/types/order.ts`), `CartItem` (`cart.ts`) | `createOrderReq` / `orderJSON` (`order_handler.go`) | `orders`, `order_items` | ✅ |
 | **Product** | [OBJECT_MODEL_PRODUCT.md](OBJECT_MODEL_PRODUCT.md) | `Product` (`fe/src/types/product.ts`) | `productJSON` (`product_handler.go`) | `products`, `product_toppings` | ✅ |
 | **Combo** | [OBJECT_MODEL_COMBO.md](OBJECT_MODEL_COMBO.md) | `Combo` / `ComboRaw` (`fe/src/types/product.ts`) | `ListCombos` serializer (`product_handler.go`) | `combos`, `combo_items` | ✅ |
-| **Topping** | `OBJECT_MODEL_TOPPING.md` | `Topping` (`fe/src/types/product.ts`) | nested in `productJSON` | `toppings`, `product_toppings` | 🔲 (covered inline in [Product §2.2](OBJECT_MODEL_PRODUCT.md)) |
-| **Category** | `OBJECT_MODEL_CATEGORY.md` | `Category` | category DTOs | `categories` | 🔲 |
-| **Staff** | `OBJECT_MODEL_STAFF.md` | `Staff` / auth user | staff DTOs (`staff_handler.go`) | `staff`, `refresh_tokens` | 🔲 |
-| **Table** | `OBJECT_MODEL_TABLE.md` | `Table` | table DTOs | `tables` | 🔲 |
-| **Payment** | `OBJECT_MODEL_PAYMENT.md` | payment types | payment DTOs (`payment_handler.go`) | `payments` | 🔲 |
-| **Ingredient** | `OBJECT_MODEL_INGREDIENT.md` | ingredient types | ingredient DTOs | `ingredients`, `product_ingredients`, `stock_movements` | 🔲 |
+| **Topping** | [OBJECT_MODEL_TOPPING.md](OBJECT_MODEL_TOPPING.md) | `Topping` (`fe/src/types/product.ts`) | nested in `productJSON` | `toppings`, `product_toppings` | ✅ |
+| **Category** | [OBJECT_MODEL_CATEGORY.md](OBJECT_MODEL_CATEGORY.md) | `Category` (`fe/src/types/product.ts`) | `ListCategories` serializer (`product_handler.go`) | `categories` | ✅ |
+| **Staff** | [OBJECT_MODEL_STAFF.md](OBJECT_MODEL_STAFF.md) | `Staff` (`fe/src/types/staff.ts`) | `toStaffJSON` (`staff_handler.go`) | `staff`, `refresh_tokens` | ✅ |
+| **Table** | [OBJECT_MODEL_TABLE.md](OBJECT_MODEL_TABLE.md) | *(no FE type — inline)* | `ListTables` serializer (`table_handler.go`) | `tables` | ✅ |
+| **Payment** | `OBJECT_MODEL_PAYMENT.md` | payment types | payment DTOs (`payment_handler.go`) | `payments` | 🔲 (no seed data) |
+| **Ingredient** | [OBJECT_MODEL_INGREDIENT.md](OBJECT_MODEL_INGREDIENT.md) | `Ingredient` (`fe/src/features/admin/admin.api.ts`) | `toIngredientJSON` (`ingredient_handler.go`) | `ingredients`, `product_ingredients`, `stock_movements` | ✅ (STOR forecast planned 🔮) |
 
 > **Cart** is *FE-only* (Zustand store, no DB table). Its shape is documented inside the Order home
 > file (§2.1–2.2) because it only exists as the write-side of an order.

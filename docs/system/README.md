@@ -77,6 +77,7 @@ Reading path for any page: **08_pages/\<page\>.md** (which endpoints) → **OBJE
 | Full DTO shapes (every field, exact types) | [../be/be_code_summary/BE_API_DTO.md](../be/be_code_summary/BE_API_DTO.md) · [../api/openapi.yaml](../api/openapi.yaml) (Swagger UI :8090) — *outside this handbook* | Complete request/response structs — API_SPEC shows only key fields |
 | DB object models (tables, columns) | [02_spec/DB_SCHEMA.md](02_spec/DB_SCHEMA.md) | Every table/column, migrations 001–017, conventions (UUID PKs, soft delete, VND DECIMAL) |
 | Per page → which endpoints it calls | [08_pages/](08_pages/PAGES_INDEX.md) — Zones table in each page doc; per-page **Backend View** `<page>_be.md` (e.g. [customer_menu_be.md](08_pages/customer/customer_menu/customer_menu_be.md)) traces each endpoint handler → service → repo → SQL | Component → endpoint mapping (no field shapes — follow into API_SPEC) |
+| Inventory / stock object model (Ingredient, stock movements, BOM) | [02_spec/object/OBJECT_MODEL_INGREDIENT.md](02_spec/object/OBJECT_MODEL_INGREDIENT.md) | All layers side-by-side: `ingredients`, `stock_movements`, `product_ingredients` DB + `toIngredientJSON` BE serializer + FE `Ingredient` type; STOR forecast plan in §4 |
 | How FE sends/stores data (transport) | [04_fe/DATA_COMMUNICATION.md](04_fe/DATA_COMMUNICATION.md) | api-client, token storage, localStorage keys, SSE/WS, `order-payload.ts` rule |
 | FE-side state shapes (cart, auth stores) | [04_fe/FE_CODE_SUMMARY.md](04_fe/FE_CODE_SUMMARY.md) | Zustand store state shape detail |
 

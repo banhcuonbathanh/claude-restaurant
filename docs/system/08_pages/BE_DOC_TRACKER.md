@@ -78,7 +78,7 @@
 | A7 | Staff | `/admin/staff` | `/page-be-doc admin_staff` | ⬜ | — | Staff account CRUD + activate/deactivate |
 | A8 | Staff Task Board | `/admin/staff/task-board` | `/page-be-doc admin_task_board` | ⬜ | — | Per-staff KPIs + task list (staff_tasks) |
 | A9 | Todo List | `/admin/todo-list` | `/page-be-doc admin_todo_list` | ⬜ | — | Team tasks — create/edit modal (staff_tasks) |
-| A10 | Ingredients | `/admin/ingredients` | `/page-be-doc admin_ingredients` | ⬜ | — | Ingredient list + stock in/out movements |
+| A10 | Ingredients | `/admin/ingredients` | `/page-be-doc admin_ingredients` | ✅ | 2026-06-13 | 8 endpoints traced to code (handler/service/repo). RBAC: manager+ all except DELETE (admin only). No Redis caching. Key flags: no initial 'in' movement on create; stock update not transactional; cost_per_unit stored but not serialized; GET /:id and GET /:id/movements not called by current FE. 🔮 STOR forecast subsection added (migration 018 `avg_daily_usage`, totalImported subquery, daysRemaining/runoutDate derivation). |
 | A11 | Marketing | `/admin/marketing` | `/page-be-doc admin_marketing` | ⬜ | — | Marketing spend dashboard |
 | A12 | Training | `/admin/training` | `/page-be-doc admin_training` | ⬜ | — | Job guides + completion tracking |
 | A13 | Storage | `/admin/storage` | `/page-be-doc admin_storage` | ❌ | — | 🔮 PLANNED — not coded; BE doc would be speculative |

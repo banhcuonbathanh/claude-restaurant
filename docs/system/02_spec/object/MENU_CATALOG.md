@@ -1,14 +1,17 @@
-# Menu Catalog — All Products · Combos · Toppings · Categories
+# Seed Data Catalog — Products · Combos · Toppings · Categories · Staff · Tables
 
-> **What this is:** the full inventory of *actual menu data instances* — every category,
-> topping, product, and combo the system seeds. This is the **data**, not the schema.
+> **What this is:** the full inventory of *actual data instances* the system seeds — every category,
+> topping, product, combo, staff account, and table. This is the **data**, not the schema.
 > For the field shapes of each object, see the schema home files:
-> [Product](OBJECT_MODEL_PRODUCT.md) · [Combo](OBJECT_MODEL_COMBO.md) · [Order](OBJECT_MODEL_ORDER.md)
-> · index → [OBJECT_MODELS.md](OBJECT_MODELS.md).
+> [Product](OBJECT_MODEL_PRODUCT.md) · [Combo](OBJECT_MODEL_COMBO.md) · [Topping](OBJECT_MODEL_TOPPING.md)
+> · [Category](OBJECT_MODEL_CATEGORY.md) · [Staff](OBJECT_MODEL_STAFF.md) · [Table](OBJECT_MODEL_TABLE.md)
+> · [Order](OBJECT_MODEL_ORDER.md) · index → [OBJECT_MODELS.md](OBJECT_MODELS.md).
 >
-> **Traced from source:** [`scripts/seed_real_menu.sql`](../../../../scripts/seed_real_menu.sql)
-> (menu spec: `docs/base/MENU_SPEC.md`). Prices in VND (₫). When the seed changes, regenerate this file.
-> **Code wins** — if a price here disagrees with the seed, fix this file.
+> **Traced from source:** menu (categories/toppings/products/combos) from
+> [`scripts/seed_real_menu.sql`](../../../../scripts/seed_real_menu.sql) (menu spec: `docs/base/MENU_SPEC.md`);
+> staff + tables from [`scripts/seed.sql`](../../../../scripts/seed.sql) (these are *not* replaced by
+> the real-menu seed). Prices in VND (₫). When a seed changes, regenerate this file.
+> **Code wins** — if anything here disagrees with the seed, fix this file.
 
 ---
 
@@ -20,9 +23,12 @@
 | Toppings (nhân) | 3 | all free (₫0) — price baked into the dish |
 | Products | 6 | 5 bánh + 1 canh |
 | Combos (suất) | 5 | each = fixed set of products |
+| Staff accounts | 4 | admin · manager · chef · cashier |
+| Tables | 6 | Bàn 01–05 + Bàn VIP |
 
-> ID prefix guide (from the seed): `aaaa…` categories · `bbbb…` toppings · `cccc…` products ·
-> `dddd…` combos · `eeee…` combo_items. Short IDs below are the `…0000000N` suffix.
+> ID prefix guide: menu seed → `aaaa…` categories · `bbbb…` toppings · `cccc…` products ·
+> `dddd…` combos · `eeee…` combo_items. Base seed → `1111…` staff · `2222…` tables.
+> Short IDs below are the `…0000000N` suffix.
 
 ---
 
@@ -84,3 +90,39 @@ Each combo is a fixed set of products at a set price (category: **Suất / Combo
 > Combo price is the **listed combo price**, not the sum of item prices. Per the OC epic, the
 > combo header carries the price and child `order_items` are stored at `unit_price = 0` to avoid
 > double-counting — see [Combo schema](OBJECT_MODEL_COMBO.md) and [Order schema](OBJECT_MODEL_ORDER.md).
+
+---
+
+## 5. Staff accounts
+
+Seeded in [`scripts/seed.sql`](../../../../scripts/seed.sql) (bcrypt cost 12). Schema → [Staff](OBJECT_MODEL_STAFF.md).
+`job_title` / `shifts` / `responsibilities` are NULL for all seeded accounts.
+
+| # | Username | Password | Full name | Role | Phone | Email | Active |
+|---|---|---|---|---|---|---|---|
+| 01 | **admin** | `admin123` | Nguyễn Admin | admin | 0901000001 | admin@banhcuon.vn | ✅ |
+| 02 | **manager1** | `manager123` | Trần Quản Lý | manager | 0901000002 | manager@banhcuon.vn | ✅ |
+| 03 | **chef1** | `chef1234` | Lê Đầu Bếp | chef | 0901000003 | — | ✅ |
+| 04 | **cashier1** | `cashier123` | Phạm Thu Ngân | cashier | 0901000004 | — | ✅ |
+
+> 🔒 Dev credentials only. `password_hash` is never serialized; `performance_score` is a hardcoded `0`
+> placeholder (not stored) — see [Staff §3](OBJECT_MODEL_STAFF.md).
+
+---
+
+## 6. Tables
+
+Seeded in [`scripts/seed.sql`](../../../../scripts/seed.sql). Each has a 64-char hex `qr_token` (the QR
+payload that starts a guest order). Schema → [Table](OBJECT_MODEL_TABLE.md).
+
+| # | Name | Capacity | Status (seed) | Active |
+|---|---|---|---|---|
+| 01 | **Bàn 01** | 4 | available | ✅ |
+| 02 | **Bàn 02** | 4 | available | ✅ |
+| 03 | **Bàn 03** | 6 | available | ✅ |
+| 04 | **Bàn 04** | 2 | available | ✅ |
+| 05 | **Bàn 05** | 4 | available | ✅ |
+| 06 | **Bàn VIP** | 8 | available | ✅ |
+
+> The demo orders in `seed_real_menu.sql` flip **Bàn 01–03** to `occupied`. `status` is otherwise
+> driven by the order lifecycle, not set by hand — see [Table §3](OBJECT_MODEL_TABLE.md).

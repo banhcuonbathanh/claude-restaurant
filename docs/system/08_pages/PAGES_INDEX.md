@@ -71,8 +71,8 @@
 | `/admin/staff` | ✅ | Staff account CRUD — roles, activate/deactivate | [admin_staff.md](admin/admin_staff/admin_staff.md) |
 | `/admin/staff/task-board` | ✅ | Per-staff task board — KPIs + expandable task table | [admin_task_board.md](admin/admin_task_board/admin_task_board.md) |
 | `/admin/todo-list` | ✅ | Team to-do tasks — filter, cards/table, create/edit modal | [admin_todo_list.md](admin/admin_todo_list/admin_todo_list.md) |
-| `/admin/ingredients` | ✅ | Ingredient list + stock in/out movements | [admin_ingredients.md](admin/admin_ingredients/admin_ingredients.md) |
-| `/admin/storage` | 🔮 PLANNED | Full inventory management — low-stock warnings, link availability to menu | [admin_storage.md](admin/admin_storage/admin_storage.md) |
+| `/admin/ingredients` | ✅ | Ingredient list + stock in/out movements | [admin_ingredients.md](admin/admin_ingredients/admin_ingredients.md) · [BE](admin/admin_ingredients/admin_ingredients_be.md) |
+| `/admin/storage` | 🔮 PLANNED | Full inventory management — low-stock warnings, link availability to menu, run-out forecast (Tổng nhập / Dùng/ngày / Dự kiến hết — 🔮 STOR) | [admin_storage.md](admin/admin_storage/admin_storage.md) |
 | `/admin/marketing` | ✅ | Marketing spend dashboard — budget KPIs, breakdown, campaign timeline | [admin_marketing.md](admin/admin_marketing/admin_marketing.md) |
 | `/admin/training` | ✅ | Staff training — job guides + completion tracking | [admin_training.md](admin/admin_training/admin_training.md) |
 

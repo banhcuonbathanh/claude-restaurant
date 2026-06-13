@@ -357,6 +357,23 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 ---
 
+## Phase STOR — Ingredient Storage: Daily Usage + Run-out Forecast
+
+> **Owner:** BE + FE
+> **Dependency:** existing ingredients feature (009/010 migrations, ingredient_handler/service/repo, admin/ingredients FE) ✅
+> **Status:** 📄 SPEC'D in docs/system (code deferred) — owner asked for docs-only this session
+> **Goal:** extend the existing storage feature so each ingredient shows total imported (tổng nhập),
+> a manual daily-usage estimate (dùng/ngày), and a forecast run-out date (dự kiến hết). Daily usage =
+> manual `avg_daily_usage` field; forecast = `current_stock ÷ avg_daily_usage`.
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| STOR-0 | Docs | Document the whole feature in `docs/system` as a forward spec (markdown only, no code): object-model home [OBJECT_MODEL_INGREDIENT.md](../system/02_spec/object/OBJECT_MODEL_INGREDIENT.md) (incl. §4 STOR), backend-view [admin_ingredients_be.md](../system/08_pages/admin/admin_ingredients/admin_ingredients_be.md), extended [admin_storage.md](../system/08_pages/admin/admin_storage/admin_storage.md), and business logic in LOGIC_INDEX/BE/FE; indexes updated. CURRENT behavior marked live, forecast marked 🔮 PLANNED. | — | 1 | ✅ | All STOR fields/formula documented; forecast clearly labelled not-in-code; links resolve |
+| STOR-1 | BE | Migration `018` add `ingredients.avg_daily_usage DECIMAL(10,3) DEFAULT 0`. Repo: thread `avg_daily_usage` through create/update + scan; add `total_imported` (correlated SUM of `type='in'` movements) to the ingredient SELECTs; on create, record an initial `in` stock_movement for `initialQuantity` so the ledger + total are complete. Handler `toIngredientJSON`: add `avgDailyUsage`, `totalImported`, `daysRemaining`, `runoutDate`; create/update reqs accept `avgDailyUsage`. | STOR-0 | 1 | ⬜ (deferred) | `GET /admin/ingredients` returns the 4 new fields; `runoutDate`/`daysRemaining` are `null` when `avgDailyUsage=0`; `total_imported` = Σ in-movements (incl. initial); `go build ./...` passes |
+| STOR-2 | FE | `admin.api.ts`: add `avgDailyUsage`/`totalImported`/`daysRemaining`/`runoutDate` to `Ingredient` + `avgDailyUsage` to Create/Update inputs. `IngredientFormModal`: add "Sử dụng mỗi ngày" number input. `IngredientTable`: add columns **Tổng nhập**, **Dùng/ngày**, **Dự kiến hết** (date + days-left badge; "—" when not estimated). | STOR-1 | 1 | ⬜ (deferred) | Table shows total imported, daily usage, and forecast run-out date; "—" when `avgDailyUsage=0`; form can set daily usage; `npm run build` passes |
+
+---
+
 ## Critical Rules (Never Forget)
 
 | Rule | Detail |

@@ -72,6 +72,7 @@ and add the layer-specific interpretation — never duplicate the full rule text
 | Error codes / messages | [LOGIC_FE §4](LOGIC_FE.md#4--error-code--message-mapping-duty) | [ERROR_SPEC](../02_spec/ERROR_SPEC.md) | — |
 | Migrations / env / ports / deploy | [LOGIC_DEVOPS](LOGIC_DEVOPS.md) | — | — |
 | New pages (Welcome, Storage, online ordering…) | [LOGIC_FE §9](LOGIC_FE.md#9--planned-pages--flows-) | Decision Log below | [../08_pages/PAGES_INDEX.md](../08_pages/PAGES_INDEX.md) |
+| Ingredient / inventory rules | [LOGIC_BE §12](LOGIC_BE.md#12--inventory--storage-domain) + [LOGIC_FE §10](LOGIC_FE.md#10--inventory--storage-ui) | [../02_spec/object/OBJECT_MODEL_INGREDIENT.md](../02_spec/object/OBJECT_MODEL_INGREDIENT.md) | [../08_pages/admin/admin_storage/admin_storage.md](../08_pages/admin/admin_storage/admin_storage.md) |
 
 ---
 
@@ -82,6 +83,8 @@ and add the layer-specific interpretation — never duplicate the full rule text
 
 | Date | Decision | Status | Layer impact |
 |---|---|---|---|
+| 2026-06-13 | **Ingredient daily-usage = manual estimate (`avg_daily_usage` column).** Owner chose manual over auto-from-order-history or auto-from-orders×recipe because it is deterministic and works with zero order history for a small stall. Auto approaches were ruled out: order-history requires >= weeks of data; recipe×orders requires the recipe-consumption link to be wired (currently not auto-wired). Column is part of the 🔮 PLANNED "STOR" run-out forecast feature — not in code today. Code wins: do not assume the column or forecast endpoints exist until the migration lands. Object model ref: [../02_spec/object/OBJECT_MODEL_INGREDIENT.md](../02_spec/object/OBJECT_MODEL_INGREDIENT.md) · Page ref: [../08_pages/admin/admin_storage/admin_storage.md](../08_pages/admin/admin_storage/admin_storage.md). | 🔮 PLANNED | [LOGIC_BE §12.2](LOGIC_BE.md#122-planned-run-out-forecast-stor-) · [LOGIC_FE §10.2](LOGIC_FE.md#102-planned-forecast-columns-stor-) |
+| 2026-06-13 | **"STOR" run-out-forecast feature is documented-but-not-yet-implemented.** Forecast logic (avg_daily_usage, daysRemaining, runoutDate) and the Admin Storage page columns (Tổng nhập / Dùng/ngày / Dự kiến hết) are forward spec only. Handbook rule applies: code wins — treat all STOR subsections as 🔮 PLANNED until migration + endpoints land. | 🔮 PLANNED | [LOGIC_BE §12.2](LOGIC_BE.md#122-planned-run-out-forecast-stor-) · [LOGIC_FE §10.2](LOGIC_FE.md#102-planned-forecast-columns-stor-) |
 | 2026-06-12 | **Customers can cancel their meal/order at ANY time before payment completes.** Replaces the "< 30% served" customer cancel rule. Current BE code still enforces < 30% and blocks cancel at `ready` — BE change pending. | ⚠️ DRIFT | [LOGIC_BE §3](LOGIC_BE.md#3--cancel-rule--drift) · [LOGIC_FE §5](LOGIC_FE.md#5--cancel-ux--drift) |
 | 2026-06-12 | **Customers can register/login and order food online from home** — not only via table QR scan. | 🔮 PLANNED | [LOGIC_BE §11](LOGIC_BE.md#11--planned-domains-) · [LOGIC_FE §9](LOGIC_FE.md#9--planned-pages--flows-) |
 | 2026-06-12 | **POS cashier can log in / order on behalf of customers who have no phone.** | 🔮 PLANNED | [LOGIC_BE §11](LOGIC_BE.md#11--planned-domains-) · [LOGIC_FE §9](LOGIC_FE.md#9--planned-pages--flows-) |
