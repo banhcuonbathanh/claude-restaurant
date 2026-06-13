@@ -46,7 +46,7 @@ Success responses use `{"data": ...}` — no `"error"` key.
 | 404 | `NOT_FOUND` | Resource does not exist in DB | — |
 | 409 | `TABLE_HAS_ACTIVE_ORDER` | Creating order when table already has an active order | `{"table_id": "...", "active_order_id": "..."}` |
 | 409 | `ORDER_NOT_READY` | Creating payment when `order.status ≠ ready` | — |
-| 409 | `CANCEL_THRESHOLD` | Cancelling order when ≥ 30% of items already served | — |
+| 422 | `CANCEL_THRESHOLD` | Cancelling order when ≥ 30% of items already served | — |
 | 409 | `PAYMENT_ALREADY_EXISTS` | Second payment create — retries must UPDATE, not INSERT | — |
 | 409 | `ORDER_ALREADY_GROUPED` | Adding an order that is already in another group | — |
 | 409 | `CATEGORY_HAS_PRODUCTS` | Deleting a category that still has products | — |

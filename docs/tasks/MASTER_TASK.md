@@ -310,7 +310,7 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 > **Owner:** Docs
 > **Dependency:** none (read-only synthesis of existing docs + code)
-> **Status:** ✅ COMPLETE (1→4) — 24 files; reusable folder template for other projects
+> **Status:** ✅ COMPLETE (1→6) — 26 files; reusable folder template for other projects
 > **Goal:** One self-contained entry point (`docs/system/README.md`) covering FE + BE: overview, flows, specs, tech/code summaries, state management (Zustand/local), loading, Redis cache, design system, data communication — so anyone can understand the system in 30 min, then dev a new page that fits.
 
 | ID | Owner | Task | Deps | Sessions | Status | AC |
@@ -319,6 +319,8 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 | P-SYSDOC-2 | Docs | FE docs — `04_fe/` (tech/code summary, STATE_MANAGEMENT, LOADING_PATTERNS, DESIGN_SYSTEM, DATA_COMMUNICATION) | — | 1 | ✅ | Store/hook/component inventory matches `fe/src/`; tokens from real `globals.css` |
 | P-SYSDOC-3 | Docs | Overview + flows — `00_overview/` + `01_flow/` (client, staff, order state machine, payment) + `02_spec/BUSINESS_RULES.md` | — | 1 | ✅ | Mermaid sequence/state diagrams; links back to MASTER_v1.2 as authority |
 | P-SYSDOC-4 | Docs | Interface + dev guide — `README.md` (entry point, reading paths by role) + `05_dev_guide/` (NEW_PAGE_GUIDE, FOLDER_TEMPLATE for reuse in other projects) | 1–3 | 1 | ✅ | Every file ≤ ~250 lines with TL;DR + Deep Dive Sources footer |
+| P-SYSDOC-5 | Docs | DevOps docs — `09_devops/` (DEVOPS_INDEX, GO_LIVE, MONITORING, MAC_TEST_SERVER_PLAN) summarizing existing `docs/devops/` + `GOLIVE_RUNBOOK.md` + `monitoring/` configs; plan to run owner's Mac as a real-operation test server (Stage A + GitHub-pull deploys + ops drills) | 1–4 | 1 | ✅ | Summaries verified against compose/runbooks; README folder map gains row 09; no duplication of runbook steps (link, don't copy) |
+| P-SYSDOC-6 | Docs | Caching design — `10_caching/` (CACHING_INDEX layer map FE→BE→DB + CACHE_FLOW_E2E read/write/invalidation flows, staleness budgets, realtime bypass). Cross-layer view only — Redis key table stays in REDIS_CACHE.md, FE query keys stay in STATE_MANAGEMENT.md (one fact, one home) | 1–2 | 1 | ✅ | Diagrams match code (`productCacheTTL` 5 min, `providers.tsx` 60 s default, no Cache-Control in Caddyfile); README folder map gains row 10 |
 
 ## Phase P-FIX-CANH — Stale canh count in cart
 

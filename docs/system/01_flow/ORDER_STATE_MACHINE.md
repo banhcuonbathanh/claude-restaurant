@@ -90,7 +90,7 @@ cancel_allowed = SUM(qty_served) / SUM(quantity) < 0.30
 | Condition | Result (current code) |
 |---|---|
 | Ratio < 30% | Cancel allowed |
-| Ratio >= 30% | Server rejects → `409 CANCEL_NOT_ALLOWED` |
+| Ratio >= 30% | Server rejects → `422 CANCEL_THRESHOLD` |
 | Status = `ready` or `delivered` | Cancel blocked regardless of ratio |
 
 ### Who Can Cancel What
@@ -141,4 +141,4 @@ The combo header has `unit_price = 0`; sub-items carry the prices. The `recalcul
 | `../02_spec/BUSINESS_RULES.md §2` | State machine transitions + permissions |
 | `../02_spec/BUSINESS_RULES.md §3` | Cancel rule (target vs current code) |
 | `../02_spec/BUSINESS_RULES.md §2.3` | One active order per table rule |
-| `../02_spec/ERROR_SPEC.md` | `CANCEL_NOT_ALLOWED`, `TABLE_HAS_ACTIVE_ORDER` codes |
+| `../02_spec/ERROR_SPEC.md` | `CANCEL_THRESHOLD`, `TABLE_HAS_ACTIVE_ORDER` codes |

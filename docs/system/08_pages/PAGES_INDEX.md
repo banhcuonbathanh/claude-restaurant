@@ -26,7 +26,7 @@
 | `/welcome` | ✅ | Restaurant-branded welcome page — hero, story, signature dishes, hours, "Xem thực đơn" CTA | [customer_welcome.md](customer_welcome.md) |
 | `/introduction` | 🔮 PLANNED | Dedicated about-the-restaurant page — story, photos, map, hours, contact | [customer_introduction.md](customer_introduction.md) |
 | `/table/:tableId` | ✅ | QR landing — exchanges QR token for guest JWT, redirects to `/menu` | [customer_table_qr.md](customer_table_qr.md) |
-| `/menu` | ✅ | Browse products + combos, build cart, submit order | [customer_menu.md](customer_menu.md) |
+| `/menu` | ✅ | Browse products + combos, build cart, submit order | [menu/customer_menu.md](menu/customer_menu.md) |
 | `/menu/product/:id` | ✅ | Product detail — hero image, toppings, quantity, add to cart | [customer_product_detail.md](customer_product_detail.md) |
 | `/menu/combo/:id` | ✅ | Combo detail — included items, quantity, add to cart | [customer_combo_detail.md](customer_combo_detail.md) |
 | `/menu/favourites` (+ `/save`, `/sets`) | ✅ | Favourites list, save-as-set form, saved sets | [customer_favourites.md](customer_favourites.md) |

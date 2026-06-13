@@ -120,7 +120,7 @@ table-less orders.
 | **Target rule (owner decision 2026-06-12)** | A customer can cancel their meal/order (items or whole order) at **any time before payment is completed**. |
 | **Current code behaviour** | `SUM(qty_served) / SUM(quantity) < 0.30` must hold, and cancel is blocked at `ready` / `delivered` — ⚠️ DRIFT, BE change pending. |
 
-Until the BE change lands, the FE will still receive `409 CANCEL_NOT_ALLOWED` under the current
+Until the BE change lands, the FE will still receive `422 CANCEL_THRESHOLD` under the current
 rule. Full detail: [ORDER_STATE_MACHINE.md — cancel rules](ORDER_STATE_MACHINE.md#cancel-rules).
 
 ---

@@ -106,7 +106,7 @@ cancel_allowed = SUM(qty_served) / SUM(quantity) < 0.30
 | Condition | Result (current code) |
 |---|---|
 | < 30% served | Cancel allowed |
-| >= 30% served | `409 CANCEL_NOT_ALLOWED` |
+| >= 30% served | `422 CANCEL_THRESHOLD` |
 | Status = `ready` or `delivered` | Cancel blocked (regardless of ratio) |
 
 ### 3.3 Who can cancel

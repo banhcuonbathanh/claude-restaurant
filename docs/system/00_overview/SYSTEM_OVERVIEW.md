@@ -96,6 +96,9 @@ Digitises the entire order lifecycle for a dine-in bánh cuốn restaurant:
 
 ## 4. High-Level Architecture
 
+> Drawing version (all entry points + all 4 data channels on one canvas):
+> [system_data_flow.excalidraw](system_data_flow.excalidraw)
+
 ```mermaid
 graph TB
     subgraph Customer["Customer (browser / phone)"]

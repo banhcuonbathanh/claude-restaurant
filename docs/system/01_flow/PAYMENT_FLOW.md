@@ -128,9 +128,8 @@ Field: image
 
 | File | Purpose |
 |---|---|
-| `docs/work_flow/FLOW_06_PAYMENT.md` | Authoritative payment flow (original) |
-| `docs/core/MASTER_v1.2.md §4.3` | Payment rules (single source of truth) |
-| `docs/core/MASTER_v1.2.md §6` | Payment webhooks config |
-| `docs/core/SYSTEM_DESCRIPTION_v1.md §6` | Webhook endpoints + HMAC algorithms |
-| `docs/contract/ERROR_CONTRACT_v1.1.md` | `ORDER_NOT_READY`, `PAYMENT_ALREADY_EXISTS` codes |
-| `docs/spec/Spec_5_Payment_Webhooks.md` | Full payment + webhook spec |
+| `../02_spec/BUSINESS_RULES.md §4` | Payment rules (in-handbook source) |
+| `../07_business_logic/LOGIC_BE.md` | Payment invariants: ready-only, idempotency, HMAC-first |
+| `../02_spec/API_SPEC.md` | Payment + webhook endpoints |
+| `../02_spec/ERROR_SPEC.md` | `ORDER_NOT_READY`, `PAYMENT_ALREADY_EXISTS` codes |
+| `../01_flow/ORDER_STATE_MACHINE.md` | `ready → delivered` transition via payment |

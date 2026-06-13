@@ -29,10 +29,12 @@ A restaurant management system for a Vietnamese bánh cuốn shop:
 | `02_spec/` | [API_SPEC](02_spec/API_SPEC.md) · [DB_SCHEMA](02_spec/DB_SCHEMA.md) · [ERROR_SPEC](02_spec/ERROR_SPEC.md) · [BUSINESS_RULES](02_spec/BUSINESS_RULES.md) | Contracts: every endpoint, every table, every error code, every rule | While coding — keep open as reference |
 | `03_be/` | [BE_TECH_SUMMARY](03_be/BE_TECH_SUMMARY.md) · [BE_CODE_SUMMARY](03_be/BE_CODE_SUMMARY.md) · [REDIS_CACHE](03_be/REDIS_CACHE.md) · [REALTIME_SSE](03_be/REALTIME_SSE.md) | BE layers, route map, caching strategy, SSE/WS architecture | Any BE task |
 | `04_fe/` | [FE_TECH_SUMMARY](04_fe/FE_TECH_SUMMARY.md) · [FE_CODE_SUMMARY](04_fe/FE_CODE_SUMMARY.md) · [STATE_MANAGEMENT](04_fe/STATE_MANAGEMENT.md) · [LOADING_PATTERNS](04_fe/LOADING_PATTERNS.md) · [DESIGN_SYSTEM](04_fe/DESIGN_SYSTEM.md) · [DATA_COMMUNICATION](04_fe/DATA_COMMUNICATION.md) | FE conventions: state rules, loading UX, design tokens, shared components, data flow | Any FE task |
-| `05_dev_guide/` | [NEW_PAGE_GUIDE](05_dev_guide/NEW_PAGE_GUIDE.md) · [FOLDER_TEMPLATE](05_dev_guide/FOLDER_TEMPLATE.md) | How to build a new page the right way · how to reuse this handbook structure in another project | Before starting a new page / new project |
+| `05_dev_guide/` | [NEW_PAGE_GUIDE](05_dev_guide/NEW_PAGE_GUIDE.md) · [WIREFRAME_STANDARD](05_dev_guide/WIREFRAME_STANDARD.md) · [FOLDER_TEMPLATE](05_dev_guide/FOLDER_TEMPLATE.md) | How to build a new page the right way · wireframe folder standard · how to reuse this handbook structure in another project | Before starting a new page / new project |
 | `06_test_build/` | [menu_page/](06_test_build/menu_page/README.md) — reference rebuild of `/menu` (FE+BE, not wired in) + [DEV_PLAN](06_test_build/menu_page/DEV_PLAN.md) template + [DIFF_VS_CURRENT](06_test_build/menu_page/DIFF_VS_CURRENT.md) test results | Proof that this handbook can drive a page build; DEV_PLAN is the Phase 2b template | When writing a DEV_PLAN / auditing handbook gaps |
 | `07_business_logic/` | [LOGIC_INDEX](07_business_logic/LOGIC_INDEX.md) · [LOGIC_BE](07_business_logic/LOGIC_BE.md) · [LOGIC_FE](07_business_logic/LOGIC_FE.md) · [LOGIC_DEVOPS](07_business_logic/LOGIC_DEVOPS.md) | **Canonical business-logic home** — per-layer invariants, ⚠️ DRIFT entries, owner Decision Log | **Before changing ANY logic or flow** — consult + update first (Rule #8) |
 | `08_pages/` | [PAGES_INDEX](08_pages/PAGES_INDEX.md) | Page inventory + ASCII drawings for every screen (existing + planned) | Before building or changing any page |
+| `09_devops/` | [DEVOPS_INDEX](09_devops/DEVOPS_INDEX.md) · [GO_LIVE](09_devops/GO_LIVE.md) · [MONITORING](09_devops/MONITORING.md) · [MAC_TEST_SERVER_PLAN](09_devops/MAC_TEST_SERVER_PLAN.md) | How the system is **run**: 2-stage go-live (Mac → VPS), monitoring stack, Mac-as-test-server operation plan | Any deploy/ops/monitoring task |
+| `10_caching/` | [CACHING_INDEX](10_caching/CACHING_INDEX.md) · [CACHE_FLOW_E2E](10_caching/CACHE_FLOW_E2E.md) | **Cross-layer caching design** — layer map (TanStack → HTTP → Redis → MySQL), end-to-end read/write/invalidation flows, staleness budgets, realtime bypass | Adding a cache key, tuning staleTime, or debugging stale data |
 
 ---
 
@@ -59,6 +61,23 @@ A restaurant management system for a Vietnamese bánh cuốn shop:
 1. [01_flow/ORDER_STATE_MACHINE.md](01_flow/ORDER_STATE_MACHINE.md) — transitions + who is allowed
 2. [02_spec/BUSINESS_RULES.md](02_spec/BUSINESS_RULES.md) — the rules summary
 3. The relevant flow doc in `01_flow/`
+
+---
+
+## Data Model Map — FE ↔ BE ↔ DB
+
+Where to see the object models: what FE sends to BE, what BE returns, and how it's stored.
+Reading path for any page: **08_pages/\<page\>.md** (which endpoints) → **API_SPEC.md** (key fields) → full DTO source → **DB_SCHEMA.md**.
+
+| What you want to see | Where | What it gives you |
+|---|---|---|
+| FE → BE request models | [02_spec/API_SPEC.md](02_spec/API_SPEC.md) | Per-endpoint **Key Request Fields** column |
+| BE → FE response models | [02_spec/API_SPEC.md](02_spec/API_SPEC.md) | Per-endpoint **Key Response Fields** column + error envelope |
+| Full DTO shapes (every field, exact types) | [../be/be_code_summary/BE_API_DTO.md](../be/be_code_summary/BE_API_DTO.md) · [../api/openapi.yaml](../api/openapi.yaml) (Swagger UI :8090) — *outside this handbook* | Complete request/response structs — API_SPEC shows only key fields |
+| DB object models (tables, columns) | [02_spec/DB_SCHEMA.md](02_spec/DB_SCHEMA.md) | Every table/column, migrations 001–017, conventions (UUID PKs, soft delete, VND DECIMAL) |
+| Per page → which endpoints it calls | [08_pages/](08_pages/PAGES_INDEX.md) — Zones table in each page doc | Component → endpoint mapping (no field shapes — follow into API_SPEC) |
+| How FE sends/stores data (transport) | [04_fe/DATA_COMMUNICATION.md](04_fe/DATA_COMMUNICATION.md) | api-client, token storage, localStorage keys, SSE/WS, `order-payload.ts` rule |
+| FE-side state shapes (cart, auth stores) | [04_fe/FE_CODE_SUMMARY.md](04_fe/FE_CODE_SUMMARY.md) | Zustand store state shape detail |
 
 ---
 
