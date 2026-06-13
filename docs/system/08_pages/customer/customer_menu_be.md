@@ -39,7 +39,7 @@ Route registration: `be/cmd/server/main.go:167-228` (products/categories/combos 
 
 ### 1 · `GET /categories`
 
-- Service `ListCategories` (`product_service.go:343-356`): Redis `categories:list` hit → return;
+- Service `ListCategories` (`product_service.go:344-357`): Redis `categories:list` hit → return;
   miss → repo `ListCategories` (active, not soft-deleted) → cache set.
 - Serialized inline in the handler (`product_handler.go:169-191`): `id, name, description
   (NULL→""), sort_order, is_active`. Returns raw `[]db.Category` from service — no Details struct.
@@ -47,7 +47,7 @@ Route registration: `be/cmd/server/main.go:167-228` (products/categories/combos 
 ### 2 · `GET /products`
 
 - Handler `ListProducts` (`product_handler.go:42-55`): **reads no query params** — see Flags.
-- Service `ListProducts` (`product_service.go:162-191`): Redis `products:list` hit → return;
+- Service `ListProducts` (`product_service.go:164-191`): Redis `products:list` hit → return;
   miss → repo `ListProductsAvailable` (`is_available=1`, soft-deleted excluded), toppings
   resolved per product via the `product_toppings` junction into `ProductDetails.Toppings`,
   then cache set.
@@ -58,7 +58,7 @@ Route registration: `be/cmd/server/main.go:167-228` (products/categories/combos 
 
 ### 3 · `GET /combos`
 
-- Service `ListCombos` (`product_service.go:496-516`): Redis `combos:list` hit → return; miss →
+- Service `ListCombos` (`product_service.go:497-517`): Redis `combos:list` hit → return; miss →
   repo `ListCombosAvailable` + `combo_items` template rows per combo → cache set.
 - Inline serializer (`product_handler.go:327-356`): combo fields + `combo_items:
   [{id, product_id, quantity}]` — **ids only**; product names/prices are resolved FE-side by

@@ -27,8 +27,11 @@ request ("ensure update all information and data in docs/system").
 
 ---
 
-## Step 0 — Resolve the page and read its neighbours
+## Step 0 — Read the tracker, then resolve the page and its neighbours
 
+0. **Read the tracker** `docs/system/08_pages/BE_DOC_TRACKER.md`. Find this page's row — note prior
+   status/concerns (a ✅ row means this is a refresh). If the page has no row, add one. If the row
+   is ❌ (PLANNED) or N/A (no BE calls), respect it: STOP and confirm with the owner before writing.
 1. Find the page in [`docs/system/08_pages/PAGES_INDEX.md`](../../../docs/system/08_pages/PAGES_INDEX.md) →
    get its route and its FE doc file (`08_pages/<page>.md`). If the page is not in the index,
    STOP and ask the owner which route/page they mean.
@@ -131,6 +134,10 @@ edits — fix only what the trace contradicted; do not rewrite unrelated prose.
    Docs" list/note does not exist, add the `_be.md` reference in the Data Model Map row
    "Per page → which endpoints it calls" (it already points at `08_pages/`); keep the edit small
    and additive. **Do not restructure README tables** — additive links only.
+5. **`08_pages/BE_DOC_TRACKER.md`** → update this page's row: set Status (✅ if every cell traced
+   + docs synced; ⚠️ if any `❓ UNVERIFIED` / open drift), fill `Last Run` with today's date, and
+   write a one-line concern/note. Add a bullet to **Cross-Page Concerns** if the run uncovered a
+   shared endpoint/cache/auth fact that touches more than one page's BE doc.
 
 > ⚠️ Never modify a table in any `command.md` as part of this skill. README/PAGES_INDEX edits are
 > additive links only. If a sync edit would change business meaning (not just a stale fact), STOP
@@ -152,5 +159,6 @@ docs/system synced:
   - PAGES_INDEX.md: BE link added
   - README.md: <edit or "already discoverable">
   - LOGIC Decision Log: <entry or "no drift logged">
+  - BE_DOC_TRACKER.md: row updated → <✅ | ⚠️>
 ```
 List every `❓ UNVERIFIED` cell and every drift fix so the owner can review.
