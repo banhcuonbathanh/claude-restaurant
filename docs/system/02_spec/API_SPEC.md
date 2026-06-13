@@ -79,7 +79,9 @@
 | PATCH | `/orders/items/:id` | Mark item(s) served | chef+ | `qty_served` | `message` |
 | DELETE | `/orders/items/:id` | Remove item from order | auth | — | `message` |
 
-`OrderJSON` includes: `id`, `order_number`, `status`, `source`, `table_id`, `total_amount`, `items[{id, product_id, combo_id, combo_ref_id, name, unit_price, quantity, qty_served, item_status, toppings_snapshot, note}]`
+`OrderJSON` (key fields): `id`, `order_number`, `status`, `source`, `table_id`, `total_amount`, `items[{id, product_id, combo_id, combo_ref_id, name, unit_price, quantity, qty_served, item_status, toppings_snapshot, note}]`
+
+> **Full Order shape across all layers (FE ⇄ BE ⇄ DB) → single home: [OBJECT_MODEL_ORDER.md](object/OBJECT_MODEL_ORDER.md)** (Rule #9). The line above is the endpoint-contract subset only.
 
 **Combo row convention:** combo expands to 1 header row (`combo_id` set, `unit_price=0`) + N sub-item rows (`combo_ref_id`=header id). Never charge the header — it is a label only. FE hides rows where `combo_id && !combo_ref_id`.
 

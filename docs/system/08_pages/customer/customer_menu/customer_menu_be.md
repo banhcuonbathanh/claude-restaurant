@@ -8,7 +8,7 @@
 >
 > FE view + zones → [customer_menu.md](customer_menu.md) ·
 > Object shapes (all layers) → [customer_menu.md §Object Model](customer_menu.md#object-model--menu-page-fe--be--db) ·
-> Order write pipeline → [../../02_spec/OBJECT_MODEL_ORDER.md](../../02_spec/OBJECT_MODEL_ORDER.md)
+> Order write pipeline → [../../02_spec/object/OBJECT_MODEL_ORDER.md](../../02_spec/object/OBJECT_MODEL_ORDER.md)
 
 ---
 

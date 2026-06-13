@@ -45,7 +45,7 @@
 - Change date → KPIs + table refetch for that day.
 - Click a staff row → expands and lazily fetches that staff member's tasks (separate query per
   expansion); error shows an inline retry.
-- **+ Giao việc** CTA → create-task flow (shared with [`/admin/todo-list`](admin_todo_list.md)).
+- **+ Giao việc** CTA → create-task flow (shared with [`/admin/todo-list`](../admin_todo_list/admin_todo_list.md)).
 
 ## Business Logic Used
 

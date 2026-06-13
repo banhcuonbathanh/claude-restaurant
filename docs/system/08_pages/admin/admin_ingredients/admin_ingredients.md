@@ -2,7 +2,7 @@
 
 > **TL;DR:** ✅ implemented · manager+ · "Kho nguyên liệu" — ingredient CRUD plus a stock-movement
 > modal (Nhập/Xuất/Điều chỉnh). This page is the implemented core that the 🔮 PLANNED
-> `/admin/storage` page (see [admin_storage.md](admin_storage.md)) will extend with low-stock
+> `/admin/storage` page (see [admin_storage.md](../admin_storage/admin_storage.md)) will extend with low-stock
 > warnings and menu-availability linking.
 
 ---
@@ -55,5 +55,5 @@
 - Stock = sum of movements (in/out/adjustment), never edited directly →
   [../02_spec/BUSINESS_RULES.md](../02_spec/BUSINESS_RULES.md) (inventory rules, see §2 Order Rules for consumption linkage)
 - Low-stock thresholds surface today on `/admin/summary` (Cảnh báo tồn kho) →
-  [admin_summary.md](admin_summary.md)
+  [admin_summary.md](../admin_summary/admin_summary.md)
 - Admin CRUD pattern (query keys, invalidation, toasts) → [../07_business_logic/LOGIC_FE.md](../07_business_logic/LOGIC_FE.md) (admin CRUD pattern)

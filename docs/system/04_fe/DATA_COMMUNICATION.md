@@ -117,6 +117,8 @@ Used by staff pages. Auth via `?token=<accessToken>` query param (browser WS API
 
 **`fe/src/lib/order-payload.ts`** is the SINGLE source for converting `CartItem[]` to the POST /orders body. Every checkout path (table confirm, online checkout, add-to-order) MUST call this function.
 
+> Field shapes of `CartItem` and `OrderItemPayload` are **not** redefined here — see their single home [OBJECT_MODEL_ORDER.md §2.1–2.3](../02_spec/object/OBJECT_MODEL_ORDER.md) (Rule #9). This section documents the *transport* (how the conversion happens), not the model.
+
 ```ts
 export function buildOrderItemsPayload(items: CartItem[]): OrderItemPayload[] {
   // Handles three item types:

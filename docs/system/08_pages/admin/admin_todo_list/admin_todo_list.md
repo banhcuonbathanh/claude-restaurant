@@ -44,7 +44,7 @@
 - **+ Thêm công việc** → modal with staff assignment dropdown → create mutation.
 - Filter tabs by status; date/assignee dropdowns narrow the list.
 - Row **✎** → modal in edit mode (status changes included) · **🗑** → confirm + delete.
-- Per-staff drill-down lives on [`/admin/staff/task-board`](admin_task_board.md).
+- Per-staff drill-down lives on [`/admin/staff/task-board`](../admin_task_board/admin_task_board.md).
 
 ## Business Logic Used
 

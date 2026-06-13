@@ -54,5 +54,5 @@
 
 - Revenue counts only completed payments → [../02_spec/BUSINESS_RULES.md §4 Payment Rules](../02_spec/BUSINESS_RULES.md#4-payment-rules)
 - Cancelled orders excluded from revenue → [../02_spec/BUSINESS_RULES.md §3 Cancel Rules](../02_spec/BUSINESS_RULES.md#3-cancel-rules)
-- Low-stock feeds the 🔮 PLANNED [/admin/storage](admin_storage.md) page →
+- Low-stock feeds the 🔮 PLANNED [/admin/storage](../admin_storage/admin_storage.md) page →
   [../07_business_logic/LOGIC_FE.md](../07_business_logic/LOGIC_FE.md) (admin queries)

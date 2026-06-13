@@ -3,7 +3,7 @@
 > **TL;DR:** 🔮 PLANNED (owner decision 2026-06-12) · manager+ · Full inventory management page:
 > stock list with quantity in/out, **low-stock warnings**, and a link from ingredient availability
 > to product availability on the menu (hết hàng). Builds on the implemented
-> [`/admin/ingredients`](admin_ingredients.md) page (CRUD + stock movements already exist).
+> [`/admin/ingredients`](../admin_ingredients/admin_ingredients.md) page (CRUD + stock movements already exist).
 > Wireframe below is **proposed — owner to confirm**.
 
 ---

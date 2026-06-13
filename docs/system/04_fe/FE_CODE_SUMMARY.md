@@ -36,6 +36,8 @@ interface CartState {
 }
 ```
 
+> `CartItem`'s own field shape is not listed here — its single home is [OBJECT_MODEL_ORDER.md §2.1](../02_spec/object/OBJECT_MODEL_ORDER.md) (Rule #9). This block documents the store *wrapper*, not the item model.
+
 **Key rule:** `items[]` is NOT persisted (session-only). Only `orderNote` and `activeOrderId` survive page reload. `paymentMethod` is for UI display only — never included in the POST /orders body.
 
 ### Auth Store — State Shape Detail

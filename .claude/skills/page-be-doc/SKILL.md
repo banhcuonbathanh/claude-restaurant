@@ -1,6 +1,6 @@
 ---
 name: page-be-doc
-description: Generate (or refresh) the Backend View doc for one FE page — a `<page>_be.md` like docs/system/08_pages/customer/customer_menu_be.md: every BE endpoint the page calls, traced handler → service → repository → SQL, with auth, caching, errors, and flags. Every claim MUST be traced to Go source (code wins), then cross-checked against ALL relevant docs/system files. On completion, sync any new/changed fact back into those docs/system files and update README.md + PAGES_INDEX.md. Usage: /page-be-doc <page-folder-or-name>. Model: customer_menu_be.md.
+description: Generate (or refresh) the Backend View doc for one FE page — a `<page>_be.md` like docs/system/08_pages/customer/customer_menu/customer_menu_be.md: every BE endpoint the page calls, traced handler → service → repository → SQL, with auth, caching, errors, and flags. Every claim MUST be traced to Go source (code wins), then cross-checked against ALL relevant docs/system files. On completion, sync any new/changed fact back into those docs/system files and update README.md + PAGES_INDEX.md. Usage: /page-be-doc <page-folder-or-name>. Model: customer_menu_be.md.
 ---
 
 Build the **Backend View** (`<page>_be.md`) for one FE page so the owner and you share one
@@ -13,7 +13,7 @@ The argument is: $ARGUMENTS — a page identifier: a folder/file name under
 (e.g. `/menu`, `/pos`).
 
 **The canonical output to copy the shape from:**
-`docs/system/08_pages/customer/customer_menu_be.md`
+`docs/system/08_pages/customer/customer_menu/customer_menu_be.md`
 
 **Golden rule — code is the source of truth.** Every endpoint row, file:line, cache key, auth
 note, and field name is a claim about the running Go code on the current branch. **Read the
@@ -91,9 +91,10 @@ Skip a row only if the page genuinely has nothing in that category (e.g. no real
 
 ## Step 4 — Write the page `_be.md`
 
-Path: `docs/system/08_pages/<same-folder-as-FE-doc>/<page>_be.md`
-(e.g. FE doc `08_pages/customer/customer_menu.md` → BE doc `08_pages/customer/customer_menu_be.md`;
-a flat FE doc `08_pages/staff_kds.md` → `08_pages/staff_kds_be.md`).
+Path: `docs/system/08_pages/<category>/<page>/<page>_be.md` — same per-page folder as the FE doc
+(e.g. FE doc `08_pages/customer/customer_menu/customer_menu.md` → BE doc
+`08_pages/customer/customer_menu/customer_menu_be.md`; FE doc `08_pages/staff/staff_kds/staff_kds.md`
+→ `08_pages/staff/staff_kds/staff_kds_be.md`).
 
 Mirror the section order of `customer_menu_be.md` exactly (omit a section only if it doesn't apply):
 
@@ -129,7 +130,7 @@ edits — fix only what the trace contradicted; do not rewrite unrelated prose.
 2. **Log the drift** in `07_business_logic/LOGIC_INDEX.md` Decision Log (the handbook rule:
    code wins → fix the summary AND log the drift). One line: date · what was stale · corrected to.
 3. **`08_pages/PAGES_INDEX.md`** → add a link to the new `_be.md` next to the page's FE doc
-   (e.g. `[customer_menu.md](menu/customer_menu.md) · [BE](menu/customer_menu_be.md)`).
+   (e.g. `[customer_menu.md](customer/customer_menu/customer_menu.md) · [BE](customer/customer_menu/customer_menu_be.md)`).
 4. **`docs/system/README.md`** → ensure the new BE doc is discoverable. If a "Per-Page Backend
    Docs" list/note does not exist, add the `_be.md` reference in the Data Model Map row
    "Per page → which endpoints it calls" (it already points at `08_pages/`); keep the edit small

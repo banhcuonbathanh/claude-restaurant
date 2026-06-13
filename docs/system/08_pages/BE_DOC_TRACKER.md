@@ -4,7 +4,7 @@
 > A Backend View (`<page>_be.md`) = the code-accurate map of every BE endpoint a page calls,
 > traced handler → service → repository → SQL, with auth, caching, errors, and flags.
 > Update status + concerns after each run. Never leave a row blank after a session.
-> Model file: `docs/system/08_pages/menu/customer_menu_be.md`
+> Model file: `docs/system/08_pages/customer/customer_menu/customer_menu_be.md`
 > Skill: `.claude/skills/page-be-doc/SKILL.md`
 
 ---
