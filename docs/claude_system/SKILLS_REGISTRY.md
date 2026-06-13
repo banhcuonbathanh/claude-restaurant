@@ -24,6 +24,7 @@
 | `redraw-all` | `/redraw-all` — loop redraw across all pages with a recommend.md |
 | `dev-page` | `/dev-page <folder>` — build FE components + verify BE for a page from its wireframe |
 | `status-routing-reference` | `/status-routing-reference <folder>` — generate the status→zone routing doc |
+| `page-be-doc` | `/page-be-doc <page>` — generate a page's `<page>_be.md` Backend View (endpoints traced handler→service→repo→SQL), cross-check + sync all `docs/system` |
 | `design` | `/design [scaffold\|lint\|export\|diff]` — manage DESIGN.md design-system spec |
 
 ## Session / quality skills (user-invoked)

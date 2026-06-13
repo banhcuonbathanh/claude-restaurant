@@ -164,6 +164,25 @@ These activate silently when you work in the relevant domain. Claude reads them 
 
 ---
 
+### `/page-be-doc <page-folder-or-name>`
+**What it does:** Generates (or refreshes) the **Backend View** doc for an FE page — a `<page>_be.md` in the exact shape of `docs/system/08_pages/customer/customer_menu_be.md`. Lists every endpoint the page calls, each traced handler → service → repository → SQL, with auth, caching, error behaviour, and flags. Built so you and Claude share one accurate picture of "what the BE does for this page."
+
+**Key rule:** every claim is traced to Go source on the current branch — never guessed. When source and a `docs/system` file disagree, **the code wins**. Anything that can't be pinned to a `file:line` is marked `❓ UNVERIFIED`.
+
+**Two jobs:** (1) writes the page's `_be.md`; (2) **syncs `docs/system`** — fixes any drift it found in the owning file (API_SPEC, DB_SCHEMA, REDIS_CACHE, ERROR_SPEC, …), logs the drift in the LOGIC Decision Log, and updates `README.md` + `PAGES_INDEX.md` so the new doc is discoverable.
+
+**Steps:** resolve page + read FE sibling → enumerate endpoints → trace each through Go source → cross-check against all `docs/system` files → verify each cell → write `<page>_be.md` → sync docs/system → report.
+
+- **Model file:** `docs/system/08_pages/customer/customer_menu_be.md`
+
+```
+/page-be-doc customer_menu
+/page-be-doc staff_kds
+/page-be-doc admin_overview
+```
+
+---
+
 ### `/design [subcommand]`
 **What it does:** Manages the project's `DESIGN.md` — the machine-readable design system spec.
 
@@ -251,6 +270,7 @@ WIREFRAMES
 BUILDING PAGES
   Build from spec     → /dev-page <page-folder-name>
   Status routing map  → /status-routing-reference <page-folder-name>
+  Page backend view   → /page-be-doc <page-folder-or-name>
 
 DESIGN SYSTEM
   Manage tokens       → /design [scaffold|lint|export|diff]
