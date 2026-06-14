@@ -164,7 +164,7 @@ These activate silently when you work in the relevant domain. Claude reads them 
 
 ---
 
-### `/page-be-doc <page-folder-or-name>`
+### `/page-doc-set <page-folder-or-name>`
 **What it does:** Generates (or refreshes) the **Backend View** doc for an FE page — a `<page>_be.md` in the exact shape of `docs/system/08_pages/customer/customer_menu_be.md`. Lists every endpoint the page calls, each traced handler → service → repository → SQL, with auth, caching, error behaviour, and flags. Built so you and Claude share one accurate picture of "what the BE does for this page."
 
 **Key rule:** every claim is traced to Go source on the current branch — never guessed. When source and a `docs/system` file disagree, **the code wins**. Anything that can't be pinned to a `file:line` is marked `❓ UNVERIFIED`.
@@ -176,9 +176,9 @@ These activate silently when you work in the relevant domain. Claude reads them 
 - **Model file:** `docs/system/08_pages/customer/customer_menu_be.md`
 
 ```
-/page-be-doc customer_menu
-/page-be-doc staff_kds
-/page-be-doc admin_overview
+/page-doc-set customer_menu
+/page-doc-set staff_kds
+/page-doc-set admin_overview
 ```
 
 ---
@@ -270,7 +270,7 @@ WIREFRAMES
 BUILDING PAGES
   Build from spec     → /dev-page <page-folder-name>
   Status routing map  → /status-routing-reference <page-folder-name>
-  Page backend view   → /page-be-doc <page-folder-or-name>
+  Page backend view   → /page-doc-set <page-folder-or-name>
 
 DESIGN SYSTEM
   Manage tokens       → /design [scaffold|lint|export|diff]

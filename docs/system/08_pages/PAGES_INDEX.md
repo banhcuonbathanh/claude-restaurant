@@ -36,9 +36,9 @@
 | `/menu/favourites` (+ `/save`, `/sets`) | ✅ | Favourites list, save-as-set form, saved sets | [customer_favourites.md](customer/customer_favourites/customer_favourites.md) |
 | `/menu/settings` | ✅ | Local display preferences (name, table label) | [customer_settings.md](customer/customer_settings/customer_settings.md) |
 | `/checkout` | ✅ | Non-table order form — name/phone/payment method (online path) | [customer_checkout.md](customer/customer_checkout/customer_checkout.md) |
-| `/order` | ✅ | Order history list (from localStorage cache) | [customer_order_list.md](customer/customer_order_list/customer_order_list.md) |
+| `/order` | ✅ | Order history list (from localStorage cache) | [customer_order_list.md](customer/customer_order_list/customer_order_list.md) · [BE](customer/customer_order_list/customer_order_list_be.md) · [crosspage](customer/customer_order_list/customer_order_list_crosspage_dataflow.md) · [loading](customer/customer_order_list/customer_order_list_loading.md) · [scenario](customer/customer_order_list/SCENARIO_ORDER_HISTORY.md) |
 | `/order/:id` | ✅ | Live order detail via SSE — item progress, cancel, add more | [customer_order_detail.md](customer/customer_order_detail/customer_order_detail.md) |
-| `/tracking` | ✅ | Live table/queue monitoring view via SSE | [customer_tracking.md](customer/customer_tracking/customer_tracking.md) |
+| `/tracking` | ✅ | Live table/queue monitoring view via SSE | [customer_tracking.md](customer/customer_tracking/customer_tracking.md) · [BE](customer/customer_tracking/customer_tracking_be.md) · [crosscomp](customer/customer_tracking/customer_tracking_crosscomponent_dataflow.md) · [loading](customer/customer_tracking/customer_tracking_loading.md) · [scenario](customer/customer_tracking/SCENARIO_TRACK_ORDER.md) |
 | `/profile` | ✅ | Customer profile — avatar, personal info form, quick nav | [customer_profile.md](customer/customer_profile/customer_profile.md) |
 | `/privacy-policy` · `/terms` | ✅ | Static legal pages | [public_legal.md](public/public_legal/public_legal.md) |
 

@@ -24,7 +24,7 @@
 | `/design export [tailwind\|css]` | Export tokens to code | Generates Tailwind `theme.extend` or CSS variables block from DESIGN.md tokens. Confirms before writing. |
 | `/design diff <file1> <file2>` | Compare two DESIGN.md files | Token-level diff with regression detection. |
 | `/status-routing-reference <page-folder>` | When you need a shared, code-accurate map of which status renders in which zone for an FE page | Reads the page's `page.tsx`, components, status enums, and query hooks, then writes `<Page>_Status_Routing_Reference.md`. Every cell traced to code; unverifiable cells marked `❓ UNVERIFIED`. Model: Admin_Overview_Status_Routing_Reference.md. |
-| `/page-be-doc <page-folder-or-name>` | When you need the code-accurate Backend View for an FE page (which endpoints it hits + what the BE does for each) | Traces every endpoint handler → service → repo → SQL from Go source, cross-checks against all `docs/system` files, writes `<page>_be.md` (model: customer_menu_be.md), then syncs any drift back into `docs/system` + updates README.md/PAGES_INDEX.md. Unverifiable cells marked `❓ UNVERIFIED`. |
+| `/page-doc-set <page-folder-or-name>` | When you need the code-accurate Backend View for an FE page (which endpoints it hits + what the BE does for each) | Traces every endpoint handler → service → repo → SQL from Go source, cross-checks against all `docs/system` files, writes `<page>_be.md` (model: customer_menu_be.md), then syncs any drift back into `docs/system` + updates README.md/PAGES_INDEX.md. Unverifiable cells marked `❓ UNVERIFIED`. |
 
 ---
 
