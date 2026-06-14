@@ -19,9 +19,9 @@
 │ 1 phần bánh + 1 canh + đồ uống                 │   price · description
 ├────────────────────────────────────────────────┤
 │ Gồm có                                         │ ← C items list
-│ • 1× Bánh cuốn nhân thịt        (35.000đ)      │
-│ • 1× Canh mọc                   (10.000đ)      │
-│ • 1× Trà đá                      (3.000đ)      │
+│ ×1  Bánh cuốn nhân thịt                        │   (qty badge + name only —
+│ ×1  Canh mọc                                   │    code renders no per-item
+│ ×1  Trà đá                                     │    price; page.tsx:141-148)
 ├────────────────────────────────────────────────┤
 │ Số lượng        [−]  1  [+]                    │ ← D QuantityStepper (inline)
 ├────────────────────────────────────────────────┤

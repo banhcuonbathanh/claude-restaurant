@@ -286,6 +286,50 @@ edits — fix only what the trace contradicted; do not rewrite unrelated prose.
 > additive links only. If a sync edit would change business meaning (not just a stale fact), STOP
 > and flag it to the owner before editing — `🔴 STOP` / `⚠️ FLAG`.
 
+## Step 6b — Capture code bugs in `<PAGE>_BUGS.md` (when the trace finds real bugs)
+
+A trace surfaces two different kinds of problem, and they are handled differently:
+
+- **Doc drift** — a `docs/system` file is stale, the code is right → fixed in Step 6 (correct the
+  doc + log in the Decision Log). The doc skill *can* resolve these.
+- **Code bug** — the running FE and BE code disagree with each other (or with clear intent): an
+  event type the publisher emits but no consumer matches, a returned value never wired to UI, an
+  ownership check present on one path and missing on its twin, a dead constant. **A doc edit cannot
+  fix these — only an app-code change can.** The doc skill must NOT touch app code; instead it
+  records the bug so the owner can act.
+
+**When this step fires:** the run found ≥1 genuine code bug (not just a stale doc). If the trace
+found none, skip this step and say so in the report.
+
+**What to do — you (the orchestrator) write one file, never an agent:**
+
+1. **Write `docs/system/08_pages/<category>/<page>/<PAGE>_BUGS.md`** (e.g. `TRACKING_BUGS.md`,
+   `KDS_BUGS.md`). Model the shape on
+   [`customer/customer_tracking/TRACKING_BUGS.md`](../../../docs/system/08_pages/customer/customer_tracking/TRACKING_BUGS.md):
+   - **TL;DR blockquote** — count of bugs, the branch traced, the rule "these are *code* bugs not
+     stale docs; the doc skill does not fix app code", and links to the Decision Log entry + `_be.md`.
+   - **Severity-at-a-glance table** — `# | Bug | Severity (🔴 High/🟠 Med/🟡 Low) | Surface affected
+     (note if cross-cutting) | Fix side (FE/BE)`.
+   - **One `## Bug N` section each** — Symptom (what the user sees) → Root cause (with `file:line`
+     for the publisher AND the consumer) → Suggested fix (smallest safe change; mark which side).
+   - **A "Next step" footer** — these bugs are NOT yet on `docs/tasks/MASTER_TASK.md`; per CLAUDE.md
+     a fix must be registered + ALIGNed before any code change. Recommend the highest-impact one.
+   - Every claim cited to source; `❓ UNVERIFIED` for anything not pinned to a line. Relative links
+     back to `fe/`/`be/` look like `../../../../../fe/src/...`.
+2. **Cross-link both ways:** add a one-line pointer from the `_be.md` Flags section into
+   `<PAGE>_BUGS.md` (so a reader of the BE view finds the bugs), and link the Decision Log entry +
+   `_be.md` from inside the bug file.
+3. **Log once in the Decision Log** (Step 6.2) as a `⚠️ DRIFT` row that names the bug file — do not
+   duplicate the full bug detail there; the bug file is the home (Rule #9).
+4. **Note it on the TRACKER row** (Step 6.5): mark the page `⚠️` and summarise the open bugs in the
+   concern note; add a **Cross-Page Concern** bullet if a bug touches a hook/route/endpoint shared
+   by more than one page (e.g. a shared SSE hook).
+5. **Surface in Step 7** and to the owner: end the turn by offering to register the top bug in
+   `MASTER_TASK.md` — never start the fix unprompted (that is a separate, ALIGNed task).
+
+> The bug file is the durable home for "things the trace proved are broken in code". Keep it
+> code-bug-only — stale-doc fixes belong in Step 6, not here.
+
 ## Step 7 — Report
 
 Print a short summary:
@@ -308,6 +352,9 @@ BE anchor:
   Cache keys:   <list or none>
 ❓ Unverified:   <N> total across the set  (list each: file → cell)
 
+Code bugs:
+  <PAGE>_BUGS.md: <created with N bugs (list # · severity · 1-line)  |  none — trace found no code bugs>
+
 docs/system synced:
   - <file>: <what was corrected>   (or "no drift — all docs matched code")
   - PAGES_INDEX.md: links added for <which files>
@@ -315,4 +362,6 @@ docs/system synced:
   - LOGIC Decision Log: <entry or "no drift logged">
   - BE_DOC_TRACKER.md: row updated → <✅ | ⚠️>
 ```
-List every `❓ UNVERIFIED` cell (and which file it's in) and every drift fix so the owner can review.
+List every `❓ UNVERIFIED` cell (and which file it's in) and every drift fix so the owner can
+review. If `<PAGE>_BUGS.md` was created, end by offering to register the top bug in
+`MASTER_TASK.md` — do not start the fix unprompted.

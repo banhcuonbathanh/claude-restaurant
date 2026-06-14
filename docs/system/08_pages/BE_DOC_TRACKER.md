@@ -38,8 +38,8 @@
 | C1 | Menu | `/menu` | `/page-doc-set customer_menu` | ✅ | 2026-06-13 | Model file. 6 endpoints (3 GET catalog public + POST /orders + POST /orders/:id/items + GET /orders/:id). Refresh: re-traced all cells to code — handbook (REDIS_CACHE/CACHE_FLOW/API_SPEC) all match; fixed 3 service line-number offsets in _be.md (ListProducts 164, ListCategories 344, ListCombos 497). No unverified cells. |
 | C2 | Welcome | `/welcome` | `/page-doc-set customer_welcome` | ⬜ | — | Signature dishes likely GET /products — confirm on run |
 | C3 | Table QR landing | `/table/:tableId` | `/page-doc-set customer_table_qr` | ⬜ | — | QR token → guest JWT exchange |
-| C4 | Product Detail | `/menu/product/:id` | `/page-doc-set customer_product_detail` | ⬜ | — | GET product detail + toppings; add-to-cart is local |
-| C5 | Combo Detail | `/menu/combo/:id` | `/page-doc-set customer_combo_detail` | ⬜ | — | GET combo detail + included items |
+| C4 | Product Detail | `/menu/product/:id` | `/page-doc-set customer_product_detail` | ✅ | 2026-06-14 | **1 endpoint** (read-only): `GET /products/:id` (public, no auth) → `productH.GetProduct` → `GetProductByID` + `GetToppingsByProductID` + category-name map, Redis `product:<id>` 5 min. Add-to-cart is **client-only** (Zustand `useCartStore`), no BE write; cart `items[]` is session-memory only (not persisted — F5 wipes it). Full 5-file set built (be/crosspage/loading/scenario + existing page doc); crosscomponent = N/A (widgets coordinate via local React state + props, no shared store). **Doc drift fixed:** page-doc Zone table said `GET /products` → corrected to `GET /products/:id`. No code bugs (no FE/BE event/ownership mismatch). 0 ❓ UNVERIFIED. ⚠️ Low-sev cache flag (logged, not a BUGS file): topping edit Dels `products:list` but **not** `product:<id>`, so a topping price/availability change is stale here up to 5 min. |
+| C5 | Combo Detail | `/menu/combo/:id` | `/page-doc-set customer_combo_detail` | ⚠️ | 2026-06-14 | **Read-only page, 2 public cached GETs, zero BE write.** `GET /combos` (ListCombos→ListCombosAvailable, `combos:list`) + `GET /products` (ListProducts→ListProductsAvailable, `products:list`), both `is_available=1`-filtered, 5-min TTL. **No `GET /combos/:id`** — page over-fetches both whole lists and resolves combo + item names/prices client-side. Add-to-cart is pure Zustand (`addItem`); the combo cart item is **session-only — NOT persisted** (`partialize` keeps only orderNote/activeOrderId) → lost on F5. Full 6-file set built (be/crosspage/loading/scenario + existing page doc); crosscomponent = N/A (no ≥3 widgets sharing a store). **⚠️ 2 code bugs** → [COMBO_BUGS.md](customer/customer_combo_detail/COMBO_BUGS.md): (1) unavailable-combo UI unreachable (BE filters it out → "Không tìm thấy combo"); (2) unavailable sub-product shows raw UUID as name. No handbook drift — all docs matched code. Logged in LOGIC Decision Log 2026-06-14. |
 | C6 | Favourites | `/menu/favourites` | `/page-doc-set customer_favourites` | ⬜ | — | Mostly localStorage — confirm whether saved-sets hit BE |
 | C7 | Settings | `/menu/settings` | `/page-doc-set customer_settings` | N/A | — | Local display prefs only — no BE calls (verify on run) |
 | C8 | Checkout | `/checkout` | `/page-doc-set customer_checkout` | ⬜ | — | POST /orders (online path), name/phone/payment method |
@@ -69,7 +69,7 @@
 
 | # | Page | Route | Command | Status | Last Run | Concerns / Notes |
 |---|------|-------|---------|--------|----------|-----------------|
-| A1 | Overview | `/admin/overview` | `/page-doc-set admin_overview` | ⬜ | — | Live floor — active orders + tables + paid/cancel logs (realtime) |
+| A1 | Overview | `/admin/overview` | `/page-doc-set admin_overview` | ⚠️ | 2026-06-14 | Full 6-file set generated. 8 endpoints traced to code (6 REST + SSE `/sse/admin` + WS `/ws/orders-live`). **No Redis read cache** — every REST read hits MySQL; Redis is pub/sub only (`orders:admin`, `orders:kds`, `order:<id>`, `queue:`/`tables:`). Auth: reads `AtLeast("cashier")`, `GET /orders/:id` authMW-only, status PATCH `AtLeast("chef")`, payments `AtLeast("cashier")`, SSE `AtLeast("manager")`. Key flags: (1) feed is `GET /orders/live` not `GET /orders` (FE doc Zone B corrected); (2) **`delivered → cancelled` Huỷ button always 409s** (not a valid transition); (3) `POST /payments` ignores FE `amount` (uses order total); (4) WS `order_updated`/`order_completed` cases dead (BE never emits); (5) **WS `/ws/orders-live` has no role gate** — any JWT (incl. customer) can subscribe; (6) `orders/history` returns `items:[]`. 2 ❓ UNVERIFIED (FE-side, in x-comp doc): whether PATCH returns order body; whether StatCards counts drop on a pure status advance. |
 | A2 | Summary | `/admin/summary` | `/page-doc-set admin_summary` | ⬜ | — | Reports — revenue KPIs, top dishes, staff perf, low-stock (analytics endpoints) |
 | A3 | Products | `/admin/products` | `/page-doc-set admin_products` | ⬜ | — | Product CRUD (manager+ writes, admin deletes, cache invalidation) |
 | A4 | Combos | `/admin/combos` | `/page-doc-set admin_combos` | ⬜ | — | Combo CRUD + combo_items |
@@ -143,3 +143,23 @@
 - **`item_cancelled` SSE event is published BE-side but unhandled by `useOrderSSE`**
   (`order_service.go:642` vs `useOrderSSE.ts:83-123`) — affects every page that renders live order
   detail via this hook (C9, C10). Logged in LOGIC Decision Log 2026-06-14.
+- **Catalog GETs are "available-only" everywhere — no per-id combo endpoint.** Both
+  `ListProductsAvailable` and `ListCombosAvailable` filter `WHERE is_available=1 AND deleted_at IS
+  NULL` (`products.sql.go:469,387`), and there is **no `GET /products/:id` for combos** (combos
+  group is GET-list + manager/admin writes only, `main.go:215-227`). Consequence shared by the
+  catalog-detail pages: `/menu/combo/:id` (C5) over-fetches the whole list and finds by id
+  client-side, and any FE code path for an *unavailable* product/combo or an unavailable combo
+  sub-item is unreachable from the public catalog (C5 [COMBO_BUGS.md](customer/customer_combo_detail/COMBO_BUGS.md)
+  bugs 1–2). When C8 `/checkout` / C2 `/welcome` / C4 product-detail are traced, expect the same
+  available-only filter to shape their empty/edge states. Logged in LOGIC Decision Log 2026-06-14.
+- **`orders:kds` Redis channel is shared by KDS + Overview WS.** Both `/ws/kds` and
+  `/ws/orders-live` subscribe to the same `orders:kds` channel (`websocket/handler.go:18,23`), so
+  every `order_status_changed` / `item_progress` / `new_order` event reaches the KDS board **and**
+  the admin live floor. A change to the published `orderEvent`/`itemEvent` shape
+  (`order_service.go:789-804`) breaks **both** S3 (staff_kds) and A1 (admin_overview) BE docs at
+  once. Found during A1 run 2026-06-14.
+- **WS `/ws/orders-live` and `/ws/kds` carry no `authMW` and no role gate** — auth is `?token=`
+  parsed inside the handler (`main.go:337`, `websocket/handler.go:31-47`). Any authenticated JWT
+  (incl. a `customer` guest token) can subscribe to either live feed. Affects every page consuming
+  the orders WS (A1 Overview, S3 KDS). Contrast SSE `/sse/admin` = `AtLeast("manager")`. Logged in
+  LOGIC Decision Log 2026-06-14.

@@ -46,7 +46,7 @@
 |---|---|---|
 | Search | inline input in `admin/overview/page.tsx` | local state; filters orders + tables client-side |
 | A Stat cards | `features/admin/components/StatCards` | derived from live orders + tables |
-| B Active orders | `features/admin/components/WaitingSection` | `GET /orders` live (`['orders','live']` query) + WS cache mutations |
+| B Active orders | `features/admin/components/WaitingSection` | `GET /orders/live` (`['orders','live']` query) + WS cache mutations — see [BE view](admin_overview_be.md) |
 | C Prep panel | `features/admin/components/PrepPanel` | filtered: `kiemTraIds ∩ status === 'pending'` |
 | D Tables | `features/admin/components/TableList` / `TableGrid` (toggle) | `GET /tables` + live orders |
 | E Paid log | `features/admin/components/PaidLog` | today's paid orders (`['orders','history']`) |

@@ -147,6 +147,10 @@ Both under `/api/v1`. The FE composes the SSE URL as
 
 ## Flags
 
+> Flags 1–4 + 6 are **live code bugs**, not stale docs — full repro / root cause / suggested fix in
+> [TRACKING_BUGS.md](TRACKING_BUGS.md). Logged in the
+> [LOGIC Decision Log (2026-06-14)](../../07_business_logic/LOGIC_INDEX.md#decision-log).
+
 | # | Flag | Detail |
 |---|---|---|
 | 1 | **`order.status` event type never matches — live status badge is stale** | The FE monitor hook switches on `case 'order.status'` (`useOrderMonitorSSE.ts:67-69`) to set `orderStatus`, but **no BE code publishes a `order.status` type** — every status change emits `type:"order_status_changed"` on `order:<id>` (`order_service.go:552`, `:745`). So `orderStatus` stays `null` and the page falls back to `order?.status` from the last `GET /orders/:id` (`page.tsx:44`). The status badge only advances when an `items_*` event happens to trigger a refetch — a pure `pending→preparing→ready` transition with no item change does **not** update the badge live. The handler's own doc-comment (`monitor_handler.go:18`) also claims `order.status`, so both the comment and the FE are out of step with the publisher. 🚨 Code-level mismatch — flag to owner; not fixed by this doc. |

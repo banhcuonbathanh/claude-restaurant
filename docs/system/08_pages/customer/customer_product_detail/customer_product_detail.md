@@ -3,6 +3,9 @@
 > **TL;DR:** ✅ implemented · guest JWT / open browse · Full-screen product view: hero image,
 > name/price/description, optional topping selector, quantity stepper, and a sticky add-to-cart
 > footer. Reached by tapping a product card on `/menu`.
+>
+> Doc set: [BE](customer_product_detail_be.md) · [crosspage](customer_product_detail_crosspage_dataflow.md) ·
+> [loading](customer_product_detail_loading.md) · [scenario](SCENARIO_PRODUCT_ADD.md).
 
 ---
 
@@ -38,7 +41,7 @@
 | Zone | Component | Data source |
 |---|---|---|
 | Nav | `components/shared/CustomerTopNav` | — |
-| A Hero | `components/product-detail/ProductHeroImage` | `useProductDetail(id)` hook → `GET /products` |
+| A Hero | `components/product-detail/ProductHeroImage` | `useProductDetail(id)` hook → `GET /products/:id` |
 | B Info | `components/product-detail/ProductInfo` | same query |
 | C Toppings | `components/product-detail/ToppingSelector` | product `toppings[]` |
 | D Quantity | `components/shared/QuantityStepper` | local state |
