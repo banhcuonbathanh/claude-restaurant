@@ -7,7 +7,7 @@
 > These are **code** bugs, not stale docs — the `/page-doc-set` skill does **not** touch app code; it
 > records them here for the owner to register + ALIGN before any fix.
 > Anchor: [customer_order_detail_be.md](customer_order_detail_be.md) Flags 1–2 ·
-> Decision Log: [../../07_business_logic/LOGIC_INDEX.md](../../07_business_logic/LOGIC_INDEX.md) (2026-06-15).
+> Decision Log: [../../../07_business_logic/LOGIC_INDEX.md](../../../07_business_logic/LOGIC_INDEX.md) (2026-06-16).
 
 ---
 

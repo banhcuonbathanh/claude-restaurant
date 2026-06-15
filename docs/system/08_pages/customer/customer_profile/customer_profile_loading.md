@@ -108,7 +108,7 @@ with empty/default values:
 - Zone B: `name=""`, `isMember=false` (no avatar) — `page.tsx:40-44` (`profile?.name ?? ''`).
 - Zone C: `<PersonalInfoForm>` receives `defaultValues={undefined}` since `profile` is `undefined` — `page.tsx:49-60`.
 - Zone D: `<QuickNavGrid/>` renders unconditionally (no profile data dependency) — `page.tsx:64-66`.
-- Zone E: `<SaveCTABar isNewProfile={true} disabled={false}>` — `page.tsx:69-74`. The save button reads "Tạo hồ sơ" when `isNewProfile` is `true`. ❓ UNVERIFIED: the exact button label text ("Tạo hồ sơ") is expected based on the prop name `isNewProfile`; not traced to `SaveCTABar.tsx` source.
+- Zone E: `<SaveCTABar isNewProfile={true} disabled={false}>` — `page.tsx:69-74`. The save button reads "Tạo hồ sơ" when `isNewProfile` is `true`, else "💾 Lưu Thông Tin" — confirmed `SaveCTABar.tsx:30`.
 
 ---
 
@@ -131,5 +131,5 @@ submit and is independent of the loading flow.
 | 2 | **Zone A always visible** | `<CustomerTopNav>` renders outside the `isLoading` branch (`page.tsx:28-31`). The back button and title are present even during the skeleton and error states — intentional. |
 | 3 | **No loading.tsx in profile folder** | There is no profile-specific `loading.tsx`. The `(shop)/loading.tsx` spinner is the only inter-page transition UI. If a slow network causes a long hydration, there is no profile-specific skeleton shown during that window. |
 | 4 | **Short loading window** | Because the 404 retry is skipped immediately (`useCustomerProfile.ts:36`), `isLoading` resolves in one RTT. On slow connections the skeleton may flash briefly before the 404 branch appears. |
-| 5 | **SaveCTABar "Tạo hồ sơ" label** | ❓ UNVERIFIED: the exact button label for `isNewProfile={true}` is not traced — `SaveCTABar.tsx` was not read. The prop name implies a create-mode label but the rendered string is unconfirmed. |
+| 5 | **SaveCTABar label states** | `SaveCTABar.tsx:22-31` renders "Đang lưu…" (`isLoading`), else "Tạo hồ sơ" (`isNewProfile`), else "💾 Lưu Thông Tin". Confirmed from source. |
 | 6 | **Mutation loading state** | `useUpdateProfile()` exposes `isPending` which is passed to Zone C (`<PersonalInfoForm isLoading={isPending}>`) and Zone E (`<SaveCTABar isLoading={isPending}>`). This is a separate in-flight state from `isLoading` and not covered by `<ProfilePageSkeleton/>`. |

@@ -19,7 +19,7 @@
 > Loading states → [customer_order_detail_loading.md](customer_order_detail_loading.md) ·
 > Narrative → [SCENARIO_ORDER_DETAIL.md](SCENARIO_ORDER_DETAIL.md) ·
 > List-page twin (cache reader) → [../customer_order_list/customer_order_list_crosspage_dataflow.md](../customer_order_list/customer_order_list_crosspage_dataflow.md) ·
-> Order object model → [../../02_spec/object/OBJECT_MODEL_ORDER.md](../../02_spec/object/OBJECT_MODEL_ORDER.md)
+> Order object model → [../../../02_spec/object/OBJECT_MODEL_ORDER.md](../../../02_spec/object/OBJECT_MODEL_ORDER.md)
 
 ---
 
@@ -425,4 +425,4 @@ fresh `GET /orders/:id` seed at `useOrderSSE.ts:55-57`).
 | BE SSE fan-out (Redis subscribe loop) | [`be/internal/sse/handler.go`](../../../../../be/internal/sse/handler.go) |
 | BE publish (per-order + KDS channels) | [`be/internal/service/order_service.go`](../../../../../be/internal/service/order_service.go) |
 | Business logic — cancel rules | [`docs/system/07_business_logic/LOGIC_INDEX.md`](../../../07_business_logic/LOGIC_INDEX.md) |
-| Order object model (field home) | [../../02_spec/object/OBJECT_MODEL_ORDER.md](../../02_spec/object/OBJECT_MODEL_ORDER.md) |
+| Order object model (field home) | [../../../02_spec/object/OBJECT_MODEL_ORDER.md](../../../02_spec/object/OBJECT_MODEL_ORDER.md) |

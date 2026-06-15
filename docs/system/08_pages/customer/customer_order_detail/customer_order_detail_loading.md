@@ -18,7 +18,7 @@
 > Cross-page data flow → [customer_order_detail_crosspage_dataflow.md](customer_order_detail_crosspage_dataflow.md) ·
 > Scenario → [SCENARIO_ORDER_DETAIL.md](SCENARIO_ORDER_DETAIL.md) ·
 > Bugs → [ORDER_DETAIL_BUGS.md](ORDER_DETAIL_BUGS.md) ·
-> Order object model → [../../02_spec/object/OBJECT_MODEL_ORDER.md](../../02_spec/object/OBJECT_MODEL_ORDER.md)
+> Order object model → [../../../02_spec/object/OBJECT_MODEL_ORDER.md](../../../02_spec/object/OBJECT_MODEL_ORDER.md)
 
 ---
 

@@ -10,7 +10,7 @@
 > `fe/src/app/(shop)/order/[id]/page.tsx` · `fe/src/hooks/useOrderSSE.ts` · `fe/src/lib/api-client.ts`.
 >
 > FE view + zones → [customer_order_detail.md](customer_order_detail.md) ·
-> Order object shape (all layers) → [../../02_spec/object/OBJECT_MODEL_ORDER.md](../../02_spec/object/OBJECT_MODEL_ORDER.md) ·
+> Order object shape (all layers) → [../../../02_spec/object/OBJECT_MODEL_ORDER.md](../../../02_spec/object/OBJECT_MODEL_ORDER.md) ·
 > The list twin `/order` that shares the first 4 endpoints → [../customer_order_list/customer_order_list_be.md](../customer_order_list/customer_order_list_be.md) ·
 > Cross-page data hub → [customer_order_detail_crosspage_dataflow.md](customer_order_detail_crosspage_dataflow.md) ·
 > Loading behaviour → [customer_order_detail_loading.md](customer_order_detail_loading.md) ·
@@ -74,11 +74,11 @@ Route registration: `be/cmd/server/main.go:230-251` — the `orderR := v1.Group(
 - Service `GetOrder` (`order_service.go:106-143`): `GetOrderByID` → 404 `ErrNotFound` on `sql.ErrNoRows`;
   customer ownership gate; `GetOrderItemsByOrderID`; each item enriched with a **derived** `item_status`
   via `itemStatus(qty_served, quantity)` (no status column — see
-  [../../02_spec/BUSINESS_RULES.md §2.4](../../02_spec/BUSINESS_RULES.md#24-item-status-derived--no-column));
+  [../../../02_spec/BUSINESS_RULES.md §2.4](../../../02_spec/BUSINESS_RULES.md#24-item-status-derived--no-column));
   optional `GetTableByID` for `table_name` (soft-fails to `""`).
 - Serialized by `orderJSON(o)` under `{ "data": … }` (`order_handler.go:136`). Field shape →
-  [OBJECT_MODEL_ORDER §2.7](../../02_spec/object/OBJECT_MODEL_ORDER.md).
-- **No Redis caching** — straight MySQL read every call. (Field reference: [API_SPEC.md `OrderJSON`](../../02_spec/API_SPEC.md).)
+  [OBJECT_MODEL_ORDER §2.7](../../../02_spec/object/OBJECT_MODEL_ORDER.md).
+- **No Redis caching** — straight MySQL read every call. (Field reference: [API_SPEC.md `OrderJSON`](../../../02_spec/API_SPEC.md).)
 
 ### 2 · `GET /orders/:id/events` (SSE — live patches)
 
@@ -106,8 +106,8 @@ Route registration: `be/cmd/server/main.go:230-251` — the `orderR := v1.Group(
   `pending|confirmed|preparing` else `ErrCancelThreshold` (422); **server-side 30 % rule** —
   `SumQtyServedAndQuantity`, reject if `served/total ≥ 0.30`; then `SoftDeleteOrder` and
   `publishOrderEvent("order_cancelled", …)`. Rule home →
-  [../../07_business_logic/LOGIC_BE.md](../../07_business_logic/LOGIC_BE.md) ·
-  [../../02_spec/BUSINESS_RULES.md](../../02_spec/BUSINESS_RULES.md). ⚠ The FE `< 30 %` gate is a
+  [../../../07_business_logic/LOGIC_BE.md](../../../07_business_logic/LOGIC_BE.md) ·
+  [../../../02_spec/BUSINESS_RULES.md](../../../02_spec/BUSINESS_RULES.md). ⚠ The FE `< 30 %` gate is a
   DRIFT from the owner's "cancel any time before payment" target (2026-06-12) — both FE gate and BE
   rule still enforce 30 %.
 

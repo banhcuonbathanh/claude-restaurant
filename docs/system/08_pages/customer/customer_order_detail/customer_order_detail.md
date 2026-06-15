@@ -55,7 +55,7 @@
 | Nav + status | inline header + `components/shared/StatusBadge` | `useOrderSSE(id)` (order + progress + notification) |
 | SSE banner | `components/shared/ConnectionErrorBanner` | `connectionError` from hook |
 | Order card + dish rows | local `DishRow` component in `order/[id]/page.tsx` | SSE order items; combo groups via `combo_ref_id` |
-| Qty stepper | `components/shared/QuantityStepper` | `PATCH /orders/items/:id` (`patchOrderItemQty`) |
+| Qty stepper | `components/shared/QuantityStepper` | `PATCH /orders/items/:id/quantity` (`patchOrderItemQty`) |
 | Summary table | inline JSX (grouped by `product_id`) | derived `summaryRows` memo |
 | Money summary | inline JSX | derived eaten/remaining amounts |
 | Cancel modal | inline confirm modal | `DELETE /orders/:id` · `DELETE /orders/items/:id` |
@@ -69,7 +69,10 @@
 - **Huỷ đơn hàng** → confirm modal → `DELETE /orders/:id` → toast → `/menu`.
   Shown only when `progress < 30%` and status ∈ {confirmed, preparing} — ⚠ DRIFT: target rule
   (owner 2026-06-12) is "cancel any time before payment"; code still enforces < 30 %.
-- Quantity stepper on not-yet-served items → `PATCH` qty, query invalidated.
+- Quantity stepper on not-yet-served items → `PATCH /orders/items/:id/quantity`. ⚠ The new qty does
+  **not** reflect live — the `onSuccess` `invalidateQueries(['order',id])` is a no-op (order lives in
+  `useOrderSSE` `useState`, no such query) and the BE's `item_updated` SSE event is unhandled → reload
+  needed. See [ORDER_DETAIL_BUGS.md](ORDER_DETAIL_BUGS.md) Bug 1.
 - **+ Gọi thêm món** → `/menu?add_to_order=:id` (cart posts onto this order).
 - Staff-side changes raise a notification modal (`notification` from the SSE hook).
 

@@ -46,7 +46,9 @@
 
 ## Key Interactions
 
-- Change date range → refetch spend data for that window.
+- Change date range → refetches, but the BE **ignores** `from`/`to` (echoes them into `date_range`
+  only) — the numbers are hardcoded constants, so the window has no visible effect. See
+  [admin_marketing_be.md](admin_marketing_be.md) Flag 1.
 - **Xuất báo cáo** / **+ Nhập chi tiêu** → currently toast "đang phát triển" (placeholders).
 - Error → inline red banner with **Thử lại** (refetch); empty items → `EmptyState`.
 

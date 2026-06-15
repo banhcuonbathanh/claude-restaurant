@@ -196,11 +196,12 @@ For the full skeleton-to-content transition detail, see
 
 ### F. Monitoring
 
-Nothing to observe server-side. Because there is no `/customer` route handler, the 404s are Gin
-framework responses — they produce no log lines in the BE application logger, no Prometheus handler
-metrics, and no Loki entries beyond the raw HTTP access log (if any). The Grafana dashboard
-(`be:8080/metrics`) will show no `POST /customer/profile` or `GET /customer/profile` request
-series. From the BE's perspective, Chị Hoa's visit never happened.
+Little to observe server-side. Because there is no `/customer` route handler, the 404s are Gin's
+default `NoRoute` responses, so no application-level handler/service log lines are emitted.
+❓ UNVERIFIED whether the **global** metrics middleware (registered engine-wide, `main.go:117,126`)
+still records these unmatched requests — Gin's engine-level middleware generally runs for `NoRoute`
+404s, so a request *may* appear in the access/metrics path even though no domain handler executes.
+From the **domain** BE's perspective (handler → service → repo), Chị Hoa's visit never happened.
 
 ---
 
