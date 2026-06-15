@@ -24,7 +24,7 @@ A restaurant management system for a Vietnamese bánh cuốn shop:
 
 | # | Folder | What's inside | Read when |
 |---|---|---|---|
-| `00_overview/` | [SYSTEM_OVERVIEW](00_overview/SYSTEM_OVERVIEW.md) · [TECH_STACK](00_overview/TECH_STACK.md) | What the system does, actors, architecture diagram, stack tables | **Always first** — 10 min |
+| `00_overview/` | [SYSTEM_OVERVIEW](00_overview/SYSTEM_OVERVIEW.md) · [TECH_STACK](00_overview/TECH_STACK.md) · [SCALABILITY_REVIEW](00_overview/SCALABILITY_REVIEW.md) | What the system does, actors, architecture diagram, stack tables, end-to-end request topology + scalability/performance assessment | **Always first** — 10 min |
 | `01_flow/` | [FLOW_INDEX](01_flow/FLOW_INDEX.md) · [CLIENT_FLOW](01_flow/CLIENT_FLOW.md) · [STAFF_FLOW](01_flow/STAFF_FLOW.md) · [ORDER_STATE_MACHINE](01_flow/ORDER_STATE_MACHINE.md) · [PAYMENT_FLOW](01_flow/PAYMENT_FLOW.md) | How every journey works end-to-end, with sequence/state diagrams | Before touching any feature in that flow |
 | `02_spec/` | [API_SPEC](02_spec/API_SPEC.md) · [DB_SCHEMA](02_spec/DB_SCHEMA.md) · [ERROR_SPEC](02_spec/ERROR_SPEC.md) · [BUSINESS_RULES](02_spec/BUSINESS_RULES.md) | Contracts: every endpoint, every table, every error code, every rule | While coding — keep open as reference |
 | `03_be/` | [BE_TECH_SUMMARY](03_be/BE_TECH_SUMMARY.md) · [BE_CODE_SUMMARY](03_be/BE_CODE_SUMMARY.md) · [REDIS_CACHE](03_be/REDIS_CACHE.md) · [REALTIME_SSE](03_be/REALTIME_SSE.md) | BE layers, route map, caching strategy, SSE/WS architecture | Any BE task |

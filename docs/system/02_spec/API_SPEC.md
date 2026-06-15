@@ -144,8 +144,8 @@ Payment requires `order.status = ready`. Webhook order: HMAC verify → amount v
 
 | Method | Path | Purpose | Auth | Query Params | Key Response Fields |
 |---|---|---|---|---|---|
-| GET | `/admin/summary` | Revenue + order metrics | manager+ | `?range=today\|week\|month` | revenue totals, order counts |
-| GET | `/admin/top-dishes` | Top-selling dishes | manager+ | `?range`, `?limit` (default 5) | `[{name, count, revenue}]` |
+| GET | `/admin/summary` | Revenue + order metrics | manager+ | `?range=today\|week\|month` | `{customers, dishes_sold, revenue, active_tables}` (`active_tables` is live, range-agnostic) |
+| GET | `/admin/top-dishes` | Top-selling dishes | manager+ | `?range`, `?limit` (default 5) | `[{name, qty, pct, revenue}]` (`pct` = share of returned top-N) |
 | GET | `/admin/staff-performance` | Staff KPIs | manager+ | `?range` | per-staff order/revenue stats |
 
 ---

@@ -39,8 +39,8 @@
 | C2 | Welcome | `/welcome` | `/page-doc-set customer_welcome` | ⬜ | — | Signature dishes likely GET /products — confirm on run |
 | C3 | Table QR landing | `/table/:tableId` | `/page-doc-set customer_table_qr` | ⬜ | — | QR token → guest JWT exchange |
 | C4 | Product Detail | `/menu/product/:id` | `/page-doc-set customer_product_detail` | ✅ | 2026-06-14 | **1 endpoint** (read-only): `GET /products/:id` (public, no auth) → `productH.GetProduct` → `GetProductByID` + `GetToppingsByProductID` + category-name map, Redis `product:<id>` 5 min. Add-to-cart is **client-only** (Zustand `useCartStore`), no BE write; cart `items[]` is session-memory only (not persisted — F5 wipes it). Full 5-file set built (be/crosspage/loading/scenario + existing page doc); crosscomponent = N/A (widgets coordinate via local React state + props, no shared store). **Doc drift fixed:** page-doc Zone table said `GET /products` → corrected to `GET /products/:id`. No code bugs (no FE/BE event/ownership mismatch). 0 ❓ UNVERIFIED. ⚠️ Low-sev cache flag (logged, not a BUGS file): topping edit Dels `products:list` but **not** `product:<id>`, so a topping price/availability change is stale here up to 5 min. |
-| C5 | Combo Detail | `/menu/combo/:id` | `/page-doc-set customer_combo_detail` | ⚠️ | 2026-06-14 | **Read-only page, 2 public cached GETs, zero BE write.** `GET /combos` (ListCombos→ListCombosAvailable, `combos:list`) + `GET /products` (ListProducts→ListProductsAvailable, `products:list`), both `is_available=1`-filtered, 5-min TTL. **No `GET /combos/:id`** — page over-fetches both whole lists and resolves combo + item names/prices client-side. Add-to-cart is pure Zustand (`addItem`); the combo cart item is **session-only — NOT persisted** (`partialize` keeps only orderNote/activeOrderId) → lost on F5. Full 6-file set built (be/crosspage/loading/scenario + existing page doc); crosscomponent = N/A (no ≥3 widgets sharing a store). **⚠️ 2 code bugs** → [COMBO_BUGS.md](customer/customer_combo_detail/COMBO_BUGS.md): (1) unavailable-combo UI unreachable (BE filters it out → "Không tìm thấy combo"); (2) unavailable sub-product shows raw UUID as name. No handbook drift — all docs matched code. Logged in LOGIC Decision Log 2026-06-14. |
-| C6 | Favourites | `/menu/favourites` | `/page-doc-set customer_favourites` | ⬜ | — | Mostly localStorage — confirm whether saved-sets hit BE |
+| C5 | Combo Detail | `/menu/combo/:id` | `/page-doc-set customer_combo_detail` | ⚠️ | 2026-06-14 | **Read-only page, 2 public cached GETs, zero BE write.** `GET /combos` (ListCombos→ListCombosAvailable, `combos:list`) + `GET /products` (ListProducts→ListProductsAvailable, `products:list`), both `is_available=1`-filtered, 5-min TTL. **No `GET /combos/:id`** — page over-fetches both whole lists and resolves combo + item names/prices client-side. Add-to-cart is pure Zustand (`addItem`); the combo cart item is **session-only — NOT persisted** (`partialize` keeps only orderNote/activeOrderId) → lost on F5. Full 6-file set built (be/crosspage/loading/scenario + existing page doc); crosscomponent = N/A (no ≥3 widgets sharing a store). **⚠️ 2 code bugs** → [COMBO_BUGS.md](customer/customer_combo_detail/COMBO_BUGS.md): (1) unavailable-combo UI unreachable (BE filters it out → "Không tìm thấy combo"); (2) unavailable sub-product shows raw UUID as name. **Page-doc drift fixed:** `customer_combo_detail.md` Zone C wireframe showed per-item prices (e.g. "(35.000đ)") the code never renders (`page.tsx:141-148` = qty badge + name only) → corrected. Minor: cart persist key is `cart-config-v3` but Zustand `version:5` (frozen literal, harmless). No **handbook** drift — API_SPEC/DB_SCHEMA/REDIS_CACHE matched code. Logged in LOGIC Decision Log 2026-06-14. |
+| C6 | Favourites | `/menu/favourites` | `/page-doc-set customer_favourites` | ✅ | 2026-06-14 | **Confirmed BE-read-only — saved sets do NOT hit BE.** Whole suite (list + `/save` + `/sets`) calls exactly 2 **public** GETs: `GET /products` + `GET /combos`, both cached 5 min (`products:list`/`combos:list`), shared with C1 menu. Zero writes; favourites + named sets live in `useFavouritesStore` (localStorage). Cart hand-off → menu/checkout `POST /orders` (not this page). Handbook matched code on every cell — no drift, no `_BUGS.md`. Full 6-file set built (be/x-comp/x-page/loading/scenario + existing page doc). Note: `toggleFav` always stores qty:1/no-toppings, so menu topping choices aren't carried into a favourite. |
 | C7 | Settings | `/menu/settings` | `/page-doc-set customer_settings` | N/A | — | Local display prefs only — no BE calls (verify on run) |
 | C8 | Checkout | `/checkout` | `/page-doc-set customer_checkout` | ⬜ | — | POST /orders (online path), name/phone/payment method |
 | C9 | Order List | `/order` | `/page-doc-set customer_order_list` | ⚠️ | 2026-06-14 | **List page itself calls NO BE** — renders cards from localStorage `order_cache_*` (stale until a card's detail sheet refetches). BE surface (4 endpoints) reached only via the `OrderDetailSheet` overlay, all `authMW` + table-ownership: GET /orders/:id · SSE GET /orders/:id/events · DELETE /orders/:id · DELETE /orders/items/:id. No Redis read-cache (Redis = pub/sub fan-out only). ⚠️ open code drift (logged): `item_cancelled` SSE event unhandled FE-side; 404 wedges sheet spinner (`isNotFound` never read); SSE handler does no ownership check. All 4 endpoints + overlay shared with C10 `/order/:id`. 6-file set: skipped crosscomponent (no shared store across ≥3 widgets); built be/crosspage/loading/scenario. |
@@ -70,14 +70,14 @@
 | # | Page | Route | Command | Status | Last Run | Concerns / Notes |
 |---|------|-------|---------|--------|----------|-----------------|
 | A1 | Overview | `/admin/overview` | `/page-doc-set admin_overview` | ⚠️ | 2026-06-14 | Full 6-file set generated. 8 endpoints traced to code (6 REST + SSE `/sse/admin` + WS `/ws/orders-live`). **No Redis read cache** — every REST read hits MySQL; Redis is pub/sub only (`orders:admin`, `orders:kds`, `order:<id>`, `queue:`/`tables:`). Auth: reads `AtLeast("cashier")`, `GET /orders/:id` authMW-only, status PATCH `AtLeast("chef")`, payments `AtLeast("cashier")`, SSE `AtLeast("manager")`. Key flags: (1) feed is `GET /orders/live` not `GET /orders` (FE doc Zone B corrected); (2) **`delivered → cancelled` Huỷ button always 409s** (not a valid transition); (3) `POST /payments` ignores FE `amount` (uses order total); (4) WS `order_updated`/`order_completed` cases dead (BE never emits); (5) **WS `/ws/orders-live` has no role gate** — any JWT (incl. customer) can subscribe; (6) `orders/history` returns `items:[]`. 2 ❓ UNVERIFIED (FE-side, in x-comp doc): whether PATCH returns order body; whether StatCards counts drop on a pure status advance. |
-| A2 | Summary | `/admin/summary` | `/page-doc-set admin_summary` | ⬜ | — | Reports — revenue KPIs, top dishes, staff perf, low-stock (analytics endpoints) |
-| A3 | Products | `/admin/products` | `/page-doc-set admin_products` | ⬜ | — | Product CRUD (manager+ writes, admin deletes, cache invalidation) |
+| A2 | Summary | `/admin/summary` | `/page-doc-set admin_summary` | ✅ | 2026-06-15 | Full set built (be/crosspage/loading/scenario + refreshed page doc; crosscomponent = N/A — 4 sections share no store, only local `range` prop). 5 endpoints traced to code, all `authMW` + `AtLeast("manager")`: 3 analytics reads (summary/top-dishes/staff-performance) + low-stock read + `POST /stock-movements` write. **No Redis** — analytics is hand-written SQL on the REDIS_CACHE do-not-cache list; client cache = TanStack Query (`staleTime` 60s/120s). No `❓ UNVERIFIED`, no code bugs. Doc drift FIXED: API_SPEC top-dishes `[{name,count,revenue}]`→`[{name,qty,pct,revenue}]` + summary response fields. 7 flags (all handled/cosmetic, none a code bug — detail in [admin_summary_be.md](admin/admin_summary/admin_summary_be.md) Flags): (1) chef rows omit `revenue` → FE shows `—`; (2) `top-dishes.pct` = share of returned top-N, not whole period; (3) `summary.active_tables` is range-agnostic/live (ignores `?range`); (4) low-stock returns items ≤`min_stock*1.2` → FE splits red/yellow client-side; (5) restock write non-transactional (insert movement + stock bump unwrapped; `adjustment` adds not sets — shared w/ A10); (6) `dishes_sold` counts `delivered`+`paid` but the KPI sub-label says only "(delivered)" — cosmetic FE wording; (7) `top-dishes` `limit`>50 resets to 5 (page always sends 5 — moot). Also this run: fixed stale KPI-card wireframe in page doc; flagged "Xem toàn bộ kho" uses `<a href>` not `next/link` (full reload). |
+| A3 | Products | `/admin/products` | `/page-doc-set admin_products` | ⚠️ | 2026-06-15 | Full 6-file set + PRODUCTS_BUGS.md generated. 11 endpoints traced (reads: `GET /products/all` manager+ **uncached** + public `GET /categories`/`GET /toppings`; writes: `POST/PATCH /products` manager+, `DELETE` admin-only, `POST /files/upload` cashier+; seed-only: `POST /categories`/`/toppings`/`/staff`). Handbook (API_SPEC, REDIS_CACHE) matched code — no doc drift. **3 code bugs (not stale docs):** (1) 🔴 availability toggle is a no-op — `PATCH /products/:id/availability` reuses `UpdateProduct` (requires name/price/category_id → 400) and never writes `is_available`; the dedicated `ToggleProductAvailability` query exists but is unwired; (2) 🟡 `POST /products` drops `is_available` (SQL hardcodes 1); (3) 🟠 `DELETE` has no active-order 409 guard (dead FE branch). **3 operational flags (not bugs):** (4) the admin table's `GET /products/all` is **uncached** and resolves toppings **N+1** (one query/product) — heavier than the public `GET /products`, but correct (managers want live data); (5) the form modal's `GET /categories` + `GET /toppings` are **public** (no `authMW`) — same shared catalog endpoints the customer menu uses; (6) `POST /files/upload` writes the DB row regardless but only persists the image to disk when env `STORAGE_BASE_PATH` is set — otherwise `image_path` points at a missing file. Auth split: writes manager+ **except `DELETE` admin-only**, upload cashier+. Cache writes Del `products:list`/`categories:list`/`toppings:list`/`product:<id>` (consumed by C1 menu, C4/C5 detail, S4 POS — see Cross-Page Concerns). 1 ❓ UNVERIFIED (scenario): whether a job purges `is_orphan=1` file rows. Logged in LOGIC Decision Log 2026-06-15. |
 | A4 | Combos | `/admin/combos` | `/page-doc-set admin_combos` | ⬜ | — | Combo CRUD + combo_items |
 | A5 | Categories | `/admin/categories` | `/page-doc-set admin_categories` | ⬜ | — | Category CRUD |
 | A6 | Toppings | `/admin/toppings` | `/page-doc-set admin_toppings` | ⬜ | — | Topping CRUD |
 | A7 | Staff | `/admin/staff` | `/page-doc-set admin_staff` | ⬜ | — | Staff account CRUD + activate/deactivate |
-| A8 | Staff Task Board | `/admin/staff/task-board` | `/page-doc-set admin_task_board` | ⬜ | — | Per-staff KPIs + task list (staff_tasks) |
-| A9 | Todo List | `/admin/todo-list` | `/page-doc-set admin_todo_list` | ⬜ | — | Team tasks — create/edit modal (staff_tasks) |
+| A8 | Staff Task Board | `/admin/staff/task-board` | `/page-doc-set admin_task_board` | ⚠️ | 2026-06-15 | Full 6-file set + BUGS generated. 4 endpoints traced (`GET /admin/tasks/stats`, `GET /admin/tasks`, `POST /admin/tasks`, `GET /staff`) — all `authMW` + `AtLeast("manager")`, **no Redis** (every read hits MySQL). Handbook matched code on every cell (no API_SPEC/DB_SCHEMA fix). **⚠️ 4 code bugs ([TASK_BOARD_BUGS.md](admin/admin_task_board/TASK_BOARD_BUGS.md)):** (1) 🔴 task `status` write-once `pending` — no UPDATE query or overdue job exists, so completed/in-progress/overdue KPIs + completionRate + qualityScore + hasOverdue are permanently 0/false; (2) 🟠 `qualityScore = completionRate/20` fabricated (no quality column); (3) 🟡 invalid `assigned_to` → 500 via FK→ErrInternalError; (4) 🟡 FilterBar status options (pending/in_progress/completed) are no-ops, only `overdue` wired (always false). No ❓ UNVERIFIED in the anchor. Bug 1+3 shared with A9 todo-list (same `staff_tasks`, same missing-update root). 2 minor non-bug flags also in `_be.md`: (5) `description` is stored + round-tripped in the DTO but no page renders it (only `notes` shown); (6) the required `dueTime` is folded into `due_at` only — the expanded "Giờ" column reads the **optional** `dueTimeStart`–`dueTimeEnd`, so it can show "—" despite a time being mandatory at create. Cross-cutting gap: **no staff-facing route lets an assignee view their own tasks** (only `useTodoTasks.ts` reads `staff_tasks`, admin-side). Logged LOGIC Decision Log 2026-06-15. |
+| A9 | Todo List | `/admin/todo-list` | `/page-doc-set admin_todo_list` | ⚠️ | 2026-06-15 | Full 6-file set + TODO_BUGS.md. 4 endpoints traced to code (`GET /staff` · `GET /admin/tasks/stats` · `GET /admin/tasks` · `POST /admin/tasks`), all `authMW` + `AtLeast("manager")`. **No Redis** (tasks + staff list on the do-not-cache list) and **no realtime** — pull-only via TanStack Query. Handbook BE facts (API_SPEC/DB_SCHEMA/BE_CODE_SUMMARY/REDIS_CACHE) all matched code — no domain-file edit. **Page is create-only**: ⚠️ 4 code bugs (not doc drift) — (1) 🔴 "edit" re-POSTs → duplicate task, no PATCH/DELETE route exists; (2) 🟠 status filter never sent to BE; (3) 🟠 `Đến ngày` range input dead (single-day only); (4) 🟡 bad staffId on create → 500 not 4xx. Stale wireframe (status tabs incl. "Đang làm" + 🗑 delete) refreshed to match code. Created tasks shared with `/admin/staff/task-board` (same endpoints). No ❓ UNVERIFIED in the anchor. Logged LOGIC Decision Log 2026-06-15. |
 | A10 | Ingredients | `/admin/ingredients` | `/page-doc-set admin_ingredients` | ✅ | 2026-06-13 | 8 endpoints traced to code (handler/service/repo). RBAC: manager+ all except DELETE (admin only). No Redis caching. Key flags: no initial 'in' movement on create; stock update not transactional; cost_per_unit stored but not serialized; GET /:id and GET /:id/movements not called by current FE. 🔮 STOR forecast subsection added (migration 018 `avg_daily_usage`, totalImported subquery, daysRemaining/runoutDate derivation). |
 | A11 | Marketing | `/admin/marketing` | `/page-doc-set admin_marketing` | ⬜ | — | Marketing spend dashboard |
 | A12 | Training | `/admin/training` | `/page-doc-set admin_training` | ⬜ | — | Job guides + completion tracking |
@@ -143,6 +143,22 @@
 - **`item_cancelled` SSE event is published BE-side but unhandled by `useOrderSSE`**
   (`order_service.go:642` vs `useOrderSSE.ts:83-123`) — affects every page that renders live order
   detail via this hook (C9, C10). Logged in LOGIC Decision Log 2026-06-14.
+- **Neither SSE handler replays the order's current status on (re)connect — only future deltas.**
+  Redis pub/sub has no retention, and both order-SSE endpoints lean on the client having separately
+  fetched `GET /orders/:id`. `StreamOrder` (`/orders/:id/events`, used by C9/C10 via `useOrderSSE`)
+  emits only `event: connected` then loops on the channel — no DB read at all
+  (`sse/handler.go:50,53-67`; `rdb` is its sole dependency). `StreamOrderMonitor`
+  (`/sse/order-monitor/:id`, used by C11 tracking) **does** snapshot on connect, but **only** the
+  `queue.update` + `tables.status` broadcast payloads — **not** the `order:<id>` status
+  (`sse/monitor_handler.go:59-65`). Consequence shared by C9/C10/C11: any status change that lands
+  while a phone is disconnected is lost on the order channel; the badge is correct only because of the
+  separate REST fetch (and is doubly dead on C11 where the FE listener key also mismatches — see the
+  first bullet). Fix is the same on both handlers: read current order state from the repo and emit it
+  before the loop. Infra note — the related "browser bypasses Caddy" finding
+  ([`NEXT_PUBLIC_API_URL` → :8080 direct](../00_overview/SCALABILITY_REVIEW.md)) is **deliberately not
+  logged here**: it's a deploy/config fact, not a page-BE fact — it lives in
+  [00_overview/SCALABILITY_REVIEW.md](../00_overview/SCALABILITY_REVIEW.md). Found 2026-06-15 while
+  verifying the scalability review.
 - **Catalog GETs are "available-only" everywhere — no per-id combo endpoint.** Both
   `ListProductsAvailable` and `ListCombosAvailable` filter `WHERE is_available=1 AND deleted_at IS
   NULL` (`products.sql.go:469,387`), and there is **no `GET /products/:id` for combos** (combos
@@ -150,8 +166,23 @@
   catalog-detail pages: `/menu/combo/:id` (C5) over-fetches the whole list and finds by id
   client-side, and any FE code path for an *unavailable* product/combo or an unavailable combo
   sub-item is unreachable from the public catalog (C5 [COMBO_BUGS.md](customer/customer_combo_detail/COMBO_BUGS.md)
-  bugs 1–2). When C8 `/checkout` / C2 `/welcome` / C4 product-detail are traced, expect the same
-  available-only filter to shape their empty/edge states. Logged in LOGIC Decision Log 2026-06-14.
+  bugs 1–2). When C8 `/checkout` / C2 `/welcome` are traced, expect the same available-only filter
+  to shape their empty/edge states. **Exception found on C4 run (2026-06-14):** `GET /products/:id`
+  (`GetProductByID`, `products.sql.go:222-225`) filters **only `deleted_at IS NULL` — NOT
+  `is_available`**, so unlike the menu list *and* unlike combo detail, the product-detail page **can**
+  render an unavailable product. Its "Hết hàng" badge + disabled CTA (`ProductInfo.tsx:16-20`,
+  `CTAFooter.tsx:19-21`) are therefore **reachable** (e.g. a favourited/deep-linked product that went
+  unavailable) — the dead-UI bug that hits combo detail does **not** apply here. Logged in LOGIC
+  Decision Log 2026-06-14.
+- **Topping-cache invalidation is asymmetric — list keys yes, `product:<id>` no.** A topping write
+  (`PATCH`/`DELETE /toppings/:id`) calls `invalidateToppingCaches` which Dels only `toppings:list` +
+  `products:list` (`product_service.go:719-721`) — it never Dels any `product:<id>` key. So the
+  list-driven pages (C1 menu, C5 combo detail, C6 favourites — all read `products:list`) refresh
+  their embedded topping data on the next request, but **C4 product-detail (the only reader of
+  `product:<id>`) serves a stale topping price/availability for up to 5 min** (Redis TTL) + the FE
+  5-min `staleTime`. Low severity, no `_BUGS.md`; documented in
+  [customer_product_detail_be.md Flag 2](customer/customer_product_detail/customer_product_detail_be.md).
+  Found during C4 run 2026-06-14.
 - **`orders:kds` Redis channel is shared by KDS + Overview WS.** Both `/ws/kds` and
   `/ws/orders-live` subscribe to the same `orders:kds` channel (`websocket/handler.go:18,23`), so
   every `order_status_changed` / `item_progress` / `new_order` event reaches the KDS board **and**
@@ -163,3 +194,48 @@
   (incl. a `customer` guest token) can subscribe to either live feed. Affects every page consuming
   the orders WS (A1 Overview, S3 KDS). Contrast SSE `/sse/admin` = `AtLeast("manager")`. Logged in
   LOGIC Decision Log 2026-06-14.
+- **Restock write + low-stock read are shared by A2 (Summary) and A10 (Ingredients).**
+  `POST /admin/stock-movements` (`ingredient_handler.go:172`) and `GET /admin/ingredients/low-stock`
+  (`ingredient_handler.go:70`) are reached from both `/admin/summary`'s `StockInModal` and the
+  `/admin/ingredients` page. The non-transactional insert+update (`ingredient_repo.go:221-248`) and
+  the `current_stock <= min_stock*1.2` low-stock filter affect both BE docs; a stock-in done on
+  Summary invalidates the `['admin','ingredients']` query so the Ingredients page reflects it on
+  next read (`summary/page.tsx:225-226`). No realtime — refetch-only, not pushed cross-device.
+  Found during A2 run 2026-06-15.
+- **A3 (Products) is the write/invalidation source for the shared catalog caches that A11-ish menu
+  reads consume.** `/admin/products` writes call `invalidateProductCaches`/`invalidateToppingCaches`
+  (`product_service.go:709-721`), Del-ing `products:list`/`categories:list`/`toppings:list`/`product:<id>`
+  — the exact keys the **customer `/menu` (C1), product/combo detail (C4/C5), and POS (S4)** read
+  from. So a product edit on A3 silently shapes those pages on their next fetch (no realtime push).
+  Two A3 bugs propagate cross-page: (a) the **broken availability toggle** means a sold-out dish
+  cannot be hidden — it keeps showing on `/menu` (`is_available=1` filter) and POS; (b) **DELETE has
+  no active-order guard**, so a product on a live order can vanish from the menu mid-service
+  (historical orders safe — items snapshot name/price). See
+  [PRODUCTS_BUGS.md](admin/admin_products/PRODUCTS_BUGS.md). Found during A3 run 2026-06-15.
+- **`staff_tasks` is shared by A9 (Todo List) and A8 (Task Board) — and there is NO update/delete
+  query.** Both pages call the identical `GET /admin/tasks/stats`, `GET /admin/tasks`,
+  `POST /admin/tasks` (+ `GET /staff`), all `authMW` + `AtLeast("manager")`, no Redis, no realtime.
+  The router exposes only those three task routes (`main.go:307-309`) and `tasks.sql` defines only
+  read + insert — **no `UPDATE`/soft-delete query exists**, and `CreateStaffTask` hardcodes
+  `status='pending'`. Consequences ripple to both pages: (1) the modal "edit" on A9 re-POSTs and
+  **creates a duplicate** with no way to delete it; (2) tasks can never advance past `pending` from
+  the UI, so every completion/overdue stat on **both** A9 and A8 is permanently 0 on a live DB.
+  Any future fix (add `PATCH /admin/tasks/:id` + status mutation) must update **both** BE docs.
+  See [TODO_BUGS.md](admin/admin_todo_list/TODO_BUGS.md) + [TASK_BOARD_BUGS.md](admin/admin_task_board/TASK_BOARD_BUGS.md).
+  Found during A9 run 2026-06-15; the A8 run (2026-06-15) confirmed the same root and added that
+  on A8 the write-once status also kills `qualityScore` (fabricated as `completionRate/20`) and the
+  per-staff overdue highlight — and that **no staff-facing route lets an assignee view their own
+  tasks** (only `useTodoTasks.ts` reads `staff_tasks`, admin-side), so created tasks never reach the
+  worker.
+- **📄 Docs-hygiene (not a BE/code fact): broken `../../` relative links to `docs/system` top-level
+  dirs in several existing page docs.** From a per-page folder (`08_pages/<cat>/<page>/`) the correct
+  depth to a top-level handbook dir is **`../../../`** (up 3: page → category → 08_pages → system);
+  multiple existing docs use **`../../`** (up 2), which resolves to the non-existent
+  `08_pages/<NN_topdir>/…` and so 404s. Confirmed broken in the **gold model**
+  [customer_menu/customer_menu_be.md](customer/customer_menu/customer_menu_be.md) (e.g.
+  `../../02_spec/object/OBJECT_MODEL_ORDER.md`) — likely copied into other page docs built from it.
+  The **C6 favourites** set (this run) uses the correct `../../../` depth. Sibling-to-sibling links
+  (`../customer_menu/…`, same-folder `customer_favourites_be.md`) are fine — only top-level-dir
+  links are affected. Mechanical fix (`../../<NN_>` → `../../../<NN_>`); **not registered** in
+  MASTER_TASK yet and **not** in the LOGIC Decision Log (it is doc hygiene, not code/business drift).
+  Found during C6 (customer_favourites) run 2026-06-14.

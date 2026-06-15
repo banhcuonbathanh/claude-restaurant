@@ -278,9 +278,31 @@ edits — fix only what the trace contradicted; do not rewrite unrelated prose.
    "Per page → which endpoints it calls" (it already points at `08_pages/`); keep the edit small
    and additive. **Do not restructure README tables** — additive links only.
 5. **`08_pages/BE_DOC_TRACKER.md`** → update this page's row: set Status (✅ if every cell traced
-   + docs synced; ⚠️ if any `❓ UNVERIFIED` / open drift), fill `Last Run` with today's date, and
-   write a one-line concern/note. Add a bullet to **Cross-Page Concerns** if the run uncovered a
-   shared endpoint/cache/auth fact that touches more than one page's BE doc.
+   + docs synced; ⚠️ if any `❓ UNVERIFIED` / open drift / code bug), fill `Last Run` with today's
+   date, and write a one-line concern/note.
+
+   **Every finding lands here — no finding may exist only in a sub-file.** The TRACKER is the single
+   index of what each run discovered, so before you close the run, sweep ALL findings from this run
+   into it. A "finding" is anything the trace surfaced that a future reader needs to know:
+   - a **doc drift** fixed in Step 6 (what was stale → corrected to);
+   - a **code bug** written to `<PAGE>_BUGS.md` in Step 6b (severity + 1-line + the bug-file link);
+   - a **`❓ UNVERIFIED` cell** (count + which file/cell) carried up from the anchor or any Widen agent;
+   - a **flag / gotcha** from the `_be.md` Flags section worth surfacing (ignored param, dead output,
+     non-transactional write, auth quirk, asymmetric cache invalidation…);
+   - a **cross-page fact** — shared endpoint / cache key / auth gate / bug root that touches more than
+     one page's BE doc.
+
+   Put each finding in the right place and never both summarise-and-drop:
+   - **The page row's Concerns/Notes cell** gets the page-local findings (drift, bugs, unverified,
+     flags) condensed to one line each, mirroring the existing rows (C4/A3/A8 are the model density).
+   - **The Cross-Page Concerns section** gets a bullet for every finding that touches >1 page — name
+     the pages, the shared file:line, whether it is fixed/open, and where it is logged. If this run
+     *confirms or extends* an existing Cross-Page bullet, append to that bullet (as the A9→A8 entry
+     does) rather than adding a duplicate.
+
+   If a finding has no home yet (a brand-new shared concern, a flag class not seen before), create it
+   here — the TRACKER is allowed to grow. The only thing not allowed is a finding that the run proved
+   but the TRACKER does not mention.
 
 > ⚠️ Never modify a table in any `command.md` as part of this skill. README/PAGES_INDEX edits are
 > additive links only. If a sync edit would change business meaning (not just a stale fact), STOP
@@ -365,3 +387,9 @@ docs/system synced:
 List every `❓ UNVERIFIED` cell (and which file it's in) and every drift fix so the owner can
 review. If `<PAGE>_BUGS.md` was created, end by offering to register the top bug in
 `MASTER_TASK.md` — do not start the fix unprompted.
+
+**Before you print the report, confirm the TRACKER captured everything (Step 6.5 gate).** Every
+finding this run produced — each drift fix, each code bug, each `❓ UNVERIFIED` cell, each notable
+flag, and each cross-page fact — must appear in `BE_DOC_TRACKER.md` (the page row's Concerns note
+and/or a Cross-Page Concerns bullet). If a finding lives only in a sub-file (`_be.md`, `_BUGS.md`,
+a Widen sibling) and not in the TRACKER, go back and add it before closing the run.
