@@ -29,7 +29,7 @@
 | POST | `/auth/login` | Staff login | public | `username`, `password` | `access_token`, `user{id,username,full_name,role}` + refresh cookie |
 | POST | `/auth/register` | Create staff account | public | `username`, `password`, `full_name` | `id` |
 | POST | `/auth/refresh` | Rotate access token | public | (refresh cookie) | `access_token` |
-| POST | `/auth/guest` | Guest JWT from QR token | public | `qr_token` (len 64) | `access_token`, `expires_in`, `table{id,name}` |
+| POST | `/auth/guest` | Guest JWT from QR token | public | `qr_token` (len 64) | `access_token`, `expires_in`, `table{id,name,capacity,status}` |
 | POST | `/auth/logout` | Revoke session | auth | (refresh cookie) | 204 |
 | GET | `/auth/me` | Current user profile | auth | — | `id`, `username`, `full_name`, `role`, `is_active` |
 

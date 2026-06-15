@@ -70,6 +70,20 @@ completed** — including at `ready` — ⚠️ DRIFT, see §3.
 - Server returns `409 TABLE_HAS_ACTIVE_ORDER` if violated
 - FE must redirect to the existing order — never show a generic error
 
+> ⚠️ **NOT-IN-CODE as of 2026-06-15** (verified during `/page-doc-set customer_table_qr`, code wins —
+> flagged to owner, not silently rewritten): **this rule is unenforced.** `CreateOrder`
+> (`be/internal/service/order_service.go:256-275`) deliberately treats an existing active order as
+> *informational only* (a `tableBusy bool` flag) and, per its own comment, "never blocks creation" —
+> the handler returns `201` with `table_busy: true` (`be/internal/handler/order_handler.go:121`), not
+> a `409`. `ErrTableHasActiveOrder` (`be/internal/service/errors.go:30`) is **defined but never
+> returned anywhere in `be/`**, so all three FE consumers of the code are dead
+> (`fe/src/app/table/[tableId]/page.tsx:36`, `fe/src/app/TableGrid.tsx:107`,
+> `fe/src/app/(shop)/checkout/page.tsx:79`). A table can hold several concurrent orders today. The
+> code comment frames this as intentional (each guest tracks their own order) — **owner decision
+> needed**: enforce the 409 guard, or update this rule to match the multi-order code. See
+> [../08_pages/customer/customer_table_qr/TABLE_QR_BUGS.md](../08_pages/customer/customer_table_qr/TABLE_QR_BUGS.md)
+> Bug 1 + the LOGIC Decision Log (2026-06-15).
+
 ### 2.4 Item Status (Derived — No Column)
 
 | Condition | Status |
@@ -162,6 +176,14 @@ Detail: `../07_business_logic/LOGIC_INDEX.md` + [`../01_flow/PAYMENT_FLOW.md`](.
 ```
 
 Rules: stateless, no refresh, no DB row. On expiry → rescan QR. Rate limit: 5 req/min/IP on `POST /auth/guest`.
+
+> ⚠️ **NOT-IN-CODE as of 2026-06-15** (verified during `/page-doc-set customer_table_qr`, code wins —
+> flagged to owner, not silently removed): (1) the **5 req/min/IP rate limit is not implemented** — no
+> rate-limit middleware exists (`be/internal/middleware/` = `auth.go`/`metrics.go`/`rbac.go`; global
+> chain is `gin.Logger(), gin.Recovery(), Metrics()` + CORS, `be/cmd/server/main.go:117,126`). (2) the
+> **`jti` claim is not set** on guest tokens — `GenerateGuestToken` (`be/pkg/jwt/jwt.go:80-88`) emits only
+> `sub`/`role`/`table_id`/`iat`/`exp`. Both are intended-but-unbuilt. See
+> [customer_table_qr_be.md Flag 5](../08_pages/customer/customer_table_qr/customer_table_qr_be.md).
 
 ### 5.3 Staff JWT Payload
 

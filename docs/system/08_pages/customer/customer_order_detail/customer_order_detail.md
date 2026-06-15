@@ -4,6 +4,12 @@
 > (`useOrderSSE`) with per-dish progress, collapsible combo groups, a per-product summary table
 > with cancel buttons, money summary (eaten vs remaining), cancel-whole-order, and "add more
 > dishes" (returns to `/menu?add_to_order=:id`).
+>
+> **Backend view** (every endpoint traced) → [customer_order_detail_be.md](customer_order_detail_be.md) ·
+> Cross-page/device data flow → [customer_order_detail_crosspage_dataflow.md](customer_order_detail_crosspage_dataflow.md) ·
+> Loading behaviour → [customer_order_detail_loading.md](customer_order_detail_loading.md) ·
+> Narrative → [SCENARIO_ORDER_DETAIL.md](SCENARIO_ORDER_DETAIL.md) ·
+> **Live code bugs → [ORDER_DETAIL_BUGS.md](ORDER_DETAIL_BUGS.md)**
 
 ---
 
