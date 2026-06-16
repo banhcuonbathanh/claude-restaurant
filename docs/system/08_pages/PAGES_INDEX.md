@@ -49,8 +49,8 @@
 
 | Route | Status | Purpose | File |
 |---|---|---|---|
-| `/login` | ✅ | Staff login form — role-based redirect after auth | [staff_login.md](staff/staff_login/staff_login.md) |
-| `/register` | ✅ | Account registration form | [staff_register.md](staff/staff_register/staff_register.md) |
+| `/login` | ✅ | Staff login form — role-based redirect after auth | [staff_login.md](staff/staff_login/staff_login.md) · [BE](staff/staff_login/staff_login_be.md) · [x-page](staff/staff_login/staff_login_crosspage_dataflow.md) · [loading](staff/staff_login/staff_login_loading.md) · [scenario](staff/staff_login/SCENARIO_STAFF_LOGIN.md) · [bugs](staff/staff_login/LOGIN_BUGS.md) |
+| `/register` | ✅ | Account registration form (creates a cashier staff account) | [staff_register.md](staff/staff_register/staff_register.md) · [BE](staff/staff_register/staff_register_be.md) · [x-page](staff/staff_register/staff_register_crosspage_dataflow.md) · [loading](staff/staff_register/staff_register_loading.md) · [scenario](staff/staff_register/SCENARIO_REGISTER.md) · [bugs](staff/staff_register/REGISTER_BUGS.md) |
 | `/kds` | ✅ | Kitchen Display System — live cooking board (WS) | [staff_kds.md](staff/staff_kds/staff_kds.md) |
 | `/pos` | ✅ | POS — cashier builds walk-in orders | [staff_pos.md](staff/staff_pos/staff_pos.md) |
 | `/cashier/payment/:id` | ✅ | Bill + payment method + QR + print receipt | [staff_cashier_payment.md](staff/staff_cashier_payment/staff_cashier_payment.md) |
@@ -74,7 +74,7 @@
 | `/admin/ingredients` | ✅ | Ingredient list + stock in/out movements | [admin_ingredients.md](admin/admin_ingredients/admin_ingredients.md) · [BE](admin/admin_ingredients/admin_ingredients_be.md) |
 | `/admin/storage` | 🔮 PLANNED | Full inventory management — low-stock warnings, link availability to menu, run-out forecast (Tổng nhập / Dùng/ngày / Dự kiến hết — 🔮 STOR) | [admin_storage.md](admin/admin_storage/admin_storage.md) |
 | `/admin/marketing` | ✅ | Marketing spend dashboard — budget KPIs, breakdown, campaign timeline | [admin_marketing.md](admin/admin_marketing/admin_marketing.md) · [BE](admin/admin_marketing/admin_marketing_be.md) · [loading](admin/admin_marketing/admin_marketing_loading.md) · [scenario](admin/admin_marketing/SCENARIO_MARKETING.md) |
-| `/admin/training` | ✅ | Staff training — job guides + completion tracking | [admin_training.md](admin/admin_training/admin_training.md) |
+| `/admin/training` | ✅ | Staff training — job guides + completion tracking | [admin_training.md](admin/admin_training/admin_training.md) · [BE](admin/admin_training/admin_training_be.md) · [x-comp](admin/admin_training/admin_training_crosscomponent_dataflow.md) · [x-page](admin/admin_training/admin_training_crosspage_dataflow.md) · [loading](admin/admin_training/admin_training_loading.md) · [scenario](admin/admin_training/SCENARIO_TRAINING_SETUP.md) · [bugs](admin/admin_training/TRAINING_BUGS.md) |
 
 ---
 

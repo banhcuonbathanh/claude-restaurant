@@ -26,8 +26,8 @@
 
 | Method | Path | Purpose | Auth | Key Request Fields | Key Response Fields |
 |---|---|---|---|---|---|
-| POST | `/auth/login` | Staff login | public | `username`, `password` | `access_token`, `user{id,username,full_name,role}` + refresh cookie |
-| POST | `/auth/register` | Create staff account | public | `username`, `password`, `full_name` | `id` |
+| POST | `/auth/login` | Staff login | public | `username` (min 3), `password` (min 8) | `access_token`, `user{id,username,full_name,role,email}` + refresh cookie |
+| POST | `/auth/register` | Create staff account (role hardcoded `cashier`) | public | `username`, `password` | `access_token`, `user{id,username,full_name,role,email}` + refresh cookie |
 | POST | `/auth/refresh` | Rotate access token | public | (refresh cookie) | `access_token` |
 | POST | `/auth/guest` | Guest JWT from QR token | public | `qr_token` (len 64) | `access_token`, `expires_in`, `table{id,name,capacity,status}` |
 | POST | `/auth/logout` | Revoke session | auth | (refresh cookie) | 204 |
