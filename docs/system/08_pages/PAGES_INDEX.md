@@ -26,7 +26,7 @@
 
 | Route | Status | Purpose | File |
 |---|---|---|---|
-| `/` | ✅ | Marketing/demo landing — feature tour, table QR shortcuts, staff quick login | [public_landing.md](public/public_landing/public_landing.md) |
+| `/` | ✅ | Marketing/demo landing — feature tour, table QR shortcuts, staff quick login | [public_landing.md](public/public_landing/public_landing.md) · [BE](public/public_landing/public_landing_be.md) · [x-page](public/public_landing/public_landing_crosspage_dataflow.md) · [loading](public/public_landing/public_landing_loading.md) · [scenario](public/public_landing/SCENARIO_LANDING_DEMO.md) · [bugs](public/public_landing/LANDING_BUGS.md) |
 | `/welcome` | ✅ | Restaurant-branded welcome page — hero, story, signature dishes, hours, "Xem thực đơn" CTA | [customer_welcome.md](customer/customer_welcome/customer_welcome.md) · [scenario](customer/customer_welcome/SCENARIO_WELCOME.md) · _(static — no BE/dataflow/loading docs)_ |
 | `/introduction` | 🔮 PLANNED | Dedicated about-the-restaurant page — story, photos, map, hours, contact | [customer_introduction.md](customer/customer_introduction/customer_introduction.md) |
 | `/table/:tableId` | ✅ | QR landing — exchanges QR token for guest JWT, redirects to `/menu` | [customer_table_qr.md](customer/customer_table_qr/customer_table_qr.md) · [BE](customer/customer_table_qr/customer_table_qr_be.md) · [x-page](customer/customer_table_qr/customer_table_qr_crosspage_dataflow.md) · [loading](customer/customer_table_qr/customer_table_qr_loading.md) · [scenario](customer/customer_table_qr/SCENARIO_TABLE_SCAN.md) · [bugs](customer/customer_table_qr/TABLE_QR_BUGS.md) |
@@ -51,8 +51,8 @@
 |---|---|---|---|
 | `/login` | ✅ | Staff login form — role-based redirect after auth | [staff_login.md](staff/staff_login/staff_login.md) · [BE](staff/staff_login/staff_login_be.md) · [x-page](staff/staff_login/staff_login_crosspage_dataflow.md) · [loading](staff/staff_login/staff_login_loading.md) · [scenario](staff/staff_login/SCENARIO_STAFF_LOGIN.md) · [bugs](staff/staff_login/LOGIN_BUGS.md) |
 | `/register` | ✅ | Account registration form (creates a cashier staff account) | [staff_register.md](staff/staff_register/staff_register.md) · [BE](staff/staff_register/staff_register_be.md) · [x-page](staff/staff_register/staff_register_crosspage_dataflow.md) · [loading](staff/staff_register/staff_register_loading.md) · [scenario](staff/staff_register/SCENARIO_REGISTER.md) · [bugs](staff/staff_register/REGISTER_BUGS.md) |
-| `/kds` | ✅ | Kitchen Display System — live cooking board (WS) | [staff_kds.md](staff/staff_kds/staff_kds.md) |
-| `/pos` | ✅ | POS — cashier builds walk-in orders | [staff_pos.md](staff/staff_pos/staff_pos.md) |
+| `/kds` | ✅ | Kitchen Display System — live cooking board (WS) | [staff_kds.md](staff/staff_kds/staff_kds.md) · [BE](staff/staff_kds/staff_kds_be.md) · [x-page](staff/staff_kds/staff_kds_crosspage_dataflow.md) · [loading](staff/staff_kds/staff_kds_loading.md) · [scenario](staff/staff_kds/SCENARIO_KDS_COOK.md) · [bugs](staff/staff_kds/KDS_BUGS.md) |
+| `/pos` | ✅ | POS — cashier builds walk-in orders | [staff_pos.md](staff/staff_pos/staff_pos.md) · [BE](staff/staff_pos/staff_pos_be.md) · [x-page](staff/staff_pos/staff_pos_crosspage_dataflow.md) · [loading](staff/staff_pos/staff_pos_loading.md) · [scenario](staff/staff_pos/SCENARIO_POS_ORDER.md) · [bugs](staff/staff_pos/POS_BUGS.md) |
 | `/cashier/payment/:id` | ✅ | Bill + payment method + QR + print receipt | [staff_cashier_payment.md](staff/staff_cashier_payment/staff_cashier_payment.md) |
 | `/orders/live` | ⚠ stub | Placeholder only — renders a TODO line; superseded by `/admin/overview` | — (no wireframe; no UI) |
 | `/dev-login` | ✅ dev-only | Auto-login helper for development (spinner, no UI to design) | — (noted in [staff_login.md](staff/staff_login/staff_login.md)) |

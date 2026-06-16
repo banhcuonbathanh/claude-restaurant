@@ -68,8 +68,15 @@ c.Writer.Flush()
 
 | Endpoint | Auth | Channel | Subscribers | Source file |
 |---|---|---|---|---|
-| `GET /api/v1/ws/kds` | JWT via `?token=` | `orders:kds` | Kitchen Display Screen — new orders, item updates | `websocket/handler.go` (KDSHandler) |
-| `GET /api/v1/ws/orders-live` | JWT via `?token=` | `orders:kds` (+ more) | POS live order feed | `websocket/handler.go` (LiveHandler) |
+| `GET /api/v1/ws/kds` | JWT via `?token=` (no role gate) | `orders:kds` | _(intended: KDS — but **no FE connects here**; dead code on this branch)_ | `websocket/handler.go` (KDSHandler) |
+| `GET /api/v1/ws/orders-live` | JWT via `?token=` (no role gate) | `orders:kds` | **KDS board (`/kds`), POS, and admin live floor** — all dashboard pages share one `OrdersWSProvider` → this route | `websocket/handler.go` (LiveHandler) |
+
+> ⚠️ Both handlers are the **identical** `wsHandler` on the **same** `orders:kds` channel
+> (`websocket/handler.go:17-23`), and neither has `authMW`/role gate — auth is the `?token=` JWT
+> parsed in-handler, claims discarded (`handler.go:31-40`), so any valid JWT incl. a `customer`
+> guest token can subscribe. The real KDS page (`/kds`) uses **`/ws/orders-live`** via the shared
+> `(dashboard)/layout.tsx` `OrdersWSProvider`, **not** `/ws/kds`. Traced `/page-doc-set staff_kds`
+> 2026-06-17 → [08_pages/staff/staff_kds/staff_kds_be.md](../08_pages/staff/staff_kds/staff_kds_be.md).
 
 ### WebSocket Auth Pattern
 

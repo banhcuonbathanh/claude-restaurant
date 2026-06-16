@@ -29,6 +29,10 @@
 └──────────────────────────┘
 ```
 
+> All three sub-pages live under `(shop)/layout.tsx`, so the shared
+> `[Menu][Đơn Hàng][Yêu Thích][Theo Dõi][Cài Đặt]` **ClientBottomNav** is fixed at the bottom of
+> each (the "Yêu Thích" tab is active). Omitted from the wireframe above to keep the 3-panel view compact.
+
 ## Zones
 
 | Page | Zone | Component | Data source |
@@ -41,6 +45,7 @@
 | save | Summary ZC | `save/components/FavouritesSummaryList` | resolved favourites |
 | save | Actions ZD | inline buttons | `useFavouritesStore.saveSet` |
 | sets | Set cards | `sets/components/SetCard` | `useFavouritesStore.sets` resolved against products/combos |
+| all | Shell nav | `ClientBottomNav` (injected by `(shop)/layout.tsx`) | — |
 
 ## Key Interactions
 
