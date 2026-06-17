@@ -43,6 +43,177 @@
   Overlays: CartDrawer (slide-up cart editor) · TableConfirmModal (QR checkout confirm)
 ```
 
+### Per-Zone Detail — how each zone gets & shares its data
+
+> The block above is the *layout*. The blocks below zoom into each zone to answer two questions:
+> **(1) where does this zone's data come from?** and **(2) how does it stay in sync with the others
+> without prop-drilling?** Full mechanism → [customer_menu_crosscomponent_dataflow.md](customer_menu_crosscomponent_dataflow.md);
+> loading behaviour → [customer_menu_loading.md](customer_menu_loading.md).
+
+**Legend (notation used in every block):**
+
+```
+◀── reads        zone renders FROM this source        [GET /x]   TanStack Query (server state)
+──▶ writes       zone mutates this source             ⚡         in-memory Zustand singleton
+(local)          component useState — never shared     ⏳ skel    has a loading skeleton
+```
+
+**The one rule behind all of it:** every cart-aware zone talks to the **same `useCartStore`
+singleton** — never to another zone. Catalog zones read **TanStack Query** caches. "Is this modal
+open?" stays in **local `useState`**. Three layers, one discipline.
+
+```
+                  ⚡ useCartStore (Zustand, 1 module singleton)         📦 TanStack Query caches
+                  items[] · tableId · tableName · orderNote             ['categories']  (5m stale)
+                  total() · itemCount()  ← selectors (derived)          ['products-all'](5m stale)
+                        ▲ writes        reads ▲                         ['combos']      (5m stale)
+                        │                     │                         ['products',cat,q] ⏳ skel
+              ┌─────────┴───────┬─────────────┴─────────┐                     ▲
+        taps ─┤ Combo/Product   │  Header/Mini/Summary/  │               reads│ (catalog)
+              │ /Topping/Canh   │  BottomBar (render)    │            ┌────────┴─────────┐
+              └─────────────────┴────────────────────────┘            │ Tabs/Combos/    │
+                  no arrow ever goes zone → zone                       │ Products/Favs   │
+```
+
+---
+
+**A · MenuHeader** — pure store read, no network.
+
+```
+┌────────────────────────────────────────┐
+│ Quán Bánh Cuốn               Bàn 03    │   ◀── ⚡ useCartStore.tableName
+└────────────────────────────────────────┘       (seeded by QR scan via setTableName;
+                                                   null on home/online-order path)
+```
+
+**Mini · MiniCartStrip** — store *selectors*, sticky only when cart non-empty.
+
+```
+┌────────────────────────────────────────┐
+│ 🛒 3 món · 105.000đ        [Xem giỏ →] │   ◀── ⚡ itemCount()  (Σ quantity)
+└────────────────────────────────────────┘   ◀── ⚡ total()      (Σ price×qty)
+   shows only if itemCount() > 0               [Xem giỏ →] ──▶ opens CartDrawer overlay
+   ↑ same derived numbers as I and J — they can't drift (all recompute from items[])
+```
+
+**Banner · RestaurantBanner** — static asset, no data source.
+**AddToOrderBanner** — renders only in add-to-order mode; data is a URL param, not store/BE.
+
+```
+│ ▸ Đang thêm món vào đơn #123 [Xem đơn] │   ◀── (local) useSearchParams() ?add_to_order=<id>
+                                              flips the whole page into "POST onto existing order"
+```
+
+---
+
+**B · SearchBar** — local input, lifted into the products query key.
+
+```
+┌────────────────────────────────────────┐
+│ 🔍 Tìm món...                          │   ◀──▶ (local) useState searchQuery
+└────────────────────────────────────────┘   feeds ──▶ ['products', cat, searchQuery]
+   ≥2 chars → query runs · 1 char → query DISABLED (no refetch, no skeleton, old list stays)
+```
+
+**C · CategoryTabs** — server state; selected tab is local and re-keys the products query.
+
+```
+┌────────────────────────────────────────┐
+│ [Tất cả][Bánh cuốn][Đồ uống][Combo]... │   ◀── 📦 [GET /categories]  (5m stale, default [])
+└────────────────────────────────────────┘       no skeleton → tabs pop in when data lands
+   tap a tab ──▶ (local) selectedCategory ──▶ re-keys ['products', selectedCategory, q]
+   "Tất cả" tab is also the only tab that shows zone E (ComboSection)
+```
+
+**D · FavouritesRail** — joins a *client* fav-id list against two *server* caches.
+
+```
+│ ♥ FavouritesRail ▸ ▸ ▸                 │   ◀── ⚡ useFavouritesStore  (the saved ids)
+                                              ◀── 📦 ['products-all'] + ['combos']  (resolve ids→objects)
+   renders only if the user has favourites; degrades silently if a fav id isn't in the caches
+```
+
+---
+
+**E · ComboSection** — reads BE (+enrichment), writes the cart. Hidden until combos arrive.
+
+```
+┌──────────────────────────────────────┐
+│ COMBO            (only on "Tất cả")   │   ◀── 📦 [GET /combos]   (key ['combos'])
+│ ┌──────────────────────────────────┐ │        enriched in useMemo with ['products-all']
+│ │ Combo Đầy Đặn 42.000đ      [+]──┼─┼──▶ ⚡ addItem({type:'combo', id:`combo_<id>`})
+│ └──────────────────────────────────┘ │        (dedups by id → re-tap bumps quantity)
+└──────────────────────────────────────┘   card tap → /menu/combo/:id · hidden if combos.length===0
+   enrichment resolves combo_items → product names/prices/toppings; missing product → raw UUID fallback
+```
+
+**F · ProductList** — the *only* zone with a loading skeleton; reads BE, writes the cart.
+
+```
+┌──────────────────────────────────────┐
+│ MÓN LẺ                                │   ◀── 📦 [GET /products?category_id&search] ⏳ skel
+│ ┌──────────────────────────────────┐ │        key ['products', selectedCategory, searchQuery]
+│ │ [img] Bánh cuốn thịt 35.000đ [+]─┼─┼──▶ opens ▢ ToppingModal → ⚡ addItem(product+toppings)
+│ │ [img] Canh mọc       10.000đ [+]─┼─┼──▶ ⚡ setCanhQty(...) → standalone `canh_*` row
+│ └──────────────────────────────────┘ │   card tap → /menu/product/:id
+└──────────────────────────────────────┘   ⚠ on this branch BE ignores category_id/search params
+   states: isError → "mạng yếu"+Thử lại · loading → skeleton · empty → EmptyState · else → grid
+```
+
+**▢ ToppingModal** (overlay opened from E/F) — open/closed is *local*; the picks land in the cart.
+
+```
+┌─ Chọn nhân ──────────────┐
+│ ☑ nhân thịt   ☐ nhân mọc │   open flag ◀──▶ (local) useState   (never enters the store)
+│            [ Thêm vào giỏ]│   confirm ──▶ ⚡ addItem(..., toppings:[{id,name,price:0}])
+└──────────────────────────┘   "nhân" is modelled as a ₫0 topping — there is NO filling column
+```
+
+---
+
+**I · OrderSummary** — store read + the canh-shake gate; owns the order note.
+
+```
+┌──────────────────────────────────────┐
+│ Đơn của bạn (preview)                 │   ◀── ⚡ items[]   (live preview, same data as Mini/J)
+│ Ghi chú đơn: [______________]         │   ◀──▶ ⚡ orderNote  (setOrderNote — persisted field)
+└──────────────────────────────────────┘   gate: items.some(id startsWith 'canh_')===false → SHAKE 🔴
+```
+
+**J · CartBottomBar** — store selectors + the *same* canh gate; decides the checkout branch.
+
+```
+┌──────────────────────────────────────┐
+│ 3 món · 105.000đ      [ Thanh toán ] │   ◀── ⚡ total() · itemCount()
+└──────────────────────────────────────┘   gate false → button DIMMED (mirrors I's shake)
+   Thanh toán reads ⚡ tableId:  set → open TableConfirmModal · null → router.push('/checkout')
+```
+
+---
+
+**Cart drawer** (overlay) — full cart editor; reads/writes store, drains it via the one builder.
+
+```
+┌─ Giỏ hàng ───────────────────────────┐
+│ Bánh cuốn thịt   [–] 2 [+]   🗑       │   ◀── ⚡ items[]
+│ Canh mọc         [–] 1 [+]   🗑       │   [±] ──▶ ⚡ updateQty / updateComboItem
+│ Tổng: 105.000đ      [ Thanh toán ]   │   🗑  ──▶ ⚡ removeItem
+└──────────────────────────────────────┘   submit ──▶ buildOrderItemsPayload(items) (one builder)
+```
+
+**TableConfirmModal** (overlay, QR path) — builds the payload from the store, fires the only POST.
+
+```
+┌─ Xác nhận đơn Bàn 03 ────────────────┐
+│ 3 món · 105.000đ                      │   items ◀── ⚡ useCartStore
+│        [Hủy]   [Xác nhận gọi món]    │   confirm ──▶ buildOrderItemsPayload() ──▶ POST /orders (source qr)
+└──────────────────────────────────────┘   201 ⇒ setActiveOrderId(id) → clearCart() → router.replace('/order/<id>')
+```
+
+> After `clearCart()` the store's `items[]` is empty; only `orderNote` + `activeOrderId` persist
+> (`partialize`). The order id travels to `/order/:id` via URL + `order_cache_<id>` — see
+> [customer_menu_crosspage_dataflow.md](customer_menu_crosspage_dataflow.md).
+
 ## Zones
 
 | Zone | Component | Data source |
