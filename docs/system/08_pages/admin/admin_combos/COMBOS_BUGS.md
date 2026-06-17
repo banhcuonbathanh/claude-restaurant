@@ -6,7 +6,7 @@
 > `/page-doc-set` skill records them here but does **not** touch app code.
 >
 > Anchor: [admin_combos_be.md](admin_combos_be.md) (Flags 1, 3, 4, 5) · Decision Log entry:
-> [../../07_business_logic/LOGIC_INDEX.md](../../07_business_logic/LOGIC_INDEX.md) (2026-06-17).
+> [../../07_business_logic/LOGIC_INDEX.md](../../07_business_logic/LOGIC_INDEX.md) (2026-06-18).
 
 ---
 

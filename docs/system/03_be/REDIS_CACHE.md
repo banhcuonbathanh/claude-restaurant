@@ -38,10 +38,10 @@ Next read repopulates lazily. Simpler and race-safe.
 | `products:list` | String (JSON) | 5 min | `ListProducts` on miss | product **or** topping write |
 | `toppings:list` | String (JSON) | 5 min | `ListToppings` on miss | topping write |
 | `combos:list` | String (JSON) | 5 min | `ListCombos` on miss | combo write |
-| `categories:list` | String (JSON) | 5 min | `ListCategories` on miss | product write |
+| `categories:list` | String (JSON) | 5 min | `ListCategories` on miss | product **or** category write |
 | `auth:staff:{id}` | String `'active'`/`'disabled'` | 5 min | `IsStaffActive` on miss | staff (de)activation via `staffActiveKey(id)` helper |
 
-Invalidation is explicit: `product_service.go` calls `invalidateProductCaches` on every product write, which Dels `products:list` + `categories:list` + `product:{id}`. Topping write also Dels `products:list` (products embed toppings in their response).
+Invalidation is explicit: `product_service.go` calls `invalidateProductCaches` on every product write, which Dels `products:list` + `categories:list` + `product:{id}`. **Category writes** (`Create`/`Update`/`DeleteCategory`) also call `invalidateProductCaches(ctx,"")` → Del `products:list` + `categories:list` (no `product:{id}` when `id==""`). Topping write also Dels `products:list` (products embed toppings in their response).
 
 ### Must NEVER be cached
 

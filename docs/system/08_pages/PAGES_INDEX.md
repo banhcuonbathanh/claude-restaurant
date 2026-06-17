@@ -53,7 +53,7 @@
 | `/register` | ✅ | Account registration form (creates a cashier staff account) | [staff_register.md](staff/staff_register/staff_register.md) · [BE](staff/staff_register/staff_register_be.md) · [x-page](staff/staff_register/staff_register_crosspage_dataflow.md) · [loading](staff/staff_register/staff_register_loading.md) · [scenario](staff/staff_register/SCENARIO_REGISTER.md) · [bugs](staff/staff_register/REGISTER_BUGS.md) |
 | `/kds` | ✅ | Kitchen Display System — live cooking board (WS) | [staff_kds.md](staff/staff_kds/staff_kds.md) · [BE](staff/staff_kds/staff_kds_be.md) · [x-page](staff/staff_kds/staff_kds_crosspage_dataflow.md) · [loading](staff/staff_kds/staff_kds_loading.md) · [scenario](staff/staff_kds/SCENARIO_KDS_COOK.md) · [bugs](staff/staff_kds/KDS_BUGS.md) |
 | `/pos` | ✅ | POS — cashier builds walk-in orders | [staff_pos.md](staff/staff_pos/staff_pos.md) · [BE](staff/staff_pos/staff_pos_be.md) · [x-page](staff/staff_pos/staff_pos_crosspage_dataflow.md) · [loading](staff/staff_pos/staff_pos_loading.md) · [scenario](staff/staff_pos/SCENARIO_POS_ORDER.md) · [bugs](staff/staff_pos/POS_BUGS.md) |
-| `/cashier/payment/:id` | ✅ | Bill + payment method + QR + print receipt | [staff_cashier_payment.md](staff/staff_cashier_payment/staff_cashier_payment.md) |
+| `/cashier/payment/:id` | ✅ | Bill + payment method + QR + print receipt (⚠️ payment broken from this screen — see bugs) | [staff_cashier_payment.md](staff/staff_cashier_payment/staff_cashier_payment.md) · [BE](staff/staff_cashier_payment/staff_cashier_payment_be.md) · [x-page](staff/staff_cashier_payment/staff_cashier_payment_crosspage_dataflow.md) · [loading](staff/staff_cashier_payment/staff_cashier_payment_loading.md) · [scenario](staff/staff_cashier_payment/SCENARIO_CASHIER_BILL.md) · [bugs](staff/staff_cashier_payment/PAYMENT_BUGS.md) |
 | `/orders/live` | ⚠ stub | Placeholder only — renders a TODO line; superseded by `/admin/overview` | — (no wireframe; no UI) |
 | `/dev-login` | ✅ dev-only | Auto-login helper for development (spinner, no UI to design) | — (noted in [staff_login.md](staff/staff_login/staff_login.md)) |
 
@@ -65,8 +65,8 @@
 | `/admin/overview` | ✅ | Live floor — stat cards, active orders, tables, paid/cancel logs | [admin_overview.md](admin/admin_overview/admin_overview.md) · [BE](admin/admin_overview/admin_overview_be.md) · [x-comp](admin/admin_overview/admin_overview_crosscomponent_dataflow.md) · [x-page](admin/admin_overview/admin_overview_crosspage_dataflow.md) · [loading](admin/admin_overview/admin_overview_loading.md) · [scenario](admin/admin_overview/SCENARIO_OVERVIEW_FLOOR.md) |
 | `/admin/summary` | ✅ | Reports — revenue KPIs, top dishes, staff performance, low-stock alerts | [admin_summary.md](admin/admin_summary/admin_summary.md) · [BE](admin/admin_summary/admin_summary_be.md) · [x-page](admin/admin_summary/admin_summary_crosspage_dataflow.md) · [loading](admin/admin_summary/admin_summary_loading.md) · [scenario](admin/admin_summary/SCENARIO_SUMMARY_REVIEW.md) |
 | `/admin/products` | ✅ | Product CRUD | [admin_products.md](admin/admin_products/admin_products.md) · [BE](admin/admin_products/admin_products_be.md) · [x-comp](admin/admin_products/admin_products_crosscomponent_dataflow.md) · [x-page](admin/admin_products/admin_products_crosspage_dataflow.md) · [loading](admin/admin_products/admin_products_loading.md) · [scenario](admin/admin_products/SCENARIO_PRODUCT_CRUD.md) · [bugs](admin/admin_products/PRODUCTS_BUGS.md) |
-| `/admin/combos` | ✅ | Combo CRUD | [admin_combos.md](admin/admin_combos/admin_combos.md) |
-| `/admin/categories` | ✅ | Category CRUD | [admin_categories.md](admin/admin_categories/admin_categories.md) |
+| `/admin/combos` | ✅ | Combo CRUD | [admin_combos.md](admin/admin_combos/admin_combos.md) · [BE](admin/admin_combos/admin_combos_be.md) · [x-page](admin/admin_combos/admin_combos_crosspage_dataflow.md) · [loading](admin/admin_combos/admin_combos_loading.md) · [scenario](admin/admin_combos/SCENARIO_COMBOS_CRUD.md) · [bugs](admin/admin_combos/COMBOS_BUGS.md) |
+| `/admin/categories` | ✅ | Category CRUD | [admin_categories.md](admin/admin_categories/admin_categories.md) · [BE](admin/admin_categories/admin_categories_be.md) · [x-page](admin/admin_categories/admin_categories_crosspage_dataflow.md) · [loading](admin/admin_categories/admin_categories_loading.md) · [scenario](admin/admin_categories/SCENARIO_CATEGORY_CRUD.md) · [bugs](admin/admin_categories/CATEGORIES_BUGS.md) |
 | `/admin/toppings` | ✅ | Topping CRUD | [admin_toppings.md](admin/admin_toppings/admin_toppings.md) |
 | `/admin/staff` | ✅ | Staff account CRUD — roles, activate/deactivate | [admin_staff.md](admin/admin_staff/admin_staff.md) |
 | `/admin/staff/task-board` | ✅ | Per-staff task board — KPIs + expandable task table | [admin_task_board.md](admin/admin_task_board/admin_task_board.md) · [BE](admin/admin_task_board/admin_task_board_be.md) · [x-comp](admin/admin_task_board/admin_task_board_crosscomponent_dataflow.md) · [x-page](admin/admin_task_board/admin_task_board_crosspage_dataflow.md) · [loading](admin/admin_task_board/admin_task_board_loading.md) · [scenario](admin/admin_task_board/SCENARIO_ASSIGN_TASK.md) · [bugs](admin/admin_task_board/TASK_BOARD_BUGS.md) |
@@ -103,6 +103,9 @@
 │                       (page content)                         │
 └──────────────────────────────────────────────────────────────┘
 ```
+
+> 🔮 PROPOSED — a **mobile bottom bar** for admin (5 tabs + "Thêm" sheet), modelled on
+> `ClientBottomNav`: [admin/ADMIN_BOTTOM_NAV.md](admin/ADMIN_BOTTOM_NAV.md). Not in code yet.
 
 **Dashboard shell** — `(dashboard)/layout.tsx` wraps `/kds`, `/pos`, `/cashier/*`, `/admin/*`
 with `OrdersWSProvider` (one shared WebSocket per browser session — no visual chrome).

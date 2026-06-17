@@ -46,10 +46,10 @@
 | PATCH | `/products/:id` | Update product | manager+ | any field; `topping_ids` optional | `message` |
 | PATCH | `/products/:id/availability` | Toggle availability | manager+ | `is_available` | `message` |
 | DELETE | `/products/:id` | Soft-delete product | admin | — | `message` |
-| GET | `/categories` | List categories | public | — | `[{id,name,sort_order}]` |
-| POST | `/categories` | Create category | manager+ | `name`, `sort_order` | `id` |
-| PATCH | `/categories/:id` | Update category | manager+ | `name`, `description` | `message` |
-| DELETE | `/categories/:id` | Delete category | admin | — | `message` |
+| GET | `/categories` | List categories | public | — | `[{id,name,description,sort_order,is_active}]` |
+| POST | `/categories` | Create category | manager+ | `name`, `sort_order` (`description` optional) | `id` |
+| PATCH | `/categories/:id` | Update category | manager+ | `name`, `sort_order` (`description` optional; full replace) | `message` |
+| DELETE | `/categories/:id` | Delete category | admin | — | `204` (no body) |
 | GET | `/toppings` | List toppings | public | — | `[{id,name,price,is_available}]` |
 | POST | `/toppings` | Create topping | manager+ | `name`, `price` | `id` |
 | PATCH | `/toppings/:id` | Update topping | manager+ | `name`, `price`, `is_available` | `message` |
@@ -112,7 +112,9 @@
 | POST | `/payments/webhook/momo` | MoMo webhook | HMAC | gateway JSON | 204 / result object |
 | POST | `/payments/webhook/zalopay` | ZaloPay webhook | HMAC | gateway form | `{return_code, return_message}` |
 
-Payment requires `order.status = ready`. Webhook order: HMAC verify → amount verify → idempotency check → update DB. Webhooks always return 200-class to gateway even on logical failure.
+Payment requires `order.status = ready` **or** `delivered` (`order_service.go:50` — both pass the gate). Webhook order: HMAC verify → amount verify → idempotency check → update DB. Webhooks always return 200-class to gateway even on logical failure.
+
+> ⚠️ The `POST /payments` "Key Response Fields" above is the **intended** contract; the current code returns only the thin `{id, pay_url, qr_code_url}` (no `status`/`amount`/`method`) — see [08_pages/staff/staff_cashier_payment/PAYMENT_BUGS.md](../08_pages/staff/staff_cashier_payment/PAYMENT_BUGS.md) Bug 2.
 
 ---
 
