@@ -4,6 +4,9 @@
 > bar, filter bar (search/role/status), paginated table (10/page, client-side), add/edit modal and
 > a detail drawer. Mutations: create, update, activate/deactivate, delete — with guard errors
 > (`SELF_DEACTIVATION_FORBIDDEN`, `LAST_ADMIN`, `USERNAME_TAKEN`).
+> **Backend view → [admin_staff_be.md](admin_staff_be.md)** · loading → [admin_staff_loading.md](admin_staff_loading.md)
+> · cross-page → [admin_staff_crosspage_dataflow.md](admin_staff_crosspage_dataflow.md)
+> · scenario → [SCENARIO_STAFF_MANAGE.md](SCENARIO_STAFF_MANAGE.md).
 
 ---
 
@@ -38,7 +41,7 @@
 | A Header | `staff/components/StaffPageHeader` | total count |
 | B Stats | `staff/components/StaffStatsBar` | derived from full list |
 | C Filters | `staff/components/StaffFilterBar` | local state (client-side filter) |
-| D Table | `staff/components/StaffTable` | `GET /admin/staff` (`listStaff`, staleTime 0) |
+| D Table | `staff/components/StaffTable` | `GET /staff?limit=100` (`listStaff`, staleTime 0) |
 | E Pagination | `components/shared/Pagination` | client-side, 10/page |
 | M1 Modal | `staff/components/AddEditStaffModal` (dynamic import) | `createStaff` / `updateStaff` |
 | M2 Drawer | `staff/components/StaffDetailDrawer` (dynamic import) | staff detail |
@@ -46,7 +49,7 @@
 ## Key Interactions
 
 - **+ Thêm nhân viên** → M1 in add mode → `POST` (`USERNAME_TAKEN` → toast).
-- Row **✎** (or **Sửa** from drawer) → M1 in edit mode → `PUT/PATCH` update.
+- Row **✎** (or **Sửa** from drawer) → M1 in edit mode → `PATCH /staff/:id` update.
 - Row **⏻** toggle → confirm (when re-activating) → `setStaffStatus`; deactivating yourself is
   rejected (`SELF_DEACTIVATION_FORBIDDEN` toast).
 - Row **🗑** → `confirm()` → `deleteStaff`; deleting the last admin is rejected (`LAST_ADMIN`).
@@ -55,6 +58,6 @@
 
 ## Business Logic Used
 
-- Role hierarchy + who can manage whom → [../02_spec/BUSINESS_RULES.md §1 RBAC](../02_spec/BUSINESS_RULES.md#1-rbac-role-hierarchy)
-- Account guard rules (self-deactivation, last admin) → [../02_spec/BUSINESS_RULES.md §1 RBAC](../02_spec/BUSINESS_RULES.md#1-rbac-role-hierarchy)
-- Admin query/mutation patterns → [../07_business_logic/LOGIC_FE.md](../07_business_logic/LOGIC_FE.md) (admin CRUD pattern)
+- Role hierarchy + who can manage whom → [../../../02_spec/BUSINESS_RULES.md §1 RBAC](../../../02_spec/BUSINESS_RULES.md#1-rbac-role-hierarchy)
+- Account guard rules (self-deactivation, last admin) → [../../../02_spec/BUSINESS_RULES.md §1 RBAC](../../../02_spec/BUSINESS_RULES.md#1-rbac-role-hierarchy)
+- Admin query/mutation patterns → [../../../07_business_logic/LOGIC_FE.md](../../../07_business_logic/LOGIC_FE.md) (admin CRUD pattern)
