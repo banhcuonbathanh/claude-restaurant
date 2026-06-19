@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -123,8 +124,20 @@ func main() {
 	if corsOrigins == "" {
 		corsOrigins = "http://localhost:3000"
 	}
+	// CORS_ORIGINS may be a comma-separated allowlist; echo back the request's
+	// Origin only when it matches one entry (a single header value, as the spec requires).
+	allowedOrigins := strings.Split(corsOrigins, ",")
+	for i := range allowedOrigins {
+		allowedOrigins[i] = strings.TrimSpace(allowedOrigins[i])
+	}
 	r.Use(func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", corsOrigins)
+		origin := c.Request.Header.Get("Origin")
+		for _, o := range allowedOrigins {
+			if o == origin {
+				c.Header("Access-Control-Allow-Origin", origin)
+				break
+			}
+		}
 		c.Header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "Authorization,Content-Type")
 		c.Header("Access-Control-Allow-Credentials", "true")

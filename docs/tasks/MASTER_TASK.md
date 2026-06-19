@@ -374,6 +374,15 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 ---
 
+## Ops — Mac LAN Test Server
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| OPS-CORS-1 | BE | `main.go` CORS middleware: split `CORS_ORIGINS` on commas, echo back only the request's matching `Origin` (was emitting the whole string as one invalid header → browsers rejected multi-origin). | — | 0.2 | ✅ | `Access-Control-Allow-Origin` returns a single valid origin for each allowed entry (localhost + LAN both work); unknown origin gets no header; `go build ./...` passes |
+| OPS-ENV-1 | DevOps | Refresh root `.env` Mac LAN IP `192.168.102.9 → 192.168.102.6` (stale after router change) across `NEXT_PUBLIC_API_URL`, `CORS_ORIGINS`, `STORAGE_BASE_URL`, `WEBHOOK_BASE_URL`; access stays via Caddy :80 (same-origin). | OPS-CORS-1 | 0.2 | ✅ | `docker compose up -d --build fe be` (no shell env) serves the app at `http://192.168.102.6` reachable from a phone; menu data loads |
+
+---
+
 ## Critical Rules (Never Forget)
 
 | Rule | Detail |

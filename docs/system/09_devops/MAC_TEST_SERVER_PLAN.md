@@ -98,6 +98,77 @@ when P7-7 starts. Register each phase as a row in `docs/tasks/MASTER_TASK.md` be
 
 ---
 
+## Practical FAQ — Common Questions
+
+Plain-language answers to the questions people ask before turning a Mac into a test server.
+
+### Q1 — Do I need a virtual machine (VM) for this?
+
+**No.** The stack runs directly on the Mac through **Docker Desktop** — the containers
+(BE · FE · MySQL · Redis · Grafana) are the isolation layer, so no VM is needed.
+*(Docker Desktop on macOS already runs its Linux containers inside a tiny VM under the hood —
+you get that for free and never manage it.)*
+The only thing that needs a real VM is rehearsing the exact VPS deploy path
+(SSH + GHCR pull), and the plan deliberately **defers that to Stage B** (see Non-Goals).
+
+### Q2 — Will running my Mac as a server harm the computer?
+
+Low risk, and **every change is reversible** (see Q4). Effects, worst first:
+
+| Effect | Cause | Mitigation |
+|---|---|---|
+| **Heat / fan wear** | "Never sleep" keeps the Mac awake 24/7 | Keep it ventilated; the plan keeps the *display* sleeping (`displaysleep 10`) |
+| **Battery aging** (laptops only) | Plugged in at 100% constantly | macOS **Optimized Battery Charging**; N/A on Mac mini/desktop |
+| **Disk fills up** | Docker rebuilds + nightly backups pile up | M3 weekly `docker image prune -f` + `docker system df -v` |
+| **RAM/CPU reserved** | Docker holds ~2–4 GB for the container VM | Fine on a dedicated box; noticeable if it's also your daily laptop |
+
+**Not harmful:** opening the firewall to `com.docker.backend` (LAN-only, not the internet),
+Docker-at-login, and the router DHCP reservation. The only internet-exposure risk is the
+**M5 tunnel**, flagged separately with its seed-password warning.
+
+**Rule of thumb:** a **Mac mini / desktop** is built for this; a **dedicated MacBook** is fine if
+ventilated; your **only daily-driver laptop** is where to think twice (heat + RAM compete with normal work).
+
+### Q3 — Can I open the app on my iPhone?
+
+**Yes — that is exactly what Stage A delivers.** With the stack running, an iPhone on the
+**same Wi-Fi** opens Safari → `http://<mac-ip>` and sees the live app.
+
+```
+iPhone  ──Wi-Fi──►  Router  ──►  Mac (Docker stack)
+         http://<mac-ip>          BE + FE + MySQL + Redis
+```
+
+Checklist:
+1. iPhone **and** Mac on the same Wi-Fi (turn off the iPhone's mobile data so it doesn't route around the LAN).
+2. Find the Mac IP: `ipconfig getifaddr en0` (Wi-Fi) — e.g. `http://192.168.102.6`.
+3. The stack must be **running**: `docker compose up -d --build be fe`.
+
+⚠️ **The #1 gotcha:** the FE image bakes `NEXT_PUBLIC_API_URL` **at build time**. If the FE
+was built pointing at `localhost`, the page loads on the phone but the app can't reach the
+backend (menu blank, login fails). The FE must be built with the **Mac IP**. (Same gotcha as M5, line 89.)
+
+### Q4 — How do I turn the Mac back to normal?
+
+Nothing is permanent. To stop being a server right now:
+
+```bash
+docker compose down      # stops all containers, frees RAM/CPU
+```
+
+then quit Docker Desktop. To undo each M1 server change:
+
+| Server action | Undo |
+|---|---|
+| M1-1 Never sleep (`pmset -c sleep 0`) | `sudo pmset -a sleep 1 displaysleep 10 disksleep 10` (restore defaults) |
+| M1-2 Docker starts at login | Docker Desktop → Settings → General → untick "Start when you sign in" |
+| M1-2 Containers auto-restart | `docker compose down`, then quit Docker Desktop |
+| M1-3 Router DHCP reservation | Remove it in the router admin page (harmless to leave) |
+| M1-4 Firewall allow Docker | System Settings → Network → Firewall → Options → remove `com.docker.backend` |
+| M5 Tunnel | `Ctrl-C` the `cloudflared` / `ngrok` terminal |
+
+---
+
 ## Deep Dive Sources
 
 - [`docs/devops/DEPLOY_RUNBOOK.md`](../../devops/DEPLOY_RUNBOOK.md) — Stage A setup, daily commands, gotchas (canonical)
