@@ -2,7 +2,7 @@
 
 The canonical panels behind `customer_menu.excalidraw`, generalized so the same
 treatment applies to any page folder. Each panel reads from ONE primary doc in
-the page's 6-file doc-set (see `/page-doc-set`). A page rarely needs all 15 —
+the page's 6-file doc-set (see `/page-doc-set`). A page rarely needs all 14 —
 pick the panels its docs actually support, in this order.
 
 | # | Panel | Primary source doc | What it shows |
@@ -16,16 +16,15 @@ pick the panels its docs actually support, in this order.
 | 7 | **Scenario Timeline** | `SCENARIO_<PAGE>.md` | The page's own concrete walkthrough: beat-by-beat timeline, derived totals, peak snapshot, the mechanics it exercises. |
 | 8 | **Flags / Known Mismatches** | all docs | Collected doc-vs-code drift, ignored params, null→"" conventions, missing rate-limits, manual steps. |
 | 9 | **Live State Objects** | `_crosscomponent` + `_be` | Dark cards: the REAL object shapes (Zustand store · TanStack cache · BE model) + ONE concrete example threaded through all three. |
-| 10 | **Lens Mockups** | all docs | 4 phone/screen mockups annotating the component stack through 4 lenses (Loading / Cross-Component / Cross-Page / Backend) + a combined colour-coded overlay. |
-| 11 | **Object Lifecycle (moving)** | `_crosscomponent` + `_loading` + `_be` | The SAME objects from Panel 9 MOVING: per-beat lanes — Action · store-snapshot-after (← what changed) · components reacting · TanStack/BE reaction. |
-| 12 | **DB Row-Level View** | `_be.md` + migrations | The actual SQL rows this page writes/reads, every column, plus CHECK/derived-status rules. |
-| 13 | **Realtime Fan-out** | `_crosspage` + SSE/WS code | One commit → Redis pub/sub → channels → BE SSE/WS handlers → FE hooks → which OTHER screens light up. |
-| 14 | **Failure / Edge Map** | all docs + code | Every unhappy path: 4xx validations, retries on unique constraints, Redis-down fallback, tx rollback. |
-| 15 | **One Field, All Layers** | trace one field | A single field traced tap → Zustand → payload → service snapshot → SQL column → read-back → render. |
+| 10 | **Object Lifecycle (moving)** | `_crosscomponent` + `_loading` + `_be` | The SAME objects from Panel 9 MOVING: per-beat lanes — Action · store-snapshot-after (← what changed) · components reacting · TanStack/BE reaction. |
+| 11 | **DB Row-Level View** | `_be.md` + migrations | The actual SQL rows this page writes/reads, every column, plus CHECK/derived-status rules. |
+| 12 | **Realtime Fan-out** | `_crosspage` + SSE/WS code | One commit → Redis pub/sub → channels → BE SSE/WS handlers → FE hooks → which OTHER screens light up. |
+| 13 | **Failure / Edge Map** | all docs + code | Every unhappy path: 4xx validations, retries on unique constraints, Redis-down fallback, tx rollback. |
+| 14 | **One Field, All Layers** | trace one field | A single field traced tap → Zustand → payload → service snapshot → SQL column → read-back → render. |
 
 ## Layout convention
 - Panels flow **left→right, top→bottom**. Panels 1–8 are light theme (page-wireframe
-  family); panels 9–15 are the dark deep-dive family (`excalib` defaults are dark).
+  family); panels 9–14 are the dark deep-dive family (`excalib` defaults are dark).
 - Give each panel a generous coordinate band so they never overlap. The
   customer_menu set used: panels 1–8 in `x:40..3600 / y:40..2600`, then stacked the
   dark panels downward (`y` ≈ 2700, 4000, 7120, 9000…). Pick non-overlapping bands;

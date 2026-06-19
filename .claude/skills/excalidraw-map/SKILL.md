@@ -1,18 +1,23 @@
 ---
-description: Generate a multi-panel Excalidraw "doc knowledge map" for a page, modelled on customer_menu.excalidraw — NOT a single mockup but a 15-panel map of the page's whole doc-set (wireframe + dataflow + BE + object model + loading + scenario + live-state + lifecycle + DB rows + realtime + failure map). Usage: /excalidraw-map <page-folder-name>. Reads the page's 6-file doc-set, plans the panels (approval gate), then builds the .excalidraw by running Python panel scripts that import the shared excalib helper library. Model output: docs/system/08_pages/customer/customer_menu/customer_menu.excalidraw.
+description: Generate a multi-panel Excalidraw "doc knowledge map" for a page, modelled on customer_menu.excalidraw — NOT a single mockup but a 14-panel map of the page's whole doc-set (wireframe + dataflow + BE + object model + loading + scenario + live-state + lifecycle + DB rows + realtime + failure map). Usage: /excalidraw-map <page-folder-name>. Reads the page's 6-file doc-set, plans the panels (approval gate), then builds the .excalidraw by running Python panel scripts that import the shared excalib helper library. Model output: docs/system/08_pages/customer/customer_menu/customer_menu.excalidraw.
 ---
 
 You are generating a **multi-panel Excalidraw knowledge map** for one FE page of
 the BanhCuon project — the same treatment as
 `docs/system/08_pages/customer/customer_menu/customer_menu.excalidraw`.
 
+> Note: the reference `customer_menu.excalidraw` was hand-built with 15 panels
+> (it includes a "Lens Mockups" panel). This skill no longer emits that panel —
+> the catalog is now 14 panels and panel numbering is contiguous 1–14.
+
 The argument is the page folder name or path: **$ARGUMENTS**
 
 > This is NOT the `/excalidraw` skill (that draws one page mockup). This skill
 > draws the page's ENTIRE doc-set as a panel map: wireframe + every dataflow +
 > BE + object model + loading + scenario + the dark deep-dive panels.
+> (No "Lens Mockups" panel — that one is intentionally dropped.)
 
-Read `PANEL_CATALOG.md` (in this skill folder) before planning — it lists the 15
+Read `PANEL_CATALOG.md` (in this skill folder) before planning — it lists the 14
 canonical panels and which doc each one sources.
 
 ---
@@ -35,8 +40,8 @@ canonical panels and which doc each one sources.
 ## PHASE 1 — Plan the panels (always; wait for approval)
 
 From the docs, decide WHICH panels from `PANEL_CATALOG.md` this page actually
-supports (a page rarely needs all 15 — e.g. a read-only page may skip panels
-9/11/15). For each chosen panel, write one line: source doc + what it will show,
+supports (a page rarely needs all 14 — e.g. a read-only page may skip panels
+9/10/14). For each chosen panel, write one line: source doc + what it will show,
 specialized to THIS page's real content (zone names, endpoints, store shape,
 scenario beats — taken from the docs, not generic).
 
