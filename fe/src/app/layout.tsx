@@ -1,3 +1,4 @@
+import './polyfills' // iOS 14 Safari runtime polyfills — MUST stay first (COMPAT-IOS14-1)
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import { Providers } from '@/lib/providers'
