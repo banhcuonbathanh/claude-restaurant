@@ -169,6 +169,55 @@ then quit Docker Desktop. To undo each M1 server change:
 
 ---
 
+## Access From Other Devices (LAN) — Quick Reference
+
+Every time the stack is started, phones/tablets on the **same Wi-Fi** can open the app at:
+
+```
+http://192.168.102.6
+```
+
+(served through **Caddy :80** — same-origin, config baked from root `.env`, gitignored.)
+
+**Scan to open** — `lan_access_qr.png` (encodes `http://192.168.102.6`):
+
+![LAN access QR — http://192.168.102.6](lan_access_qr.png)
+
+Regenerate the QR any time (e.g. after an IP change):
+
+```bash
+qrencode -o docs/system/09_devops/lan_access_qr.png -s 8 "http://<mac-ip>"
+```
+
+### Conditions (all must hold)
+
+| # | Condition | Why |
+|---|---|---|
+| 1 | Start with **`docker compose up -d`** — **NOT `./dev.sh`** | `./dev.sh` runs FE/BE in `localhost` mode (Mac-only). Only the **container + Caddy** path is reachable from other devices. |
+| 2 | Other device on the **same Wi-Fi**, mobile data **off** | The Mac IP is a private LAN address — unreachable from cellular/internet. |
+| 3 | **Docker Desktop running** | Containers (`restart: unless-stopped`) only come back while Docker runs. |
+| 4 | URL is **`http://192.168.102.6`** (port 80, no `:3000`/`:8080`) | Caddy serves FE and proxies `/api/*` → BE on one origin. |
+
+### ⚠️ The one thing that breaks it: the Mac's IP changing
+
+`192.168.102.6` is assigned by the router (DHCP). On a **router reboot or lease expiry** the
+Mac may get a different IP — then the baked FE URL, CORS, Caddy host, and QR all point to the
+wrong address and access fails (exactly what happened when `.env` was stale on `…​.9`).
+
+**Fix when it happens:**
+
+```bash
+ipconfig getifaddr en0                 # read the new IP
+# update the IP in root .env (NEXT_PUBLIC_API_URL · CORS_ORIGINS · STORAGE_BASE_URL · WEBHOOK_BASE_URL)
+docker compose up -d --build fe be     # rebuild so the new IP is baked in
+# then regenerate the QR (command above)
+```
+
+**Permanent fix:** set a **DHCP reservation** for the Mac in the router (phase item **M1-3**) so
+the IP never changes — then "start stack → access from any device" is reliable with zero upkeep.
+
+---
+
 ## Deep Dive Sources
 
 - [`docs/devops/DEPLOY_RUNBOOK.md`](../../devops/DEPLOY_RUNBOOK.md) — Stage A setup, daily commands, gotchas (canonical)
