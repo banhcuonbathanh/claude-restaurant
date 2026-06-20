@@ -167,6 +167,7 @@ docs/api/openapi.yaml                             ← OpenAPI 3.0 spec — Swagg
 **Tầng 3 — Development system guides (read these before coding):**
 
 ```
+docs/system/AGENT_OS.md      ← AGENT ENTRY POINT: task type → READ / SKILL / VERIFY / UPDATE routing table; run /start-task + /finish-task
 docs/be/BE_DOC_INDEX.md      ← BE NAVIGATION MAP: "where do I read X?" — start here for any BE task
 docs/be/be_code_summary/     ← BE code summaries (read instead of grepping source): routes · DTOs · errors · schema · env
 docs/be/BE_SYSTEM_GUIDE.md   ← PRIMARY BE guide: epics · rules · patterns · code · what to read per domain

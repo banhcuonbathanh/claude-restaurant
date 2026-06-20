@@ -6,6 +6,11 @@
 > The folder structure itself is a **reusable template** for other projects → see
 > [05_dev_guide/FOLDER_TEMPLATE.md](05_dev_guide/FOLDER_TEMPLATE.md).
 
+> **🤖 Agents start here:** [AGENT_OS.md](AGENT_OS.md) is the single entry point — a routing table
+> that maps every task type to the docs to READ, the SKILL to run, the VERIFY gate, and the doc to
+> UPDATE on done. Run `/start-task` to open a task and `/finish-task` to close it against the
+> Definition of Done. Humans reading for understanding can continue with the folder map below.
+
 ---
 
 ## What This System Is (30 seconds)

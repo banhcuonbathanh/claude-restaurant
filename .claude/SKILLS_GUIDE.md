@@ -183,6 +183,31 @@ These activate silently when you work in the relevant domain. Claude reads them 
 
 ---
 
+### `/comparison-doc <page-folder-name>`
+**What it does:** Generates (or refreshes) the **3-file Doc-vs-Code comparison set** for an FE page — a
+read-only deep audit of where the page's documentation has **drifted from the running code**. Built so
+you and Claude share one honest picture of "what the docs claim vs. what the code actually does."
+
+**Produces 3 files in the page folder** (`docs/system/08_pages/<category>/<page>/`):
+- `COMPARISON_DOC_VS_CODE_DETAILED.md` (EN) — 5-area audit: exec summary + 🔴 hand-verified headlines + dead-code list + per-area tables (`Doc says / Code reality file:line / Sev / Solution`) + consolidated action list
+- `COMPARISON_DOC_VS_CODE_DETAILED_VI.md` (VI) — exact structure-for-structure Vietnamese mirror
+- `COMPARISON_VISUAL_MOCKUP_VI.md` (VI) — per-zone **① doc đang vẽ · ② code render thật · ③ đề xuất sửa** + 📷 screenshot + 💬 feedback column
+
+**5 audit areas:** component visuals · cross-component dataflow · cross-page dataflow · loading · FE⇄BE data model.
+
+**Key rules:** **code wins** — every "Code reality" cell traced to `file:line` on the current branch, never guessed; unpinnable cells marked `❓ UNVERIFIED`. **Read-only** — never edits app code or the page doc-set; surfacing drift is the deliverable, fixing it is a separate ALIGNed task. **Fans out** one Sonnet agent per audit area (and per zone when many), then **hand-verifies every 🔴** itself. Every finding rolls up into `COMPARISON_TRACKER.md`.
+
+- **Model files:** `docs/system/08_pages/customer/customer_menu/COMPARISON_DOC_VS_CODE_DETAILED.md` (+ `_VI` + `COMPARISON_VISUAL_MOCKUP_VI.md`)
+- **Tracker:** `docs/system/08_pages/COMPARISON_TRACKER.md`
+
+```
+/comparison-doc customer_menu
+/comparison-doc staff_kds
+/comparison-doc admin_main/admin_overview
+```
+
+---
+
 ### `/design [subcommand]`
 **What it does:** Manages the project's `DESIGN.md` — the machine-readable design system spec.
 
@@ -271,6 +296,7 @@ BUILDING PAGES
   Build from spec     → /dev-page <page-folder-name>
   Status routing map  → /status-routing-reference <page-folder-name>
   Page backend view   → /page-doc-set <page-folder-or-name>
+  Doc-vs-code audit    → /comparison-doc <page-folder-name>
 
 DESIGN SYSTEM
   Manage tokens       → /design [scaffold|lint|export|diff]
