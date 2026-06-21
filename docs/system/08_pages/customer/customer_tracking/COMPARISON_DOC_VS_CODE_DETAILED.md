@@ -3,11 +3,13 @@
 > **Scope:** a read-only doc-vs-code audit of the `/tracking` page across 5 axes — component visuals,
 > cross-component dataflow, cross-page dataflow, loading behaviour, and the FE⇄BE data model.
 > **Read-only — no code or docs were changed by this audit.**
-> Produced by 1 parallel Sonnet agent (BE source verification) + inline FE tracing; every 🔴 was
-> re-verified by hand against source on branch `experience_claude.md_system_1_test_iphon2_change_code`.
+> Produced by inline FE tracing + BE source verification; every 🔴 was re-verified by hand against
+> source on branch `experience_claude.md_system_1_test_iphon2_change_code`.
 > **Code wins:** every "Code reality" cell is a claim about the running code with a `file:line`.
 > Exclusions: `SCENARIO_TRACK_ORDER.md` (narrative beat, not a structural axis) and the `.excalidraw`
-> map are not audited here. Date: 2026-06-20.
+> map are not audited here. Date: 2026-06-21 (refresh — re-verified all findings; **new dead-code
+> finding added:** `ServiceQueueList` + `ServiceQueueItem` are unreferenced, superseded by
+> `WholeFloorPrepList`).
 >
 > **Headline result (rare):** the *textual* doc-set (`_be.md`, `_loading.md`,
 > `_crosscomponent_dataflow.md`, `TRACKING_BUGS.md`) is **unusually accurate** — it was traced from
@@ -62,6 +64,13 @@
 
 ## Dead / Unreachable Code Found
 
+- **`ServiceQueueList.tsx` + `ServiceQueueItem.tsx`** (entire files) — **zero external imports** (grep:
+  `ServiceQueueList` appears only in its own definition; `ServiceQueueItem` only in
+  `ServiceQueueList.tsx:1,28` + its own def). The page renders `WholeFloorPrepList` for the floor queue
+  (`page.tsx:12,157`), never `ServiceQueueList`. These two are an **earlier, superseded** floor-queue
+  implementation left in the tree (`ServiceQueueList` header "Bàn đang phục vụ", `ServiceQueueItem`
+  renders `StatusBadge` + `#orderId.slice(0,8)` + `itemCount món` + `~Xʹ` + a `< Đơn của bàn` chip).
+  **Newly surfaced by this refresh — not in the prior run.** 🟡 Code cleanup: delete both files.
 - **`RECONNECT.showBannerAfter = 3`** (`useOrderMonitorSSE.ts:11`) — defined, **never referenced**.
   The `ConnectionErrorBanner` shows immediately on `!sseConnected` (`page.tsx:129`), not after 3
   attempts. Dead constant.
@@ -173,6 +182,7 @@ no-Redis-cache claim, the `heartbeatInterval = 15s` (`handler.go:14`), and the p
 | 2 | 🔴 Doc fix | Redraw `OrderDetailCard` ASCII as a priced line-item list + total; drop "progress" from the Zones row | `customer_tracking.md:23-25,47` |
 | 3 | 🔴 Doc fix | Redraw `WholeFloorPrepList` ASCII as status-badge rows; remove `▓▓▓▓░░` bars + the `Mang về` row | `customer_tracking.md:29-31` |
 | 4 | 🟡 Code | Flag 2: add `item_progress` case (bump `itemsChangedAt`); Bug 4: wire or delete `tableStatuses`/`reconnect`/`showBannerAfter` | `fe/src/hooks/useOrderMonitorSSE.ts` |
+| 4b | 🟡 Code (cleanup) | Delete the unreferenced superseded floor-queue pair (0 imports; `WholeFloorPrepList` is the live one) | `fe/src/app/(shop)/tracking/components/ServiceQueueList.tsx` + `ServiceQueueItem.tsx` |
 | 5 | 🟡 Doc fix | Add "(never fires — Flag 1)" caveat to crosscomponent §2.1 + Step 5; fix `TableInfoBanner` ASCII copy + add `delivered` state | `customer_tracking_crosscomponent_dataflow.md:112,265-277` · `customer_tracking.md:18-20` |
 | 6 | 🟡 Doc fix | Refresh `_be.md` line numbers (`main.go:243-249`/`:347`, handler `:125-136`); resolve the `_loading.md:221` ❓ (shell bottom nav) | `customer_tracking_be.md` · `customer_tracking_loading.md:221` |
 | 7 | 🟡 Code | Flag 3: drop BE `position`/`estimatedMinutes` stub fields or compute server-side | `be/internal/service/order_service.go:876-928` |

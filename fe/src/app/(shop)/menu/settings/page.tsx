@@ -6,14 +6,12 @@ import { useSettingsStore } from '@/store/settings'
 
 export default function CustomerSettingsPage() {
   const router = useRouter()
-  const { customerName, tableLabel, setCustomerName, setTableLabel } = useSettingsStore()
+  const { customerName, setCustomerName } = useSettingsStore()
   const [name, setName]   = useState(customerName)
-  const [table, setTable] = useState(tableLabel)
   const [saved, setSaved] = useState(false)
 
   function handleSave() {
     setCustomerName(name.trim())
-    setTableLabel(table.trim())
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
@@ -47,22 +45,6 @@ export default function CustomerSettingsPage() {
             className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-fg focus:outline-none focus:ring-2 focus:ring-primary"
           />
           <p className="text-xs text-muted-fg">Hiển thị trong giỏ hàng và xác nhận đơn.</p>
-        </div>
-
-        {/* Table label */}
-        <div className="flex flex-col gap-2">
-          <label htmlFor="table-label" className="text-sm font-semibold text-foreground">
-            Nhãn bàn
-          </label>
-          <input
-            id="table-label"
-            type="text"
-            value={table}
-            onChange={e => setTable(e.target.value)}
-            placeholder="Ví dụ: Bàn 3"
-            className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-fg focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <p className="text-xs text-muted-fg">Hiển thị trong header menu và giỏ hàng.</p>
         </div>
 
         {/* Save button */}

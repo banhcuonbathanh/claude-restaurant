@@ -19,8 +19,8 @@ interface Props {
 
 export function CartDrawer({ open, onClose, addToOrderId, onTableCheckout }: Props) {
   const router = useRouter()
-  const { items, updateQty, removeItem, total, itemCount, activeOrderId, clearCart, tableId } = useCartStore()
-  const { customerName, tableLabel } = useSettingsStore()
+  const { items, updateQty, removeItem, total, itemCount, activeOrderId, clearCart, tableId, tableName } = useCartStore()
+  const { customerName } = useSettingsStore()
 
   // Track which combos have their dish list expanded
   const [expandedCombos, setExpandedCombos] = useState<Set<string>>(new Set())
@@ -74,9 +74,9 @@ export function CartDrawer({ open, onClose, addToOrderId, onTableCheckout }: Pro
             <h2 className="font-display text-lg text-foreground font-semibold">
               Giỏ hàng
             </h2>
-            {(customerName || tableLabel) && (
+            {(customerName || tableName) && (
               <p className="text-xs text-muted-fg">
-                {[customerName, tableLabel].filter(Boolean).join(' · ')}
+                {[customerName, tableName].filter(Boolean).join(' · ')}
               </p>
             )}
           </div>

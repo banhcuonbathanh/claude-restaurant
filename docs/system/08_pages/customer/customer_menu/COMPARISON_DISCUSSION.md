@@ -23,11 +23,11 @@
 ## GAP-1 · MenuHeader — nhãn bàn trống sau khi quét QR
 
 - **Loại:** 🔴 CODE bug
-- **Trạng thái:** 💬 chờ bạn feedback
+- **Trạng thái:** ✅ xong (TBL-A)
 - **Nguồn:** [Mockup Zone A](./COMPARISON_VISUAL_MOCKUP_VI.md#L14-L49) · [Tracker](../../COMPARISON_TRACKER.md#L13)
 - **🔗 Code (before):** [MenuHeader.tsx:11](../../../../../fe/src/features/menu/components/MenuHeader.tsx#L11) · [:28-29](../../../../../fe/src/features/menu/components/MenuHeader.tsx#L28-L29)
 - **📷 Ảnh thật:** [menuheader_real.png](./screenshots/menuheader_real.png)
-- **🔗 Code (after):** _(điền sau khi sửa — cùng link MenuHeader.tsx, dòng đã đổi)_
+- **🔗 Code (after):** [MenuHeader.tsx](../../../../../fe/src/features/menu/components/MenuHeader.tsx) đọc `useCartStore(s => s.tableName)` (header) · [CartDrawer.tsx](../../../../../fe/src/features/menu/components/CartDrawer.tsx) đọc `cart.tableName` (subtitle giỏ hàng)
 
 **Mô tả gap:** Header đọc `useSettingsStore().tableLabel`, nhưng luồng QR scan lại ghi vào `useCartStore.tableName`.
 → Sau khi quét QR, nhãn bàn ("Bàn 03") **không hiện** trên header. Bằng chứng ảnh: `screenshots/menuheader_real.png`.
@@ -44,8 +44,10 @@ khác, fix đúng bug. (Phương án B nếu bạn muốn: bắt QR scan ghi lu�
 **🗣 Thảo luận (full):**
 > _(ghi lại toàn bộ trao đổi qua lại — lý do, phương án A/B, rủi ro — không chỉ kết luận)_
 
-**✅ Quyết định:** _(chưa chốt)_
-**MASTER_TASK row:** _(chưa tạo — code fix bắt buộc có trước khi sửa)_
+**✅ Quyết định:** Chốt **swap thẳng** sang `cart.tableName` (KHÔNG fallback `?? settings.tableLabel` như Phương án A
+gợi ý ban đầu) — vì cùng task TBL-A đã **bỏ hẳn** `tableLabel`/`setTableLabel` khỏi `store/settings.ts` và xoá ô
+"Nhãn bàn" khỏi `menu/settings/page.tsx`. Khách KHÔNG còn nguồn nào tự gõ bàn → QR scan (`cart.tableName`) là nguồn duy nhất.
+**MASTER_TASK row:** TBL-A (Phase TBL — Table Handling) ✅
 
 ---
 

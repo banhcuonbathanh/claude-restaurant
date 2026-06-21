@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import type { Order, OrderItem } from '@/types/order'
 import type { Table } from '@/features/admin/admin.api'
@@ -253,6 +254,7 @@ interface TableListProps {
 export function TableList({
   tables, orders, now, loadingIds, onAction, onPaymentDone, onCancel,
 }: TableListProps) {
+  const router = useRouter()
   const [timeSort,    setTimeSort]    = useState<'asc' | 'desc'>('asc')
   const [payingEntry, setPayingEntry] = useState<{ order: Order; table: Table } | null>(null)
   const [detailEntry, setDetailEntry] = useState<{ order: Order; table: Table } | null>(null)
@@ -321,7 +323,7 @@ export function TableList({
 
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         {/* header row */}
-        <div className="grid grid-cols-[2fr_1fr_2.5rem] gap-3 px-4 py-2 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+        <div className="grid grid-cols-[2fr_1fr_auto] gap-3 px-4 py-2 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
           <span>Bàn</span>
           <button
             onClick={() => setTimeSort(s => s === 'asc' ? 'desc' : 'asc')}
@@ -341,7 +343,7 @@ export function TableList({
             if (!order) {
               return (
                 <div key={table.id}
-                  className="grid grid-cols-[2fr_1fr_2.5rem] gap-3 px-4 py-3 items-center text-sm"
+                  className="grid grid-cols-[2fr_1fr_auto] gap-3 px-4 py-3 items-center text-sm"
                 >
                   <div className="flex flex-col gap-0.5">
                     <span className="font-semibold text-gray-800 dark:text-gray-200">{table.name}</span>
@@ -351,7 +353,13 @@ export function TableList({
                     </span>
                   </div>
                   <span className="text-gray-300 dark:text-gray-600">—</span>
-                  <span />
+                  <button
+                    onClick={() => router.push(`/pos?table_id=${table.id}&table_name=${encodeURIComponent(table.name)}`)}
+                    className="justify-self-end text-xs font-medium px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors whitespace-nowrap"
+                    title={`Đặt hộ — ${table.name}`}
+                  >
+                    Đặt hộ
+                  </button>
                 </div>
               )
             }
@@ -412,7 +420,7 @@ export function TableList({
               <div key={table.id} className={`${borderL}`}>
                 <div
                   onClick={() => setDetailEntry({ order, table })}
-                  className={`grid grid-cols-[2fr_1fr_2.5rem] gap-3 px-4 py-3 items-center text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer`}
+                  className={`grid grid-cols-[2fr_1fr_auto] gap-3 px-4 py-3 items-center text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer`}
                 >
                   <div className="flex flex-col gap-1 min-w-0">
                     <span className="font-semibold text-gray-900 dark:text-gray-100 leading-tight">
@@ -428,15 +436,24 @@ export function TableList({
                     {mins} phút
                   </span>
 
-                  <button
-                    onClick={e => { e.stopPropagation(); toggleExpand(order.id) }}
-                    className="flex items-center justify-center w-9 h-9 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/30 transition-colors"
-                    title={isExpanded ? 'Thu gọn' : 'Xem chi tiết'}
-                  >
-                    <svg className={`w-5 h-5 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
+                  <div className="flex items-center gap-1.5 justify-self-end" onClick={e => e.stopPropagation()}>
+                    <button
+                      disabled
+                      className="text-xs font-medium px-2.5 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-300 dark:text-gray-600 cursor-not-allowed whitespace-nowrap"
+                      title="Bàn đang có khách — không thể đặt hộ"
+                    >
+                      Đặt hộ
+                    </button>
+                    <button
+                      onClick={() => toggleExpand(order.id)}
+                      className="flex items-center justify-center w-9 h-9 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/30 transition-colors"
+                      title={isExpanded ? 'Thu gọn' : 'Xem chi tiết'}
+                    >
+                      <svg className={`w-5 h-5 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
 
                 {/* inline expanded detail */}

@@ -384,6 +384,21 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 ---
 
+## Phase TBL — Table Handling (FE)
+
+> **Owner:** FE
+> **Dependency:** existing QR-scan cart flow (cart.tableId/tableName) + admin overview data source (`GET /tables`, `GET /orders/live`) ✅
+> **Backend:** NO change — `POST /orders` already accepts `source:'pos'` + optional `table_id`; a busy table is informational only (never blocks creation). Verified by owner.
+> **Scope note:** "Đặt hộ" on Admin Overview is **list view only** (`TableList`) per owner decision — `TableGrid` (grid toggle) left untouched.
+> **Status:** ✅ COMPLETE — `npx tsc --noEmit` clean on all 6 touched files (only pre-existing test-file errors remain)
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| TBL-A | FE | Client can NEVER type a table — QR scan is the only source (resolves GAP-1 in customer_menu/COMPARISON_DISCUSSION.md). Remove "Nhãn bàn" input + `table` state + `setTableLabel` call from `menu/settings/page.tsx` (KEEP "Tên hiển thị"); `MenuHeader.tsx` + `CartDrawer.tsx` read `useCartStore().tableName` instead of `useSettingsStore().tableLabel`; drop now-unused `tableLabel`/`setTableLabel` from `store/settings.ts` (store keeps only `customerName`). | — | 0.5 | ✅ | After QR scan, header + cart subtitle show the scanned table; customer has NO field to type a table anywhere; "Tên hiển thị" still works |
+| TBL-B | FE | Staff "Đặt hộ" (book a table for a phone-less guest) from BOTH Admin Overview and POS. `TableList.tsx`: add "Đặt hộ" button on every row, DISABLED on occupied rows (occupancy via existing `orderByTable` map) → `router.push('/pos?table_id=<id>&table_name=<name>')`. `pos/page.tsx`: (a) read `table_id`/`table_name` from query → show in header, include `table_id` in POST body, `customer_name`=table name; no param = unchanged walk-in. (b) add an in-POS table picker (reuse `listTables` + `listLiveOrders` from admin.api — DISABLE occupied tables; no new endpoint). | TBL-A | 1 | ✅ | From Overview, "Đặt hộ" greyed out on occupied tables; clicking a free table opens POS scoped to it → add món → Tạo Đơn → order shows attached to that table on Overview; same works picking a free table inside POS; occupied tables unselectable on both surfaces |
+
+---
+
 ## Critical Rules (Never Forget)
 
 | Rule | Detail |
