@@ -52,12 +52,34 @@
       </div>
     </div>
 
-    <!-- COMBO SECTION -->
+    <!-- YÊU THÍCH RAIL -->
+    <sc-if value="{{ hasFavs }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:14px 0 2px;">
+        <div style="display:flex;align-items:center;gap:6px;padding:0 16px;margin-bottom:10px;">
+          <span style="color:#f97316;font-size:13px;">♥</span>
+          <span style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#8b95a7;">YÊU THÍCH</span>
+        </div>
+        <div style="display:flex;gap:10px;overflow-x:auto;padding:0 16px 4px;">
+          <sc-for list="{{ favItems }}" as="f" hint-placeholder-count="3">
+            <div onClick="{{ f.onCard }}" style="flex:none;width:108px;background:#1b2230;border:1px solid #2a3344;border-radius:12px;padding:8px;cursor:pointer;">
+              <div style="position:relative;">
+                <div style="width:100%;height:84px;border-radius:9px;background:#222b3a;display:flex;align-items:center;justify-content:center;font-size:36px;">{{ f.emoji }}</div>
+                <button onClick="{{ f.onUnfav }}" style="{{ f.favStyle }}">♥</button>
+              </div>
+              <div style="font-size:12.5px;font-weight:600;margin-top:7px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ f.name }}</div>
+              <div style="color:#f97316;font-weight:700;font-size:12.5px;margin-top:3px;">{{ f.priceText }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- SUẤT SECTION -->
     <div data-sec="combo">
       <sc-if value="{{ hasCombos }}" hint-placeholder-val="{{ true }}">
         <div style="padding:12px 16px 2px;">
-          <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#8b95a7;margin-bottom:10px;">COMBO</div>
-          <sc-for list="{{ combos }}" as="c" hint-placeholder-count="2">
+          <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#8b95a7;margin-bottom:10px;">SUẤT</div>
+          <sc-for list="{{ combos }}" as="c" hint-placeholder-count="3">
             <div style="display:flex;gap:12px;background:#1b2230;border:1px solid #2a3344;border-radius:14px;padding:10px;margin-bottom:12px;">
               <div style="position:relative;flex:none;">
                 <div style="width:96px;height:96px;border-radius:12px;background:#222b3a;display:flex;align-items:center;justify-content:center;font-size:44px;">{{ c.emoji }}</div>
@@ -76,6 +98,40 @@
                 </div>
                 <div style="display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;max-width:122px;">
                   <sc-for list="{{ c.fillings }}" as="f" hint-placeholder-count="2">
+                    <button onClick="{{ f.onSelect }}" style="{{ f.style }}">{{ f.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+
+    <!-- TRỨNG SECTION -->
+    <div data-sec="trung">
+      <sc-if value="{{ hasTrung }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:12px 16px 2px;">
+          <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#8b95a7;margin-bottom:10px;">TRỨNG</div>
+          <sc-for list="{{ trung }}" as="p" hint-placeholder-count="3">
+            <div style="display:flex;gap:12px;background:#1b2230;border:1px solid #2a3344;border-radius:14px;padding:10px;margin-bottom:12px;">
+              <div style="position:relative;flex:none;">
+                <div style="width:96px;height:96px;border-radius:12px;background:#222b3a;display:flex;align-items:center;justify-content:center;font-size:44px;">{{ p.emoji }}</div>
+                <button onClick="{{ p.onToggleFav }}" style="{{ p.favStyle }}">♥</button>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-weight:700;font-size:15px;">{{ p.name }}</div>
+                <div style="color:#8b95a7;font-size:12.5px;line-height:1.4;margin-top:4px;">{{ p.desc }}</div>
+                <div style="color:#f97316;font-weight:700;font-size:15px;margin-top:7px;">{{ p.priceText }}</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:9px;flex:none;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <button onClick="{{ p.onDec }}" style="width:30px;height:30px;border-radius:999px;border:1px solid #2a3344;background:transparent;color:#e5e7eb;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;">–</button>
+                  <span style="min-width:16px;text-align:center;font-weight:700;font-size:15px;">{{ p.qty }}</span>
+                  <button onClick="{{ p.onInc }}" style="width:30px;height:30px;border-radius:999px;background:#f97316;border:none;color:#fff;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;">+</button>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;max-width:122px;">
+                  <sc-for list="{{ p.fillings }}" as="f" hint-placeholder-count="2">
                     <button onClick="{{ f.onSelect }}" style="{{ f.style }}">{{ f.label }}</button>
                   </sc-for>
                 </div>
@@ -120,12 +176,12 @@
       </sc-if>
     </div>
 
-    <!-- MÓN PHỤ SECTION -->
-    <div data-sec="monPhu">
-      <sc-if value="{{ hasMonPhu }}" hint-placeholder-val="{{ true }}">
+    <!-- GIÒ SECTION -->
+    <div data-sec="gio">
+      <sc-if value="{{ hasGio }}" hint-placeholder-val="{{ true }}">
         <div style="padding:12px 16px 2px;">
-          <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#8b95a7;margin-bottom:10px;">MÓN PHỤ</div>
-          <sc-for list="{{ monPhu }}" as="p" hint-placeholder-count="3">
+          <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#8b95a7;margin-bottom:10px;">GIÒ</div>
+          <sc-for list="{{ gio }}" as="p" hint-placeholder-count="1">
             <div style="display:flex;gap:12px;background:#1b2230;border:1px solid #2a3344;border-radius:14px;padding:10px;margin-bottom:12px;">
               <div style="position:relative;flex:none;">
                 <div style="width:96px;height:96px;border-radius:12px;background:#222b3a;display:flex;align-items:center;justify-content:center;font-size:44px;">{{ p.emoji }}</div>
@@ -154,12 +210,12 @@
       </sc-if>
     </div>
 
-    <!-- ĐỒ UỐNG SECTION -->
-    <div data-sec="doUong">
-      <sc-if value="{{ hasDoUong }}" hint-placeholder-val="{{ true }}">
+    <!-- CANH SECTION -->
+    <div data-sec="canh">
+      <sc-if value="{{ hasCanh }}" hint-placeholder-val="{{ true }}">
         <div style="padding:12px 16px 2px;">
-          <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#8b95a7;margin-bottom:10px;">ĐỒ UỐNG</div>
-          <sc-for list="{{ doUong }}" as="p" hint-placeholder-count="2">
+          <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#8b95a7;margin-bottom:10px;">CANH</div>
+          <sc-for list="{{ canh }}" as="p" hint-placeholder-count="2">
             <div style="display:flex;gap:12px;background:#1b2230;border:1px solid #2a3344;border-radius:14px;padding:10px;margin-bottom:12px;">
               <div style="position:relative;flex:none;">
                 <div style="width:96px;height:96px;border-radius:12px;background:#222b3a;display:flex;align-items:center;justify-content:center;font-size:44px;">{{ p.emoji }}</div>
@@ -197,7 +253,7 @@
             <span style="position:absolute;inset:-60%;background:conic-gradient(from 0deg,transparent 0deg,transparent 250deg,rgba(249,115,22,0.5) 300deg,#fdba74 340deg,#f97316 352deg,transparent 360deg);animation:spinLight 2.2s linear infinite;"></span>
             <span style="position:relative;display:inline-flex;align-items:center;gap:6px;background:#161d29;border-radius:999px;padding:3px 9px;">
               <span style="width:5px;height:5px;border-radius:999px;background:#f97316;flex:none;box-shadow:0 0 5px rgba(249,115,22,0.8);"></span>
-              <span style="font-size:11px;font-weight:600;color:#cbd2dd;letter-spacing:0.3px;white-space:nowrap;">Bàn 03</span>
+              <span style="font-size:11px;font-weight:600;color:#cbd2dd;letter-spacing:0.3px;white-space:nowrap;">Bàn 04</span>
             </span>
           </span>
         </span>
@@ -215,15 +271,43 @@
           <sc-if value="{{ hasCombo }}" hint-placeholder-val="{{ true }}">
             <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:#8b95a7;margin:4px 0 4px;">COMBO</div>
             <sc-for list="{{ comboLines }}" as="l" hint-placeholder-count="1">
-              <div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #222b3a;">
-                <div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:600;">{{ l.name }}</div></div>
-                <div style="display:flex;align-items:center;gap:6px;">
-                  <button onClick="{{ l.onDec }}" style="width:26px;height:26px;border-radius:999px;border:1px solid #2a3344;background:transparent;color:#e5e7eb;font-size:15px;line-height:1;cursor:pointer;">–</button>
-                  <span style="min-width:14px;text-align:center;font-weight:700;font-size:13px;">{{ l.qty }}</span>
-                  <button onClick="{{ l.onInc }}" style="width:26px;height:26px;border-radius:999px;background:#f97316;border:none;color:#fff;font-size:15px;line-height:1;cursor:pointer;">+</button>
+              <div style="padding:9px 0;border-bottom:1px solid #222b3a;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-size:13.5px;font-weight:600;">{{ l.name }}</div>
+                    <sc-if value="{{ l.hasTopping }}" hint-placeholder-val="{{ true }}">
+                      <div style="font-size:11px;color:#f97316;margin-top:2px;">{{ l.topping }}</div>
+                    </sc-if>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <button onClick="{{ l.onDec }}" style="width:26px;height:26px;border-radius:999px;border:1px solid #2a3344;background:transparent;color:#e5e7eb;font-size:15px;line-height:1;cursor:pointer;">–</button>
+                    <span style="min-width:14px;text-align:center;font-weight:700;font-size:13px;">{{ l.qty }}</span>
+                    <button onClick="{{ l.onInc }}" style="width:26px;height:26px;border-radius:999px;background:#f97316;border:none;color:#fff;font-size:15px;line-height:1;cursor:pointer;">+</button>
+                  </div>
+                  <span style="width:66px;text-align:right;color:#f97316;font-weight:700;font-size:13px;">{{ l.priceText }}</span>
+                  <button onClick="{{ l.onDelete }}" style="background:none;border:none;color:#8b95a7;font-size:14px;cursor:pointer;">🗑</button>
                 </div>
-                <span style="width:66px;text-align:right;color:#f97316;font-weight:700;font-size:13px;">{{ l.priceText }}</span>
-                <button onClick="{{ l.onDelete }}" style="background:none;border:none;color:#8b95a7;font-size:14px;cursor:pointer;">🗑</button>
+                <button onClick="{{ l.onToggleDetail }}" style="margin-top:7px;background:none;border:none;color:#8b95a7;font-size:11.5px;font-weight:600;font-family:inherit;cursor:pointer;padding:2px 0;">{{ l.detailLabel }}</button>
+                <sc-if value="{{ l.expanded }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-top:4px;padding-left:12px;border-left:2px solid #2a3344;">
+                    <sc-for list="{{ l.components }}" as="cc" hint-placeholder-count="3">
+                      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;">
+                        <div style="flex:1;min-width:0;">
+                          <div style="font-size:12.5px;">{{ cc.name }}</div>
+                          <sc-if value="{{ cc.hasTopping }}" hint-placeholder-val="{{ false }}">
+                            <div style="font-size:10.5px;color:#f97316;margin-top:1px;">{{ cc.topping }}</div>
+                          </sc-if>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:5px;">
+                          <button onClick="{{ cc.onDec }}" style="width:23px;height:23px;border-radius:999px;border:1px solid #2a3344;background:transparent;color:#e5e7eb;font-size:13px;line-height:1;cursor:pointer;">–</button>
+                          <span style="min-width:12px;text-align:center;font-weight:700;font-size:12px;">{{ cc.qtyText }}</span>
+                          <button onClick="{{ cc.onInc }}" style="width:23px;height:23px;border-radius:999px;background:#f97316;border:none;color:#fff;font-size:13px;line-height:1;cursor:pointer;">+</button>
+                        </div>
+                        <button onClick="{{ cc.onDelete }}" style="background:none;border:none;color:#8b95a7;font-size:13px;cursor:pointer;">🗑</button>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-if>
               </div>
             </sc-for>
             <div style="font-size:11.5px;color:#8b95a7;padding:7px 0 4px;">Subtotal: {{ comboSubtotalText }}</div>
@@ -236,7 +320,9 @@
               <div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #222b3a;">
                 <div style="flex:1;min-width:0;">
                   <div style="font-size:13.5px;font-weight:600;">{{ l.name }}</div>
-                  <div style="font-size:11px;color:#8b95a7;margin-top:1px;">{{ l.sub }}</div>
+                  <sc-if value="{{ l.hasTopping }}" hint-placeholder-val="{{ true }}">
+                    <div style="font-size:11px;color:#f97316;margin-top:2px;">{{ l.topping }}</div>
+                  </sc-if>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px;">
                   <button onClick="{{ l.onDec }}" style="width:26px;height:26px;border-radius:999px;border:1px solid #2a3344;background:transparent;color:#e5e7eb;font-size:15px;line-height:1;cursor:pointer;">–</button>
@@ -294,7 +380,7 @@
                 <sc-for list="{{ tableRows }}" as="r" hint-placeholder-count="2">
                   <div style="display:grid;grid-template-columns:1.5fr 1fr 0.5fr 1fr 1fr;gap:6px;padding:8px 0;border-bottom:1px solid #222b3a;font-size:11px;align-items:center;">
                     <span style="font-weight:600;">{{ r.mon }}</span>
-                    <span style="color:#8b95a7;">{{ r.nhan }}</span>
+                    <span style="color:#f97316;">{{ r.nhan }}</span>
                     <span style="text-align:center;">{{ r.sl }}</span>
                     <span style="text-align:right;color:#8b95a7;">{{ r.gia }}</span>
                     <span style="text-align:right;color:#f97316;font-weight:700;">{{ r.tien }}</span>
@@ -321,16 +407,15 @@
 
   </div>
 
-  <!-- FIXED CHECKOUT BAR (appears once dishes are added) -->
+  <!-- FLOATING CART + CHECKOUT BUTTONS (bottom-right, above nav) -->
   <sc-if value="{{ hasItems }}" hint-placeholder-val="{{ true }}">
-    <div style="{{ checkoutStyle }}">
-      <button onClick="{{ scrollToSummary }}" style="display:flex;align-items:center;gap:7px;flex:none;height:38px;padding:0 13px;border-radius:10px;border:none;background:rgba(0,0,0,0.22);color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">
-        <span style="width:22px;height:22px;border-radius:999px;background:rgba(255,255,255,0.25);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;">{{ cartCount }}</span>
-        Xem giỏ hàng
+    <div style="position:absolute;right:12px;bottom:72px;z-index:9;display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+      <button onClick="{{ scrollToSummary }}" style="display:flex;align-items:center;gap:6px;height:34px;padding:0 13px;border-radius:999px;border:1px solid #2a3344;background:#1b2230;color:#e5e7eb;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 5px 14px rgba(0,0,0,0.45);">
+        <span style="font-size:15px;">🛒</span>
+        <span style="min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#f97316;color:#fff;font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;">{{ cartCount }}</span>
       </button>
-      <button onClick="{{ onCheckout }}" style="flex:1;display:flex;align-items:center;justify-content:space-between;height:38px;padding:0 16px;margin-left:10px;border-radius:10px;border:none;background:rgba(255,255,255,0.16);color:#fff;font-family:inherit;cursor:pointer;">
-        <span style="font-size:16px;font-weight:700;">Thanh toán</span>
-        <span style="font-size:15px;font-weight:700;">{{ grandTotalText }}</span>
+      <button onClick="{{ onCheckout }}" style="{{ payBtnStyle }}">
+        <span style="font-size:13px;font-weight:700;">Thanh toán</span>
       </button>
     </div>
   </sc-if>
@@ -386,7 +471,18 @@
   </sc-if>
 
 </div>
-</x-dc>
+
+<template id="__bundler_thumbnail" data-bg-color="#0b0f17">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#0b0f17"/>
+    <rect x="360" y="250" width="480" height="300" rx="36" fill="#1b2230" stroke="#2a3344" stroke-width="4"/>
+    <circle cx="480" cy="360" r="46" fill="#f97316"/>
+    <rect x="560" y="330" width="220" height="26" rx="13" fill="#e5e7eb"/>
+    <rect x="560" y="378" width="150" height="20" rx="10" fill="#8b95a7"/>
+    <rect x="560" y="430" width="120" height="26" rx="13" fill="#f97316"/>
+    <rect x="430" y="600" width="340" height="56" rx="16" fill="#f97316"/>
+  </svg>
+</template></x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
 class Component extends DCLogic {
   constructor(props) {
@@ -402,7 +498,7 @@ class Component extends DCLogic {
     const scTop = sc.getBoundingClientRect().top;
     const rel = (key) => { const el = sc.querySelector('[data-sec="' + key + '"]'); return el ? el.getBoundingClientRect().top - scTop : Infinity; };
     let active = 'Tất cả';
-    const order = [['Combo', 'combo'], ['Bánh Cuốn', 'banhCuon'], ['Bánh Cuốn', 'monPhu'], ['Đồ Uống', 'doUong']];
+    const order = [['Suất', 'combo'], ['Trứng', 'trung'], ['Bánh Cuốn', 'banhCuon'], ['Giò', 'gio'], ['Canh', 'canh']];
     for (const [name, key] of order) { if (rel(key) <= 92) active = name; }
     if (active !== this.state.activeTab) this.setState({ activeTab: active });
   };
@@ -411,8 +507,8 @@ class Component extends DCLogic {
     if (!sc) return;
     this._sc = sc;
     if (name === 'Tất cả') { sc.scrollTop = 0; return; }
-    const map = { 'Combo': 'combo', 'Bánh Cuốn': 'banhCuon', 'Đồ Uống': 'doUong' };
-    const el = sc.querySelector('[data-sec="' + map[name] + '"]');
+    const map = { 'Suất': 'combo', 'Trứng': 'trung', 'Bánh Cuốn': 'banhCuon', 'Giò': 'gio', 'Canh': 'canh' };
+    const el = sc.querySelector('[data-sec="' + (map[name] || name) + '"]');
     if (el) { const r = el.getBoundingClientRect().top - sc.getBoundingClientRect().top; sc.scrollTop = sc.scrollTop + r - 58; }
   };
 
@@ -421,24 +517,56 @@ class Component extends DCLogic {
     search: '',
     summaryOpen: true,
     tableOpen: false,
-    note: 'Ít cay, thêm hành phi',
+    note: 'Gia đình (mẹ + 2 người lớn + 2 trẻ)',
     noteSaved: true,
     modalOpen: false,
     modalNote: '',
-    canh: { veg: 1, noVeg: 0 },
+    canh: { veg: 4, noVeg: 2 },
+    comboDetail: {},
     combos: [
-      { id: 'c1', name: 'Combo Đầy Đặn', desc: '2 bánh cuốn + chả + canh', price: 42000, emoji: '🍱', qty: 1, fav: false, fillings: ['Chả thường', 'Chả đặc biệt'], filling: 'Chả thường' },
-      { id: 'c2', name: 'Combo Tiết Kiệm', desc: '1 bánh cuốn + nước mía', price: 35000, emoji: '🥡', qty: 0, fav: false, fillings: ['Chả thường', 'Chả đặc biệt'], filling: 'Chả thường' },
+      { id: 'c1', name: 'Suất Đầy Đủ Trứng Tái', desc: '1 Bánh Trứng Tái + 3 Bánh Cuốn + 1 Giò + Canh có rau', price: 30000, emoji: '🍱', qty: 0, fav: false, nhan: ['Nhân thịt'],
+        components: [
+          { name: 'Bánh Trứng Tái', topping: 'Nhân thịt', qty: 1 },
+          { name: 'Bánh Cuốn', topping: 'Nhân thịt', qty: 3 },
+          { name: 'Giò', topping: '', qty: 1 },
+          { name: 'Canh có rau', topping: '', qty: 1 },
+        ] },
+      { id: 'c2', name: 'Suất Đầy Đủ Trứng Chín', desc: '1 Bánh Trứng Chín + 3 Bánh Cuốn + 1 Giò + Canh có rau', price: 30000, emoji: '🍱', qty: 1, fav: false, nhan: ['Nhân thịt'],
+        components: [
+          { name: 'Bánh Trứng Chín', topping: 'Nhân thịt', qty: 1 },
+          { name: 'Bánh Cuốn', topping: 'Nhân thịt', qty: 3 },
+          { name: 'Giò', topping: '', qty: 1 },
+          { name: 'Canh có rau', topping: '', qty: 1 },
+        ] },
+      { id: 'c3', name: 'Suất Giò', desc: '1 Giò + 4 Bánh Cuốn + Canh có rau', price: 25000, emoji: '🍱', qty: 2, fav: true, nhan: ['Nhân thịt'],
+        components: [
+          { name: 'Giò', topping: '', qty: 1 },
+          { name: 'Bánh Cuốn', topping: 'Nhân thịt', qty: 4 },
+          { name: 'Canh có rau', topping: '', qty: 1 },
+        ] },
+      { id: 'c4', name: 'Suất Trứng Tái', desc: '1 Bánh Trứng Tái + 4 Bánh Cuốn + Canh có rau', price: 25000, emoji: '🍱', qty: 0, fav: false, nhan: ['Nhân thịt'],
+        components: [
+          { name: 'Bánh Trứng Tái', topping: 'Nhân thịt', qty: 1 },
+          { name: 'Bánh Cuốn', topping: 'Nhân thịt', qty: 4 },
+          { name: 'Canh có rau', topping: '', qty: 1 },
+        ] },
+      { id: 'c5', name: 'Suất Trứng Chín', desc: '1 Bánh Trứng Chín + 4 Bánh Cuốn + Canh có rau', price: 25000, emoji: '🍱', qty: 0, fav: false, nhan: ['Nhân thịt'],
+        components: [
+          { name: 'Bánh Trứng Chín', topping: 'Nhân thịt', qty: 1 },
+          { name: 'Bánh Cuốn', topping: 'Nhân thịt', qty: 4 },
+          { name: 'Canh có rau', topping: '', qty: 1 },
+        ] },
     ],
     products: [
-      { id: 'p1', cat: 'Bánh Cuốn', name: 'Bánh Cuốn Thịt', desc: 'Bánh cuốn nhân thịt heo xay, hành phi', price: 50000, emoji: '🫓', qty: 1, fav: true, fillings: ['Hành phi', 'Không hành'], filling: 'Hành phi' },
-      { id: 'p2', cat: 'Bánh Cuốn', name: 'Bánh Cuốn Trứng', desc: 'Bánh cuốn nhân trứng, mộc nhĩ giòn', price: 45000, emoji: '🍳', qty: 0, fav: false, fillings: ['Hành phi', 'Không hành'], filling: 'Hành phi' },
-      { id: 'p3', cat: 'Bánh Cuốn', name: 'Bánh Cuốn Chay', desc: 'Bánh cuốn nhân nấm hương, đậu xanh bùi', price: 40000, emoji: '🥬', qty: 0, fav: false, fillings: ['Hành phi', 'Không hành'], filling: 'Hành phi' },
-      { id: 'p4', cat: 'Món Phụ', name: 'Chả Mỡ', desc: 'Chả mỡ chiên giòn, ăn kèm bánh cuốn', price: 25000, emoji: '🍢', qty: 0, fav: false, fillings: ['Giòn', 'Mềm'], filling: 'Giòn' },
-      { id: 'p5', cat: 'Món Phụ', name: 'Nem Chua', desc: 'Nem chua rán, chua cay đậm đà vị Bắc', price: 20000, emoji: '🌶️', qty: 0, fav: true, fillings: ['Cay', 'Không cay'], filling: 'Cay' },
-      { id: 'p6', cat: 'Món Phụ', name: 'Canh Rau', desc: 'Canh rau cải nấu xương ngọt thanh mát', price: 15000, emoji: '🥣', qty: 0, fav: false, fillings: ['Nóng', 'Nguội'], filling: 'Nóng' },
-      { id: 'p7', cat: 'Đồ Uống', name: 'Nước Mía', desc: 'Nước mía tươi nguyên chất, mát lạnh', price: 12000, emoji: '🥤', qty: 0, fav: false, fillings: ['Đá', 'Ít đá'], filling: 'Đá' },
-      { id: 'p8', cat: 'Đồ Uống', name: 'Trà Đá', desc: 'Trà đá truyền thống, giải nhiệt mùa hè', price: 10000, emoji: '🧊', qty: 0, fav: false, fillings: ['Đá', 'Ít đá'], filling: 'Đá' },
+      { id: 'p1', cat: 'Trứng', name: 'Bánh Trứng Tái', desc: 'Bánh trứng tái, lòng đào mềm mịn', price: 9000, emoji: '🍳', qty: 0, fav: true, fillings: ['Nhân thịt', 'Nhân mộc nhĩ'], filling: 'Nhân thịt' },
+      { id: 'p2', cat: 'Trứng', name: 'Bánh Trứng Chín', desc: 'Bánh trứng chín kỹ, đậm vị', price: 9000, emoji: '🍳', qty: 0, fav: false, fillings: ['Nhân thịt', 'Nhân mộc nhĩ'], filling: 'Nhân thịt' },
+      { id: 'p3', cat: 'Trứng', name: 'Bánh Trứng Vàng', desc: 'Bánh trứng vàng óng, béo ngậy', price: 9000, emoji: '🍳', qty: 2, fav: false, fillings: ['Nhân thịt', 'Nhân mộc nhĩ'], filling: 'Nhân thịt' },
+      { id: 'p4', cat: 'Bánh Cuốn', name: 'Bánh Cuốn Thịt', desc: 'Bánh cuốn nhân thịt heo xay', price: 4000, emoji: '🫓', qty: 0, fav: true, fillings: ['Nhân thịt', 'Nhân mộc nhĩ'], filling: 'Nhân thịt' },
+      { id: 'p5', cat: 'Bánh Cuốn', name: 'Bánh Cuốn Mộc Nhĩ', desc: 'Bánh cuốn nhân mộc nhĩ giòn', price: 4000, emoji: '🫓', qty: 0, fav: false, fillings: ['Nhân thịt', 'Nhân mộc nhĩ'], filling: 'Nhân mộc nhĩ' },
+      { id: 'p6', cat: 'Bánh Cuốn', name: 'Bánh Chay', desc: 'Bánh cuốn không nhân, chấm nước mắm', price: 2500, emoji: '🥬', qty: 2, fav: false, fillings: [], filling: '' },
+      { id: 'p7', cat: 'Giò', name: 'Giò', desc: 'Giò nhỏ 5 phút', price: 9000, emoji: '🍥', qty: 0, fav: false, fillings: [], filling: '' },
+      { id: 'p8', cat: 'Canh', name: 'Canh có rau', desc: 'Canh kèm rau ăn theo suất', price: 0, emoji: '🥣', qty: 4, fav: false, fillings: [], filling: '' },
+      { id: 'p9', cat: 'Canh', name: 'Canh không rau', desc: 'Canh trong, không rau', price: 0, emoji: '🍲', qty: 2, fav: false, fillings: [], filling: '' },
     ],
   };
 
@@ -470,6 +598,26 @@ class Component extends DCLogic {
   setComboFilling(id, f) {
     this.setState(s => ({ combos: s.combos.map(c => c.id === id ? { ...c, filling: f } : c) }));
   }
+  toggleComboNhan(id, opt) {
+    this.setState(s => ({ combos: s.combos.map(c => {
+      if (c.id !== id) return c;
+      const has = c.nhan.includes(opt);
+      let next = has ? c.nhan.filter(n => n !== opt) : [...c.nhan, opt];
+      if (next.length === 0) next = [opt]; // keep at least one
+      const order2 = ['Nhân thịt', 'Nhân mộc nhĩ'];
+      next.sort((a, b) => order2.indexOf(a) - order2.indexOf(b));
+      return { ...c, nhan: next };
+    }) }));
+  }
+  toggleComboDetail(id) {
+    this.setState(s => ({ comboDetail: { ...s.comboDetail, [id]: !s.comboDetail[id] } }));
+  }
+  incComboComp(comboId, idx, d) {
+    this.setState(s => ({ combos: s.combos.map(c => c.id === comboId ? { ...c, components: c.components.map((cc, i) => i === idx ? { ...cc, qty: Math.max(0, cc.qty + d) } : cc) } : c) }));
+  }
+  removeComboComp(comboId, idx) {
+    this.setState(s => ({ combos: s.combos.map(c => c.id === comboId ? { ...c, components: c.components.filter((cc, i) => i !== idx) } : c) }));
+  }
   setCanh(key, d) {
     this.setState(s => ({ canh: { ...s.canh, [key]: Math.max(0, s.canh[key] + d) } }));
   }
@@ -493,7 +641,7 @@ class Component extends DCLogic {
     const stepBase = 'flex:none;white-space:nowrap;background:transparent;border:none;border-bottom:2px solid transparent;padding:6px 2px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;transition:color 0.25s ease,border-color 0.25s ease,text-shadow 0.25s ease;';
 
     // tabs (sticky scroll-spy nav)
-    const tabNames = ['Tất cả', 'Combo', 'Bánh Cuốn', 'Đồ Uống'];
+    const tabNames = ['Tất cả', 'Suất', 'Trứng', 'Bánh Cuốn', 'Giò', 'Canh'];
     const tabs = tabNames.map(t => ({
       label: t,
       onClick: (e) => this.scrollToSection(t, e),
@@ -516,9 +664,12 @@ class Component extends DCLogic {
         style: pillBase + (p.filling === f ? 'background:#f97316;color:#fff;border:1px solid #f97316;' : 'background:transparent;color:#8b95a7;border:1px solid #2a3344;'),
       })),
     });
+    const trung = s.products.filter(p => p.cat === 'Trứng' && matchP(p)).map(mk);
     const banhCuon = s.products.filter(p => p.cat === 'Bánh Cuốn' && matchP(p)).map(mk);
-    const monPhu = s.products.filter(p => p.cat === 'Món Phụ' && matchP(p)).map(mk);
-    const doUong = s.products.filter(p => p.cat === 'Đồ Uống' && matchP(p)).map(mk);
+    const gio = s.products.filter(p => p.cat === 'Giò' && matchP(p)).map(mk);
+    const canh = s.products.filter(p => p.cat === 'Canh' && matchP(p)).map(mk);
+    const nhanText = (arr) => arr.length === 2 ? 'Nhân thịt · Mộc nhĩ' : (arr[0] || '');
+    const comboNhanOpts = ['Nhân thịt', 'Nhân mộc nhĩ'];
     const combos = s.combos.filter(c => !q || c.name.toLowerCase().includes(q)).map(c => ({
       name: c.name, desc: c.desc, emoji: c.emoji, qty: c.qty,
       priceText: this.fmt(c.price),
@@ -526,12 +677,27 @@ class Component extends DCLogic {
       onToggleFav: () => this.toggleComboFav(c.id),
       onInc: () => this.incCombo(c.id, 1),
       onDec: () => this.incCombo(c.id, -1),
-      fillings: c.fillings.map(f => ({
-        label: f,
-        onSelect: () => this.setComboFilling(c.id, f),
-        style: pillBase + (c.filling === f ? 'background:#f97316;color:#fff;border:1px solid #f97316;' : 'background:transparent;color:#8b95a7;border:1px solid #2a3344;'),
+      fillings: comboNhanOpts.map(opt => ({
+        label: opt,
+        onSelect: () => this.toggleComboNhan(c.id, opt),
+        style: pillBase + (c.nhan.includes(opt) ? 'background:#f97316;color:#fff;border:1px solid #f97316;' : 'background:transparent;color:#8b95a7;border:1px solid #2a3344;'),
       })),
     }));
+
+    // favourites rail (combos + products mixed), only respects search
+    const favStyleSm = 'position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:999px;background:rgba(11,15,23,0.78);border:1px solid #2a3344;display:flex;align-items:center;justify-content:center;font-size:11px;color:#f97316;cursor:pointer;';
+    const favItems = [
+      ...s.combos.filter(c => c.fav).map(c => ({
+        name: c.name, emoji: c.emoji, priceText: this.fmt(c.price), favStyle: favStyleSm,
+        onCard: (e) => this.scrollToSection('Suất', e),
+        onUnfav: (e) => { e.stopPropagation(); this.toggleComboFav(c.id); },
+      })),
+      ...s.products.filter(p => p.fav).map(p => ({
+        name: p.name, emoji: p.emoji, priceText: this.fmt(p.price), favStyle: favStyleSm,
+        onCard: (e) => this.scrollToSection(p.cat, e),
+        onUnfav: (e) => { e.stopPropagation(); this.toggleFav(p.id); },
+      })),
+    ];
 
     // cart math
     const prodCart = s.products.filter(p => p.qty > 0);
@@ -542,24 +708,63 @@ class Component extends DCLogic {
     const count = prodCart.reduce((a, p) => a + p.qty, 0) + comboCart.reduce((a, c) => a + c.qty, 0);
 
     const monLines = prodCart.map(p => ({
-      name: p.name, sub: 'Nhân: ' + p.filling, qty: p.qty,
+      name: p.name, topping: p.filling, hasTopping: !!p.filling, qty: p.qty,
       priceText: this.fmt(p.qty * p.price),
       onInc: () => this.incProduct(p.id, 1),
       onDec: () => this.incProduct(p.id, -1),
       onDelete: () => this.removeProduct(p.id),
     }));
-    const comboLines = comboCart.map(c => ({
+    const comboLines = comboCart.map(c => {
+      const cNhan = nhanText(c.nhan);
+      return {
       name: c.name, qty: c.qty,
+      topping: cNhan, hasTopping: !!cNhan,
       priceText: this.fmt(c.qty * c.price),
       onInc: () => this.incCombo(c.id, 1),
       onDec: () => this.incCombo(c.id, -1),
       onDelete: () => this.removeCombo(c.id),
-    }));
+      expanded: !!s.comboDetail[c.id],
+      detailLabel: s.comboDetail[c.id] ? '⌃ Ẩn chi tiết' : '⌄ Chi tiết',
+      onToggleDetail: () => this.toggleComboDetail(c.id),
+      components: c.components.map((cc, idx) => ({
+        name: cc.name, topping: cc.topping ? cNhan : '', hasTopping: !!cc.topping, qtyText: cc.qty,
+        onInc: () => this.incComboComp(c.id, idx, 1),
+        onDec: () => this.incComboComp(c.id, idx, -1),
+        onDelete: () => this.removeComboComp(c.id, idx),
+      })),
+    }; });
 
-    const tableRows = [
-      ...comboCart.map(c => ({ mon: c.name, nhan: '—', sl: c.qty, gia: this.num(c.price), tien: this.num(c.qty * c.price) })),
-      ...prodCart.map(p => ({ mon: p.name, nhan: p.filling, sl: p.qty, gia: this.num(p.price), tien: this.num(p.qty * p.price) })),
-    ];
+    // aggregated rollup: flatten combos to component dishes, merge with individual
+    // items, sum rows sharing the same dish name + topping. every row gets a
+    // resolved unit price so ĐƠN GIÁ / THÀNH TIỀN are always shown.
+    const priceMap = {};
+    s.products.forEach(p => { priceMap[p.name] = p.price; });
+    if (priceMap['Bánh Cuốn'] == null) priceMap['Bánh Cuốn'] = 4000;
+    const priceOf = (name) => priceMap[name] != null ? priceMap[name] : 0;
+    const agg = new Map();
+    const order = [];
+    const addRow = (name, topping, qty) => {
+      const key = name + '||' + (topping || '');
+      let r = agg.get(key);
+      if (!r) { r = { mon: name, topping: topping || '', sl: 0, price: priceOf(name) }; agg.set(key, r); order.push(key); }
+      r.sl += qty;
+    };
+    comboCart.forEach(c => { const cNhan = nhanText(c.nhan); c.components.forEach(cc => addRow(cc.name, cc.topping ? cNhan : '', cc.qty * c.qty)); });
+    prodCart.forEach(p => addRow(p.name, p.filling, p.qty));
+    // order rows by category: Trứng → Giò → Bánh → Canh
+    const catRank = { 'Trứng': 1, 'Giò': 2, 'Bánh Cuốn': 3, 'Canh': 4 };
+    const catMap = {};
+    s.products.forEach(p => { catMap[p.name] = p.cat; });
+    const rankOf = (name) => {
+      let cat = catMap[name];
+      if (!cat) { cat = name.indexOf('Trứng') >= 0 ? 'Trứng' : name === 'Giò' ? 'Giò' : name.indexOf('Canh') >= 0 ? 'Canh' : 'Bánh Cuốn'; }
+      return catRank[cat] || 99;
+    };
+    order.sort((a, b) => rankOf(agg.get(a).mon) - rankOf(agg.get(b).mon));
+    const tableRows = order.map(k => {
+      const r = agg.get(k);
+      return { mon: r.mon, nhan: r.topping || '—', sl: r.sl, gia: this.num(r.price), tien: this.num(r.price * r.sl) };
+    });
 
     const modalLines = [
       ...comboCart.map(c => ({ label: c.qty + '× ' + c.name, priceText: this.fmt(c.qty * c.price) })),
@@ -573,11 +778,13 @@ class Component extends DCLogic {
     return {
       tabs,
       onScroll: this.onScroll,
-      combos, banhCuon, monPhu, doUong,
+      favItems, hasFavs: favItems.length > 0,
+      combos, trung, banhCuon, gio, canh,
       hasCombos: combos.length > 0,
+      hasTrung: trung.length > 0,
       hasBanhCuon: banhCuon.length > 0,
-      hasMonPhu: monPhu.length > 0,
-      hasDoUong: doUong.length > 0,
+      hasGio: gio.length > 0,
+      hasCanh: canh.length > 0,
       scrollToSummary: this.scrollToSummary,
 
       hasItems: count > 0,
@@ -609,9 +816,9 @@ class Component extends DCLogic {
       onCanhNoInc: () => this.setCanh('noVeg', 1),
       onCanhNoDec: () => this.setCanh('noVeg', -1),
 
-      typeCount: prodCart.length + comboCart.length,
+      typeCount: tableRows.length,
       tableOpen: s.tableOpen,
-      tableChevron: s.tableOpen ? '▲' : '▼',
+      tableChevron: s.tableOpen ? '⌃ Ẩn' : '⌄ Hiện',
       toggleTable: () => this.setState(st => ({ tableOpen: !st.tableOpen })),
       tableRows,
 
@@ -619,7 +826,7 @@ class Component extends DCLogic {
       noteSaved: s.noteSaved,
       onNote: this.onNote,
 
-      checkoutStyle: 'position:absolute;left:0;right:0;bottom:64px;height:56px;display:flex;align-items:center;gap:12px;padding:0 18px;border:none;font-family:inherit;background:#f97316;cursor:' + (checkoutDisabled ? 'not-allowed' : 'pointer') + ';' + (checkoutDisabled ? 'opacity:0.45;' : ''),
+      payBtnStyle: 'display:flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:999px;border:none;font-family:inherit;background:#f97316;color:#fff;box-shadow:0 5px 14px rgba(249,115,22,0.42);cursor:' + (checkoutDisabled ? 'not-allowed' : 'pointer') + ';' + (checkoutDisabled ? 'opacity:0.5;box-shadow:none;' : ''),
       onCheckout: () => { if (!checkoutDisabled) this.setState({ modalOpen: true }); },
 
       modalOpen: s.modalOpen,

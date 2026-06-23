@@ -211,12 +211,12 @@ Replaces the placeholder menu with the actual stall menu. Run after `seed.sql`. 
 
 | Table         | What                                                                     |
 | ------------- | ------------------------------------------------------------------------ |
-| `categories`  | 3: Bánh Cuốn, Canh, Suất / Combo                                         |
-| `toppings`    | 3 nhân: Nhân thịt, Nhân mộc nhĩ, Rau mùi tàu — all free                  |
-| `products`    | 6: Giò, Bánh Trứng Tái/Chín/Vàng, Bánh Cuốn (4,000đ), Canh (free)        |
-| `combos`      | 5 suất: Đầy Đủ Trứng Chín/Tái, Suất Giò, Trứng Bánh Không, Bánh Chay     |
-| `orders`      | 3 fresh demo orders (Bàn 01 preparing, Bàn 02 pending, Bàn 03 delivered) |
-| `order_items` | All items for those 3 orders with topping snapshots                      |
+| `categories`  | 5: Suất, Trứng, Bánh Cuốn, Giò, Canh                                         |
+| `toppings`    | 2 nhân: Nhân thịt, Nhân thịt mộc nhĩ — all free                          |
+| `products`    | 9: Bánh Cuốn Thịt/Mộc Nhĩ (4,000đ), Bánh Chay (2,500đ), Bánh Trứng Tái/Chín/Vàng + Giò (9,000đ), Canh có rau/không rau (free)        |
+| `combos`      | 5 suất: Đầy Đủ Trứng Tái/Chín (30k), Suất Giò, Suất Trứng Tái, Suất Trứng Chín (25k)     |
+| `orders`      | 5 demo orders (Bàn 01 preparing, 02 pending, 03 delivered, 04 preparing, 05 pending) |
+| `order_items` | All items for those 5 orders with topping snapshots                      |
 
 #### Delete all data
 

@@ -12,7 +12,7 @@ Mỗi loại bánh đều có thể chọn **một trong hai loại nhân**. Nh�
 | Nhân | Ghi chú |
 |---|---|
 | Nhân thịt | Thịt heo xay trộn hành phi |
-| Nhân mộc nhĩ | Mộc nhĩ (nấm tai mèo) băm nhỏ — chay |
+| Nhân thịt mộc nhĩ | Mộc nhĩ (nấm tai mèo) băm nhỏ — chay |
 
 ---
 
@@ -54,7 +54,7 @@ Suất là gói đặt sẵn tiện lợi. Giá = tổng các món thành phần
 | 4 | Suất Trứng Bánh Không | 1× Bánh Trứng Vàng + 3× Bánh Cuốn (không nhân) + 1× Canh | 21,000 ₫ |
 | 5 | Bánh Chay | 3× Bánh Cuốn (nhân mộc nhĩ) + 1× Canh | 12,000 ₫ |
 
-> **Lưu ý Bánh Chay:** Nhân mộc nhĩ → không có thịt. Toppings chọn nhân sẽ bị ẩn hoặc chỉ hiện nhân mộc nhĩ trên FE.
+> **Lưu ý Bánh Chay:** Nhân thịt mộc nhĩ → không có thịt. Toppings chọn nhân sẽ bị ẩn hoặc chỉ hiện nhân mộc nhĩ trên FE.
 > **Lưu ý Suất Trứng Bánh Không:** Bánh cuốn trong suất này không được chọn nhân (combo_items fixed, nhân chọn khi order standalone).
 
 ---
@@ -66,7 +66,7 @@ Suất là gói đặt sẵn tiện lợi. Giá = tổng các món thành phần
 | Chọn nhân | Áp dụng cho tất cả 5 loại bánh — nhân thịt hoặc nhân mộc nhĩ |
 | Canh | Kèm tự động với mỗi suất. Nếu gọi lẻ thì thêm canh riêng |
 | Rau mùi tàu | Topping của canh, khách tự chọn thêm |
-| Bánh chay | Nhân mộc nhĩ, không dùng thịt |
+| Bánh chay | Nhân thịt mộc nhĩ, không dùng thịt |
 | Suất vs lẻ | Khách có thể gọi lẻ từng bánh hoặc chọn suất |
 
 ---
@@ -86,7 +86,7 @@ Suất là gói đặt sẵn tiện lợi. Giá = tổng các món thành phần
 | ID | Tên |
 |---|---|
 | `bbbbbbbb-bbbb-bbbb-bbbb-000000000001` | Nhân thịt |
-| `bbbbbbbb-bbbb-bbbb-bbbb-000000000002` | Nhân mộc nhĩ |
+| `bbbbbbbb-bbbb-bbbb-bbbb-000000000002` | Nhân thịt mộc nhĩ |
 | `bbbbbbbb-bbbb-bbbb-bbbb-000000000003` | Rau mùi tàu |
 
 ### Products (Bánh)

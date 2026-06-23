@@ -49,7 +49,7 @@ All toppings are free — `price = 0`. Cost is already included in the dish pric
 | # | Name | Price | Available | Used by |
 |---|---|---|---|---|
 | 01 | **Nhân thịt** | ₫0 | ✅ | all 5 bánh |
-| 02 | **Nhân mộc nhĩ** | ₫0 | ✅ | all 5 bánh |
+| 02 | **Nhân thịt mộc nhĩ** | ₫0 | ✅ | all 5 bánh |
 | 03 | **Rau mùi tàu** | ₫0 | ✅ | Canh only |
 
 ---
@@ -58,11 +58,11 @@ All toppings are free — `price = 0`. Cost is already included in the dish pric
 
 | # | Name | Category | Price | Selectable toppings |
 |---|---|---|---|---|
-| 01 | **Giò** | Bánh Cuốn | ₫9,000 | Nhân thịt · Nhân mộc nhĩ |
-| 02 | **Bánh Trứng Tái** | Bánh Cuốn | ₫9,000 | Nhân thịt · Nhân mộc nhĩ |
-| 03 | **Bánh Trứng Chín** | Bánh Cuốn | ₫9,000 | Nhân thịt · Nhân mộc nhĩ |
-| 04 | **Bánh Trứng Vàng** | Bánh Cuốn | ₫9,000 | Nhân thịt · Nhân mộc nhĩ |
-| 05 | **Bánh Cuốn** | Bánh Cuốn | ₫4,000 | Nhân thịt · Nhân mộc nhĩ |
+| 01 | **Giò** | Bánh Cuốn | ₫9,000 | Nhân thịt · Nhân thịt mộc nhĩ |
+| 02 | **Bánh Trứng Tái** | Bánh Cuốn | ₫9,000 | Nhân thịt · Nhân thịt mộc nhĩ |
+| 03 | **Bánh Trứng Chín** | Bánh Cuốn | ₫9,000 | Nhân thịt · Nhân thịt mộc nhĩ |
+| 04 | **Bánh Trứng Vàng** | Bánh Cuốn | ₫9,000 | Nhân thịt · Nhân thịt mộc nhĩ |
+| 05 | **Bánh Cuốn** | Bánh Cuốn | ₫4,000 | Nhân thịt · Nhân thịt mộc nhĩ |
 | 06 | **Canh** | Canh | ₫0 | Rau mùi tàu |
 
 **Descriptions**

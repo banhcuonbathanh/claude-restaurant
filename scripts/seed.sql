@@ -1,5 +1,6 @@
 -- =============================================================================
 -- scripts/seed.sql — Development seed data
+-- Doc: docs/system/03_be/SEED_DATA.md
 -- Run AFTER goose migrations are applied:
 --   mysql -u root -p banhcuon < scripts/seed.sql
 --   OR inside Docker:
@@ -10,9 +11,13 @@
 --   manager1  / manager123
 --   chef1     / chef1234
 --   cashier1  / cashier123
+--   soup1     / chef1234   (role 'staff' — người nấu canh; dùng chung hash với chef1)
 --
--- Idempotent: safe to re-run (ON DUPLICATE KEY UPDATE is a no-op on match).
+-- Menu IDs (aaaa…/cccc…) GIỐNG seed_real_menu.sql → chạy chung idempotent.
+-- Idempotent: safe to re-run (ON DUPLICATE KEY UPDATE).
 -- =============================================================================
+
+SET NAMES utf8mb4;
 
 -- ── Staff ─────────────────────────────────────────────────────────────────────
 INSERT INTO staff
@@ -32,7 +37,12 @@ VALUES
 
   ('11111111-1111-1111-1111-000000000004',
    'cashier1', '$2a$12$rNRWznQxfSjJjN3opRrkoeBcwey03e8iJ4fUnZoV2wVbbieHcZQkS',
-   'Phạm Thu Ngân',  'cashier', '0901000004', NULL,                  1, NOW(), NOW())
+   'Phạm Thu Ngân',  'cashier', '0901000004', NULL,                  1, NOW(), NOW()),
+
+  -- Người nấu canh (soup maker) — role 'staff' (đã có trong enum, không cần migration)
+  ('11111111-1111-1111-1111-000000000005',
+   'soup1',    '$2b$12$PF0unHx9h/mVo4bfEdGS8.7rAijTY5xx9BnOKjxQ//GDbkYhWbypS',
+   'Đỗ Nấu Canh',   'staff',   '0901000005', NULL,                  1, NOW(), NOW())
 ON DUPLICATE KEY UPDATE updated_at = updated_at;
 
 -- ── Tables (qr_token = 64-char random hex) ────────────────────────────────────
@@ -49,11 +59,11 @@ VALUES
 
   ('22222222-2222-2222-2222-000000000003', 'Bàn 03',
    'c3d4e5f678901234c3d4e5f678901234c3d4e5f678901234c3d4e5f678901234',
-   6, 'available', 1, NOW(), NOW()),
+   4, 'available', 1, NOW(), NOW()),
 
   ('22222222-2222-2222-2222-000000000004', 'Bàn 04',
    'd4e5f67890123456d4e5f67890123456d4e5f67890123456d4e5f67890123456',
-   2, 'available', 1, NOW(), NOW()),
+   4, 'available', 1, NOW(), NOW()),
 
   ('22222222-2222-2222-2222-000000000005', 'Bàn 05',
    'e5f6789012345678e5f6789012345678e5f6789012345678e5f6789012345678',
@@ -61,220 +71,352 @@ VALUES
 
   ('22222222-2222-2222-2222-000000000006', 'Bàn VIP',
    'f67890123456789af67890123456789af67890123456789af67890123456789a',
-   8, 'available', 1, NOW(), NOW())
+   4, 'available', 1, NOW(), NOW()),
+
+  ('22222222-2222-2222-2222-000000000010', 'Bàn 10',
+   '1010101010101010101010101010101010101010101010101010101010101010',
+   4, 'available', 1, NOW(), NOW())
 ON DUPLICATE KEY UPDATE updated_at = updated_at;
 
--- ── Categories ────────────────────────────────────────────────────────────────
+-- ── Xóa menu placeholder cũ (nếu DB từng chạy bản seed.sql cũ) ───────────────
+SET FOREIGN_KEY_CHECKS = 0;
+DELETE FROM order_items  WHERE order_id LIKE '88888888-%';
+DELETE FROM orders       WHERE id LIKE '88888888-%';
+DELETE FROM combo_items  WHERE combo_id LIKE '66666666-%';
+DELETE FROM combos       WHERE id LIKE '66666666-%';
+DELETE FROM product_toppings WHERE topping_id LIKE '55555555-%' OR product_id LIKE '44444444-%';
+DELETE FROM toppings     WHERE id LIKE '55555555-%';
+DELETE FROM products     WHERE id LIKE '44444444-%';
+DELETE FROM categories   WHERE id LIKE '33333333-%';
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- ── Categories (3) ──────────────────────────────────────────────────────────
 INSERT INTO categories
   (id, name, description, sort_order, is_active, created_at, updated_at)
 VALUES
-  ('33333333-3333-3333-3333-000000000001', 'Bánh Cuốn',  'Các loại bánh cuốn đặc trưng', 1, 1, NOW(), NOW()),
-  ('33333333-3333-3333-3333-000000000002', 'Món Phụ',    'Nem, chả, gỏi cuốn và các món ăn kèm', 2, 1, NOW(), NOW()),
-  ('33333333-3333-3333-3333-000000000003', 'Đồ Uống',    'Nước uống các loại', 3, 1, NOW(), NOW()),
-  ('33333333-3333-3333-3333-000000000004', 'Combo',      'Suất ăn trọn gói tiết kiệm',  4, 1, NOW(), NOW())
-ON DUPLICATE KEY UPDATE updated_at = updated_at;
+  ('aaaaaaaa-aaaa-aaaa-aaaa-000000000003',
+   'Suất', 'Suất ăn trọn bộ tiện lợi', 1, 1, NOW(), NOW()),
 
--- ── Toppings ─────────────────────────────────────────────────────────────────
+  ('aaaaaaaa-aaaa-aaaa-aaaa-000000000004',
+   'Trứng', 'Bánh trứng — tái · chín · vàng', 2, 1, NOW(), NOW()),
+
+  ('aaaaaaaa-aaaa-aaaa-aaaa-000000000001',
+   'Bánh Cuốn', 'Bánh cuốn — khách chọn nhân', 3, 1, NOW(), NOW()),
+
+  ('aaaaaaaa-aaaa-aaaa-aaaa-000000000005',
+   'Giò', 'giò nhỏ 5 phút', 4, 1, NOW(), NOW()),
+
+  ('aaaaaaaa-aaaa-aaaa-aaaa-000000000002',
+   'Canh', 'Canh kèm theo mỗi suất', 5, 1, NOW(), NOW())
+
+ON DUPLICATE KEY UPDATE name = VALUES(name), description = VALUES(description), sort_order = VALUES(sort_order), updated_at = NOW();
+
+-- ── Toppings = Nhân (2) — giá 0, tính trong giá bánh ────────────────────────
 INSERT INTO toppings
   (id, name, price, is_available, created_at, updated_at)
 VALUES
-  ('55555555-5555-5555-5555-000000000001', 'Hành phi',       5000,  1, NOW(), NOW()),
-  ('55555555-5555-5555-5555-000000000002', 'Ruốc tôm',      10000,  1, NOW(), NOW()),
-  ('55555555-5555-5555-5555-000000000003', 'Trứng chiên',   15000,  1, NOW(), NOW()),
-  ('55555555-5555-5555-5555-000000000004', 'Thêm thịt',     20000,  1, NOW(), NOW()),
-  ('55555555-5555-5555-5555-000000000005', 'Thêm tôm',      25000,  1, NOW(), NOW()),
-  ('55555555-5555-5555-5555-000000000006', 'Chả lụa thêm',  15000,  1, NOW(), NOW())
-ON DUPLICATE KEY UPDATE updated_at = updated_at;
+  ('bbbbbbbb-bbbb-bbbb-bbbb-000000000001', 'Nhân thịt',    0, 1, NOW(), NOW()),
+  ('bbbbbbbb-bbbb-bbbb-bbbb-000000000002', 'Nhân thịt mộc nhĩ', 0, 1, NOW(), NOW())
 
--- ── Products ─────────────────────────────────────────────────────────────────
+ON DUPLICATE KEY UPDATE name = VALUES(name), price = VALUES(price), updated_at = NOW();
+
+-- ── Products (9) ────────────────────────────────────────────────────────────
 INSERT INTO products
   (id, category_id, name, description, price, image_path, is_available, sort_order, created_at, updated_at)
 VALUES
   -- Bánh Cuốn
-  ('44444444-4444-4444-4444-000000000001',
-   '33333333-3333-3333-3333-000000000001',
-   'Bánh Cuốn Thịt', 'Bánh cuốn nhân thịt heo xay, hành phi', 45000, NULL, 1, 1, NOW(), NOW()),
+  ('cccccccc-cccc-cccc-cccc-000000000001',
+   'aaaaaaaa-aaaa-aaaa-aaaa-000000000001',
+   'Bánh Cuốn Thịt', 'Bánh cuốn nhân thịt', 4000, NULL, 1, 1, NOW(), NOW()),
 
-  ('44444444-4444-4444-4444-000000000002',
-   '33333333-3333-3333-3333-000000000001',
-   'Bánh Cuốn Tôm', 'Bánh cuốn nhân tôm tươi, nấm mèo', 50000, NULL, 1, 2, NOW(), NOW()),
+  ('cccccccc-cccc-cccc-cccc-000000000002',
+   'aaaaaaaa-aaaa-aaaa-aaaa-000000000001',
+   'Bánh Cuốn Mộc Nhĩ', 'Bánh cuốn nhân mộc nhĩ', 4000, NULL, 1, 2, NOW(), NOW()),
 
-  ('44444444-4444-4444-4444-000000000003',
-   '33333333-3333-3333-3333-000000000001',
-   'Bánh Cuốn Thập Cẩm', 'Nhân thịt + tôm + nấm mèo', 55000, NULL, 1, 3, NOW(), NOW()),
+  ('cccccccc-cccc-cccc-cccc-000000000003',
+   'aaaaaaaa-aaaa-aaaa-aaaa-000000000001',
+   'Bánh Chay', 'Bánh cuốn chay — không thịt', 2500, NULL, 1, 3, NOW(), NOW()),
 
-  ('44444444-4444-4444-4444-000000000004',
-   '33333333-3333-3333-3333-000000000001',
-   'Bánh Cuốn Trứng', 'Bánh cuốn nhân trứng gà', 40000, NULL, 1, 4, NOW(), NOW()),
+  ('cccccccc-cccc-cccc-cccc-000000000004',
+   'aaaaaaaa-aaaa-aaaa-aaaa-000000000004',
+   'Bánh Trứng Tái', 'Trứng lòng đào, chọn nhân', 9000, NULL, 1, 1, NOW(), NOW()),
 
-  -- Món Phụ
-  ('44444444-4444-4444-4444-000000000005',
-   '33333333-3333-3333-3333-000000000002',
-   'Nem Rán', 'Nem rán giòn, nhân thịt + miến', 35000, NULL, 1, 1, NOW(), NOW()),
+  ('cccccccc-cccc-cccc-cccc-000000000005',
+   'aaaaaaaa-aaaa-aaaa-aaaa-000000000004',
+   'Bánh Trứng Chín', 'Trứng chín, chọn nhân', 9000, NULL, 1, 2, NOW(), NOW()),
 
-  ('44444444-4444-4444-4444-000000000006',
-   '33333333-3333-3333-3333-000000000002',
-   'Chả Giò', 'Chả giò chiên vàng giòn', 35000, NULL, 1, 2, NOW(), NOW()),
+  ('cccccccc-cccc-cccc-cccc-000000000006',
+   'aaaaaaaa-aaaa-aaaa-aaaa-000000000004',
+   'Bánh Trứng Vàng', 'Trứng chiên vàng, chọn nhân', 9000, NULL, 1, 3, NOW(), NOW()),
 
-  ('44444444-4444-4444-4444-000000000007',
-   '33333333-3333-3333-3333-000000000002',
-   'Chả Lụa', 'Chả lụa Huế truyền thống (1 khoanh)', 25000, NULL, 1, 3, NOW(), NOW()),
+  ('cccccccc-cccc-cccc-cccc-000000000007',
+   'aaaaaaaa-aaaa-aaaa-aaaa-000000000005',
+   'Giò', 'Giò lụa cắt khoanh', 9000, NULL, 1, 1, NOW(), NOW()),
 
-  ('44444444-4444-4444-4444-000000000008',
-   '33333333-3333-3333-3333-000000000002',
-   'Gỏi Cuốn', 'Gỏi cuốn tôm thịt, bún, rau sống', 40000, NULL, 1, 4, NOW(), NOW()),
+  -- Canh
+  ('cccccccc-cccc-cccc-cccc-000000000008',
+   'aaaaaaaa-aaaa-aaaa-aaaa-000000000002',
+   'Canh có rau', 'Canh kèm rau mùi tàu', 0, NULL, 1, 1, NOW(), NOW()),
 
-  -- Đồ Uống
-  ('44444444-4444-4444-4444-000000000009',
-   '33333333-3333-3333-3333-000000000003',
-   'Trà Đá', 'Trà đá miễn phí (1 bình)', 10000, NULL, 1, 1, NOW(), NOW()),
+  ('cccccccc-cccc-cccc-cccc-000000000009',
+   'aaaaaaaa-aaaa-aaaa-aaaa-000000000002',
+   'Canh không rau', 'Canh không rau', 0, NULL, 1, 2, NOW(), NOW())
 
-  ('44444444-4444-4444-4444-000000000010',
-   '33333333-3333-3333-3333-000000000003',
-   'Nước Chanh', 'Nước chanh tươi pha mật ong', 20000, NULL, 1, 2, NOW(), NOW()),
+ON DUPLICATE KEY UPDATE
+  category_id = VALUES(category_id), name = VALUES(name), description = VALUES(description),
+  price = VALUES(price), sort_order = VALUES(sort_order), updated_at = NOW();
 
-  ('44444444-4444-4444-4444-000000000011',
-   '33333333-3333-3333-3333-000000000003',
-   'Nước Cam', 'Nước cam vắt tươi nguyên chất', 25000, NULL, 1, 3, NOW(), NOW()),
+-- ── Product ↔ Topping links ─────────────────────────────────────────────────
+-- Bánh cuốn (thịt, mộc nhĩ) + trứng (tái, chín, vàng) chọn nhân thịt / nhân mộc nhĩ.
+-- Bánh Chay = bánh không (không nhân). Giò + Canh không có topping.
+INSERT IGNORE INTO product_toppings (product_id, topping_id)
+VALUES
+  ('cccccccc-cccc-cccc-cccc-000000000001', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001'),
+  ('cccccccc-cccc-cccc-cccc-000000000001', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000002'),
+  ('cccccccc-cccc-cccc-cccc-000000000002', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001'),
+  ('cccccccc-cccc-cccc-cccc-000000000002', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000002'),
+  ('cccccccc-cccc-cccc-cccc-000000000004', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001'),
+  ('cccccccc-cccc-cccc-cccc-000000000004', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000002'),
+  ('cccccccc-cccc-cccc-cccc-000000000005', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001'),
+  ('cccccccc-cccc-cccc-cccc-000000000005', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000002'),
+  ('cccccccc-cccc-cccc-cccc-000000000006', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000001'),
+  ('cccccccc-cccc-cccc-cccc-000000000006', 'bbbbbbbb-bbbb-bbbb-bbbb-000000000002');
 
-  ('44444444-4444-4444-4444-000000000012',
-   '33333333-3333-3333-3333-000000000003',
-   'Cà Phê Sữa', 'Cà phê phin + sữa đặc', 30000, NULL, 1, 4, NOW(), NOW())
-ON DUPLICATE KEY UPDATE updated_at = updated_at;
-
--- ── Product ↔ Topping links ───────────────────────────────────────────────────
--- Bánh Cuốn Thịt: hành phi, ruốc tôm, thêm thịt
-INSERT IGNORE INTO product_toppings (product_id, topping_id) VALUES
-  ('44444444-4444-4444-4444-000000000001', '55555555-5555-5555-5555-000000000001'),
-  ('44444444-4444-4444-4444-000000000001', '55555555-5555-5555-5555-000000000002'),
-  ('44444444-4444-4444-4444-000000000001', '55555555-5555-5555-5555-000000000004');
-
--- Bánh Cuốn Tôm: hành phi, ruốc tôm, thêm tôm
-INSERT IGNORE INTO product_toppings (product_id, topping_id) VALUES
-  ('44444444-4444-4444-4444-000000000002', '55555555-5555-5555-5555-000000000001'),
-  ('44444444-4444-4444-4444-000000000002', '55555555-5555-5555-5555-000000000002'),
-  ('44444444-4444-4444-4444-000000000002', '55555555-5555-5555-5555-000000000005');
-
--- Bánh Cuốn Thập Cẩm: all toppings
-INSERT IGNORE INTO product_toppings (product_id, topping_id) VALUES
-  ('44444444-4444-4444-4444-000000000003', '55555555-5555-5555-5555-000000000001'),
-  ('44444444-4444-4444-4444-000000000003', '55555555-5555-5555-5555-000000000002'),
-  ('44444444-4444-4444-4444-000000000003', '55555555-5555-5555-5555-000000000003'),
-  ('44444444-4444-4444-4444-000000000003', '55555555-5555-5555-5555-000000000004'),
-  ('44444444-4444-4444-4444-000000000003', '55555555-5555-5555-5555-000000000005');
-
--- Bánh Cuốn Trứng: hành phi, trứng chiên
-INSERT IGNORE INTO product_toppings (product_id, topping_id) VALUES
-  ('44444444-4444-4444-4444-000000000004', '55555555-5555-5555-5555-000000000001'),
-  ('44444444-4444-4444-4444-000000000004', '55555555-5555-5555-5555-000000000003');
-
--- Gỏi Cuốn: thêm tôm, thêm thịt
-INSERT IGNORE INTO product_toppings (product_id, topping_id) VALUES
-  ('44444444-4444-4444-4444-000000000008', '55555555-5555-5555-5555-000000000004'),
-  ('44444444-4444-4444-4444-000000000008', '55555555-5555-5555-5555-000000000005');
-
--- ── Combos ───────────────────────────────────────────────────────────────────
+-- ── Combos / Suất (5) — giá = tổng thành phần (auto-sum) ─────────────────────
 INSERT INTO combos
   (id, category_id, name, description, price, image_path, is_available, sort_order, created_at, updated_at)
 VALUES
-  ('66666666-6666-6666-6666-000000000001',
-   '33333333-3333-3333-3333-000000000004',
-   'Combo Gia Đình',
-   'Bánh Cuốn Thịt ×2 + Nem Rán ×2 + Trà Đá ×2 — tiết kiệm 20k',
-   160000, NULL, 1, 1, NOW(), NOW()),
+  ('dddddddd-dddd-dddd-dddd-000000000001',
+   'aaaaaaaa-aaaa-aaaa-aaaa-000000000003',
+   'Suất Đầy Đủ Trứng Tái',
+   '1 Bánh Trứng Tái + 3 Bánh Cuốn + 1 Giò + Canh có rau',
+   30000, NULL, 1, 1, NOW(), NOW()),
 
-  ('66666666-6666-6666-6666-000000000002',
-   '33333333-3333-3333-3333-000000000004',
-   'Combo Đơn',
-   'Bánh Cuốn Tôm ×1 + Nước Chanh ×1 — suất ăn nhanh',
-   60000, NULL, 1, 2, NOW(), NOW())
-ON DUPLICATE KEY UPDATE updated_at = updated_at;
+  ('dddddddd-dddd-dddd-dddd-000000000002',
+   'aaaaaaaa-aaaa-aaaa-aaaa-000000000003',
+   'Suất Đầy Đủ Trứng Chín',
+   '1 Bánh Trứng Chín + 3 Bánh Cuốn + 1 Giò + Canh có rau',
+   30000, NULL, 1, 2, NOW(), NOW()),
 
--- ── Combo items ───────────────────────────────────────────────────────────────
+  ('dddddddd-dddd-dddd-dddd-000000000003',
+   'aaaaaaaa-aaaa-aaaa-aaaa-000000000003',
+   'Suất Giò',
+   '1 Giò + 4 Bánh Cuốn + Canh có rau',
+   25000, NULL, 1, 3, NOW(), NOW()),
+
+  ('dddddddd-dddd-dddd-dddd-000000000004',
+   'aaaaaaaa-aaaa-aaaa-aaaa-000000000003',
+   'Suất Trứng Tái',
+   '1 Bánh Trứng Tái + 4 Bánh Cuốn + Canh có rau',
+   25000, NULL, 1, 4, NOW(), NOW()),
+
+  ('dddddddd-dddd-dddd-dddd-000000000005',
+   'aaaaaaaa-aaaa-aaaa-aaaa-000000000003',
+   'Suất Trứng Chín',
+   '1 Bánh Trứng Chín + 4 Bánh Cuốn + Canh có rau',
+   25000, NULL, 1, 5, NOW(), NOW())
+
+ON DUPLICATE KEY UPDATE name = VALUES(name), description = VALUES(description), price = VALUES(price), sort_order = VALUES(sort_order), updated_at = NOW();
+
+-- ── Combo Items ─────────────────────────────────────────────────────────────
+-- "bánh cuốn" trong suất = Bánh Cuốn Thịt (cccc…001)
 INSERT INTO combo_items
   (id, combo_id, product_id, quantity, created_at, updated_at)
 VALUES
-  -- Combo Gia Đình
-  ('77777777-7777-7777-7777-000000000001',
-   '66666666-6666-6666-6666-000000000001',
-   '44444444-4444-4444-4444-000000000001', 2, NOW(), NOW()),  -- Bánh Cuốn Thịt ×2
+  -- Suất Đầy Đủ Trứng Tái  (9k + 3×4k + 9k + 0 = 30k)
+  ('eeeeeeee-eeee-eeee-eeee-000000000001', 'dddddddd-dddd-dddd-dddd-000000000001', 'cccccccc-cccc-cccc-cccc-000000000004', 1, NOW(), NOW()),
+  ('eeeeeeee-eeee-eeee-eeee-000000000002', 'dddddddd-dddd-dddd-dddd-000000000001', 'cccccccc-cccc-cccc-cccc-000000000001', 3, NOW(), NOW()),
+  ('eeeeeeee-eeee-eeee-eeee-000000000003', 'dddddddd-dddd-dddd-dddd-000000000001', 'cccccccc-cccc-cccc-cccc-000000000007', 1, NOW(), NOW()),
+  ('eeeeeeee-eeee-eeee-eeee-000000000004', 'dddddddd-dddd-dddd-dddd-000000000001', 'cccccccc-cccc-cccc-cccc-000000000008', 1, NOW(), NOW()),
 
-  ('77777777-7777-7777-7777-000000000002',
-   '66666666-6666-6666-6666-000000000001',
-   '44444444-4444-4444-4444-000000000005', 2, NOW(), NOW()),  -- Nem Rán ×2
+  -- Suất Đầy Đủ Trứng Chín  (9k + 3×4k + 9k + 0 = 30k)
+  ('eeeeeeee-eeee-eeee-eeee-000000000005', 'dddddddd-dddd-dddd-dddd-000000000002', 'cccccccc-cccc-cccc-cccc-000000000005', 1, NOW(), NOW()),
+  ('eeeeeeee-eeee-eeee-eeee-000000000006', 'dddddddd-dddd-dddd-dddd-000000000002', 'cccccccc-cccc-cccc-cccc-000000000001', 3, NOW(), NOW()),
+  ('eeeeeeee-eeee-eeee-eeee-000000000007', 'dddddddd-dddd-dddd-dddd-000000000002', 'cccccccc-cccc-cccc-cccc-000000000007', 1, NOW(), NOW()),
+  ('eeeeeeee-eeee-eeee-eeee-000000000008', 'dddddddd-dddd-dddd-dddd-000000000002', 'cccccccc-cccc-cccc-cccc-000000000008', 1, NOW(), NOW()),
 
-  ('77777777-7777-7777-7777-000000000003',
-   '66666666-6666-6666-6666-000000000001',
-   '44444444-4444-4444-4444-000000000009', 2, NOW(), NOW()),  -- Trà Đá ×2
+  -- Suất Giò  (9k + 4×4k + 0 = 25k)
+  ('eeeeeeee-eeee-eeee-eeee-000000000009', 'dddddddd-dddd-dddd-dddd-000000000003', 'cccccccc-cccc-cccc-cccc-000000000007', 1, NOW(), NOW()),
+  ('eeeeeeee-eeee-eeee-eeee-000000000010', 'dddddddd-dddd-dddd-dddd-000000000003', 'cccccccc-cccc-cccc-cccc-000000000001', 4, NOW(), NOW()),
+  ('eeeeeeee-eeee-eeee-eeee-000000000011', 'dddddddd-dddd-dddd-dddd-000000000003', 'cccccccc-cccc-cccc-cccc-000000000008', 1, NOW(), NOW()),
 
-  -- Combo Đơn
-  ('77777777-7777-7777-7777-000000000004',
-   '66666666-6666-6666-6666-000000000002',
-   '44444444-4444-4444-4444-000000000002', 1, NOW(), NOW()),  -- Bánh Cuốn Tôm ×1
+  -- Suất Trứng Tái  (9k + 4×4k + 0 = 25k)
+  ('eeeeeeee-eeee-eeee-eeee-000000000012', 'dddddddd-dddd-dddd-dddd-000000000004', 'cccccccc-cccc-cccc-cccc-000000000004', 1, NOW(), NOW()),
+  ('eeeeeeee-eeee-eeee-eeee-000000000013', 'dddddddd-dddd-dddd-dddd-000000000004', 'cccccccc-cccc-cccc-cccc-000000000001', 4, NOW(), NOW()),
+  ('eeeeeeee-eeee-eeee-eeee-000000000014', 'dddddddd-dddd-dddd-dddd-000000000004', 'cccccccc-cccc-cccc-cccc-000000000008', 1, NOW(), NOW()),
 
-  ('77777777-7777-7777-7777-000000000005',
-   '66666666-6666-6666-6666-000000000002',
-   '44444444-4444-4444-4444-000000000010', 1, NOW(), NOW())   -- Nước Chanh ×1
-ON DUPLICATE KEY UPDATE updated_at = updated_at;
+  -- Suất Trứng Chín  (9k + 4×4k + 0 = 25k)
+  ('eeeeeeee-eeee-eeee-eeee-000000000015', 'dddddddd-dddd-dddd-dddd-000000000005', 'cccccccc-cccc-cccc-cccc-000000000005', 1, NOW(), NOW()),
+  ('eeeeeeee-eeee-eeee-eeee-000000000016', 'dddddddd-dddd-dddd-dddd-000000000005', 'cccccccc-cccc-cccc-cccc-000000000001', 4, NOW(), NOW()),
+  ('eeeeeeee-eeee-eeee-eeee-000000000017', 'dddddddd-dddd-dddd-dddd-000000000005', 'cccccccc-cccc-cccc-cccc-000000000008', 1, NOW(), NOW())
 
--- ── Seed Orders (5 table scenarios — shared across all pages) ─────────────────
--- Used by: Menu · KDS · POS · Admin Overview · Payment
+ON DUPLICATE KEY UPDATE quantity = VALUES(quantity), updated_at = NOW();
+
+-- ── Demo Orders (3 bàn — test KDS + POS + Admin Overview) ───────────────────
+SET FOREIGN_KEY_CHECKS = 0;
 --
--- ┌─────────┬──────────────────────────────────────────┬───────────┬─────────────────────┐
--- │ Table   │ Items                                    │ Total     │ Status              │
--- ├─────────┼──────────────────────────────────────────┼───────────┼─────────────────────┤
--- │ Bàn 01  │ 1× Combo Gia Đình                        │ 220,000 ₫ │ preparing           │
--- │         │ 1× Bánh Cuốn Tôm + Ruốc tôm             │           │ (some items in KDS) │
--- ├─────────┼──────────────────────────────────────────┼───────────┼─────────────────────┤
--- │ Bàn 02  │ 2× Bánh Cuốn Thịt + Thêm thịt           │ 185,000 ₫ │ pending             │
--- │         │ 1× Chả Giò  ·  2× Trà Đá                │           │ (just submitted)    │
--- ├─────────┼──────────────────────────────────────────┼───────────┼─────────────────────┤
--- │ Bàn 03  │ 1× Combo Đơn                             │ 170,000 ₫ │ ready               │
--- │         │ 1× Bánh Cuốn Thập Cẩm + Hành/Trứng      │           │ (all done, deliver) │
--- │         │ 1× Nem Rán                               │           │                     │
--- ├─────────┼──────────────────────────────────────────┼───────────┼─────────────────────┤
--- │ Bàn 04  │ 3× Bánh Cuốn Trứng + Hành phi           │ 270,000 ₫ │ delivered           │
--- │ (POS)   │ 1× Gỏi Cuốn + Thêm thịt + Thêm tôm     │           │ (awaiting payment)  │
--- │         │ 2× Nước Cam                              │           │                     │
--- ├─────────┼──────────────────────────────────────────┼───────────┼─────────────────────┤
--- │ Bàn 05  │ 2× Combo Gia Đình                        │ 435,000 ₫ │ confirmed · VIP     │
--- │ (VIP)   │ 1× Chả Lụa  ·  3× Cà Phê Sữa           │           │ (not yet preparing) │
--- └─────────┴──────────────────────────────────────────┴───────────┴─────────────────────┘
+-- ┌────────┬──────────────────────────────────────────────┬──────────┬───────────┐
+-- │ Bàn   │ Gọi                                          │ Tổng     │ Status    │
+-- ├────────┼──────────────────────────────────────────────┼──────────┼───────────┤
+-- │ Bàn 01 │ 2× Bánh Trứng Chín (nhân thịt)              │ 22,000 ₫ │ preparing │
+-- │        │ 1× Bánh Cuốn Thịt · 1× Canh có rau          │          │           │
+-- ├────────┼──────────────────────────────────────────────┼──────────┼───────────┤
+-- │ Bàn 02 │ 1× Suất Đầy Đủ Trứng Tái (combo)            │ 30,000 ₫ │ pending   │
+-- ├────────┼──────────────────────────────────────────────┼──────────┼───────────┤
+-- │ Bàn 03 │ 1× Suất Giò · 1× Bánh Trứng Vàng (thịt)    │ 34,000 ₫ │ delivered │
+-- └────────┴──────────────────────────────────────────────┴──────────┴───────────┘
 
 UPDATE tables
 SET    status = 'occupied', updated_at = NOW()
 WHERE  id IN (
   '22222222-2222-2222-2222-000000000001',
   '22222222-2222-2222-2222-000000000002',
-  '22222222-2222-2222-2222-000000000003',
-  '22222222-2222-2222-2222-000000000004',
-  '22222222-2222-2222-2222-000000000005'
-);
+  '22222222-2222-2222-2222-000000000003');
 
 INSERT INTO orders
   (id, order_number, table_id, status, source, note, total_amount, created_by, created_at, updated_at)
 VALUES
-  ('88888888-8888-8888-8888-000000000001', 'ORD-20260518-001',
+  ('ffffffff-ffff-ffff-ffff-000000000001', 'ORD-20260623-001',
    '22222222-2222-2222-2222-000000000001',
-   'preparing', 'qr', 'Trẻ em ăn nhạt', 220000, NULL, NOW(), NOW()),
+   'preparing', 'qr', NULL, 22000, NULL, NOW(), NOW()),
 
-  ('88888888-8888-8888-8888-000000000002', 'ORD-20260518-002',
+  ('ffffffff-ffff-ffff-ffff-000000000002', 'ORD-20260623-002',
    '22222222-2222-2222-2222-000000000002',
-   'pending', 'qr', NULL, 185000, NULL, NOW(), NOW()),
+   'pending', 'qr', 'Không cay', 30000, NULL, NOW(), NOW()),
 
-  ('88888888-8888-8888-8888-000000000003', 'ORD-20260518-003',
+  ('ffffffff-ffff-ffff-ffff-000000000003', 'ORD-20260623-003',
    '22222222-2222-2222-2222-000000000003',
-   'ready', 'qr', 'Không cay · ít muối', 170000, NULL, NOW(), NOW()),
-
-  ('88888888-8888-8888-8888-000000000004', 'ORD-20260518-004',
-   '22222222-2222-2222-2222-000000000004',
-   'delivered', 'pos', 'Cay nhiều', 270000,
+   'delivered', 'pos', NULL, 34000,
    '11111111-1111-1111-1111-000000000004',
-   DATE_SUB(NOW(), INTERVAL 30 MINUTE), NOW()),
+   DATE_SUB(NOW(), INTERVAL 20 MINUTE), NOW())
 
-  ('88888888-8888-8888-8888-000000000005', 'ORD-20260518-005',
+ON DUPLICATE KEY UPDATE updated_at = updated_at;
+
+INSERT INTO order_items
+  (id, order_id, product_id, combo_id, combo_ref_id,
+   name, unit_price, quantity, qty_served, toppings_snapshot, note, created_at, updated_at)
+VALUES
+
+  -- ── Order 1 · Bàn 01 · preparing ─────────────────────────────────────────
+  ('00000000-0000-0000-0000-000000000001',
+   'ffffffff-ffff-ffff-ffff-000000000001',
+   'cccccccc-cccc-cccc-cccc-000000000005', NULL, NULL,
+   'Bánh Trứng Chín', 9000, 2, 1,
+   '[{"id":"bbbbbbbb-bbbb-bbbb-bbbb-000000000001","name":"Nhân thịt","price":0}]',
+   NULL, NOW(), NOW()),
+
+  ('00000000-0000-0000-0000-000000000002',
+   'ffffffff-ffff-ffff-ffff-000000000001',
+   'cccccccc-cccc-cccc-cccc-000000000001', NULL, NULL,
+   'Bánh Cuốn Thịt', 4000, 1, 0,
+   '[{"id":"bbbbbbbb-bbbb-bbbb-bbbb-000000000001","name":"Nhân thịt","price":0}]',
+   NULL, NOW(), NOW()),
+
+  ('00000000-0000-0000-0000-000000000003',
+   'ffffffff-ffff-ffff-ffff-000000000001',
+   'cccccccc-cccc-cccc-cccc-000000000008', NULL, NULL,
+   'Canh có rau', 0, 1, 1, NULL, NULL, NOW(), NOW()),
+
+  -- ── Order 2 · Bàn 02 · pending — Suất Đầy Đủ Trứng Tái (combo) ──────────
+  ('00000000-0000-0000-0000-000000000004',
+   'ffffffff-ffff-ffff-ffff-000000000002',
+   NULL, 'dddddddd-dddd-dddd-dddd-000000000001', NULL,
+   'Suất Đầy Đủ Trứng Tái', 30000, 1, 0, NULL, NULL, NOW(), NOW()),
+
+  ('00000000-0000-0000-0000-000000000005',
+   'ffffffff-ffff-ffff-ffff-000000000002',
+   'cccccccc-cccc-cccc-cccc-000000000004', NULL,
+   '00000000-0000-0000-0000-000000000004',
+   'Bánh Trứng Tái', 0, 1, 0,
+   '[{"id":"bbbbbbbb-bbbb-bbbb-bbbb-000000000001","name":"Nhân thịt","price":0}]',
+   NULL, NOW(), NOW()),
+
+  ('00000000-0000-0000-0000-000000000006',
+   'ffffffff-ffff-ffff-ffff-000000000002',
+   'cccccccc-cccc-cccc-cccc-000000000001', NULL,
+   '00000000-0000-0000-0000-000000000004',
+   'Bánh Cuốn Thịt', 0, 3, 0,
+   '[{"id":"bbbbbbbb-bbbb-bbbb-bbbb-000000000001","name":"Nhân thịt","price":0}]',
+   NULL, NOW(), NOW()),
+
+  ('00000000-0000-0000-0000-000000000007',
+   'ffffffff-ffff-ffff-ffff-000000000002',
+   'cccccccc-cccc-cccc-cccc-000000000007', NULL,
+   '00000000-0000-0000-0000-000000000004',
+   'Giò', 0, 1, 0, NULL, NULL, NOW(), NOW()),
+
+  ('00000000-0000-0000-0000-000000000008',
+   'ffffffff-ffff-ffff-ffff-000000000002',
+   'cccccccc-cccc-cccc-cccc-000000000008', NULL,
+   '00000000-0000-0000-0000-000000000004',
+   'Canh có rau', 0, 1, 0, NULL, NULL, NOW(), NOW()),
+
+  -- ── Order 3 · Bàn 03 · delivered (POS, served 20 min ago) ───────────────
+  ('00000000-0000-0000-0000-000000000009',
+   'ffffffff-ffff-ffff-ffff-000000000003',
+   NULL, 'dddddddd-dddd-dddd-dddd-000000000003', NULL,
+   'Suất Giò', 25000, 1, 1, NULL, NULL,
+   DATE_SUB(NOW(), INTERVAL 20 MINUTE), NOW()),
+
+  ('00000000-0000-0000-0000-000000000010',
+   'ffffffff-ffff-ffff-ffff-000000000003',
+   'cccccccc-cccc-cccc-cccc-000000000007', NULL,
+   '00000000-0000-0000-0000-000000000009',
+   'Giò', 0, 1, 1, NULL, NULL,
+   DATE_SUB(NOW(), INTERVAL 20 MINUTE), NOW()),
+
+  ('00000000-0000-0000-0000-000000000011',
+   'ffffffff-ffff-ffff-ffff-000000000003',
+   'cccccccc-cccc-cccc-cccc-000000000001', NULL,
+   '00000000-0000-0000-0000-000000000009',
+   'Bánh Cuốn Thịt', 0, 4, 4, NULL, NULL,
+   DATE_SUB(NOW(), INTERVAL 20 MINUTE), NOW()),
+
+  ('00000000-0000-0000-0000-000000000012',
+   'ffffffff-ffff-ffff-ffff-000000000003',
+   'cccccccc-cccc-cccc-cccc-000000000008', NULL,
+   '00000000-0000-0000-0000-000000000009',
+   'Canh có rau', 0, 1, 1, NULL, NULL,
+   DATE_SUB(NOW(), INTERVAL 20 MINUTE), NOW()),
+
+  ('00000000-0000-0000-0000-000000000013',
+   'ffffffff-ffff-ffff-ffff-000000000003',
+   'cccccccc-cccc-cccc-cccc-000000000006', NULL, NULL,
+   'Bánh Trứng Vàng', 9000, 1, 1,
+   '[{"id":"bbbbbbbb-bbbb-bbbb-bbbb-000000000001","name":"Nhân thịt","price":0}]',
+   NULL, DATE_SUB(NOW(), INTERVAL 20 MINUTE), NOW())
+
+ON DUPLICATE KEY UPDATE updated_at = updated_at;
+
+-- ── Thêm cases: gia đình (mẹ + 2 người lớn + 2 trẻ) & đôi khách lớn tuổi ────
+--
+-- ┌────────┬─────────────────────────────────────────────────────┬──────────┬───────────┐
+-- │ Bàn   │ Gọi                                                 │ Tổng     │ Status    │
+-- ├────────┼─────────────────────────────────────────────────────┼──────────┼───────────┤
+-- │ Bàn 04 │ Gia đình: 1 Suất Đầy Đủ Chín (mẹ) ·                │ 103,000 ₫│ preparing │
+-- │        │ 2 Suất Giò (2 người lớn) · 2 Bánh Chay (2 trẻ)     │          │           │
+-- │        │ [gọi thêm] 2 Bánh Trứng Vàng · [thêm] 2 Canh có rau │          │           │
+-- ├────────┼─────────────────────────────────────────────────────┼──────────┼───────────┤
+-- │ Bàn 05 │ Đôi lớn tuổi: 1 Suất Trứng Tái (bà) ·              │  50,000 ₫│ pending   │
+-- │        │ 1 Suất Trứng Chín (ông)                             │          │           │
+-- └────────┴─────────────────────────────────────────────────────┴──────────┴───────────┘
+
+UPDATE tables
+SET    status = 'occupied', updated_at = NOW()
+WHERE  id IN (
+  '22222222-2222-2222-2222-000000000004',
+  '22222222-2222-2222-2222-000000000005');
+
+INSERT INTO orders
+  (id, order_number, table_id, status, source, note, total_amount, created_by, created_at, updated_at)
+VALUES
+  ('ffffffff-ffff-ffff-ffff-000000000004', 'ORD-20260623-004',
+   '22222222-2222-2222-2222-000000000004',
+   'preparing', 'qr', 'Gia đình — 2 trẻ em ăn nhạt', 103000, NULL, NOW(), NOW()),
+
+  ('ffffffff-ffff-ffff-ffff-000000000005', 'ORD-20260623-005',
    '22222222-2222-2222-2222-000000000005',
-   'confirmed', 'qr', 'VIP khách · ưu tiên', 435000, NULL, NOW(), NOW())
+   'pending', 'qr', 'Khách lớn tuổi — ăn nhạt, ít dầu mỡ', 50000, NULL, NOW(), NOW())
 
 ON DUPLICATE KEY UPDATE updated_at = updated_at;
 
@@ -283,277 +425,131 @@ INSERT INTO order_items
    name, unit_price, quantity, qty_served, toppings_snapshot, note, created_at, updated_at)
 VALUES
 
-  -- ── Order 1 · Bàn 01 · preparing (mixed qty_served — partial kitchen progress) ──
-
-  -- Combo Gia Đình × 1  header
-  ('99999999-9999-9999-9999-000000000001',
-   '88888888-8888-8888-8888-000000000001',
-   NULL, '66666666-6666-6666-6666-000000000001', NULL,
-   'Combo Gia Đình', 160000, 1, 0, NULL, NULL, NOW(), NOW()),
-
-  -- ↳ Bánh Cuốn Thịt × 2  (not yet served)
-  ('99999999-9999-9999-9999-000000000002',
-   '88888888-8888-8888-8888-000000000001',
-   '44444444-4444-4444-4444-000000000001', NULL,
-   '99999999-9999-9999-9999-000000000001',
-   'Bánh Cuốn Thịt', 0, 2, 0, NULL, NULL, NOW(), NOW()),
-
-  -- ↳ Nem Rán × 2  (1 served, 1 pending)
-  ('99999999-9999-9999-9999-000000000003',
-   '88888888-8888-8888-8888-000000000001',
-   '44444444-4444-4444-4444-000000000005', NULL,
-   '99999999-9999-9999-9999-000000000001',
-   'Nem Rán', 0, 2, 1, NULL, NULL, NOW(), NOW()),
-
-  -- ↳ Trà Đá × 2  (both served — drinks done first)
-  ('99999999-9999-9999-9999-000000000004',
-   '88888888-8888-8888-8888-000000000001',
-   '44444444-4444-4444-4444-000000000009', NULL,
-   '99999999-9999-9999-9999-000000000001',
-   'Trà Đá', 0, 2, 2, NULL, NULL, NOW(), NOW()),
-
-  -- Bánh Cuốn Tôm × 1  standalone  + Ruốc tôm topping
-  ('99999999-9999-9999-9999-000000000005',
-   '88888888-8888-8888-8888-000000000001',
-   '44444444-4444-4444-4444-000000000002', NULL, NULL,
-   'Bánh Cuốn Tôm', 50000, 1, 0,
-   '[{"id":"55555555-5555-5555-5555-000000000002","name":"Ruốc tôm","price":10000}]',
+  -- ── Order 4 · Bàn 04 · preparing — Gia đình ──────────────────────────────
+  -- Mẹ: Suất Đầy Đủ Trứng Chín (combo)
+  ('00000000-0000-0000-0000-000000000014',
+   'ffffffff-ffff-ffff-ffff-000000000004',
+   NULL, 'dddddddd-dddd-dddd-dddd-000000000002', NULL,
+   'Suất Đầy Đủ Trứng Chín', 30000, 1, 0, NULL, NULL, NOW(), NOW()),
+  ('00000000-0000-0000-0000-000000000015',
+   'ffffffff-ffff-ffff-ffff-000000000004',
+   'cccccccc-cccc-cccc-cccc-000000000005', NULL,
+   '00000000-0000-0000-0000-000000000014',
+   'Bánh Trứng Chín', 0, 1, 1,
+   '[{"id":"bbbbbbbb-bbbb-bbbb-bbbb-000000000001","name":"Nhân thịt","price":0}]',
    NULL, NOW(), NOW()),
-
-  -- ── Order 2 · Bàn 02 · pending (nothing started) ─────────────────────────
-
-  -- Bánh Cuốn Thịt × 2  standalone  + Thêm thịt topping
-  ('99999999-9999-9999-9999-000000000006',
-   '88888888-8888-8888-8888-000000000002',
-   '44444444-4444-4444-4444-000000000001', NULL, NULL,
-   'Bánh Cuốn Thịt', 45000, 2, 0,
-   '[{"id":"55555555-5555-5555-5555-000000000004","name":"Thêm thịt","price":20000}]',
+  ('00000000-0000-0000-0000-000000000016',
+   'ffffffff-ffff-ffff-ffff-000000000004',
+   'cccccccc-cccc-cccc-cccc-000000000001', NULL,
+   '00000000-0000-0000-0000-000000000014',
+   'Bánh Cuốn Thịt', 0, 3, 0,
+   '[{"id":"bbbbbbbb-bbbb-bbbb-bbbb-000000000001","name":"Nhân thịt","price":0}]',
    NULL, NOW(), NOW()),
+  ('00000000-0000-0000-0000-000000000017',
+   'ffffffff-ffff-ffff-ffff-000000000004',
+   'cccccccc-cccc-cccc-cccc-000000000007', NULL,
+   '00000000-0000-0000-0000-000000000014',
+   'Giò', 0, 1, 0, NULL, NULL, NOW(), NOW()),
+  ('00000000-0000-0000-0000-000000000018',
+   'ffffffff-ffff-ffff-ffff-000000000004',
+   'cccccccc-cccc-cccc-cccc-000000000008', NULL,
+   '00000000-0000-0000-0000-000000000014',
+   'Canh có rau', 0, 1, 1, NULL, NULL, NOW(), NOW()),
 
-  -- Chả Giò × 1  standalone
-  ('99999999-9999-9999-9999-000000000007',
-   '88888888-8888-8888-8888-000000000002',
-   '44444444-4444-4444-4444-000000000006', NULL, NULL,
-   'Chả Giò', 35000, 1, 0, NULL, NULL, NOW(), NOW()),
-
-  -- Trà Đá × 2  standalone
-  ('99999999-9999-9999-9999-000000000008',
-   '88888888-8888-8888-8888-000000000002',
-   '44444444-4444-4444-4444-000000000009', NULL, NULL,
-   'Trà Đá', 10000, 2, 0, NULL, NULL, NOW(), NOW()),
-
-  -- ── Order 3 · Bàn 03 · ready (all qty_served = quantity) ─────────────────
-
-  -- Combo Đơn × 1  header  (fully served)
-  ('99999999-9999-9999-9999-000000000009',
-   '88888888-8888-8888-8888-000000000003',
-   NULL, '66666666-6666-6666-6666-000000000002', NULL,
-   'Combo Đơn', 60000, 1, 1, NULL, NULL, NOW(), NOW()),
-
-  -- ↳ Bánh Cuốn Tôm × 1
-  ('99999999-9999-9999-9999-000000000010',
-   '88888888-8888-8888-8888-000000000003',
-   '44444444-4444-4444-4444-000000000002', NULL,
-   '99999999-9999-9999-9999-000000000009',
-   'Bánh Cuốn Tôm', 0, 1, 1, NULL, NULL, NOW(), NOW()),
-
-  -- ↳ Nước Chanh × 1
-  ('99999999-9999-9999-9999-000000000011',
-   '88888888-8888-8888-8888-000000000003',
-   '44444444-4444-4444-4444-000000000010', NULL,
-   '99999999-9999-9999-9999-000000000009',
-   'Nước Chanh', 0, 1, 1, NULL, NULL, NOW(), NOW()),
-
-  -- Bánh Cuốn Thập Cẩm × 1  standalone  + Hành phi + Trứng chiên
-  ('99999999-9999-9999-9999-000000000012',
-   '88888888-8888-8888-8888-000000000003',
-   '44444444-4444-4444-4444-000000000003', NULL, NULL,
-   'Bánh Cuốn Thập Cẩm', 55000, 1, 1,
-   '[{"id":"55555555-5555-5555-5555-000000000001","name":"Hành phi","price":5000},{"id":"55555555-5555-5555-5555-000000000003","name":"Trứng chiên","price":15000}]',
+  -- 2 người lớn: Suất Giò ×2 (combo)
+  ('00000000-0000-0000-0000-000000000019',
+   'ffffffff-ffff-ffff-ffff-000000000004',
+   NULL, 'dddddddd-dddd-dddd-dddd-000000000003', NULL,
+   'Suất Giò', 25000, 2, 0, NULL, NULL, NOW(), NOW()),
+  ('00000000-0000-0000-0000-000000000020',
+   'ffffffff-ffff-ffff-ffff-000000000004',
+   'cccccccc-cccc-cccc-cccc-000000000007', NULL,
+   '00000000-0000-0000-0000-000000000019',
+   'Giò', 0, 2, 0, NULL, NULL, NOW(), NOW()),
+  ('00000000-0000-0000-0000-000000000021',
+   'ffffffff-ffff-ffff-ffff-000000000004',
+   'cccccccc-cccc-cccc-cccc-000000000001', NULL,
+   '00000000-0000-0000-0000-000000000019',
+   'Bánh Cuốn Thịt', 0, 8, 0,
+   '[{"id":"bbbbbbbb-bbbb-bbbb-bbbb-000000000001","name":"Nhân thịt","price":0}]',
    NULL, NOW(), NOW()),
+  ('00000000-0000-0000-0000-000000000022',
+   'ffffffff-ffff-ffff-ffff-000000000004',
+   'cccccccc-cccc-cccc-cccc-000000000008', NULL,
+   '00000000-0000-0000-0000-000000000019',
+   'Canh có rau', 0, 2, 0, NULL, NULL, NOW(), NOW()),
 
-  -- Nem Rán × 1  standalone
-  ('99999999-9999-9999-9999-000000000013',
-   '88888888-8888-8888-8888-000000000003',
-   '44444444-4444-4444-4444-000000000005', NULL, NULL,
-   'Nem Rán', 35000, 1, 1, NULL, NULL, NOW(), NOW()),
+  -- 2 trẻ em: 2 Bánh Chay (bánh không — no nhân)
+  ('00000000-0000-0000-0000-000000000023',
+   'ffffffff-ffff-ffff-ffff-000000000004',
+   'cccccccc-cccc-cccc-cccc-000000000003', NULL, NULL,
+   'Bánh Chay', 2500, 2, 0, NULL, NULL, NOW(), NOW()),
 
-  -- ── Order 4 · Bàn 04 · delivered · cashier-created (POS) ─────────────────
+  -- [Gọi thêm sau] 2 Bánh Trứng Vàng (nhân thịt)
+  ('00000000-0000-0000-0000-000000000024',
+   'ffffffff-ffff-ffff-ffff-000000000004',
+   'cccccccc-cccc-cccc-cccc-000000000006', NULL, NULL,
+   'Bánh Trứng Vàng', 9000, 2, 0,
+   '[{"id":"bbbbbbbb-bbbb-bbbb-bbbb-000000000001","name":"Nhân thịt","price":0}]',
+   'Gọi thêm', NOW(), NOW()),
 
-  -- Bánh Cuốn Trứng × 3  standalone  + Hành phi
-  ('99999999-9999-9999-9999-000000000014',
-   '88888888-8888-8888-8888-000000000004',
-   '44444444-4444-4444-4444-000000000004', NULL, NULL,
-   'Bánh Cuốn Trứng', 40000, 3, 3,
-   '[{"id":"55555555-5555-5555-5555-000000000001","name":"Hành phi","price":5000}]',
-   NULL, DATE_SUB(NOW(), INTERVAL 30 MINUTE), NOW()),
+  -- [Gọi thêm canh] 2 Canh có rau
+  ('00000000-0000-0000-0000-000000000025',
+   'ffffffff-ffff-ffff-ffff-000000000004',
+   'cccccccc-cccc-cccc-cccc-000000000008', NULL, NULL,
+   'Canh có rau', 0, 2, 0, NULL, 'Gọi thêm', NOW(), NOW()),
 
-  -- Gỏi Cuốn × 1  standalone  + Thêm thịt + Thêm tôm
-  ('99999999-9999-9999-9999-000000000015',
-   '88888888-8888-8888-8888-000000000004',
-   '44444444-4444-4444-4444-000000000008', NULL, NULL,
-   'Gỏi Cuốn', 40000, 1, 1,
-   '[{"id":"55555555-5555-5555-5555-000000000004","name":"Thêm thịt","price":20000},{"id":"55555555-5555-5555-5555-000000000005","name":"Thêm tôm","price":25000}]',
-   NULL, DATE_SUB(NOW(), INTERVAL 30 MINUTE), NOW()),
+  -- ── Order 5 · Bàn 05 · pending — Đôi khách lớn tuổi ──────────────────────
+  -- Bà: Suất Trứng Tái (combo)
+  ('00000000-0000-0000-0000-000000000026',
+   'ffffffff-ffff-ffff-ffff-000000000005',
+   NULL, 'dddddddd-dddd-dddd-dddd-000000000004', NULL,
+   'Suất Trứng Tái', 25000, 1, 0, NULL, NULL, NOW(), NOW()),
+  ('00000000-0000-0000-0000-000000000027',
+   'ffffffff-ffff-ffff-ffff-000000000005',
+   'cccccccc-cccc-cccc-cccc-000000000004', NULL,
+   '00000000-0000-0000-0000-000000000026',
+   'Bánh Trứng Tái', 0, 1, 0,
+   '[{"id":"bbbbbbbb-bbbb-bbbb-bbbb-000000000001","name":"Nhân thịt","price":0}]',
+   NULL, NOW(), NOW()),
+  ('00000000-0000-0000-0000-000000000028',
+   'ffffffff-ffff-ffff-ffff-000000000005',
+   'cccccccc-cccc-cccc-cccc-000000000001', NULL,
+   '00000000-0000-0000-0000-000000000026',
+   'Bánh Cuốn Thịt', 0, 4, 0,
+   '[{"id":"bbbbbbbb-bbbb-bbbb-bbbb-000000000001","name":"Nhân thịt","price":0}]',
+   NULL, NOW(), NOW()),
+  ('00000000-0000-0000-0000-000000000029',
+   'ffffffff-ffff-ffff-ffff-000000000005',
+   'cccccccc-cccc-cccc-cccc-000000000008', NULL,
+   '00000000-0000-0000-0000-000000000026',
+   'Canh có rau', 0, 1, 0, NULL, NULL, NOW(), NOW()),
 
-  -- Nước Cam × 2  standalone
-  ('99999999-9999-9999-9999-000000000016',
-   '88888888-8888-8888-8888-000000000004',
-   '44444444-4444-4444-4444-000000000011', NULL, NULL,
-   'Nước Cam', 25000, 2, 2, NULL, NULL,
-   DATE_SUB(NOW(), INTERVAL 30 MINUTE), NOW()),
-
-  -- ── Order 5 · Bàn 05 · confirmed · VIP (nothing sent to kitchen yet) ──────
-
-  -- Combo Gia Đình × 2  header
-  ('99999999-9999-9999-9999-000000000017',
-   '88888888-8888-8888-8888-000000000005',
-   NULL, '66666666-6666-6666-6666-000000000001', NULL,
-   'Combo Gia Đình', 160000, 2, 0, NULL, NULL, NOW(), NOW()),
-
-  -- ↳ Bánh Cuốn Thịt × 4  (2 combos × 2 each)
-  ('99999999-9999-9999-9999-000000000018',
-   '88888888-8888-8888-8888-000000000005',
-   '44444444-4444-4444-4444-000000000001', NULL,
-   '99999999-9999-9999-9999-000000000017',
-   'Bánh Cuốn Thịt', 0, 4, 0, NULL, NULL, NOW(), NOW()),
-
-  -- ↳ Nem Rán × 4
-  ('99999999-9999-9999-9999-000000000019',
-   '88888888-8888-8888-8888-000000000005',
-   '44444444-4444-4444-4444-000000000005', NULL,
-   '99999999-9999-9999-9999-000000000017',
-   'Nem Rán', 0, 4, 0, NULL, NULL, NOW(), NOW()),
-
-  -- ↳ Trà Đá × 4
-  ('99999999-9999-9999-9999-000000000020',
-   '88888888-8888-8888-8888-000000000005',
-   '44444444-4444-4444-4444-000000000009', NULL,
-   '99999999-9999-9999-9999-000000000017',
-   'Trà Đá', 0, 4, 0, NULL, NULL, NOW(), NOW()),
-
-  -- Chả Lụa × 1  standalone
-  ('99999999-9999-9999-9999-000000000021',
-   '88888888-8888-8888-8888-000000000005',
-   '44444444-4444-4444-4444-000000000007', NULL, NULL,
-   'Chả Lụa', 25000, 1, 0, NULL, NULL, NOW(), NOW()),
-
-  -- Cà Phê Sữa × 3  standalone
-  ('99999999-9999-9999-9999-000000000022',
-   '88888888-8888-8888-8888-000000000005',
-   '44444444-4444-4444-4444-000000000012', NULL, NULL,
-   'Cà Phê Sữa', 30000, 3, 0, NULL, NULL, NOW(), NOW())
-
-ON DUPLICATE KEY UPDATE updated_at = updated_at;
-
--- ── New category: Súp & Canh ──────────────────────────────────────────────────
-INSERT INTO categories
-  (id, name, description, sort_order, is_active, created_at, updated_at)
-VALUES
-  ('33333333-3333-3333-3333-000000000005', 'Súp & Canh', 'Các loại súp và canh', 5, 1, NOW(), NOW())
-ON DUPLICATE KEY UPDATE updated_at = updated_at;
-
--- ── New products ─────────────────────────────────────────────────────────────
-INSERT INTO products
-  (id, category_id, name, description, price, image_path, is_available, sort_order, created_at, updated_at)
-VALUES
-  -- Súp & Canh
-  ('44444444-4444-4444-4444-000000000013',
-   '33333333-3333-3333-3333-000000000005',
-   'Nước Dùng', 'Nước dùng xương heo hầm (1 bình)', 15000, NULL, 1, 1, NOW(), NOW()),
-
-  ('44444444-4444-4444-4444-000000000014',
-   '33333333-3333-3333-3333-000000000005',
-   'Canh Rau', 'Canh rau củ thanh đạm', 20000, NULL, 1, 2, NOW(), NOW()),
-
-  ('44444444-4444-4444-4444-000000000015',
-   '33333333-3333-3333-3333-000000000005',
-   'Súp Gà', 'Súp gà ngô non, cà rốt', 30000, NULL, 1, 3, NOW(), NOW()),
-
-  -- Đồ Uống (thêm)
-  ('44444444-4444-4444-4444-000000000016',
-   '33333333-3333-3333-3333-000000000003',
-   'Sinh Tố Xoài', 'Sinh tố xoài tươi xay sữa', 35000, NULL, 1, 5, NOW(), NOW()),
-
-  ('44444444-4444-4444-4444-000000000017',
-   '33333333-3333-3333-3333-000000000003',
-   'Nước Dừa', 'Nước dừa xiêm tươi nguyên trái', 20000, NULL, 1, 6, NOW(), NOW()),
-
-  ('44444444-4444-4444-4444-000000000018',
-   '33333333-3333-3333-3333-000000000003',
-   'Bia Saigon', 'Bia Saigon Special (330ml)', 25000, NULL, 1, 7, NOW(), NOW()),
-
-  -- Topping đơn lẻ (Món Phụ) — cũng tồn tại trong bảng toppings để dùng làm snapshot
-  ('44444444-4444-4444-4444-000000000019',
-   '33333333-3333-3333-3333-000000000002',
-   'Trứng Chiên', 'Trứng chiên vàng ăn kèm (1 quả)', 15000, NULL, 1, 5, NOW(), NOW()),
-
-  ('44444444-4444-4444-4444-000000000020',
-   '33333333-3333-3333-3333-000000000002',
-   'Ruốc Tôm', 'Ruốc tôm khô rắc thêm (1 phần)', 10000, NULL, 1, 6, NOW(), NOW())
+  -- Ông: Suất Trứng Chín (combo)
+  ('00000000-0000-0000-0000-000000000030',
+   'ffffffff-ffff-ffff-ffff-000000000005',
+   NULL, 'dddddddd-dddd-dddd-dddd-000000000005', NULL,
+   'Suất Trứng Chín', 25000, 1, 0, NULL, NULL, NOW(), NOW()),
+  ('00000000-0000-0000-0000-000000000031',
+   'ffffffff-ffff-ffff-ffff-000000000005',
+   'cccccccc-cccc-cccc-cccc-000000000005', NULL,
+   '00000000-0000-0000-0000-000000000030',
+   'Bánh Trứng Chín', 0, 1, 0,
+   '[{"id":"bbbbbbbb-bbbb-bbbb-bbbb-000000000001","name":"Nhân thịt","price":0}]',
+   NULL, NOW(), NOW()),
+  ('00000000-0000-0000-0000-000000000032',
+   'ffffffff-ffff-ffff-ffff-000000000005',
+   'cccccccc-cccc-cccc-cccc-000000000001', NULL,
+   '00000000-0000-0000-0000-000000000030',
+   'Bánh Cuốn Thịt', 0, 4, 0,
+   '[{"id":"bbbbbbbb-bbbb-bbbb-bbbb-000000000001","name":"Nhân thịt","price":0}]',
+   NULL, NOW(), NOW()),
+  ('00000000-0000-0000-0000-000000000033',
+   'ffffffff-ffff-ffff-ffff-000000000005',
+   'cccccccc-cccc-cccc-cccc-000000000008', NULL,
+   '00000000-0000-0000-0000-000000000030',
+   'Canh có rau', 0, 1, 0, NULL, NULL, NOW(), NOW())
 
 ON DUPLICATE KEY UPDATE updated_at = updated_at;
 
--- ── Update order totals ───────────────────────────────────────────────────────
-UPDATE orders SET total_amount = 250000, updated_at = NOW()
-  WHERE id = '88888888-8888-8888-8888-000000000001';  -- Bàn 01 +Nước Dùng ×2
-
-UPDATE orders SET total_amount = 235000, updated_at = NOW()
-  WHERE id = '88888888-8888-8888-8888-000000000002';  -- Bàn 02 +Sinh Tố ×1 +Trứng Chiên ×1
-
-UPDATE orders SET total_amount = 190000, updated_at = NOW()
-  WHERE id = '88888888-8888-8888-8888-000000000003';  -- Bàn 03 +Canh Rau ×1
-
-UPDATE orders SET total_amount = 320000, updated_at = NOW()
-  WHERE id = '88888888-8888-8888-8888-000000000004';  -- Bàn 04 +Bia Saigon ×2
-
-UPDATE orders SET total_amount = 535000, updated_at = NOW()
-  WHERE id = '88888888-8888-8888-8888-000000000005';  -- Bàn 05 +Súp Gà ×2 +Nước Dừa ×2
-
--- ── New order_items ───────────────────────────────────────────────────────────
-INSERT INTO order_items
-  (id, order_id, product_id, combo_id, combo_ref_id,
-   name, unit_price, quantity, qty_served, toppings_snapshot, note, created_at, updated_at)
-VALUES
-  -- Order 1 · Bàn 01 · preparing
-  ('99999999-9999-9999-9999-000000000023',
-   '88888888-8888-8888-8888-000000000001',
-   '44444444-4444-4444-4444-000000000013', NULL, NULL,
-   'Nước Dùng', 15000, 2, 0, NULL, NULL, NOW(), NOW()),
-
-  -- Order 2 · Bàn 02 · pending
-  ('99999999-9999-9999-9999-000000000024',
-   '88888888-8888-8888-8888-000000000002',
-   '44444444-4444-4444-4444-000000000016', NULL, NULL,
-   'Sinh Tố Xoài', 35000, 1, 0, NULL, NULL, NOW(), NOW()),
-
-  ('99999999-9999-9999-9999-000000000025',
-   '88888888-8888-8888-8888-000000000002',
-   '44444444-4444-4444-4444-000000000019', NULL, NULL,
-   'Trứng Chiên', 15000, 1, 0, NULL, NULL, NOW(), NOW()),
-
-  -- Order 3 · Bàn 03 · ready (served)
-  ('99999999-9999-9999-9999-000000000026',
-   '88888888-8888-8888-8888-000000000003',
-   '44444444-4444-4444-4444-000000000014', NULL, NULL,
-   'Canh Rau', 20000, 1, 1, NULL, NULL, NOW(), NOW()),
-
-  -- Order 4 · Bàn 04 · delivered (served, 30 min ago)
-  ('99999999-9999-9999-9999-000000000027',
-   '88888888-8888-8888-8888-000000000004',
-   '44444444-4444-4444-4444-000000000018', NULL, NULL,
-   'Bia Saigon', 25000, 2, 2, NULL, NULL,
-   DATE_SUB(NOW(), INTERVAL 30 MINUTE), NOW()),
-
-  -- Order 5 · Bàn 05 · confirmed VIP
-  ('99999999-9999-9999-9999-000000000028',
-   '88888888-8888-8888-8888-000000000005',
-   '44444444-4444-4444-4444-000000000015', NULL, NULL,
-   'Súp Gà', 30000, 2, 0, NULL, NULL, NOW(), NOW()),
-
-  ('99999999-9999-9999-9999-000000000029',
-   '88888888-8888-8888-8888-000000000005',
-   '44444444-4444-4444-4444-000000000017', NULL, NULL,
-   'Nước Dừa', 20000, 2, 0, NULL, NULL, NOW(), NOW())
-
-ON DUPLICATE KEY UPDATE updated_at = updated_at;
+SET FOREIGN_KEY_CHECKS = 1;

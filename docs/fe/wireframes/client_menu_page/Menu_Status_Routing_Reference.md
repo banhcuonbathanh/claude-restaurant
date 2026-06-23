@@ -27,7 +27,7 @@ What actually renders right now (empty cart):
   | Suất Trứng Bánh Không | 21.000 ₫ | ×1 Bánh Trứng Vàng · ×3 Bánh Cuốn · ×1 Canh |
   | Bánh Chay | 12.000 ₫ | ×3 Bánh Cuốn · ×1 Canh |
 - **Món lẻ section (6):** Canh (**0 ₫**) · Giò (9.000 ₫) · Bánh Trứng Tái (9.000 ₫) · Bánh Trứng Chín (9.000 ₫) · Bánh Trứng Vàng (9.000 ₫) · Bánh Cuốn (4.000 ₫)
-- Every combo & product card has **Nhân thịt / Nhân mộc nhĩ** filling toggles + qty stepper.
+- Every combo & product card has **Nhân thịt / Nhân thịt mộc nhĩ** filling toggles + qty stepper.
 - **Cart drawer:** empty → "Giỏ hàng trống", Thanh toán disabled.
 - **Tóm tắt đơn hàng (OrderSummary):** not shown — it returns `null` while the cart is empty.
 
@@ -281,7 +281,7 @@ Header shows "Tóm tắt đơn hàng" + the `tableName` chip when a table is set
 - **Aggregation key = `name|filling`** (lines 73, 79) → "Bánh Cuốn nhân thịt" and "nhân mộc nhĩ" count as separate rows.
 - **Đơn giá** comes from `productPriceMap` (built from product lines + combo sub-item `unit_price`); rows with no known price show `—` (this is why the 0₫ Canh shows blank pricing).
 - **Combo sub-item qty edit** → `updateComboItem` recomputes the combo's price by `unit_price × delta` (cart.ts:64-79).
-- **Filling badge** per line: `thit` → "Nhân thịt", `moc_nhi` → "Nhân mộc nhĩ" (lines 317-321).
+- **Filling badge** per line: `thit` → "Nhân thịt", `moc_nhi` → "Nhân thịt mộc nhĩ" (lines 317-321).
 - `shakeKey` prop scrolls to + shakes the Canh block when checkout is blocked (lines 17-27).
 
 ---
@@ -314,7 +314,7 @@ State is split by lifetime across **3 Zustand stores + localStorage**:
 
 ### Topping recording — selection vs. "Tóm tắt đơn hàng" (verified 2026-06-07)
 
-> **Data-model mismatch:** in the DB seed (`scripts/seed_real_menu.sql`) "Nhân thịt"/"Nhân mộc nhĩ"
+> **Data-model mismatch:** in the DB seed (`scripts/seed_real_menu.sql`) "Nhân thịt"/"Nhân thịt mộc nhĩ"
 > are **toppings** (`bbbbbbbb-…0001/0002`, price 0) linked to every bánh, and "Rau mùi tàu" is a
 > **topping** for Canh (`…0003`). But the FE invents a separate `filling` field (thit/moc_nhi) and
 > a separate `drinkConfig` veg/noveg note for rau. So the same concept is modeled two ways.

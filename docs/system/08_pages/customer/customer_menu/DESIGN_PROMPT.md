@@ -13,44 +13,71 @@ Design a **mobile-first food-ordering menu page** for a Vietnamese bánh cuốn 
 - **Theme:** dark. Page background near-black `#0b0f17`; cards/panels a slightly lighter slate `#1b2230` / `#222b3a` with subtle rounded corners (`rounded-xl`) and 1px hairline borders `#2a3344`.
 - **Primary accent:** warm orange `#f97316` (buttons, prices, active states, the `+` add button).
 - **Text:** primary `#e5e7eb` (near-white), secondary/muted `#8b95a7` (descriptions, labels). Prices are orange and bold.
-- **Currency format:** `50.000 đ` (dot thousands separator, lowercase `đ`, space before it). Prices right-aligned.
-- **Font:** clean sans-serif (Inter/system). The top restaurant title uses a **serif** display font.
+- **Currency format:** `30.000 đ` (dot thousands separator, lowercase `đ`, space before it). Prices right-aligned. Zero-priced items (canh) show `0 đ`.
+- **Font:** clean sans-serif (Inter/system) for body. The restaurant title uses **Playfair Display** (serif display), white with a soft text-shadow, centered over the header photo.
+- **Header is a photo banner**, not a flat bar — a restaurant cover image with a dark gradient fading to near-black at the bottom (see Header below).
 - Generous touch targets, comfortable vertical rhythm, no harsh shadows.
 
 ### Layout, top → bottom
 
-1. **Header (black bar).** Left: serif title **"Quán Bánh Cuốn"**. Below it a small muted subtitle table label **"Bàn 03"**. Right: an outlined pill button **"⎆ Đăng nhập"** (login). 
+1. **Header (photo banner).** A ~196px restaurant cover photo (`header-example.jpg`) with a dark top→bottom gradient overlay (transparent at top → near-black `rgba(8,11,18,0.92)` at the bottom). Centered over it, the **Playfair Display serif title "Quán Bánh Cuốn"** in white with a soft text-shadow. Directly below the banner, a thin bar with a single **"● Bàn 04"** pill (small glowing orange dot + table label on a slate `#161d29` pill). No login button.
 
-2. **Mini cart strip (sticky, only when cart has items).** A thin bar: `🛒 3 món · 105.000đ` on the left, a link **"Xem giỏ →"** on the right.
+2. **Search bar.** Full-width rounded input, muted magnifier icon + placeholder **"Tìm món nhanh..."**.
 
-3. **Search bar.** Full-width rounded input, muted magnifier icon + placeholder **"Tìm món nhanh..."**.
+3. **Category tabs (horizontal scroll).** Pills/labels matching the real menu categories: **Tất cả · Suất · Trứng · Bánh Cuốn · Giò · Canh**. Active tab **"Tất cả"** is orange text with an orange underline; others muted.
 
-4. **Category tabs (horizontal scroll).** Pills/labels: **Tất cả · Bánh Cuốn · Món Phụ · Đồ Uống · Combo**. Active tab **"Tất cả"** is orange text with an orange underline; others muted.
+4. **Favourites rail ("YÊU THÍCH") — only renders if the customer has ≥1 favourite, and only on the "Tất cả" tab.** A section label **"YÊU THÍCH"** with a small heart, then a **horizontally-scrolling row of compact cards** — one per favourited item (combos *and* individual products mixed together). Each compact card: small square thumbnail, a **filled orange heart ♥** in the corner (tapping it un-favourites and removes the card from the rail), name (e.g. *Suất Giò · Bánh Chay · Suất Đầy Đủ Trứng Chín*), and the orange price. Tapping a card opens that item's detail; it's the quick-reorder shelf.
 
-5. **COMBO section** (shown only on the "Tất cả" tab). Section label **"COMBO"**. Combo cards same shape as product cards: thumbnail, name (e.g. **"Combo Đầy Đặn"**), orange price **"42.000 đ"**, and an orange circular **`+`** button.
+5. **SUẤT (combo) section** (shown only on the "Tất cả" tab). Section label **"SUẤT"**. **Combo cards now get the full product-card treatment — favourites *and* toppings** (this is the signature change of this design). Same row layout as a MÓN LẺ card:
+   - **Left:** square thumbnail (`96px`, rounded) with a small circular **heart (favourite) toggle** in the corner.
+   - **Middle:** combo **name** (e.g. **"Suất Đầy Đủ Trứng Chín"**), a 1-line muted **description** (e.g. *"1 bánh trứng chín + 3 bánh cuốn + 1 giò + canh có rau"*), then the orange **price** (**"30.000 đ"**).
+   - **Right, stacked:** a **quantity stepper** — round outline **`–`**, the number (default **1** for the first combo), round **orange-filled `+`** — and **below it a "nhân" (filling) pill group that is NOT single-select**: **"Nhân thịt"** and **"Nhân thịt mộc nhĩ"**. The customer may pick **nhân thịt**, **nhân thịt mộc nhĩ**, or **both** (each selected pill turns solid orange; selecting both = a mixed suất where its bánh cuốn/trứng are split across the two nhân). The chosen filling(s) set the nhân of the bánh-cuốn/trứng inside that suất, which flow into the cart and the order summary exactly like a product's nhân.
+   - Render the five real suất: **Suất Đầy Đủ Trứng Tái** (30.000 đ, *"1 bánh trứng tái + 3 bánh cuốn + 1 giò + canh có rau"*), **Suất Đầy Đủ Trứng Chín** (30.000 đ, *"1 bánh trứng chín + 3 bánh cuốn + 1 giò + canh có rau"*), **Suất Giò** (25.000 đ, *"1 giò + 4 bánh cuốn + canh có rau"*), **Suất Trứng Tái** (25.000 đ, *"1 bánh trứng tái + 4 bánh cuốn + canh có rau"*), **Suất Trứng Chín** (25.000 đ, *"1 bánh trứng chín + 4 bánh cuốn + canh có rau"*).
 
-6. **MÓN LẺ (individual items) — product cards.** This is the core repeated component. Each card (full width, rounded, slate background):
-   - **Left:** square food thumbnail (`~96px`, rounded), with a small circular heart (favourite) toggle in its top-right corner.
-   - **Middle:** product **name** in bold (e.g. **"Bánh Cuốn Thịt"**), then a 2-line muted **description** (e.g. *"Bánh cuốn nhân thịt heo xay, hành phi"*).
-   - **Right, stacked:** a **quantity stepper** — round outline **`–`**, the number (default **0**), round **orange-filled `+`**. Below the stepper, a **single-select "nhân" (filling) pill** (e.g. **"Hành phi"**) that turns solid orange when selected.
-   - Render ~6–10 example cards with varied Vietnamese dish names (Bánh Cuốn Thịt, Bánh Cuốn Trứng, Chả Mỡ, Nem Chua, Canh Rau, Nước Mía, Trà Đá, etc.) and prices 10.000–55.000 đ.
+6. **Product sections — TRỨNG · BÁNH CUỐN · GIÒ · CANH.** On the "Tất cả" tab the individual items are grouped under muted uppercase **category section headers** (one section each, in this order). Each product card (full width, rounded, slate background) is the core repeated component:
+   - **Left:** square food thumbnail (`~96px`, rounded), with a small circular **heart (favourite) toggle** in its top-right corner.
+   - **Middle:** product **name** in bold (e.g. **"Bánh Cuốn Thịt"**), then a 1–2 line muted **description**.
+   - **Right, stacked:** a **quantity stepper** — round outline **`–`**, the number (default **0**), round **orange-filled `+`**. Below the stepper, a **single-select "nhân" (filling) pill group** — **"Nhân thịt"** / **"Nhân thịt mộc nhĩ"** — that turns solid orange when selected. **Only the bánh-cuốn and trứng items take a nhân; Bánh Chay, Giò and Canh have NO nhân pill.**
+   - Render the real menu items at their real prices:
+     - **TRỨNG:** Bánh Trứng Tái (9.000 đ), Bánh Trứng Chín (9.000 đ), Bánh Trứng Vàng (9.000 đ) — each with the Nhân thịt / Nhân thịt mộc nhĩ pill group.
+     - **BÁNH CUỐN:** Bánh Cuốn Thịt (4.000 đ), Bánh Cuốn Mộc Nhĩ (4.000 đ) — each with the nhân pill group; **Bánh Chay (2.500 đ)** — *bánh không*, NO nhân pill.
+     - **GIÒ:** Giò (9.000 đ) — NO nhân pill.
+     - **CANH:** Canh có rau (0 đ), Canh không rau (0 đ) — NO nhân pill, price shows **"0 đ"**.
 
-7. **Order summary panel ("Tóm tắt đơn hàng").** A collapsible card showing the live cart:
-   - Grouped lines **COMBO** and **MÓN LẺ**, each item row: name, stepper `– n +`, price, and a 🗑 delete icon. A muted **"Subtotal: 70.000 đ"** under the group.
-   - A bold **"Tổng cộng:"** row with the orange total.
-   - A **CANH (soup) block**: label **"CANH"**, two stepper rows **"Bát có rau" `– 1 +`** and **"Bát không rau" `– 0 +`** (the numbers are orange). If no soup is chosen this block shows a running/animated orange border + warning **"⚠ Bạn chưa chọn canh..."**.
-   - A collapsible **"TỔNG SỐ MÓN (2 loại)"** table with columns **MÓN · NHÂN · SL · ĐƠN GIÁ · THÀNH TIỀN**.
+7. **Order summary panel ("Tóm tắt đơn hàng").** A collapsible card showing the live cart. The worked example below is the real **Bàn 04 family order** (mẹ + 2 người lớn + 2 trẻ): **1 Suất Đầy Đủ Trứng Chín + 2 Suất Giò + 2 Bánh Chay**, then *gọi thêm* (add-to-order) **2 Bánh Trứng Vàng + 2 Canh có rau** = **103.000 đ**. Its header row shows the title plus a **"Bàn 04"** pill wrapped in a slowly **spinning orange light ring** (animated conic gradient), and a chevron to collapse/expand:
+   - Grouped lines **COMBO** and **MÓN LẺ**, each item row: name, stepper `– n +`, price, and a 🗑 delete icon.
+     - **COMBO:** *Suất Đầy Đủ Trứng Chín* `– 1 +` 30.000 đ · *Suất Giò* `– 2 +` 50.000 đ.
+     - **MÓN LẺ:** *Bánh Chay* `– 2 +` 5.000 đ · *Bánh Trứng Vàng* `– 2 +` 18.000 đ.
+   - **Topping / nhân under each item.** Beneath every item name, show its selected filling/topping in a small **orange caption** (e.g. *"Nhân thịt"*, or *"Nhân thịt · Mộc nhĩ"* when more than one). Items with no nhân (Bánh Chay, Giò, Canh) show nothing there.
+   - **"Gọi thêm" badge.** The two add-to-order items (*Bánh Trứng Vàng*, and the *Canh có rau* in the CANH block) carry a small muted **"Gọi thêm"** tag, mirroring the real `note='Gọi thêm'` on the order.
+   - **"Chi tiết" (detail) toggle — especially for combos.** Each **combo** row has a small chevron / text button **"⌄ Chi tiết"** (collapsed) ⇄ **"⌃ Ẩn chi tiết"** (expanded). Tapping it expands an indented sub-list of the combo's component dishes — each sub-row showing the dish name, its own nhân caption, a `– n +` stepper and a 🗑:
+     - *Suất Đầy Đủ Trứng Chín* → `Bánh Trứng Chín ×1 · Bánh Cuốn ×3 · Giò ×1 · Canh có rau ×1`.
+     - *Suất Giò* → `Giò ×1 · Bánh Cuốn ×4 · Canh có rau ×1` (per suất). Collapsed by default; the orange group **"Subtotal: 80.000 đ"** stays visible either way.
+   - A muted **"Subtotal"** under each group (**COMBO: 80.000 đ** · **MÓN LẺ: 23.000 đ**), then a bold **"Tổng cộng:"** row with the orange total **103.000 đ**.
+   - A **CANH (soup) block**: label **"CANH"**, two stepper rows **"Bát có rau" `– 2 +`** and **"Bát không rau" `– 0 +`** (the numbers are orange; the 2 *có rau* here are the gọi-thêm canh). If no soup is chosen this block shows a running/animated orange border + warning **"⚠ Bạn chưa chọn canh..."**.
+   - A collapsible **"TỔNG SỐ MÓN (n loại)"** detail table — toggled by a **"⌄ Hiện / ⌃ Ẩn"** button — with columns **MÓN · NHÂN · SL · ĐƠN GIÁ · THÀNH TIỀN**. This is an **aggregated rollup of every dish in the whole order**: it flattens all combos into their component dishes, merges them with the individual items, and **sums quantities of rows that share the same dish name AND the same nhân/topping** into a single row. `(n loại)` = the number of distinct dish+topping rows after merging.
+     - Worked example (Bàn 04, taking the combo bánh cuốn + trứng as *Nhân thịt*) — **6 loại**:
+       `Bánh Trứng Chín · Nhân thịt ×1` · `Bánh Cuốn Thịt · Nhân thịt ×11` (3 from the full suất + 8 from 2× Suất Giò) · `Giò ×3` (1 + 2) · `Canh có rau ×5` (1 + 2 from combos + 2 gọi thêm) · `Bánh Chay ×2` · `Bánh Trứng Vàng · Nhân thịt ×2`.
+     - Note how merging works: the **Canh có rau** from both suất *and* the 2 gọi-thêm bowls collapse into one **×5** row; but **Bánh Trứng Vàng** is a different dish from the combos' Bánh Trứng Chín, so it stays its own row.
+     - The **NHÂN** column shows each row's topping in orange; rows with no nhân (Giò, Canh, Bánh Chay) show **—**. SL is the merged total quantity.
    - A **"GHI CHÚ"** order-note textarea with a small **"✓ Đã lưu"** saved indicator.
 
-8. **Fixed bottom checkout bar (orange).** Full-width orange bar pinned above the nav: a small round badge with the item count (e.g. **3**), centered bold white **"Thanh toán"**, and the total on the right **"70.000 đ"**. When soup is missing the bar is dimmed/disabled.
+8. **Fixed bottom checkout bar (orange).** Full-width orange bar pinned above the nav: a small round badge with the item count (e.g. **9** for the Bàn 04 order), centered bold white **"Thanh toán"**, and the total on the right **"103.000 đ"**. When soup is missing the bar is dimmed/disabled.
 
 9. **Bottom navigation (shell, 5 tabs).** Icons + Vietnamese labels: **Menu** (active = orange, fork/knife icon with orange top indicator), **Đơn Hàng** (receipt), **Yêu Thích** (heart), **Theo Dõi** (location pin), **Cài Đặt** (gear). Inactive tabs muted.
+
+### Favourite (heart) behaviour — wire this up
+- The heart toggle appears on **every product card AND every combo card** (corner of the thumbnail). Empty outline heart ♡ = not saved; tapping fills it solid orange ♥ = saved.
+- Tapping a heart **does not** add to cart or open detail — it only toggles favourite state (stop event propagation).
+- When the first item is favourited, the **"YÊU THÍCH" rail (step 4) appears**; it lists every favourited combo and product as compact horizontal cards. Un-favouriting (tap the filled ♥ on the card or in the rail) removes it from the rail; when the last one is removed the whole rail disappears.
+- Favourites persist locally (independent of the cart) — keep them in their own state, not the cart state.
 
 ### Overlay to include: Table confirm modal
 A centered dark modal (`rounded-2xl`, slate `#161d29`):
 - Title **"Xác nhận đặt hàng"**.
-- An itemized list, each row `1× <name>` left, orange price right (e.g. `1× Bánh Cuốn Thịt … 50.000 đ`).
-- Hairline divider, then bold **"Tổng cộng"** + big orange total.
+- An itemized list, each row `n× <name>` left, orange price right — the Bàn 04 order:
+  `1× Suất Đầy Đủ Trứng Chín … 30.000 đ` · `2× Suất Giò … 50.000 đ` · `2× Bánh Chay … 5.000 đ` · `2× Bánh Trứng Vàng … 18.000 đ` · `2× Canh có rau … 0 đ`.
+- Hairline divider, then bold **"Tổng cộng"** + big orange total **103.000 đ**.
 - A textarea placeholder **"Ghi chú cho bếp (tuỳ chọn)"**.
 - Two buttons at the bottom: outlined **"Hủy"** (cancel) on the left, solid-orange **"Đặt hàng"** (place order) on the right.
 
@@ -63,12 +90,10 @@ A centered dark modal (`rounded-2xl`, slate `#161d29`):
 
 ---
 
-### Reference screenshots (real app, iPhone 390×844, captured 2026-06-20)
-- Whole page: `screenshots/menu_full_real.png`
-- Header: `screenshots/menuheader_real.png`
-- Product card: `screenshots/productcard_real.png`
-- Order summary: `screenshots/ordersummary_real.png`
-- Confirm modal: `screenshots/tableconfirmmodal_real.png`
+### Reference design (this prompt now mirrors the `Combo card with favorites and toppings` artifact)
+- Design artifact (HTML+Tailwind): `claude_design/Combo card with favorites and toppings/Menu Ban Cuon.dc.html`
+- Header cover photo: `claude_design/Combo card with favorites and toppings/header-example.jpg`
+- Reference screenshots: `claude_design/Combo card with favorites and toppings/screenshots/ban03.png` · `.../checkout.png`
 
 > Source of truth for behaviour (not visuals): [`customer_menu.md`](customer_menu.md) ·
 > visual diff doc-vs-code: [`COMPARISON_VISUAL_MOCKUP_VI.md`](COMPARISON_VISUAL_MOCKUP_VI.md).

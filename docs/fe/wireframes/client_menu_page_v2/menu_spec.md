@@ -104,7 +104,7 @@ What actually renders right now (empty cart):
   | Suất Trứng Bánh Không | 21.000 ₫ | ×1 Bánh Trứng Vàng · ×3 Bánh Cuốn · ×1 Canh |
   | Bánh Chay | 12.000 ₫ | ×3 Bánh Cuốn · ×1 Canh |
 - **Món lẻ section (6):** Canh (**0 ₫**) · Giò (9.000 ₫) · Bánh Trứng Tái (9.000 ₫) · Bánh Trứng Chín (9.000 ₫) · Bánh Trứng Vàng (9.000 ₫) · Bánh Cuốn (4.000 ₫)
-- Every combo & product card has **Nhân thịt / Nhân mộc nhĩ** filling toggles + qty stepper.
+- Every combo & product card has **Nhân thịt / Nhân thịt mộc nhĩ** filling toggles + qty stepper.
 - **Cart drawer:** empty → "Giỏ hàng trống", Thanh toán disabled.
 - **Tóm tắt đơn hàng (OrderSummary):** not shown — it returns `null` while the cart is empty.
 
@@ -429,7 +429,7 @@ Right side (flex gap-2), 4 interactive controls:
 - **Interactive parts (3):**
   1. ❤ favourite toggle (top-right of image).
   2. Qty stepper (−/value/+); − calls `updateQty`, + calls `handleAdd` (first press `addItem` with full `combo_items` snapshot, later presses increment). `[+]` only when qty === 0.
-  3. **Nhân pills** — single-select "Nhân thịt" / "Nhân mộc nhĩ" (local state `filling`), data-driven from sub-items' available toppings (canh excluded). Cart key `combo_{combo.id}_{filling}` → different nhân = different cart line.
+  3. **Nhân pills** — single-select "Nhân thịt" / "Nhân thịt mộc nhĩ" (local state `filling`), data-driven from sub-items' available toppings (canh excluded). Cart key `combo_{combo.id}_{filling}` → different nhân = different cart line.
 - "Chi tiết" link → `/menu/combo/[id]`. Disabled when `!combo.is_available`.
 - **Child modal `ComboModal`:** mounted but `modalOpen` is never set true → dead in current code (`handleAdd` adds directly).
 - **Store:** cart (`items`, `addItem`, `updateQty`) + favourites.
@@ -447,7 +447,7 @@ Right side (flex gap-2), 4 interactive controls:
 **`ProductCard` (mobile <sm)** — `ProductCard.tsx` · **Props:** `product: Product`
 - Layout horizontal flex, `bg-card rounded-xl p-3 shadow-sm`. Image `w-20 h-20` fill, fallback 🍜; "Hết" overlay if `!is_available`. Image + name link to `/menu/product/[id]`.
 - Heart button top-right. Name + price row. Description `line-clamp-2 text-xs` (if present).
-- **Filling selector:** "Nhân thịt" / "Nhân mộc nhĩ" pills (local state). Cart key `product_{product.id}_{filling}`.
+- **Filling selector:** "Nhân thịt" / "Nhân thịt mộc nhĩ" pills (local state). Cart key `product_{product.id}_{filling}`.
 - **Child modal `ToppingModal` (`requireSingle`):** opens on "+" only when `hasToppings`; else "+" does `handleDirectAdd` (cart-id `product_<id>_plain`). ⚠️ See Concern #3 — `hasToppings` was hardcoded `false` in an earlier audit; treat live value as authoritative.
 - **Qty:** `totalQty` aggregates all variants of the product; − removes from the last variant.
 - **Store:** cart + favourites.
@@ -600,7 +600,7 @@ Header shows "Tóm tắt đơn hàng" + the `tableName` chip when a table is set
 - **Aggregation key = `name|filling`** (lines 73, 79) → "Bánh Cuốn nhân thịt" and "nhân mộc nhĩ" count as separate rows.
 - **Đơn giá** comes from `productPriceMap` (product lines + combo sub-item `unit_price`); rows with no known price show `—` (this is why the 0₫ Canh shows blank pricing). Filling display: "Thịt", "Mộc nhĩ", or "—".
 - **Combo sub-item qty edit** → `updateComboItem` recomputes the combo's price by `unit_price × delta` (cart.ts:64-79).
-- **Filling badge** per line: `thit` → "Nhân thịt", `moc_nhi` → "Nhân mộc nhĩ" (lines 317-321).
+- **Filling badge** per line: `thit` → "Nhân thịt", `moc_nhi` → "Nhân thịt mộc nhĩ" (lines 317-321).
 - `shakeKey` prop scrolls to + shakes the Canh block when checkout is blocked (lines 17-27).
 
 ---
@@ -773,7 +773,7 @@ client-side via `useQuery` inside `MenuContent`; there is **no** `revalidate`, `
 | Zone J behavior | Always → CartDrawer | `tableId` set → TableConfirmModal; no tableId → `/checkout` |
 | TableConfirmModal | Not in spec | Full order confirm flow with POST /orders + error handling |
 | CartDrawer footer CTA | "Đặt hàng" → `/checkout` | "Thanh toán" or "Thêm vào đơn hàng" (add-to-order mode) |
-| ProductCard filling | Not in spec | Nhân thịt / Nhân mộc nhĩ selector (cart key includes filling) |
+| ProductCard filling | Not in spec | Nhân thịt / Nhân thịt mộc nhĩ selector (cart key includes filling) |
 | ProductCard toppings | Opens ToppingModal | `hasToppings = false` hardcoded — modal never opens (see Concern #3) |
 | ProductGridCard | Not in spec | Separate grid card component for tablet/desktop |
 | FavouritesRail link | Product detail page | All cards link to `/menu/favourites` |
@@ -788,7 +788,7 @@ client-side via `useQuery` inside `MenuContent`; there is **no** `revalidate`, `
 
 ### Topping recording — selection vs. "Tóm tắt đơn hàng" (verified 2026-06-07)
 
-> **Data-model mismatch:** in the DB seed (`scripts/seed_real_menu.sql`) "Nhân thịt"/"Nhân mộc nhĩ"
+> **Data-model mismatch:** in the DB seed (`scripts/seed_real_menu.sql`) "Nhân thịt"/"Nhân thịt mộc nhĩ"
 > are **toppings** (`bbbbbbbb-…0001/0002`, price 0) linked to every bánh, and "Rau mùi tàu" is a
 > **topping** for Canh (`…0003`). But the FE invents a separate `filling` field (thit/moc_nhi) and
 > a separate `drinkConfig` veg/noveg note for rau. So the same concept is modeled two ways.
@@ -868,7 +868,7 @@ AC-23  is_available: false → product card shows "Hết" overlay; [+] disabled 
 **As-built ACs (behaviour not in the original design spec):**
 
 ```
-AC-24  Combo/product cards show "Nhân thịt / Nhân mộc nhĩ" pills; cart key includes filling     ✅
+AC-24  Combo/product cards show "Nhân thịt / Nhân thịt mộc nhĩ" pills; cart key includes filling     ✅
 AC-25  Canh count = 0 → amber warning in OrderSummary; checkout blocked + Canh block shakes     ✅
 AC-26  TableConfirmModal (QR flow): "Đặt hàng" → POST /orders → /order/:id; TABLE_HAS_ACTIVE_ORDER → redirect to active order  ✅
 AC-27  ?add_to_order=<id> → Add-to-Order banner shows; CartDrawer CTA = "Thêm vào đơn hàng"      ✅

@@ -31,12 +31,30 @@
 | customer_welcome | 2026-06-22 | experience_claude.md_system_1_test_iphon2_change_code | 0 | 1 | 9 | [EN](customer/customer_welcome/COMPARISON_DOC_VS_CODE_DETAILED.md) · [VI](customer/customer_welcome/COMPARISON_DOC_VS_CODE_DETAILED_VI.md) · [Mockup](customer/customer_welcome/COMPARISON_VISUAL_MOCKUP_VI.md) | **No 🔴, no code bug — one of the most accurate doc-sets in the repo (peer of customer_table_qr/customer_profile).** Fully static Server Component (`fe/src/app/welcome/page.tsx`, 256 lines): no store, no persist, no loading, no BE → Areas 2-5 genuinely N/A (doc-set says so). **SCENARIO_WELCOME.md every `file:line` EXACT** (`:32,:9-25,:27-30,:45-50,:74-79,:80-85,:112-118,:131-150,:153-158,:180-185,:205-211,:228-233,:247-251`); "256 lines" correct. Tracker's standing question resolved: **signature dishes are the static `dishes` const (`page.tsx:9-25`), NOT `GET /products`.** Lone 🟡: ASCII rounds **both** hours closings to "21h" but weekend closes **21:30** (`page.tsx:29`). 🟢: headline "—" is a `<br/>` (`:62-66`); dish names abbreviated; ASCII omits section Badge/h2/sub-`<p>` per zone; footer "Chính Sách"→`/privacy-policy` + "Điều Khoản"→`/terms` both **exist**; `/introduction` correctly absent (doc marks 🔮 PLANNED); SCENARIO provenance branch stale (`..._system_1` vs `..._test_iphon2_change_code`). Screenshots ⏳ (stack down). |
 
 | customer_checkout | 2026-06-22 | experience_claude.md_system_1_test_iphon2_change_code | 3 | 5 | 6 | [EN](customer/customer_checkout/COMPARISON_DOC_VS_CODE_DETAILED.md) · [VI](customer/customer_checkout/COMPARISON_DOC_VS_CODE_DETAILED_VI.md) · [Mockup](customer/customer_checkout/COMPARISON_VISUAL_MOCKUP_VI.md) | **Source-faithful doc-set — it documents the code *including* its bugs (peer of combo_detail/order_detail/admin_combos). The only doc-vs-code CONTRADICTION is the footer.** **🔴 #1 (NEW, undocumented code bug + doc drift):** submit bar `fixed bottom-0` **no z-index** (`checkout/page.tsx:203`) under shell `ClientBottomNav` `fixed bottom-0 z-20` rendered as later sibling (`ClientBottomNav.tsx:48`, `(shop)/layout.tsx:12`) → nav paints over the "Đặt hàng" CTA; wireframe draws them cleanly stacked (`customer_checkout.md:43-45`). **Same class as customer_product_detail + customer_favourites.** **🔴 #2 (code bug, doc-documented):** `payment_method` collected (radio writes `cart.setPaymentMethod` `page.tsx:47` + Zod `page.tsx:19`) but absent from POST payload (`page.tsx:49-56`), no `orders` column, **0 grep hits** in handler/service → radio cosmetic. **🔴 #3 (code bug, doc-documented):** `ErrTableHasActiveOrder` defined (`errors.go:30`) but **returned nowhere in be/** (grep); `CreateOrder` sets `tableBusy` informational (`order_service.go:270-275`), returns `201 {id,table_busy}` (`order_handler.go:121`); FE `onError` branch (`page.tsx:79-84`) dead **and** `onSuccess` never reads `table_busy` → **silent duplicate order** (no notice, unlike menu `TableConfirmModal`). 🟡 Bug 3 latent online 403 (`order_service.go:116-119`, NULL table); dead `setPaymentMethod` write (`page.tsx:47`); name/phone/note not server-validated (`order_handler.go:62-64`); payment-zone vertical list w/ Cash LAST not 2×2 (`page.tsx:24-29`); `CART_CONFIG='cart-config-v3'` vs persist `version:5`. 🟢 `_be.md` `main.go` lines stale `:230-237→:243-249`, combo header `:398-412→:402-411`, off-by-one `page.tsx:79-83→:79-84` / `order_service.go:116-120→:115-120`, stale provenance branch. Area 2 N/A (single page.tsx). `GetOrder` uses `errors.Is(sql.ErrNoRows)` `:109` — NOT the admin_ingredients 404→500 trap. Screenshots ⏳ (stack down). |
+| staff_register | 2026-06-22 | experience_claude.md_system_1_test_iphon2_change_code | 1 | 5 | 6 | [EN](staff/staff_register/COMPARISON_DOC_VS_CODE_DETAILED.md) · [VI](staff/staff_register/COMPARISON_DOC_VS_CODE_DETAILED_VI.md) · [Mockup](staff/staff_register/COMPARISON_VISUAL_MOCKUP_VI.md) | **No 🔴 doc-vs-code contradiction — high-fidelity, source-faithful set (peer of customer_welcome/customer_profile/admin_combos).** Lone 🔴 is a **CODE bug the doc already documents** (`REGISTER_BUGS.md` Bug 1, re-verified): public `POST /auth/register` (`main.go:169`, outside `protected` group `:173-174`) → `auth_service.go:219` hardcodes `role="cashier"` → `auth_repo.go:88` bakes `is_active=1`; FE `redirectByRole.customer:'/menu'` (`register/page.tsx:28`) is **dead** (BE always returns cashier → always `/pos`). All FE ASCII line-cites EXACT (`page.tsx:62-127`); handler `auth_handler.go:142`, service `auth_service.go:205`, repo `auth_repo.go:86` all exact. Doc drift = `_be.md` `main.go` route lines stale **+13** (route `:156→:169`, group `:154→:167`, protected `:159-164→:173-174`); `_be.md` Flag 2's "wireframe shows Họ tên" is **itself stale** (wireframe `staff_register.md:43` already states no Họ tên field); stale provenance branch. `Register` uses `errors.Is(sql.ErrNoRows)` `:210` — NOT the admin_ingredients 404→500 trap. Area 2 N/A (single form). Screenshots ⏳ (stack down). |
+| staff_pos | 2026-06-23 | experience_claude.md_system_1_test_iphon2_change_code | 4 | 9 | ~36 | [EN](staff/staff_pos/COMPARISON_DOC_VS_CODE_DETAILED.md) · [VI](staff/staff_pos/COMPARISON_DOC_VS_CODE_DETAILED_VI.md) · [Mockup](staff/staff_pos/COMPARISON_VISUAL_MOCKUP_VI.md) | **The entire doc-set was traced on the PRE-"Đặt hộ" branch, so its central assumption (every POS order has `table_id=NULL` + `customer_name='Khách tại quán'`) is now FALSE.** **🔴 #1:** the whole **table-picker / "Đặt hộ"** feature is live (`TablePickerModal` `pos/page.tsx:41-97`, "Chọn/Đổi bàn" `:246-251`, table chip `:242-245`, `?table_id=&table_name=` seeding `:107-108`, occupancy via `listTables`+`listLiveOrders` `:112-125`) but `staff_pos.md` omits it all and marks it `🔮 PLANNED`; handoff originates `TableList.tsx:357`. **🔴 #2:** POS now sends `table_id` (`:184`) + `customer_name = tableName ?? 'Khách tại quán'` (`:181`) → service runs busy-lookup + stores table (`order_service.go:270-273,302-303`), so `table_busy` CAN be true and the order shows in KDS/overview table-slot zones — invalidates `staff_pos_be.md §3`/Flag 3 + `_crosspage §5/§6`. **🔴 #3:** BE doc endpoint table omits 2 live endpoints — `GET /tables` (`admin.api.ts:167`) + `GET /orders/live` (`admin.api.ts:172`). **🔴 #4 (code bug, doc-documented, re-verified):** every POS order shows **"Đơn #undefined"** — `POST /orders` returns `{id, table_busy}` only (`order_handler.go:121`), page reads `order.order_number` (`:190,:200`), `order_number:string` (`order.ts:40`) → literal `undefined` (POS_BUGS Bug 1). 🟡 `<Suspense fallback={null}>` denied by `_loading.md §2` (`pos/page.tsx:31`); loading doc lists 2 of 4 queries; "Tạo đơn mới" orphans the order (Bug 2); POS bypasses `order-payload.ts` (Flag 2). 🟢 all `main.go` route lines stale ~+13 (`/orders` `:230→:243`, POST `:232→:245`, GET/:id `:236→:249`, `/products` `:168→:180`, `/categories` `:186→:198`, ws `:339→:352`). Screenshots ⏳ (stack down). |
 | admin_categories | 2026-06-21 | experience_claude.md_system_1_test_iphon2_change_code | 1 | 3 | 13 | [EN](admin/admin_categories/COMPARISON_DOC_VS_CODE_DETAILED.md) · [VI](admin/admin_categories/COMPARISON_DOC_VS_CODE_DETAILED_VI.md) · [Mockup](admin/admin_categories/COMPARISON_VISUAL_MOCKUP_VI.md) | **No 🔴 doc-vs-code contradiction — low-drift, source-faithful set (peer of admin_summary/admin_staff/admin_combos).** The lone 🔴 is a **FE CODE bug the doc already documents** (`CATEGORIES_BUGS.md` Bug 1 · `admin_categories.md` Flag 7 · `_be.md` Flag 7 · `SCENARIO` 09:38): manager sees red **"Xóa"** (`page.tsx:131-136`, no role check) but `DELETE /categories/:id` is admin-only (`AtLeast("admin")` `main.go:207-210`) → 403 → `onError` catch-all `'Không thể xóa danh mục'` (`page.tsx:69-76`, only 409 special-cased) → silent, mislabelled. Same class as A12 Training Bug 2 + A3 Products. **Area-5 agent's 3 raw 🔴 downgraded** (FE `Category` omits `description`+`is_active`; `createCategory`/`updateCategory` never send `description`) — by-design, doc-accurate Flags 1+3, not contradictions. **All FE line-cites EXACT** (menu `:52-56`, POS `:39-43`, ProductFormModal `:39-43`, AuthGuard `:23`, RoleGuard `:16-20`, page query `:22-26`); cosmetic-tabs concern re-confirmed (`ListProducts` `product_handler.go:42-43` reads no `category_id`). Doc drift: `main.go` route block stale **+14** (`catR` `:184→:198`, DELETE sub-group `:193-196→:207-210`) across `_be.md`/`admin_categories.md`/`CATEGORIES_BUGS.md`/`crosspage`/`SCENARIO`; stale provenance branch on all 6 files; off-by-1 (`:99-107→:98-107`, handler serialise `:187→:188`). Screenshots ⏳ (stack down). |
+| staff_cashier_payment | 2026-06-22 | experience_claude.md_system_1_test_iphon2_change_code | 2 | 6 | 7 | [EN](staff/staff_cashier_payment/COMPARISON_DOC_VS_CODE_DETAILED.md) · [VI](staff/staff_cashier_payment/COMPARISON_DOC_VS_CODE_DETAILED_VI.md) · [Mockup](staff/staff_cashier_payment/COMPARISON_VISUAL_MOCKUP_VI.md) | **No doc-vs-code CONTRADICTION — exemplary source-faithful doc-set (peer of customer_checkout/combo_detail/admin_combos): it documents the code *including* its bugs.** Both 🔴 are CODE bugs the doc already documents (`PAYMENT_BUGS.md` Bug 1+2), re-verified: **🔴 #1** `POST /payments` returns thin `{id,pay_url,qr_code_url}` (`payment_handler.go:44-48`) but FE `Payment` expects `status`/`amount`/`method` (`page.tsx:16-23`) → `payment.status===undefined` kills the cash-success branch (`page.tsx:116`), the WS effect (returns early `:64`), AND the QR render guard (`:249`) → **screen goes blank after create for every method**; fix path exists (`GET /payments/:id` `main.go:270` serves full `db.Payment`). **🔴 #2** FE sends `method:'cod'` (`page.tsx:14,52`); BE binding `oneof=vnpay momo zalopay cash` (`payment_handler.go:25`) → cash (the default) always 400s. 🟡 dead `PATCH /payments/:id/proof` (Bug 3 — grep `proof` in be/ = 0 hits; only `POST ""`/`GET /:id`/3 webhooks `main.go:267-275`); no `isError` on `GET /orders/:id` → stuck "Đang tải…" (`page.tsx:137`); Flag 6 status-drift (`MarkOrderPaid` only `delivered→paid` `order_service.go:83-86`, error swallowed `payment_service.go:265-267`); WS `/ws/orders-live` no role gate (claims discarded `websocket/handler.go:40-47`). **Dead:** QR block + WS listener + proof upload (all gated by 🔴 #1). 🟢 `main.go` lines stale ~+13 (orders `GET /:id` `:236→:249`, `POST /payments` `:256→:269`, `GET /payments/:id` `:257→:270`, WS `/orders-live` `:339→:352`); stale provenance branch. **NOT in `(shop)` → no ClientBottomNav / no fixed-footer collision.** Area 2 N/A (no shared store; local useState). Screenshots ⏳ (stack down + bugs block all flows). |
+| staff_kds | 2026-06-22 | experience_claude.md_system_1_test_iphon2_change_code | 3 | 5 | 22 | [EN](staff/staff_kds/COMPARISON_DOC_VS_CODE_DETAILED.md) · [VI](staff/staff_kds/COMPARISON_DOC_VS_CODE_DETAILED_VI.md) · [Mockup](staff/staff_kds/COMPARISON_VISUAL_MOCKUP_VI.md) | **Source-faithful doc-set that documents the code *including* its bugs (peer of combo_detail/order_detail/admin_combos). Area 2 N/A — no Zustand/store, all local `useState`.** The **only** true doc-vs-code contradiction: **🔴 `crosspage §1` (`:128-129`) claims active `order_status_changed` → "Badge updates, stays on board"; code `kds/page.tsx:149-154` only DROPS the card when `status ∉ ACTIVE`, never mutates `o.status` → badge stale until 30s refetch/F5.** Other 🔴 are CODE bugs the doc already documents (re-verified): **Bug 1** tap-to-serve PATCHes 5-segment `/orders/:id/items/:id/status` empty body (`page.tsx:160-161`) — no such route, real one is `PATCH /orders/items/:id {qty_served}` (`main.go:263`, NOT `:250` as `_be.md` cites — `:250` is now `PATCH /:id/status`) → 404 every tap, item-serve dead; **WS security** `/ws` group has no middleware (`main.go:350-352`), `wsHandler` discards JWT claims (`handler.go:40`) → guest token subscribes `orders:kds`. **NEW code gap:** `maybeAutoReady` calls `repo.UpdateOrderStatus` directly (`order_service.go:744-745`), bypassing the `:553` `publishMonitorBroadcast` → customer `/tracking` queue doesn't re-sort on auto-ready. **Dropped a wrong agent 🔴** (picker JSX order — ASCII `:33-36` and code `:257-278`/`:280-304` agree, picker above buttons). **Resolved `_loading.md` ❓:** `(dashboard)/layout.tsx` is 4 lines `OrdersWSProvider` only — no AuthGuard/RoleGuard, /kds relies on api-client 401. Dead: `/ws/kds` (`main.go:351`, unused), 3 ignored `orders:kds` events (`items_added`/`item_cancelled`/`item_updated` `:516/642/696`), `deriveItemStatus` export. Doc highly accurate otherwise (serializer `table_name`/`item_status`/`created_by`; `flagged` never emitted; `validTransitions`; `filling` dropped grep=0; loading.md exact). Route lines stale ~+13. Screenshots ⏳ (stack down). |
 
 ## Cross-Page Concerns
 <!-- findings that touch >1 page: a shared store field, a shared hook/SSE, a shared endpoint, or a bug root.
      Name the pages + the shared file:line + whether it's a doc drift or a code bug + where it's logged. -->
 
+- **Shared auth store `auth.store.ts` (no-persist) + public `POST /auth/register` — staff_register is a
+  WRITER, every staff surface is a reader (code bug root).** `useAuthStore` (`auth.store.ts:12-18`, **no
+  `persist`** → memory-only, dies on F5) is written by `setAuth` on a successful register
+  (`register/page.tsx:49`) and read by `/pos`, `/kds`, `/cashier/*`, `/admin/*` shells for
+  `Authorization: Bearer`. The **public `POST /auth/register`** (`main.go:169`, outside the `protected`
+  group `:173-174`, no `authMW`) unconditionally mints a `role="cashier"` + `is_active=1` staff account
+  (`auth_service.go:219`, `auth_repo.go:88`) — anyone can self-mint POS/staff access; the FE
+  `customer:'/menu'` redirect branch (`register/page.tsx:28`) is **dead** (BE always returns cashier →
+  always `/pos`). **Code bug needing a product/security decision** (delete route · make `customer`-only ·
+  or gate `AtLeast("manager")`); logged in `staff_register/REGISTER_BUGS.md` Bug 1 +
+  `staff_register/COMPARISON_DOC_VS_CODE_DETAILED.md` headline #1. The **F5-on-`/pos` silent-re-auth**
+  path (does the app shell call `/auth/refresh` reading the surviving httpOnly cookie?) is `❓ UNVERIFIED`
+  here — owned by `api-client`/login shell. Re-verify both on the **staff_login** run (shares the same
+  store, the refresh cookie, and `issueTokens`/max-5-sessions in `auth_service.go:228-244`).
 - **Shared settings store `settings.ts` — customer_settings is the ONLY writer, customer_menu is the
   reader (root of customer_menu 🔴 #1).** `useSettingsStore` (`store/settings.ts`, persisted via
   `CUSTOMER_SETTINGS='customer-settings'`) holds `customerName` + `tableLabel`. The **customer_settings**
@@ -91,7 +109,7 @@
   `staff_service.go` `:203→:204`/`:236-238→:237-239` and the **transposed** repo pair
   `CountAdmins`↔`SoftDeleteStaff` `:240`/`:253`), and now **admin_combos** (combos group
   `:215-227→:228-240`, GET `/combos` `:216→:229`, POST/PATCH sub `:218-222→:231-235`, admin DELETE sub
-  `:223-227→:237-239`, products group `:167-182→:180-195`, `/products/all` `:173→:186`) and now **admin_categories** (`catR` group `:184→:198`, manager POST/PATCH `:188-191→:201-205`, admin `DELETE` sub-group `:193-196→:207-210`) and now **admin_toppings** (toppings group `:200-212→:213-225`, `/products/all` `:173→:186`, `prodR` `:167→:180`) and now **admin_ingredients** (route block `:293-313→:307-328`; `adminR` group `:307`, ingredient routes `:312-318`, admin DELETE sub-group `admIngR` `:323-328`) and now **customer_checkout** (`/orders` group `:230-237→:243-249`: group `:243`, `authMW` `:244`, `POST "" :245`, `GET /:id :249`; plus `order_service.go` combo header `:398-412→:402-411` and off-by-one `:116-120→:115-120`) all cite stale `main.go`/Go line numbers because the
+  `:223-227→:237-239`, products group `:167-182→:180-195`, `/products/all` `:173→:186`) and now **staff_register** (`/auth/register` route `:156→:169`, `/auth` group `:154→:167`, `protected` sub-group `:159-164→:173-174` — all +13; handler/service/repo cites all exact) and now **admin_categories** (`catR` group `:184→:198`, manager POST/PATCH `:188-191→:201-205`, admin `DELETE` sub-group `:193-196→:207-210`) and now **admin_toppings** (toppings group `:200-212→:213-225`, `/products/all` `:173→:186`, `prodR` `:167→:180`) and now **admin_ingredients** (route block `:293-313→:307-328`; `adminR` group `:307`, ingredient routes `:312-318`, admin DELETE sub-group `admIngR` `:323-328`) and now **customer_checkout** (`/orders` group `:230-237→:243-249`: group `:243`, `authMW` `:244`, `POST "" :245`, `GET /:id :249`; plus `order_service.go` combo header `:398-412→:402-411` and off-by-one `:116-120→:115-120`) and now **staff_cashier_payment** (orders `GET /:id` `:236→:249`, payments group `:254-257→:267-270` with `POST ""` `:256→:269` + `GET /:id` `:257→:270`, payments incl. webhooks `:254-262→:267-275`, WS group `:337-339→:350-352` with `/orders-live` `:339→:352`; plus off-by-one `completePayment` `:252-273→:252-274`) all cite stale `main.go`/Go line numbers because the
   files grow above their route block over time. **Doc drift, not a code bug** — but a systematic one: any page
   whose `_be.md` cites `main.go` route lines should re-verify them on each run. Consider citing the
   route *group* + handler name instead of an absolute `main.go` line where possible.
@@ -198,7 +216,43 @@
   `order_completed` that the BE never publishes (BE emits only `order_status_changed` /
   `order_cancelled` / `payment_success` / `item_*` — grep `order_service.go`/`payment_service.go`).
   **Code cleanup**, logged in `admin_overview/COMPARISON_DOC_VS_CODE_DETAILED.md` headline #3 — re-check
-  when staff_kds gets its run (it may share the same dead-event assumption).
+  when staff_kds gets its run (it may share the same dead-event assumption). **staff_kds run
+  (2026-06-22) confirms:** the KDS's OWN switch (`kds/page.tsx:117-155`) does NOT carry the
+  `order_updated`/`order_completed` dead branches — only `useOverviewWS.ts:52,67` (admin) does, so the
+  dead-branch cleanup is admin_overview-only. BUT the KDS shares the *other* gap: the three events
+  `items_added`/`item_cancelled`/`item_updated` ARE published to `orders:kds`
+  (`order_service.go:516/642/696`) and the KDS silently ignores all three (no `case`) — added/removed
+  items don't live-update the board. Also re-confirmed `/ws/kds` (`main.go:351`) is dead (identical to
+  `/ws/orders-live`, no FE connects) and the `/ws` group has **no role gate** (claims discarded
+  `handler.go:40`) — same security root as admin_overview. **NEW (code gap, customer_tracking root):**
+  `maybeAutoReady` (`order_service.go:744-745`) advances status via `repo.UpdateOrderStatus` directly,
+  so it does NOT fire the `:553` `publishMonitorBroadcast` that the explicit `UpdateOrderStatus`
+  service path runs → when the kitchen auto-readies an order (all items served), the customer
+  **/tracking** queue + ETA do NOT re-sort. Re-check on customer_tracking's next run. Logged in
+  `staff_kds/COMPARISON_DOC_VS_CODE_DETAILED.md` Area 3 + action #5.
+- **`payment_success` event + WS `/ws/orders-live` are a shared cross-page contract — staff_cashier_payment
+  is the sole ACTOR, KDS/POS/admin-floor are passive receivers; the WS has NO role gate (code bug, root).**
+  `completePayment` publishes `{"type":"payment_success","order_id":<id>}` to the **`orders:kds`** channel
+  (`payment_service.go:270-271`) — the **same** channel `KDSHandler` (`/ws/kds`) and `LiveHandler`
+  (`/ws/orders-live`) both subscribe (`websocket/handler.go:18,23`, registered `main.go:351-352`). Only the
+  **staff_cashier_payment** screen acts on it (toast→print→`/pos`, `page.tsx:88-92`); **staff_kds**,
+  **staff_pos**, and **admin_overview** receive and silently discard it (their `useOverviewWS`/KDS handlers
+  have no `payment_success` branch — same dead-branch family already logged for `useOverviewWS.ts`). A change
+  to the event shape or channel name breaks all four surfaces — **Flag 4, deployment-coupling, owner decision.**
+  Separately, **`/ws/orders-live` has no role gate**: `wsHandler` validates `?token=` then **discards the
+  parsed claims** (`websocket/handler.go:40-47`), so any valid JWT — including a customer guest token — can
+  subscribe to the live order feed. **Shared security gap across staff_cashier_payment + staff_kds + staff_pos
+  + admin_overview** (`/ws/kds` is identical). **Code bug needing a MASTER row** (add a role check after JWT
+  parse). Logged in `staff_cashier_payment/staff_cashier_payment_be.md` Flags 4-5 +
+  `COMPARISON_DOC_VS_CODE_DETAILED.md` Area ⑤. Re-check on staff_kds / staff_pos / admin_overview future runs.
+- **`completePayment` status-drift when order is `ready` not `delivered` (code bug, touches the order status
+  machine).** Payment is gated to `ready` OR `delivered` (`GetOrderForPayment` `order_service.go:50`), but
+  `MarkOrderPaid` only advances `delivered → paid` (`order_service.go:83-86`) — for a `ready` order it returns
+  an error that `completePayment` **swallows** with a warn-log (`payment_service.go:265-267`). Result: the
+  `payments` row is `completed` but `orders.status` stays `ready` → drift. The same `validTransitions` /
+  status machine is shared by **admin_overview** (already ships the `delivered→cancelled` 409 bug),
+  **staff_kds**, **staff_pos**. Logged as `staff_cashier_payment` Flag 6. **Code bug needing a MASTER row**;
+  re-check on any page that pays a `ready` order without first marking it `delivered`.
 - **TOP epic / migration `017_drop_order_item_filling.sql` made `order_items.filling` obsolete repo-wide
   (doc drift, root file affected).** The column was added by migration 016 (OC epic) then **dropped** by
   017, which backfills nhân (thịt/mộc nhĩ) into `toppings_snapshot` as a topping entry. **customer_order_list**
@@ -221,6 +275,30 @@
   the shared contract to re-verify. **One re-fetch-on-unhandled-event fix closes all three gaps on both
   pages.** Logged in `customer_order_list/COMPARISON_DOC_VS_CODE_DETAILED.md` headline #2 +
   `customer_order_detail/COMPARISON_DOC_VS_CODE_DETAILED.md` headlines #1-2 + `ORDER_DETAIL_BUGS.md`.
+- **NEW (staff_pos run, 2026-06-23) — the POS "Đặt hộ" feature now makes POS orders carry a real
+  `table_id`, breaking the repo-wide "POS == table-less" assumption (doc drift, touches 3 pages).**
+  `TableList.tsx:357` (admin overview) deep-links `router.push('/pos?table_id=…&table_name=…')`; the POS
+  page seeds that into state (`pos/page.tsx:107-108`) and sends `table_id` on `POST /orders` (`:184`)
+  with `customer_name = tableName ?? 'Khách tại quán'` (`:181`). Server-side `CreateOrder` then runs the
+  table-busy lookup (`order_service.go:270-273`) and stores the table (`:302-303`). Consequence: a POS
+  "Đặt hộ" order is no longer `table_id=NULL` — it appears in **staff_kds** as "Bàn X" (`kds/page.tsx:214`)
+  and in **admin_overview** table-slot/floor zones, and `table_busy` can be `true`. The **staff_pos**
+  doc-set (`staff_pos_be.md §3`/Flag 3, `staff_pos_crosspage_dataflow.md §5/§6`) still asserts the old
+  table-less model — logged as staff_pos 🔴 #1/#2. **Doc drift, not a code bug**; re-verify the table-slot
+  rendering on the **staff_kds** and **admin_overview** future runs.
+- **Order-item serializer extras (`item_status`/`created_by`/`flagged`) — staff_pos leg re-confirmed
+  (2026-06-23).** Per the existing serializer-drift concern, this run verified `fe/src/types/order.ts`
+  still carries `OrderItem.flagged` (`order.ts:26`) which the BE `orderJSON` never emits, while `orderJSON`
+  emits `item_status`/`created_by` (`order_handler.go:358-388`) absent from the FE type. staff_pos reads
+  orders via `listLiveOrders` + `GET /orders/:id` — same `Order`/`OrderItem` shape — so the reconcile
+  (FE type ⇄ serializer) is still open and now confirmed on a 2nd reader page. **Doc/type drift.**
+- **Dead `TABLE_HAS_ACTIVE_ORDER` + unenforced one-active-order — staff_pos angle (2026-06-23).** The
+  earlier concern flagged staff_pos for re-check: on `/pos`, a picked occupied table is **disabled in the
+  picker** (`pos/page.tsx:64,69`), so the cashier is steered away client-side — but if `table_id` is sent
+  anyway, `CreateOrder` still only sets the informational `tableBusy` flag (`order_service.go:270-273`) and
+  returns `201 {id, table_busy}`; the POS `onSuccess` **never reads `table_busy`** (`pos/page.tsx:187-191`,
+  only `order_number`), so the rule remains unenforced here too. Same root as customer_table_qr /
+  customer_checkout (logged there); staff_pos adds the "picker disables occupied tables" mitigation.
 - **Order item serializer extras `item_status` + `created_by` + missing `flagged` (FE⇄BE contract drift).**
   The serializer (`order_handler.go:358-388`) emits `item_status` (`:367`, consumed by **staff_kds**, not by
   customer pages which re-derive via `deriveItemStatus()` `order.ts:9-13`) and `created_by` (`:384`), neither
@@ -296,10 +374,10 @@
 | Status | Page | Command |
 |---|---|---|
 | ⬜ | staff_login | `/comparison-doc staff_login` |
-| ⬜ | staff_register | `/comparison-doc staff_register` |
-| ⬜ | staff_kds | `/comparison-doc staff_kds` |
-| ⬜ | staff_pos | `/comparison-doc staff_pos` |
-| ⬜ | staff_cashier_payment | `/comparison-doc staff_cashier_payment` |
+| ✅ | staff_register | `/comparison-doc staff_register` |
+| ✅ | staff_kds | `/comparison-doc staff_kds` |
+| ✅ | staff_pos | `/comparison-doc staff_pos` |
+| ✅ | staff_cashier_payment | `/comparison-doc staff_cashier_payment` |
 
 ### admin/ (13)
 

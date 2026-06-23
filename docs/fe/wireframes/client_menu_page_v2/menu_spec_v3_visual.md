@@ -547,11 +547,11 @@ rows; full order = 16 item rows: 3 combo headers + 8 combo children + 3 món l�
     { "id":"0cbeb82d-…","product_id":"cccc…0001","combo_ref_id":null,"name":"Giò","unit_price":9000,"quantity":1,
       "toppings_snapshot":[{"id":"bbbb…0001","name":"Nhân thịt","price":0}], … },
     { "id":"12a66be9-…","product_id":"cccc…0005","combo_ref_id":null,"name":"Bánh Cuốn","unit_price":4000,"quantity":2,
-      "toppings_snapshot":[{"id":"bbbb…0002","name":"Nhân mộc nhĩ","price":0}], … },
+      "toppings_snapshot":[{"id":"bbbb…0002","name":"Nhân thịt mộc nhĩ","price":0}], … },
     { "id":"9e83f699-…","product_id":"cccc…0002","combo_ref_id":null,"name":"Bánh Trứng Tái","unit_price":9000,"quantity":1,
       "toppings_snapshot":[{"id":"bbbb…0001","name":"Nhân thịt","price":0}], … },
     { "id":"e893ef7b-…","product_id":"cccc…0003","combo_ref_id":null,"name":"Bánh Trứng Chín","unit_price":9000,"quantity":1,
-      "toppings_snapshot":[{"id":"bbbb…0002","name":"Nhân mộc nhĩ","price":0}], … },
+      "toppings_snapshot":[{"id":"bbbb…0002","name":"Nhân thịt mộc nhĩ","price":0}], … },
 
     // ── 2 CANH rows (unit_price 0; có rau carries the Rau topping, không rau is empty) ──
     { "id":"3610bd23-…","product_id":"cccc…0006","combo_ref_id":null,"name":"Canh","unit_price":0,"quantity":2,

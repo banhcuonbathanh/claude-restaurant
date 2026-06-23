@@ -195,7 +195,7 @@ Each `ComboCard` layout (horizontal, `bg-card rounded-xl flex gap-3 p-3 shadow-s
 - Heart button: top-right of image, toggles favourite
 - Name + price row
 - Combo items list (always visible): `×{qty}` badge + product name per item
-- **Filling selector:** two pill buttons — "Nhân thịt" / "Nhân mộc nhĩ" (local state `filling`)
+- **Filling selector:** two pill buttons — "Nhân thịt" / "Nhân thịt mộc nhĩ" (local state `filling`)
   - Cart key: `combo_{combo.id}_{filling}`
 - "Chi tiết" link → `/menu/combo/[id]`
 - Qty stepper: [−] n [+] when qty > 0; [+] only when qty === 0
@@ -224,7 +224,7 @@ Layout: horizontal flex, `bg-card rounded-xl p-3 shadow-sm`
 - Heart button: top-right of image
 - Name + price row
 - Description: `line-clamp-2 text-xs` (shown if present)
-- **Filling selector:** "Nhân thịt" / "Nhân mộc nhĩ" pill buttons (local state)
+- **Filling selector:** "Nhân thịt" / "Nhân thịt mộc nhĩ" pill buttons (local state)
   - Cart key: `product_{product.id}_{filling}`
 - `hasToppings` is **hardcoded `false`** — ToppingModal never opens from this card
 - "Chi tiết" link → `/menu/product/[id]`
@@ -467,7 +467,7 @@ On other errors: `toast.error(message)`
 | Zone J behavior | Always → CartDrawer | `tableId` set → TableConfirmModal; no tableId → `/checkout` |
 | TableConfirmModal | Not in spec | Full order confirm flow with POST /orders + error handling |
 | CartDrawer footer CTA | "Đặt hàng" → `/checkout` | "Thanh toán" or "Thêm vào đơn hàng" (add-to-order mode) |
-| ProductCard filling | Not in spec | Nhân thịt / Nhân mộc nhĩ selector (cart key includes filling) |
+| ProductCard filling | Not in spec | Nhân thịt / Nhân thịt mộc nhĩ selector (cart key includes filling) |
 | ProductCard toppings | Opens ToppingModal | `hasToppings = false` hardcoded — modal never opens |
 | ProductGridCard | Not in spec | Separate grid card component for tablet/desktop |
 | FavouritesRail link | Product detail page | All cards link to `/menu/favourites` |

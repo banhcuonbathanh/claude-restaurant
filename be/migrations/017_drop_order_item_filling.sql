@@ -11,7 +11,7 @@ WHERE filling = 'thit';
 UPDATE order_items
 SET toppings_snapshot = JSON_ARRAY_APPEND(
     COALESCE(toppings_snapshot, JSON_ARRAY()), '$',
-    JSON_OBJECT('id','bbbbbbbb-bbbb-bbbb-bbbb-000000000002','name','Nhân mộc nhĩ','price',0))
+    JSON_OBJECT('id','bbbbbbbb-bbbb-bbbb-bbbb-000000000002','name','Nhân thịt mộc nhĩ','price',0))
 WHERE filling = 'moc_nhi';
 
 ALTER TABLE order_items
