@@ -310,10 +310,10 @@ away (order → settings → menu) **without re-scanning the QR**. Self-validati
 
 ## Business Logic Used
 
-- Single order-payload builder (filling, combo overrides, canh split) → [../../07_business_logic/LOGIC_FE.md](../../07_business_logic/LOGIC_FE.md) (order payload, cart store)
-- Canh-required rule + cart maths → [../../07_business_logic/LOGIC_FE.md](../../07_business_logic/LOGIC_FE.md)
-- One active order per table (submit may redirect to existing order) → [../../02_spec/BUSINESS_RULES.md §2.3](../../02_spec/BUSINESS_RULES.md#23-one-active-order-per-table)
-- Combo expansion on the created order → [../../02_spec/BUSINESS_RULES.md §2.5](../../02_spec/BUSINESS_RULES.md#25-combo-expansion)
+- Single order-payload builder (filling, combo overrides, canh split) → [../../../07_business_logic/LOGIC_FE.md](../../../07_business_logic/LOGIC_FE.md) (order payload, cart store)
+- Canh-required rule + cart maths → [../../../07_business_logic/LOGIC_FE.md](../../../07_business_logic/LOGIC_FE.md)
+- One active order per table (submit may redirect to existing order) → [../../../02_spec/BUSINESS_RULES.md §2.3](../../../02_spec/BUSINESS_RULES.md#23-one-active-order-per-table)
+- Combo expansion on the created order → [../../../02_spec/BUSINESS_RULES.md §2.5](../../../02_spec/BUSINESS_RULES.md#25-combo-expansion)
 
 ---
 
@@ -326,7 +326,7 @@ away (order → settings → menu) **without re-scanning the QR**. Self-validati
 >
 > **Scope:** the catalog objects this page READS (Category, Product, Topping, Combo) and the cart
 > objects it WRITES from. The full order WRITE pipeline (CartItem → POST /orders → DB → response)
-> lives in [../../02_spec/object/OBJECT_MODEL_ORDER.md](../../02_spec/object/OBJECT_MODEL_ORDER.md) — not duplicated here.
+> lives in [../../../02_spec/object/OBJECT_MODEL_ORDER.md](../../../02_spec/object/OBJECT_MODEL_ORDER.md) — not duplicated here.
 
 ```
 READ:   categories/products/toppings/combos (MySQL) → service Details structs (Go)
@@ -368,7 +368,7 @@ BE resolves it into the nested `toppings` array.
 
 ### §3 — Product
 
-> **Full Product shape (all layers) → single home [../../02_spec/object/OBJECT_MODEL_PRODUCT.md](../../02_spec/object/OBJECT_MODEL_PRODUCT.md)** (Rule #9). The matrix below is the menu-page fetch view; it mirrors the home — keep them in sync or trim to a pointer.
+> **Full Product shape (all layers) → single home [../../../02_spec/object/OBJECT_MODEL_PRODUCT.md](../../../02_spec/object/OBJECT_MODEL_PRODUCT.md)** (Rule #9). The matrix below is the menu-page fetch view; it mirrors the home — keep them in sync or trim to a pointer.
 
 `GET /products` · handler `ListProducts` → service `ListProducts` → repo `ListProductsAvailable`
 (only `is_available=1`, soft-deleted excluded) · serializer `productJSON` (`product_handler.go:443`).
@@ -389,7 +389,7 @@ BE resolves it into the nested `toppings` array.
 
 ### §4 — Combo (two FE shapes: raw wire + enriched)
 
-> **Full Combo shape (all layers) → single home [../../02_spec/object/OBJECT_MODEL_COMBO.md](../../02_spec/object/OBJECT_MODEL_COMBO.md)** (Rule #9). The matrix below is the menu-page fetch view; it mirrors the home — keep them in sync or trim to a pointer.
+> **Full Combo shape (all layers) → single home [../../../02_spec/object/OBJECT_MODEL_COMBO.md](../../../02_spec/object/OBJECT_MODEL_COMBO.md)** (Rule #9). The matrix below is the menu-page fetch view; it mirrors the home — keep them in sync or trim to a pointer.
 
 `GET /combos` · handler `ListCombos` (inline serializer) → service `ListCombos` (Redis-cached,
 key `cacheKeyCombos`) → repo `ListCombosAvailable`.
@@ -429,7 +429,7 @@ The page writes `Product`/`Combo` selections into `useCartStore` as `CartItem`
 (`fe/src/types/cart.ts`) and submits via `buildOrderItemsPayload()` (`lib/order-payload.ts`).
 Every attribute of `CartItem`, `ComboItemSummary`, the wire payload, BE DTOs, DB rows and the
 read-back `Order`/`OrderItem` types is documented layer-by-layer in
-[../../02_spec/object/OBJECT_MODEL_ORDER.md](../../02_spec/object/OBJECT_MODEL_ORDER.md) §1–§2 — one fact, one home.
+[../../../02_spec/object/OBJECT_MODEL_ORDER.md](../../../02_spec/object/OBJECT_MODEL_ORDER.md) §1–§2 — one fact, one home.
 
 Menu-page-specific cart facts only:
 

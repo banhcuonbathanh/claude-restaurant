@@ -139,7 +139,7 @@ The only remaining work is **cleanup** (GAP-3 dead `ToppingModal`, GAP-4 unreach
 | On-page state flow | `customer_menu_crosscomponent_dataflow.md` |
 | Cross-page order state | `customer_menu_crosspage_dataflow.md` |
 | Loading behaviour | `customer_menu_loading.md` |
-| Order write pipeline (full) | `../../02_spec/object/OBJECT_MODEL_ORDER.md` |
-| Business rules (canh, combo, cancel) | `../../07_business_logic/LOGIC_FE.md` · `LOGIC_BE.md` |
+| Order write pipeline (full) | `../../../02_spec/object/OBJECT_MODEL_ORDER.md` |
+| Business rules (canh, combo, cancel) | `../../../07_business_logic/LOGIC_FE.md` · `LOGIC_BE.md` |
 </content>
 </invoke>

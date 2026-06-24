@@ -1,10 +1,10 @@
 # Scenario — A Full Lunch Rush (Orders · Staff · Tables · Ingredients)
 
 > **What this is:** one busy lunch hour told as a *story*, using the **real seed data**
-> ([MENU_CATALOG.md](MENU_CATALOG.md)) so you can *picture* how the object models move together.
+> ([MENU_CATALOG.md](../../../02_spec/object/MENU_CATALOG.md)) so you can *picture* how the object models move together.
 > It is not a spec — it just animates the schemas. Field shapes live in their home files:
-> [Order](OBJECT_MODEL_ORDER.md) · [Staff](OBJECT_MODEL_STAFF.md) · [Table](OBJECT_MODEL_TABLE.md) ·
-> [Ingredient](OBJECT_MODEL_INGREDIENT.md) · [Combo](OBJECT_MODEL_COMBO.md) · index → [OBJECT_MODELS.md](OBJECT_MODELS.md).
+> [Order](../../../02_spec/object/OBJECT_MODEL_ORDER.md) · [Staff](../../../02_spec/object/OBJECT_MODEL_STAFF.md) · [Table](../../../02_spec/object/OBJECT_MODEL_TABLE.md) ·
+> [Ingredient](../../../02_spec/object/OBJECT_MODEL_INGREDIENT.md) · [Combo](../../../02_spec/object/OBJECT_MODEL_COMBO.md) · index → [OBJECT_MODELS.md](../../../02_spec/object/OBJECT_MODELS.md).
 >
 > Money in VND (₫). Order numbers follow `ORD-YYYYMMDD-NNN`. Date: 2026-06-13.
 
@@ -347,7 +347,7 @@ A party of **5** is seated at **Bàn 02 (capacity 4)**. Phạm Thu Ngân pulls u
 
 > ⚠️ **FLAG — no capacity enforcement.** The system never checks headcount vs. `Table.capacity`;
 > seating 5 at a 4-seat table is a staff decision, not a system rule. `capacity` is display/planning
-> only — see [Table home](OBJECT_MODEL_TABLE.md).
+> only — see [Table home](../../../02_spec/object/OBJECT_MODEL_TABLE.md).
 
 They order **5× Suất Đầy Đủ Trứng Chín** (5 × ₫30,000 = **₫150,000**). Each combo explodes into a
 header + child rows — the price lives **only** on the order total, children sit at `unit_price = 0`:
@@ -422,7 +422,7 @@ before the chef starts cooking**:
 What happens:
 - `status: pending → cancelled` (the `orders` enum includes `cancelled`).
 - **Cancellation is allowed at any status** — this is an owner decision (the *cancel-anytime* drift),
-  not a per-status gate. See the Decision Log in [LOGIC_INDEX](../../07_business_logic/LOGIC_INDEX.md).
+  not a per-status gate. See the Decision Log in [LOGIC_INDEX](../../../07_business_logic/LOGIC_INDEX.md).
 - No payment is created; the order is **excluded from the day's revenue** (the `total_amount` row stays
   only as history).
 - **Bàn 05: `occupied → available`.**
@@ -485,7 +485,7 @@ That drops the ingredient toward its threshold:
 > ⚠️ Two real-world facts worth keeping in mind (both are existing system flags):
 > 1. **Stock is not auto-decremented when food is cooked.** `current_stock` only changes when a staff
 >    member records a movement. The recipe link (`product_ingredients`) exists in DB but **nothing reads
->    it during the order flow** — see [Ingredient §3](OBJECT_MODEL_INGREDIENT.md). The manager keeps
+>    it during the order flow** — see [Ingredient §3](../../../02_spec/object/OBJECT_MODEL_INGREDIENT.md). The manager keeps
 >    stock honest by hand.
 > 2. **`out` can't go negative** — it floors at `GREATEST(0, current_stock - qty)`; over-draw is silently
 >    clamped, no error.
@@ -518,10 +518,10 @@ ToppingModal (nhân) ───┘                                        └─�
 ```
 
 - Adding "1× Suất Đầy Đủ Trứng Chín" calls `addItem()` → **instant** local update, no network wait
-  (this is the only "optimistic" update in the app — see [LOADING_PATTERNS §Optimistic](../../04_fe/LOADING_PATTERNS.md)).
+  (this is the only "optimistic" update in the app — see [LOADING_PATTERNS §Optimistic](../../../04_fe/LOADING_PATTERNS.md)).
 - `cart.total()` / `cart.itemCount()` are selectors recomputed from `items` — every subscribed widget
   re-renders in lockstep, so the preview can **never** disagree with the bottom-bar total.
-- **Rule home:** [STATE_MANAGEMENT §Layer 2 — Zustand](../../04_fe/STATE_MANAGEMENT.md).
+- **Rule home:** [STATE_MANAGEMENT §Layer 2 — Zustand](../../../04_fe/STATE_MANAGEMENT.md).
 
 > Single-widget state (e.g. "is the topping modal open?") stays in local `useState` — it never goes
 > in the store. Server lists (products, combos) come from TanStack Query, not Zustand. Three layers,
@@ -543,7 +543,7 @@ survives each navigation through **Zustand + a couple of localStorage keys**, ne
 - After the POST succeeds, the menu page sets `activeOrderId` and **clears the cart**. That
   `activeOrderId` is why the menu later offers **"Đặt thêm món"** (add-to-order) instead of a brand-new
   order — it's the same flow Bàn 04 would use to add a 4th Giò.
-- **Rule homes:** page-to-page keys → [DATA_COMMUNICATION §Page-to-Page](../../04_fe/DATA_COMMUNICATION.md);
+- **Rule homes:** page-to-page keys → [DATA_COMMUNICATION §Page-to-Page](../../../04_fe/DATA_COMMUNICATION.md);
   every key string is defined **once** in [`storage-keys.ts`](../../../../fe/src/lib/storage-keys.ts) (never inline).
 
 ### C. How the FE **sends** data to the BE (the Bàn 02 order)
@@ -572,8 +572,8 @@ Three things make this safe and consistent:
 3. **Auth is automatic.** The request interceptor reads the token from `useAuthStore` and sets the
    `Bearer` header; the guest never handles it. The **cancel** (Bàn 05) and **add-to-order** go out the
    same client — e.g. `addItemsToOrder(orderId, items)` → `POST /orders/:id/items`.
-- **Rule home:** [DATA_COMMUNICATION §API Client + §Order Payload Builder](../../04_fe/DATA_COMMUNICATION.md);
-  payload field shapes → [OBJECT_MODEL_ORDER §2.3](OBJECT_MODEL_ORDER.md).
+- **Rule home:** [DATA_COMMUNICATION §API Client + §Order Payload Builder](../../../04_fe/DATA_COMMUNICATION.md);
+  payload field shapes → [OBJECT_MODEL_ORDER §2.3](../../../02_spec/object/OBJECT_MODEL_ORDER.md).
 
 ### D. What the FE **receives** back — and how it stays live
 
@@ -597,8 +597,8 @@ events that bypass HTTP entirely:
   TanStack Query cache in place** — every admin widget subscribed to that key updates with **no network
   round-trip**. The 8 cards on the floor screen move the instant the chef taps a dish.
 - If the stream drops: 5 reconnect attempts, exponential backoff 1s→30s, `<ConnectionErrorBanner>` after
-  the 3rd. **Rule homes:** [DATA_COMMUNICATION §Realtime](../../04_fe/DATA_COMMUNICATION.md) ·
-  [LOADING_PATTERNS §SSE Reconnect](../../04_fe/LOADING_PATTERNS.md).
+  the 3rd. **Rule homes:** [DATA_COMMUNICATION §Realtime](../../../04_fe/DATA_COMMUNICATION.md) ·
+  [LOADING_PATTERNS §SSE Reconnect](../../../04_fe/LOADING_PATTERNS.md).
 
 ### E. Loading strategy + caching (why the rush feels instant despite 8+ tabs)
 
@@ -624,8 +624,8 @@ L1 TanStack Query  ──HTTP (no────▶   L2 Redis cache-aside  ──�
   live state are never stale.
 - **There is no HTTP cache** (Caddy/BE set no `Cache-Control`), so a stale L1 query is a real BE request.
   Worst-case catalog staleness = L1 5 min + Redis 5 min ≈ **10 min** — acceptable for a menu, never for orders.
-- **Rule homes:** [10_caching/CACHING_INDEX.md](../../10_caching/CACHING_INDEX.md) (cross-layer) ·
-  [STATE_MANAGEMENT §Layer 1](../../04_fe/STATE_MANAGEMENT.md) (staleTime) · [LOADING_PATTERNS](../../04_fe/LOADING_PATTERNS.md).
+- **Rule homes:** [10_caching/CACHING_INDEX.md](../../../10_caching/CACHING_INDEX.md) (cross-layer) ·
+  [STATE_MANAGEMENT §Layer 1](../../../04_fe/STATE_MANAGEMENT.md) (staleTime) · [LOADING_PATTERNS](../../../04_fe/LOADING_PATTERNS.md).
 
 ### F. Monitoring this rush in Grafana
 
@@ -651,7 +651,7 @@ all containers ──logs──▶ Promtail ──▶ Loki :3100
 - **Triage order when something breaks:** Grafana panels → Container Logs (or `docker compose logs -f be`)
   → Prometheus `:9090 → Alerts`. On the VPS the monitoring ports are firewalled — tunnel with
   `ssh -L 3001:localhost:3001 …`.
-- **Rule home:** [09_devops/MONITORING.md](../../09_devops/MONITORING.md); live configs in
+- **Rule home:** [09_devops/MONITORING.md](../../../09_devops/MONITORING.md); live configs in
   [`monitoring/`](../../../../monitoring/) (edit there, never in the doc).
 
 ### Putting A–F on one timeline (Bàn 02's combo)
