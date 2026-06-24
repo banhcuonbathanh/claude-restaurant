@@ -18,7 +18,7 @@
 
 | Page | Branch | Last comparison run | Tổng gap | ⬜ | 🔧 | ✅ |
 |---|---|---|---|---|---|---|
-| customer_menu | experience_claude.md_system_1_test_iphon2_change_code | 2026-06-24 | 10 (3 cũ + 7 thiết kế mới) | 0 | 0 | 8 (✅) · 2 💬 (GAP-3, GAP-4 cleanup chờ quyết định) |
+| customer_menu | experience_claude.md_system_1_test_iphon2_change_code | 2026-06-24 | 10 (3 cũ + 7 thiết kế mới) | 0 | 0 | 10 (✅) — GAP-3 & GAP-4 = DEAD CODE, owner xoá sau |
 
 > **Nguồn audit đầy đủ:** danh sách gap dưới đây (GAP-1…GAP-10) là **decision-log**. Bản audit
 > đầy đủ + đánh số chuẩn là [COMPARISON_DOC_VS_CODE_DETAILED.md](./COMPARISON_DOC_VS_CODE_DETAILED.md)
@@ -112,7 +112,7 @@ order/[id] page ⇒ setActiveOrderId(null)   ← pointer hết hạn, banner bi�
 ## GAP-3 · ToppingModal — code chết (0 import)
 
 - **Loại:** 🔴 CODE cleanup + DOC
-- **Trạng thái:** 💬 chờ bạn feedback
+- **Trạng thái:** ✅ chốt — **đánh dấu DEAD CODE, owner sẽ xoá sau** (chưa đụng file)
 - **Nguồn:** [Mockup Zone F](./COMPARISON_VISUAL_MOCKUP_VI.md#L53-L96)
 - **🔗 Code (before):** [ToppingModal.tsx](../../../../../fe/src/features/menu/components/ToppingModal.tsx) (file chết) · nhân thật ở [ProductCard.tsx:131-147](../../../../../fe/src/features/menu/components/ProductCard.tsx#L131-L147)
 - **📷 Ảnh thật:** [productcard_real.png](./screenshots/productcard_real.png)
@@ -127,20 +127,20 @@ inline. Nếu bạn muốn giữ lại để dùng sau thì chỉ sửa doc + gh
 
 | 💬 Yêu cầu của bạn |
 |---|
-| _(✅ xoá + sửa doc / ❌ giữ file / ✏️ sửa: …)_ |
+| ✅ Đánh dấu **DEAD CODE** — owner sẽ tự xoá sau. KHÔNG đụng `ToppingModal.tsx` lúc này. |
 
 **🗣 Thảo luận (full):**
-> _(…)_
+> Owner chốt: `ToppingModal.tsx` là code chết (0 import, nhân thật = pill inline trên ProductCard). Để **DEAD CODE**, owner tự xoá sau — Claude không xoá, không sửa file này.
 
-**✅ Quyết định:** _(chưa chốt)_
-**MASTER_TASK row:** _(xoá file = code fix → cần row)_
+**✅ Quyết định:** ✅ DEAD CODE — owner xoá sau. Không tạo code fix / không đụng file.
+**MASTER_TASK row:** _(không cần — owner xoá thủ công sau)_
 
 ---
 
 ## GAP-4 · ComboModal — render nhưng không tới được
 
 - **Loại:** 🔴 CODE
-- **Trạng thái:** 💬 chờ bạn feedback
+- **Trạng thái:** ✅ chốt — **đánh dấu DEAD CODE, owner sẽ xoá sau** (chưa đụng file)
 - **Nguồn:** [Tracker headline](../../COMPARISON_TRACKER.md#L13)
 - **🔗 Code (before):** [ComboModal.tsx](../../../../../fe/src/features/menu/components/ComboModal.tsx)
 - **📷 Ảnh thật:** _(chưa chụp riêng — xem toàn cảnh [menu_full_real.png](./screenshots/menu_full_real.png))_
@@ -155,13 +155,13 @@ xoá ngay khi chưa grep.
 
 | 💬 Yêu cầu của bạn |
 |---|
-| _(✅ điều tra rồi xử lý / ❌ để nguyên / ✏️ sửa: …)_ |
+| ✅ Đánh dấu **DEAD CODE** — owner sẽ tự xoá sau. KHÔNG đụng `ComboModal.tsx` lúc này. |
 
 **🗣 Thảo luận (full):**
-> _(…)_
+> Owner chốt: `ComboModal.tsx` unreachable (combo mở ở trang riêng `/menu/combo/:id`). Để **DEAD CODE**, owner tự xoá sau — Claude không xoá, không sửa file này.
 
-**✅ Quyết định:** _(chưa chốt)_
-**MASTER_TASK row:** _(chưa tạo)_
+**✅ Quyết định:** ✅ DEAD CODE — owner xoá sau. Không tạo code fix / không đụng file.
+**MASTER_TASK row:** _(không cần — owner xoá thủ công sau)_
 
 ---
 
@@ -336,6 +336,8 @@ hay bất kỳ component menu nào. Thứ gần nhất là `AddToOrderBanner` (c
 |---|---|---|---|---|
 | GAP-1 (cũ TBL-A) | MenuHeader rebuild → photo banner + Playfair title; bỏ login/table label/pill bar; pill bàn (spinning ring) đã ở OrderSummary từ GAP-5 (không nhân đôi) | CODE rebuild | rebuild chưa tạo | ✅ (2026-06-24) |
 | GAP-2 | Feature order-recovery: `setActiveOrderId(id)` sau khi đặt + `clearCart()` giữ identity + recovery banner trên /menu (ghi đè Invariant 5) | CODE đã đổi | chưa tạo | ✅ |
+| GAP-3 | `ToppingModal.tsx` code chết (0 import) → **DEAD CODE**, owner xoá sau; Claude không đụng | CODE cleanup | không cần | ✅ (dead code) |
+| GAP-4 | `ComboModal.tsx` unreachable (combo ở `/menu/combo/:id`) → **DEAD CODE**, owner xoá sau; Claude không đụng | CODE | không cần | ✅ (dead code) |
 | GAP-5 | OrderSummary §7: pill bàn vòng sáng + nhân caption cam + "Chi tiết"; note pre-fill giữ rỗng · nhân per-subitem SKIP (owner chốt) | CODE rebuild | chưa tạo | ✅ |
 | GAP-6 | Category tabs → scroll-spy sticky nav (tách `MenuCategoryNav.tsx` mới, KHÔNG đụng `CategoryTabs.tsx` vì POS dùng); search override; bottom-pin fix | CODE rebuild | chưa tạo (cố ý) | ✅ code + verify |
 | GAP-7 | FavouritesRail đã có; 3 fixes áp: tap→detail (`/menu/product\|combo/[id]`), orange heart (`fill-primary`), label heart icon | CODE fix (FavouritesRail.tsx) | GAP-7-FAV ✅ | ✅ |
