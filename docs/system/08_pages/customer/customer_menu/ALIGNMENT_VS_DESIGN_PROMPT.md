@@ -30,7 +30,8 @@ The DESIGN_PROMPT baseline facts these are measured against:
 > The "Resolution" column is the canonical value each doc should be brought to.
 >
 > **✅ APPLIED 2026-06-25** — rows 1–7 edited into the source docs (row 8 `excalidraw.md` left
-> untouched per owner request). See [§4 Caveat](#4--caveat-rows-14-now-diverge-from-the-seed-catalog).
+> untouched per owner request). The seed/BE were verified to already match DESIGN_PROMPT; only
+> `MENU_CATALOG.md` §4 needed a data fix. See [§4 Resolution](#4--resolution--verified-against-the-real-seed-not-a-divergence).
 
 | # | File | Location | DESIGN_PROMPT says | Doc says | Resolution (follow DESIGN_PROMPT) | Sev |
 |---|---|---|---|---|---|---|
