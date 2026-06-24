@@ -99,7 +99,7 @@ open?" stays in **local `useState`**. Three layers, one discipline.
 
 ```
 ┌────────────────────────────────────────┐
-│ 🛒 3 món · 105.000đ        [Xem giỏ →] │   ◀── ⚡ itemCount()  (Σ quantity)
+│ 🛒 13 món · 103.000đ       [Xem giỏ →] │   ◀── ⚡ itemCount()  (Σ quantity)
 └────────────────────────────────────────┘   ◀── ⚡ total()      (Σ price×qty)
    shows only if itemCount() > 0               [Xem giỏ →] ──▶ opens CartDrawer overlay
    ↑ same derived numbers as I and J — they can't drift (all recompute from items[])
@@ -186,10 +186,10 @@ away (order → settings → menu) **without re-scanning the QR**. Self-validati
 
 ```
 ┌──────────────────────────────────────┐
-│ MÓN LẺ                                │   ◀── 📦 [GET /products?category_id&search] ⏳ skel
+│ TRỨNG · BÁNH CUỐN · GIÒ · CANH        │   ◀── 📦 [GET /products?category_id&search] ⏳ skel
 │ ┌──────────────────────────────────┐ │        key ['products', selectedCategory, searchQuery]
-│ │ [img] Bánh cuốn thịt 35.000đ [+]─┼─┼──▶ opens ▢ ToppingModal → ⚡ addItem(product+toppings)
-│ │ [img] Canh mọc       10.000đ [+]─┼─┼──▶ ⚡ setCanhQty(...) → standalone `canh_*` row
+│ │ [img] Bánh Cuốn Thịt  4.000đ [+]─┼─┼──▶ opens ▢ ToppingModal → ⚡ addItem(product+toppings)
+│ │ [img] Canh có rau        0 đ [+]─┼─┼──▶ ⚡ setCanhQty(...) → standalone `canh_*` row
 │ └──────────────────────────────────┘ │   card tap → /menu/product/:id
 └──────────────────────────────────────┘   ⚠ on this branch BE ignores category_id/search params
    states: isError → "mạng yếu"+Thử lại · loading → skeleton · empty → EmptyState · else → grid
@@ -241,7 +241,7 @@ away (order → settings → menu) **without re-scanning the QR**. Self-validati
                               └──────────┘   ◀── ⚡ tableId: set → TableConfirmModal · null → /checkout
    Appears only when itemCount() > 0.
    NO total is shown on either button — ⚠️ NEW DESIGN.
-   (Old behaviour: full-width bottom bar showing "n món · 105.000đ  [Thanh toán]" — removed.)
+   (Old behaviour: full-width bottom bar showing "n món · 103.000đ  [Thanh toán]" — removed.)
    Canh gate: soup missing → "Thanh toán" pill DIMMED (same logic as before, different component shape).
 ```
 
@@ -251,17 +251,17 @@ away (order → settings → menu) **without re-scanning the QR**. Self-validati
 
 ```
 ┌─ Giỏ hàng ───────────────────────────┐
-│ Bánh cuốn thịt   [–] 2 [+]   🗑       │   ◀── ⚡ items[]
-│ Canh mọc         [–] 1 [+]   🗑       │   [±] ──▶ ⚡ updateQty / updateComboItem
-│ Tổng: 105.000đ      [ Thanh toán ]   │   🗑  ──▶ ⚡ removeItem
+│ Bánh Cuốn Thịt   [–] 2 [+]   🗑       │   ◀── ⚡ items[]
+│ Canh có rau      [–] 1 [+]   🗑       │   [±] ──▶ ⚡ updateQty / updateComboItem
+│ Tổng: 8.000đ        [ Thanh toán ]   │   🗑  ──▶ ⚡ removeItem
 └──────────────────────────────────────┘   submit ──▶ buildOrderItemsPayload(items) (one builder)
 ```
 
 **TableConfirmModal** (overlay, QR path) — builds the payload from the store, fires the only POST.
 
 ```
-┌─ Xác nhận đơn Bàn 03 ────────────────┐
-│ 3 món · 105.000đ                      │   items ◀── ⚡ useCartStore
+┌─ Xác nhận đơn Bàn 04 ────────────────┐
+│ 13 món · 103.000đ                     │   items ◀── ⚡ useCartStore
 │        [Hủy]   [Xác nhận gọi món]    │   confirm ──▶ buildOrderItemsPayload() ──▶ POST /orders (source qr)
 └──────────────────────────────────────┘   201 ⇒ clearCart() → setActiveOrderId(id) → router.replace('/order/<id>')
 ```

@@ -81,11 +81,11 @@ Each combo is a fixed set of products at a set price (category: **Suất / Combo
 
 | # | Name | Price | Contents |
 |---|---|---|---|
-| 01 | **Suất Đầy Đủ Trứng Chín** | ₫30,000 | 1× Bánh Trứng Chín · 1× Giò · 3× Bánh Cuốn · 1× Canh |
-| 02 | **Suất Đầy Đủ Trứng Tái** | ₫30,000 | 1× Bánh Trứng Tái · 1× Giò · 3× Bánh Cuốn · 1× Canh |
-| 03 | **Suất Giò** | ₫21,000 | 1× Giò · 3× Bánh Cuốn · 1× Canh |
-| 04 | **Suất Trứng Bánh Không** | ₫21,000 | 1× Bánh Trứng Vàng · 3× Bánh Cuốn (không nhân) · 1× Canh |
-| 05 | **Bánh Chay** | ₫12,000 | 3× Bánh Cuốn (nhân mộc nhĩ) · 1× Canh — không thịt |
+| 01 | **Suất Đầy Đủ Trứng Tái** | ₫30,000 | 1× Bánh Trứng Tái · 3× Bánh Cuốn · 1× Giò · 1× Canh |
+| 02 | **Suất Đầy Đủ Trứng Chín** | ₫30,000 | 1× Bánh Trứng Chín · 3× Bánh Cuốn · 1× Giò · 1× Canh |
+| 03 | **Suất Giò** | ₫25,000 | 1× Giò · 4× Bánh Cuốn · 1× Canh |
+| 04 | **Suất Trứng Tái** | ₫25,000 | 1× Bánh Trứng Tái · 4× Bánh Cuốn · 1× Canh |
+| 05 | **Suất Trứng Chín** | ₫25,000 | 1× Bánh Trứng Chín · 4× Bánh Cuốn · 1× Canh |
 
 > Combo price is the **listed combo price**, not the sum of item prices. Per the OC epic, the
 > combo header carries the price and child `order_items` are stored at `unit_price = 0` to avoid

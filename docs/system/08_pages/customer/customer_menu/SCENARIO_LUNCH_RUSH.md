@@ -38,12 +38,12 @@ flips it back to `available` — staff don't set this by hand.
 
 ### 11:40 — 1 guest sits at Bàn 01
 
-A solo guest scans the **Bàn 01** QR and orders **1× Suất Giò** (₫21,000 — 1 Giò · 3 Bánh Cuốn · 1 Canh).
+A solo guest scans the **Bàn 01** QR and orders **1× Suất Giò** (₫25,000 — 1 Giò · 4 Bánh Cuốn · 1 Canh).
 
 ```jsonc
 // orders row
 { "order_number": "ORD-20260613-014", "table_id": "Bàn 01",
-  "source": "qr", "status": "pending", "total_amount": 21000,
+  "source": "qr", "status": "pending", "total_amount": 25000,
   "created_by": null }                 // customer self-ordered → no staff
 ```
 
@@ -60,7 +60,7 @@ cart. *Suất Giò* is a **combo**, so its line is shaped by
 [`buildOrderItemsPayload`](../../../../fe/src/lib/order-payload.ts) — the single source that turns the
 cart into the order payload:
 
-Say the guest picks **nhân thịt** for the bánh and a **Canh có rau**. *Suất Giò* = `1× Giò · 3× Bánh
+Say the guest picks **nhân thịt** for the bánh and a **Canh có rau**. *Suất Giò* = `1× Giò · 4× Bánh
 Cuốn · 1× Canh`, but the **canh never travels inside the combo** — the builder strips it out and emits it
 as a standalone product row. The combo's `nhân` rides on each remaining sub-item via `topping_ids`:
 
@@ -78,7 +78,7 @@ as a standalone product row. The combo's `nhân` rides on each remaining sub-ite
       "topping_ids": [],                 // toppings live on the sub-items, not the header
       "combo_items": [                   // per-dish overrides; canh is NOT here
         { "product_id": "<uuid Giò>",       "quantity": 1, "topping_ids": ["<uuid Nhân thịt>"] },
-        { "product_id": "<uuid Bánh Cuốn>", "quantity": 3, "topping_ids": ["<uuid Nhân thịt>"] }
+        { "product_id": "<uuid Bánh Cuốn>", "quantity": 4, "topping_ids": ["<uuid Nhân thịt>"] }
       ] },
     { "product_id": "<uuid Canh>",       // ── canh split out as its OWN standalone row
       "combo_id":   null,
@@ -114,7 +114,7 @@ createOrderReq{                          // handler/order_handler.go:59
             ToppingIDs: []string{}, Note: "",
             ComboItems: []comboItemOverrideReq{
                 {ProductID: "<uuid Giò>",       Quantity: 1, ToppingIDs: []string{"<uuid Nhân thịt>"}},
-                {ProductID: "<uuid Bánh Cuốn>", Quantity: 3, ToppingIDs: []string{"<uuid Nhân thịt>"}},
+                {ProductID: "<uuid Bánh Cuốn>", Quantity: 4, ToppingIDs: []string{"<uuid Nhân thịt>"}},
             },
         },
         {                                // ── standalone canh
@@ -138,7 +138,7 @@ service.CreateOrderInput{                // service/order_service.go
         {ComboID: "<uuid Suất Giò>", Quantity: 1, ToppingIDs: []string{},
          ComboItems: []service.ComboItemOverrideInput{
              {ProductID: "<uuid Giò>",       Quantity: 1, ToppingIDs: []string{"<uuid Nhân thịt>"}},
-             {ProductID: "<uuid Bánh Cuốn>", Quantity: 3, ToppingIDs: []string{"<uuid Nhân thịt>"}},
+             {ProductID: "<uuid Bánh Cuốn>", Quantity: 4, ToppingIDs: []string{"<uuid Nhân thịt>"}},
          }},
         {ProductID: "<uuid Canh>", Quantity: 1, ToppingIDs: []string{"<uuid Rau mùi tàu>"}},
     },
@@ -175,7 +175,7 @@ server fills in everything the FE left out:
   "source":        "qr",
   "customer_name": null, "customer_phone": null,  // ← "" empty string → NULL via nullStr()
   "note":          null,
-  "total_amount":  21000,               // ← DERIVED, see below — never sent by FE
+  "total_amount":  25000,               // ← DERIVED, see below — never sent by FE
   "created_by":    null,                // ← QR = no staff
   "group_id":      null,                // standalone (no multi-table split)
   "created_at":    "2026-06-13T11:40:…", "updated_at": "…", "deleted_at": null }
@@ -205,7 +205,7 @@ server fills in everything the FE left out:
     "combo_id":    null,
     "combo_ref_id": "<u1>",              // COMBO SUB-ITEM
     "name": "Bánh Cuốn", "unit_price": 4000,
-    "quantity": 3, "qty_served": 0,       // 3× per combo, ×1 combo = 3
+    "quantity": 4, "qty_served": 0,       // 4× per combo, ×1 combo = 4
     "toppings_snapshot": [ { "id": "<uuid Nhân thịt>", "name": "Nhân thịt", "price": 0 } ] },
 
   { "id": "<u4>",  "order_id": "<uuid>",
@@ -220,7 +220,7 @@ server fills in everything the FE left out:
 
 > **`total_amount` is derived, then denormalized.** The header carries no price; right after insert the BE
 > runs `RecalculateTotalAmount` = `SUM(unit_price × quantity)` over every row →
-> `0·1 + 9 000·1 + 4 000·3 + 0·1 =` **₫21,000**, written onto `orders.total_amount`. It is re-run after
+> `0·1 + 9 000·1 + 4 000·4 + 0·1 =` **₫25,000**, written onto `orders.total_amount`. It is re-run after
 > *every* item mutation or the stored total drifts (the OC-epic bug: a priced header double-counted).
 > Note there is **no `status`, no `flagged`, no `filling`** column on `order_items` — item status is derived
 > from `qty_served` (0 = pending, `=quantity` = done) and nhân lives in `toppings_snapshot`.
@@ -239,7 +239,7 @@ server fills in everything the FE left out:
 | `customer_name` VARCHAR(100) | **`NULL`** | `""` → NULL via `nullStr()` |
 | `customer_phone` VARCHAR(20) | **`NULL`** | `""` → NULL |
 | `note` TEXT | `NULL` | `""` → NULL |
-| `total_amount` DECIMAL(10,0) | `21000` | derived (see above) |
+| `total_amount` DECIMAL(10,0) | `25000` | derived (see above) |
 | `created_by` CHAR(36) | `NULL` | customer = no staff |
 | `group_id` CHAR(36) | `NULL` | standalone order |
 | `created_at`/`updated_at` DATETIME | `2026-06-13 11:40:…` | `CURRENT_TIMESTAMP` |
@@ -251,7 +251,7 @@ server fills in everything the FE left out:
 |---|---|---|---|---|---|---|---|---|---|
 | `u1` | `7f3a…` | `NULL` | `<Suất Giò>` | `NULL` | Suất Giò | `0` | 1 | 0 | `[]` |
 | `u2` | `7f3a…` | `<Giò>` | `NULL` | `u1` | Giò | `9000` | 1 | 0 | `[{"id":"<Nhân thịt>","name":"Nhân thịt","price":0}]` |
-| `u3` | `7f3a…` | `<Bánh Cuốn>` | `NULL` | `u1` | Bánh Cuốn | `4000` | 3 | 0 | `[{"id":"<Nhân thịt>","name":"Nhân thịt","price":0}]` |
+| `u3` | `7f3a…` | `<Bánh Cuốn>` | `NULL` | `u1` | Bánh Cuốn | `4000` | 4 | 0 | `[{"id":"<Nhân thịt>","name":"Nhân thịt","price":0}]` |
 | `u4` | `7f3a…` | `<Canh>` | `NULL` | `NULL` | Canh | `0` | 1 | 0 | `[{"id":"<Rau mùi tàu>","name":"Rau mùi tàu","price":0}]` |
 
 The storage-level facts that matter:
@@ -260,9 +260,9 @@ The storage-level facts that matter:
 - **`toppings_snapshot` is a frozen JSON copy, not a foreign key.** The topping's name+price at order time is
   baked in, so renaming/repricing a topping later never rewrites a past order. The combo header stores `[]`.
 - **The combo is a self-referencing tree.** Sub-items point at the header via `combo_ref_id` (FK back to
-  `order_items.id`, `ON DELETE CASCADE`). Each sub-item's `quantity` is already multiplied out (`3× × 1 = 3`).
+  `order_items.id`, `ON DELETE CASCADE`). Each sub-item's `quantity` is already multiplied out (`4× × 1 = 4`).
 - **`total_amount` is denormalized, written by a 3rd statement** — `UPDATE orders SET total_amount =
-  (SELECT SUM(unit_price × quantity) FROM order_items …)` → `0 + 9000 + 12000 + 0 = 21000`. Re-run after
+  (SELECT SUM(unit_price × quantity) FROM order_items …)` → `0 + 9000 + 16000 + 0 = 25000`. Re-run after
   every item change.
 - **No `status`/`flagged`/`filling` columns** on `order_items` — `chk_oi_item_type` enforces the 3 row shapes;
   item progress is just `qty_served` vs `quantity`.
@@ -430,7 +430,7 @@ What happens:
 ### 12:08 — The floor recovers
 
 Two tables free up almost at once:
-- The solo guest at **Bàn 01** pays ₫21,000 (cashier closes the bill) → `status → paid` → **Bàn 01 available**.
+- The solo guest at **Bàn 01** pays ₫25,000 (cashier closes the bill) → `status → paid` → **Bàn 01 available**.
 - **Bàn 05** is already free from the cancel.
 
 Phạm Thu Ngân seats the **waiting party of 3 at Bàn 01** (the table they were promised). Bàn 05 stays
@@ -442,7 +442,7 @@ open for the next walk-in.
 
 | Table / channel | Cap | Guests | Status | Order | Total | Dish state (KDS) |
 |---|---|---|---|---|---|---|
-| Bàn 01 | 4 | 1 | occupied | `…-014` qr | ₫21,000 | ready (about to pay) |
+| Bàn 01 | 4 | 1 | occupied | `…-014` qr | ₫25,000 | ready (about to pay) |
 | Bàn 02 | 4 | **5** ⚠️ | occupied | `…-015` qr | ₫150,000 | preparing |
 | Bàn 03 | 6 | 2 | occupied | `…-016` qr | ₫60,000 | preparing |
 | Bàn 04 | 2 | 1 | occupied | `…-017` qr | ₫27,000 | pending |

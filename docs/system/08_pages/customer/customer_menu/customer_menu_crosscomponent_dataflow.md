@@ -19,8 +19,8 @@
 
 ## 0. The order, in one line
 
-> A solo guest scans the **Bàn 01** QR and orders **1× Suất Giò** (₫21,000) — bánh with **nhân thịt**,
-> plus a **Canh có rau**. *Suất Giò* = `1 Giò · 3 Bánh Cuốn · 1 Canh`, but the canh is chosen separately.
+> A solo guest scans the **Bàn 01** QR and orders **1× Suất Giò** (₫25,000) — bánh with **nhân thịt**,
+> plus a **Canh có rau**. *Suất Giò* = `1 Giò · 4 Bánh Cuốn · 1 Canh`, but the canh is chosen separately.
 
 Everything below is how the `/menu` page assembles *that* selection on screen before a single byte leaves
 the browser.
@@ -32,10 +32,10 @@ the browser.
 ┌──────────────────────────────────────────────────────────────────┐
 │  A  MenuHeader      [photo banner] "Quán Bánh Cuốn"  (no table)   │
 ├──────────────────────────────────────────────────────────────┬──┤
-│  🛒 MiniCartStrip         "1 món · 21.000đ"  [Xem giỏ →]  ◀────┤  │
+│  🛒 MiniCartStrip         "1 món · 25.000đ"  [Xem giỏ →]  ◀────┤  │
 ├──────────────────────────────────────────────────────────────┼──┤
 │  E  ComboSection   ┌────────────────────────────┐             │  │
-│                    │ Suất Giò   21.000đ    [+]──┼──writes──┐  │  │
+│                    │ Suất Giò   25.000đ    [+]──┼──writes──┐  │  │
 │                    └────────────────────────────┘          │  │  │
 │  F  ProductList    ┌────────────────────────────┐          │  │  │
 │                    │ Canh (có rau)         [+]──┼──writes─┐│  │  │
@@ -72,7 +72,7 @@ each one binds to. Note the right column: almost every one reads the **same stor
 | Zone | Component | Reads / writes for the 11:40 order | Data source |
 |---|---|---|---|
 | A Header | `MenuHeader` | static photo banner — **no table label** (the "Bàn 01" pill moved to zone I) | static asset (no store read) |
-| Mini cart | `MiniCartStrip` | reads **"1 món · 21.000đ"** | `useCartStore` (selectors) |
+| Mini cart | `MiniCartStrip` | reads **"1 món · 25.000đ"** | `useCartStore` (selectors) |
 | E Combos | `ComboSection` | writes Suất Giò → `addItem()` | `GET /combos` (read) + `useCartStore` (write) |
 | F Products | `ProductList` | writes the canh row | catalog (read) + `useCartStore` (write) |
 | Topping modal | `ToppingModal` | picks **nhân thịt** | local `useState` → `useCartStore` on confirm |
@@ -188,11 +188,11 @@ This is **instant** — no network wait. It is the *only* optimistic update in t
   ┌──────────────────────────────────────────────────────────────┐
   │ items: [                                                      │
   │   { id:"combo_<SuấtGiò>", type:"combo", quantity:1,          │
-  │     price:21000,                                              │
+  │     price:25000,                                              │
   │     toppings:[ {Nhân thịt, ₫0} ],   ← nhân lives HERE         │
-  │     combo_items:[ Giò×1, Bánh Cuốn×3, Canh×1 ] }              │
+  │     combo_items:[ Giò×1, Bánh Cuốn×4, Canh×1 ] }              │
   │ ]                                                             │
-  │ total(): 21000     itemCount(): 1                             │
+  │ total(): 25000     itemCount(): 1                             │
   └──────────────────────────────────────────────────────────────┘
             │
             └─▶ canh gate: items.some(id startsWith "canh_") = FALSE
@@ -228,7 +228,7 @@ existing row instead of creating a duplicate. Price is always `0`.
   │   { id:"canh_<Canh>_rau", type:"product", quantity:1,        │
   │     price:0, toppings:[ {Rau mùi tàu, ₫0} ] }   ← NEW row     │
   │ ]                                                             │
-  │ total(): 21000     itemCount(): 2                            │
+  │ total(): 25000     itemCount(): 2                            │
   └──────────────────────────────────────────────────────────────┘
             │
             └─▶ canh gate: items.some(id startsWith "canh_") = TRUE
@@ -242,7 +242,7 @@ store update, and **every subscribed widget recomputed in lockstep**:
 
 ```
 ComboSection.addItem() ───────┐
-ToppingModal (nhân thịt) ──────┼──▶  useCartStore.items  ──┬──▶ MiniCartStrip   "1 món · 21.000đ"
+ToppingModal (nhân thịt) ──────┼──▶  useCartStore.items  ──┬──▶ MiniCartStrip   "1 món · 25.000đ"
 ProductList / setCanhQty ──────┘     (Zustand singleton)   ├──▶ OrderSummary    preview + ghi chú
                                                            └──▶ Floating pills  🛒 1 (count) · [Thanh toán]
 ```
@@ -287,7 +287,7 @@ For our two cart lines it produces (traced from the code):
   { "product_id": null, "combo_id": "<Suất Giò>", "quantity": 1, "topping_ids": [],
     "combo_items": [                                  // canh stripped; nhân applied to each non-canh dish
       { "product_id": "<Giò>",       "quantity": 1, "topping_ids": ["<Nhân thịt>"] },
-      { "product_id": "<Bánh Cuốn>", "quantity": 3, "topping_ids": ["<Nhân thịt>"] }
+      { "product_id": "<Bánh Cuốn>", "quantity": 4, "topping_ids": ["<Nhân thịt>"] }
     ] },
   { "product_id": "<Canh>", "combo_id": null, "quantity": 1, "topping_ids": ["<Rau mùi tàu>"] }
 ]
@@ -374,7 +374,7 @@ flushes any legacy canh counter so old persisted carts can't reintroduce stale c
 - **Canh is identified by id prefix, not a type flag.** `canh_*` ids drive both the standalone-row logic
   and the canh-required gate. Renaming that convention breaks the gate silently.
 - **The combo header carries no price.** `topping_ids: []` on the header; nhân rides the children. The
-  combo's ₫21,000 is reconstructed server-side, never sent.
+  combo's ₫25,000 is reconstructed server-side, never sent.
 - **One builder, three callers.** Never build `items[]` in a page — always `buildOrderItemsPayload()`,
   or the saved order will drift from the on-screen preview.
 - **`addItem` dedups by `id`.** Same logical line = same id = quantity bump, not a duplicate row
@@ -392,7 +392,7 @@ flushes any legacy canh counter so old persisted carts can't reintroduce stale c
   │                                      │── tableName ───────▶│ OrderSummary pill: │              │
   │                                      │                     │      "Bàn 01"      │              │
   ├─ tap [+] Suất Giò ─▶ addItem ──▶ items:[combo]            │                    │              │
-  │                                      │── total()/count ───▶│ Mini: 21.000đ ·    │              │
+  │                                      │── total()/count ───▶│ Mini: 25.000đ ·    │              │
   │                                      │                     │ 🛒 1 · gate=FALSE→dim 🔴│         │
   ├─ pick nhân thịt ──▶ (local state)─▶ toppings:[Nhân thịt]   │                    │              │
   │                                      │                     │                    │              │

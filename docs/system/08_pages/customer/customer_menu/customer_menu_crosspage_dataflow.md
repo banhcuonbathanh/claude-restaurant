@@ -128,7 +128,7 @@ there. On `201`, `TableConfirmModal` (or `/checkout`) does exactly **three write
    ┌────────────────────────────────────────────────────────────────────┐
    │ ▓ localStorage["order_cache_<id>"] = {                              │
    │       id, order_number:"#A12", status:"pending",                    │
-   │       table_name:"03", total_amount:105000, items:[ … ] }           │
+   │       table_name:"04", total_amount:103000, items:[ … ] }           │
    │                                                                      │
    │ ░ cart store (memory):   items=[]   tableId+tableName KEPT (identity)│
    │ ▓ cart store (persisted, CART_CONFIG v5):                           │

@@ -28,6 +28,9 @@ The DESIGN_PROMPT baseline facts these are measured against:
 
 > **Resolution (owner decision, 2026-06-25): follow `DESIGN_PROMPT.md` in every row below.**
 > The "Resolution" column is the canonical value each doc should be brought to.
+>
+> **✅ APPLIED 2026-06-25** — rows 1–7 edited into the source docs (row 8 `excalidraw.md` left
+> untouched per owner request). See [§4 Caveat](#4--caveat-rows-14-now-diverge-from-the-seed-catalog).
 
 | # | File | Location | DESIGN_PROMPT says | Doc says | Resolution (follow DESIGN_PROMPT) | Sev |
 |---|---|---|---|---|---|---|
@@ -59,3 +62,28 @@ The DESIGN_PROMPT baseline facts these are measured against:
 - "⚠️ NEW DESIGN — code pending rebuild" markers in `customer_menu.md` are doc-vs-**code** status tags,
   not contradictions of DESIGN_PROMPT content, so they are out of scope for this audit (`index.md §3-A`
   already tracks them).
+
+---
+
+## 4 · Resolution — verified against the real seed (NOT a divergence)
+
+> ✅ **Closed 2026-06-25.** An earlier draft of this section claimed rows 1–4 had made the narrative
+> docs "doc-vs-code stale" because the seed was 21.000 đ. **That was wrong** — it trusted the *stale*
+> `MENU_CATALOG.md` instead of the actual seed SQL. Checking the source settled it:
+
+| Source | Suất Giò | Status |
+|---|---|---|
+| `DESIGN_PROMPT.md` | **25.000 đ** = 1 giò + **4** bánh cuốn + canh | source of truth |
+| **DB seed** [`scripts/seed_real_menu.sql`](../../../../scripts/seed_real_menu.sql) + [`scripts/seed.sql`](../../../../scripts/seed.sql) | **25.000 đ** = 1 giò + **4** bánh cuốn (`9k + 4×4k = 25k`) | ✅ already matches — no change |
+| BE | derives `total_amount` from `combo_items` (no hardcoded price) | ✅ data-driven — no change |
+| [`../../03_be/SEED_DATA.md`](../../03_be/SEED_DATA.md) | **25.000 đ** / 4 bánh cuốn, full 5-suất lineup | ✅ already correct — no change |
+| `../../02_spec/object/MENU_CATALOG.md` §4 | was **21.000 đ / 3** bánh cuốn + wrong 5-suất lineup | 🔧 **fixed 2026-06-25** to match seed |
+
+So the rows 1–4 edits to `SCENARIO_LUNCH_RUSH.md` / `crosscomponent_dataflow.md` are **correct vs the
+running code**, not stale. The only file that actually needed a data change was `MENU_CATALOG.md`, now
+brought in line with the seed (= DESIGN_PROMPT).
+
+> **Separately noted (out of scope here):** `MENU_CATALOG.md` §1–§3 (categories/products) and its
+> "Products = 6" count are *also* stale vs `seed_real_menu.sql` (real menu has Bánh Cuốn Thịt · Bánh
+> Cuốn Mộc Nhĩ · Bánh Chay · Canh có rau · Canh không rau, etc.). Not touched — only the combos (§4)
+> were in scope for the 25.000 đ / 4-bánh-cuốn change.
