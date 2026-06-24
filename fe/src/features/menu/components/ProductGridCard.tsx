@@ -77,7 +77,7 @@ export function ProductGridCard({ product }: Props) {
           className="absolute top-2 right-2 bg-white/80 rounded-full p-1.5 min-h-[32px] min-w-[32px] flex items-center justify-center"
           aria-label={fav ? 'Bỏ yêu thích' : 'Yêu thích'}
         >
-          <Heart size={14} className={fav ? 'fill-red-500 text-red-500' : 'text-muted-fg'} />
+          <Heart size={14} className={fav ? 'fill-primary text-primary' : 'text-muted-fg'} />
         </button>
       </div>
 

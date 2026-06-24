@@ -19,7 +19,7 @@ interface Props {
 
 export function CartDrawer({ open, onClose, addToOrderId, onTableCheckout }: Props) {
   const router = useRouter()
-  const { items, updateQty, removeItem, total, itemCount, activeOrderId, clearCart, tableId, tableName } = useCartStore()
+  const { items, updateQty, removeItem, total, itemCount, activeOrderId, clearCart, setActiveOrderId, tableId, tableName } = useCartStore()
   const { customerName } = useSettingsStore()
 
   // Track which combos have their dish list expanded
@@ -33,6 +33,7 @@ export function CartDrawer({ open, onClose, addToOrderId, onTableCheckout }: Pro
     onSuccess: () => {
       toast.success('Đã thêm món thành công')
       clearCart()
+      setActiveOrderId(addToOrderId!)
       onClose()
       router.push(`/order/${addToOrderId}`)
     },

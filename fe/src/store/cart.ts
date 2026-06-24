@@ -86,7 +86,12 @@ export const useCartStore = create<CartState>()(
           }),
         })),
 
-      clearCart: () => set({ items: [], tableId: null, tableName: null, activeOrderId: null, paymentMethod: null, orderNote: '' }),
+      // clearCart empties the DRAFT (items + payment choice) once an order is placed.
+      // It deliberately KEEPS the identity — tableId/tableName/activeOrderId — so the
+      // customer can recover their live order after navigating away (order → settings →
+      // menu). Identity is cleared elsewhere: activeOrderId on terminal status (paid/
+      // cancelled), tableId on a fresh QR scan. (Overrides the old Invariant 5.)
+      clearCart: () => set({ items: [], paymentMethod: null, orderNote: '' }),
 
       setTableId:       (id)     => set({ tableId: id }),
       setTableName:     (name)   => set({ tableName: name }),

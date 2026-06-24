@@ -11,7 +11,10 @@
 > `file:line` trích dẫn inline). **Code thắng:** mọi ô "Code thực tế" đều được truy vết từ nguồn, không
 > dựa vào trí nhớ.
 >
-> Ngày: 2026-06-22.
+> Ngày: 2026-06-23 (chạy lại — cùng branch; cả 3 🔴 đã được kiểm chứng lại bằng tay trên source
+> thật và **không thay đổi**: footer collision `checkout/page.tsx:203` + `ClientBottomNav.tsx:48` +
+> `(shop)/layout.tsx:12`; `payment_method` 0 hit grep trong handler/service; `ErrTableHasActiveOrder`
+> chỉ 1 hit grep = định nghĩa `errors.go:30`. Code không đổi từ lần chạy 2026-06-22.)
 
 ---
 

@@ -40,6 +40,8 @@ describe('cart store', () => {
   })
 
   it('TestClearCart', () => {
+    // clearCart empties the draft (items + paymentMethod) but KEEPS the identity
+    // (tableId + activeOrderId) so a placed order stays recoverable. (Overrides Invariant 5.)
     const store = useCartStore.getState()
     store.addItem(item())
     store.setTableId('table-1')
@@ -48,9 +50,9 @@ describe('cart store', () => {
     useCartStore.getState().clearCart()
     const s = useCartStore.getState()
     expect(s.items).toHaveLength(0)
-    expect(s.tableId).toBeNull()
-    expect(s.activeOrderId).toBeNull()
     expect(s.paymentMethod).toBeNull()
+    expect(s.tableId).toBe('table-1')
+    expect(s.activeOrderId).toBe('order-1')
   })
 
   it('TestTotalCalculation', () => {

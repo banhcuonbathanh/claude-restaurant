@@ -1,3 +1,13 @@
+> ⚠️ **DESIGN DRIFT — PANEL 1 below describes the OLD design; pending update to the new design
+> ([DESIGN_PROMPT.md](DESIGN_PROMPT.md) / claude_design). Owner will update this + the
+> `customer_menu.excalidraw` map later.** Stale items in the PANEL 1 plan:
+> - A MenuHeader — `"Quán Bánh Cuốn · Bàn 03"` → new design: photo banner, **no table label** (the
+>   "Bàn XX" pill moved into the OrderSummary header).
+> - E ComboSection — `"only Tất cả"` → new design: combos **always render** (scroll-spy section, not a filter).
+> - J CartBottomBar — `total()/itemCount() [Thanh toán]` → new design: **floating cart pill (count badge
+>   only) + "Thanh toán" pill, bottom-right, no total**.
+> - Mini MiniCartStrip `[Xem giỏ]` — verify against new design.
+
 Output path: I'll write to docs/system/08_pages/customer/customer_menu/customer_menu.excalidraw (your folder), not the skill's default docs/fe/wireframes/ — and use a clean filename.
 Scope: You asked the drawing to capture all info in all 6 md files, not just the page wireframe. So this is a multi-panel knowledge map, not a single mobile mockup.
 

@@ -71,6 +71,9 @@ export default function CheckoutPage() {
         }
       }
       cart.clearCart()
+      // Point the (now cleared) cart at the order we just placed so it stays recoverable
+      // from any page until it is paid/cancelled.
+      if (order?.id) cart.setActiveOrderId(order.id)
       // Use router.replace (client-side nav) to preserve auth token in Zustand across navigation
       router.replace(order?.id ? `/order/${order.id}` : '/order')
     },
@@ -79,6 +82,7 @@ export default function CheckoutPage() {
       if (resp?.data?.error === 'TABLE_HAS_ACTIVE_ORDER') {
         submitted.current = true
         const activeId = resp?.data?.details?.active_order_id
+        if (activeId) cart.setActiveOrderId(activeId)
         // Use router.replace (client-side nav) to preserve auth token in Zustand across navigation
         router.replace(activeId ? `/order/${activeId}` : '/order')
         return

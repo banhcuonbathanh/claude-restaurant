@@ -145,7 +145,7 @@ export function OrderSummary({ embedded, shakeKey }: { embedded?: boolean; shake
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-semibold text-foreground">Tóm tắt đơn hàng</h2>
           {tableName && (
-            <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+            <span className="running-border text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">
               {tableName}
             </span>
           )}
@@ -364,13 +364,9 @@ function ItemGroup({
                 <div className="flex-1 min-w-0">
                   <span className="text-foreground text-sm line-clamp-1 leading-snug">{item.name}</span>
                   {item.toppings.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-0.5">
-                      {item.toppings.map(t => (
-                        <span key={t.id} className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full inline-block">
-                          {t.name}
-                        </span>
-                      ))}
-                    </div>
+                    <p className="text-[11px] text-primary mt-0.5 leading-snug">
+                      {item.toppings.map(t => t.name).join(' · ')}
+                    </p>
                   )}
                 </div>
                 <QtyControls
@@ -388,7 +384,7 @@ function ItemGroup({
                   className="mt-1 flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
                 >
                   {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-                  {isExpanded ? 'Ẩn chi tiết' : 'Xem chi tiết'}
+                  {isExpanded ? 'Ẩn chi tiết' : 'Chi tiết'}
                 </button>
               )}
 

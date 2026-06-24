@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -60,9 +60,17 @@ export default function OrderPage({ params }: { params: { id: string } }) {
     onError: (err: unknown) => toast.error(errMsg(err) ?? 'Không thể cập nhật số lượng'),
   })
 
+  // Once the order is terminal it is no longer the "recoverable active order" — drop the
+  // pointer so the menu/recovery surfaces stop offering a dead order.
+  useEffect(() => {
+    if (order?.status === 'paid' || order?.status === 'cancelled') {
+      setActiveOrderId(null)
+    }
+  }, [order?.status, setActiveOrderId])
+
   const cancelOrderMutation = useMutation({
     mutationFn: () => api.delete(`/orders/${params.id}`),
-    onSuccess: () => { toast.success('Đã huỷ đơn hàng'); router.push('/menu') },
+    onSuccess: () => { setActiveOrderId(null); toast.success('Đã huỷ đơn hàng'); router.push('/menu') },
     onError:   (err: unknown) => { toast.error(errMsg(err) ?? 'Không thể huỷ đơn'); setCancelTarget(null) },
   })
   const cancelItemMutation = useMutation({

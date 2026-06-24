@@ -10,7 +10,10 @@
 > 3/4/5); Area 1 + every 🔴 re-verified by hand by the Opus orchestrator (greps + `file:line` reads
 > cited inline). **Code wins:** every "Code reality" cell is traced from source, not recalled.
 >
-> Date: 2026-06-22.
+> Date: 2026-06-23 (refresh — re-ran on the same branch; all 3 🔴 hand-re-verified against live
+> source and **hold unchanged**: footer collision `checkout/page.tsx:203` + `ClientBottomNav.tsx:48` +
+> `(shop)/layout.tsx:12`; `payment_method` 0 grep hits in handler/service; `ErrTableHasActiveOrder`
+> sole grep hit = `errors.go:30` definition. No code changed since the 2026-06-22 run.)
 
 ---
 

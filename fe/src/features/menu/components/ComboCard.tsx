@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import Image from 'next/image'
 import { Plus, Minus, Heart } from 'lucide-react'
 import Link from 'next/link'
@@ -15,7 +15,6 @@ interface Props {
 
 export function ComboCard({ combo }: Props) {
   const [modalOpen, setModalOpen] = useState(false)
-  const [nhanId, setNhanId]       = useState<string>('')
   const { items, addItem, updateQty } = useCartStore()
   const { toggleFav, isFavourite } = useFavouritesStore()
   const fav = isFavourite(combo.id, 'combo')
@@ -36,12 +35,35 @@ export function ComboCard({ combo }: Props) {
     ).values()
   )
 
-  // Resolve currently selected nhân (fall back to first option if nhanId is unset/stale)
-  const selectedNhan = nhanOptions.find(t => t.id === nhanId) ?? nhanOptions[0]
+  // Multi-select nhân: default = ALL options selected. At least one must always remain selected.
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(
+    () => new Set(nhanOptions.map(t => t.id))
+  )
 
-  const cartId   = `combo_${combo.id}_${selectedNhan?.id ?? 'plain'}`
+  const toggleNhan = useCallback((id: string) => {
+    setSelectedIds(prev => {
+      // If already deselected, add it
+      if (!prev.has(id)) {
+        const next = new Set(prev)
+        next.add(id)
+        return next
+      }
+      // Cannot deselect the last remaining selection
+      if (prev.size <= 1) return prev
+      const next = new Set(prev)
+      next.delete(id)
+      return next
+    })
+  }, [])
+
+  // Stable, deterministic cartId encodes the full selected set (sorted).
+  const sortedIds = Array.from(selectedIds).sort()
+  const cartId   = `combo_${combo.id}_${sortedIds.length > 0 ? sortedIds.join('-') : 'plain'}`
   const cartItem = items.find(i => i.id === cartId)
   const qty      = cartItem?.quantity ?? 0
+
+  // All selected nhân topping objects (for the cart item).
+  const selectedToppings = nhanOptions.filter(t => selectedIds.has(t.id))
 
   const imageUrl = combo.image_path
     ? `${process.env.NEXT_PUBLIC_STORAGE_URL ?? ''}/${combo.image_path}`
@@ -56,7 +78,7 @@ export function ComboCard({ combo }: Props) {
         name:        combo.name,
         quantity:    1,
         price:       combo.price,
-        toppings:    selectedNhan ? [selectedNhan] : [],
+        toppings:    selectedToppings,
         combo_items: comboItems.map(i => ({
           product_id:   i.product_id,
           product_name: i.product_name,
@@ -96,7 +118,7 @@ export function ComboCard({ combo }: Props) {
           className="absolute top-1 right-1 bg-white/80 rounded-full p-1.5"
           aria-label={fav ? 'Bỏ yêu thích' : 'Yêu thích'}
         >
-          <Heart size={16} className={fav ? 'fill-red-500 text-red-500' : 'text-muted-fg'} />
+          <Heart size={16} className={fav ? 'fill-primary text-primary' : 'text-muted-fg'} />
         </button>
       </div>
 
@@ -156,15 +178,15 @@ export function ComboCard({ combo }: Props) {
           </button>
         </div>
 
-        {/* Nhân selector — data-driven pills, single-select */}
+        {/* Nhân selector — data-driven pills, multi-select (both default; ≥1 required) */}
         {nhanOptions.length > 0 && (
           <div className="flex flex-col gap-1.5">
             {nhanOptions.map(nhan => (
               <button
                 key={nhan.id}
-                onClick={() => setNhanId(nhan.id)}
+                onClick={() => toggleNhan(nhan.id)}
                 className={`w-full text-center text-[11px] px-2 py-1 rounded-full border transition-colors ${
-                  (selectedNhan?.id === nhan.id)
+                  selectedIds.has(nhan.id)
                     ? 'bg-primary text-white border-primary'
                     : 'border-border text-muted-fg hover:border-primary/50'
                 }`}

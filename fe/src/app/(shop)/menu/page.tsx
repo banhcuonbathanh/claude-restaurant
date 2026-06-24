@@ -6,8 +6,8 @@ import { toast } from 'sonner'
 import { useFavouritesStore } from '@/store/favourites'
 import { api } from '@/lib/api-client'
 import { useCartStore } from '@/store/cart'
-import { CategoryTabs } from '@/features/menu/components/CategoryTabs'
-import { ComboSection } from '@/features/menu/components/ComboSection'
+import { MenuCategoryNav } from '@/features/menu/components/MenuCategoryNav'
+import { MenuSections, buildMenuSections, sectionDomId, ALL_SECTION_ID } from '@/features/menu/components/MenuSections'
 import { ProductList } from '@/features/menu/components/ProductList'
 import { CartDrawer } from '@/features/menu/components/CartDrawer'
 import { MenuHeader } from '@/features/menu/components/MenuHeader'
@@ -16,6 +16,7 @@ import { CartBottomBar } from '@/features/menu/components/CartBottomBar'
 import { SearchBar } from '@/features/menu/components/SearchBar'
 import { RestaurantBanner } from '@/features/menu/components/RestaurantBanner'
 import { AddToOrderBanner } from '@/features/menu/components/AddToOrderBanner'
+import { ActiveOrderRecoveryBanner } from '@/features/menu/components/ActiveOrderRecoveryBanner'
 import { FavouritesRail } from '@/features/menu/components/FavouritesRail'
 import { OrderSummary } from '@/features/menu/components/OrderSummary'
 import { TableConfirmModal } from '@/features/menu/components/TableConfirmModal'
@@ -27,7 +28,7 @@ function MenuContent() {
   const router        = useRouter()
   const searchParams  = useSearchParams()
   const addToOrderId  = searchParams.get('add_to_order') ?? undefined
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [activeSection, setActiveSection]       = useState<string>(ALL_SECTION_ID)
   const [cartOpen, setCartOpen]                 = useState(false)
   const [confirmOpen, setConfirmOpen]           = useState(false)
   const [searchQuery, setSearchQuery]           = useState('')
@@ -63,11 +64,10 @@ function MenuContent() {
   })
 
   const { data: products = [], isLoading: loadingProducts, isError, refetch } = useQuery<Product[]>({
-    queryKey: ['products', selectedCategory, searchQuery],
+    queryKey: ['products', searchQuery],
     queryFn: () =>
       api.get('/products', {
         params: {
-          ...(selectedCategory && { category_id: selectedCategory }),
           ...(searchQuery.length >= 2 && { search: searchQuery }),
           is_available: true,
         },
@@ -104,8 +104,20 @@ function MenuContent() {
     }))
   }, [rawCombos, allProducts])
 
-  const showCombos = selectedCategory === null && combos.length > 0
-  const showFavs   = selectedCategory === null && favItems.length > 0
+  // Search overrides the scroll-spy sections: a query shows a flat filtered list
+  // (no tabs / favourites rail); clearing it restores the full sectioned menu.
+  const searching = searchQuery.length >= 2
+  const showFavs  = !searching && favItems.length > 0
+
+  const sections    = useMemo(() => buildMenuSections(products, combos, categories), [products, combos, categories])
+  const tabSections = useMemo(() => [{ id: ALL_SECTION_ID, label: 'Tất cả' }, ...sections], [sections])
+
+  const scrollToSection = (id: string) => {
+    document.getElementById(sectionDomId(id))?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const handleViewSummary = () =>
+    document.getElementById('order-summary')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
   return (
     <div className="min-h-screen bg-background">
@@ -118,21 +130,27 @@ function MenuContent() {
       {/* Restaurant banner */}
       <RestaurantBanner />
 
-      {/* Add-to-order mode banner */}
+      {/* Add-to-order mode banner (explicit: arrived via ?add_to_order=) */}
       <AddToOrderBanner
         orderId={addToOrderId}
         onViewOrder={() => router.push(`/order/${addToOrderId}`)}
       />
 
+      {/* Recovery banner: persisted active order, but NOT in explicit add-to-order mode.
+          Lets the customer resume their live order after navigating away (no QR re-scan). */}
+      <ActiveOrderRecoveryBanner suppressed={!!addToOrderId} />
+
       {/* Zone B — SearchBar */}
       <SearchBar onSearch={setSearchQuery} />
 
-      {/* Zone C — CategoryTabs */}
-      <CategoryTabs
-        categories={categories}
-        selected={selectedCategory}
-        onSelect={setSelectedCategory}
-      />
+      {/* Zone C — MenuCategoryNav (scroll-spy nav; hidden while searching) */}
+      {!searching && sections.length > 0 && (
+        <MenuCategoryNav
+          sections={tabSections}
+          activeId={activeSection}
+          onSelect={scrollToSection}
+        />
+      )}
 
       {/* Zone D — FavouritesRail */}
       {showFavs && (
@@ -163,28 +181,33 @@ function MenuContent() {
               ))}
             </div>
           </>
-        ) : products.length === 0 && !showCombos ? (
-          <EmptyState message={searchQuery.length >= 2
-            ? 'Không tìm thấy món nào · Thử từ khóa khác nhé!'
-            : 'Không có món nào trong danh mục này'
-          } />
+        ) : searching ? (
+          products.length === 0 ? (
+            <EmptyState message="Không tìm thấy món nào · Thử từ khóa khác nhé!" />
+          ) : (
+            <ProductList products={products} withComboHeading={false} />
+          )
+        ) : products.length === 0 && combos.length === 0 ? (
+          <EmptyState message="Không có món nào trong danh mục này" />
         ) : (
-          <div className="flex flex-col gap-3">
-            {/* Zone E — ComboSection */}
-            <ComboSection combos={combos} visible={selectedCategory === null} />
-
-            {/* Zone F — ProductList */}
-            <ProductList products={products} withComboHeading={showCombos} />
-          </div>
+          /* Zone E + F — all sections render; MenuCategoryNav scroll-spies them */
+          <MenuSections
+            products={products}
+            combos={combos}
+            sections={sections}
+            onActiveChange={setActiveSection}
+          />
         )}
 
         {/* Zone I — OrderSummary (includes note) */}
-        <OrderSummary shakeKey={canhShakeKey} />
+        <div id="order-summary">
+          <OrderSummary shakeKey={canhShakeKey} />
+        </div>
 
       </main>
 
       {/* Zone J — CartBottomBar */}
-      <CartBottomBar dimmed={canhMissing} onCheckout={handleCheckout} />
+      <CartBottomBar dimmed={canhMissing} onCheckout={handleCheckout} onViewSummary={handleViewSummary} />
 
       <CartDrawer
         open={cartOpen}

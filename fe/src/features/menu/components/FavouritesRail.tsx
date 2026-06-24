@@ -21,7 +21,8 @@ export function FavouritesRail({ products, combos }: Props) {
 
   return (
     <section className="py-3">
-      <h2 className="text-sm font-semibold text-muted-fg uppercase tracking-wide px-4 mb-2">
+      <h2 className="flex items-center gap-1.5 text-sm font-semibold text-muted-fg uppercase tracking-wide px-4 mb-2">
+        <Heart size={12} className="fill-primary text-primary" />
         Yêu thích
       </h2>
       <div className="flex gap-3 overflow-x-auto px-4 pb-1 scrollbar-hide">
@@ -66,9 +67,11 @@ function FavCard({ id, name, price, imagePath, type, onToggle }: FavCardProps) {
     ? `${process.env.NEXT_PUBLIC_STORAGE_URL ?? ''}/${imagePath}`
     : null
 
+  const detailHref = type === 'combo' ? `/menu/combo/${id}` : `/menu/product/${id}`
+
   return (
     <div className="relative flex-shrink-0 w-28 bg-card rounded-xl overflow-hidden shadow-sm">
-      <Link href="/menu/favourites" className="block">
+      <Link href={detailHref} className="block">
         <div className="relative w-full h-20 bg-muted">
           {imageUrl ? (
             <Image src={imageUrl} alt={name} fill className="object-cover" sizes="112px" />
@@ -86,7 +89,7 @@ function FavCard({ id, name, price, imagePath, type, onToggle }: FavCardProps) {
         className="absolute top-1 right-1 bg-white/80 rounded-full p-1 min-w-[28px] min-h-[28px] flex items-center justify-center"
         aria-label="Bỏ yêu thích"
       >
-        <Heart size={12} className="fill-red-500 text-red-500" />
+        <Heart size={12} className="fill-primary text-primary" />
       </button>
     </div>
   )

@@ -153,7 +153,7 @@ describe('Step 2 — Menu: add items to cart', () => {
 // ── Step 3: Order Submit (QR path) ───────────────────────────────────────────
 
 describe('Step 3 — Order submit: POST /orders success path', () => {
-  it('clearCart wipes items, tableId, tableName, and activeOrderId (Invariant 5)', () => {
+  it('clearCart empties the draft but KEEPS identity (tableId/tableName/activeOrderId) — overrides Invariant 5', () => {
     const s = useCartStore.getState()
     s.addItem(makeItem())
     s.setTableId('table-3')
@@ -164,11 +164,13 @@ describe('Step 3 — Order submit: POST /orders success path', () => {
     useCartStore.getState().clearCart()
     const after = useCartStore.getState()
 
+    // Draft is cleared
     expect(after.items).toHaveLength(0)
-    expect(after.tableId).toBeNull()
-    expect(after.tableName).toBeNull()
-    expect(after.activeOrderId).toBeNull()
     expect(after.paymentMethod).toBeNull()
+    // Identity survives so the placed order stays recoverable after navigating away
+    expect(after.tableId).toBe('table-3')
+    expect(after.tableName).toBe('Bàn 3')
+    expect(after.activeOrderId).toBe('order-abc')
   })
 
   it('caches order in localStorage under ORDER_CACHE prefix', () => {
@@ -251,13 +253,13 @@ describe('Invariant 3 — Guest JWT is memory-only', () => {
   })
 })
 
-describe('Invariant 5 — clearCart resets tableId', () => {
-  it('tableId is null after clearCart (QR flow ends cleanly)', () => {
+describe('Invariant 5 (overridden) — clearCart KEEPS tableId', () => {
+  it('tableId survives clearCart so the customer can add more to their order', () => {
     useCartStore.getState().setTableId('table-7')
     expect(useCartStore.getState().tableId).toBe('table-7')
 
     useCartStore.getState().clearCart()
-    expect(useCartStore.getState().tableId).toBeNull()
+    expect(useCartStore.getState().tableId).toBe('table-7')
   })
 })
 

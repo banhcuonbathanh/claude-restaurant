@@ -1,30 +1,41 @@
 'use client'
+import { ShoppingCart } from 'lucide-react'
 import { useCartStore } from '@/store/cart'
-import { formatVND } from '@/lib/utils'
 
 interface Props {
   onCheckout: () => void
-  /** When true the bar is dimmed (e.g. canh not chosen yet) — checkout still fires so the page can warn. */
+  onViewSummary: () => void
+  /** dimmed when canh not chosen yet — checkout still fires so the page can warn. */
   dimmed?: boolean
 }
 
-export function CartBottomBar({ onCheckout, dimmed = false }: Props) {
-  const { itemCount, total } = useCartStore()
+export function CartBottomBar({ onCheckout, onViewSummary, dimmed = false }: Props) {
+  const { itemCount } = useCartStore()
   const count = itemCount()
 
   if (count === 0) return null
 
   return (
-    <div className="fixed bottom-[calc(80px+env(safe-area-inset-bottom))] left-4 right-4 z-30">
+    <div className="fixed bottom-[calc(80px+env(safe-area-inset-bottom))] right-4 z-30 flex flex-col items-end gap-2">
+      {/* Cart pill — scrolls to order summary */}
       <button
-        onClick={onCheckout}
-        className={`w-full bg-primary text-white py-3.5 rounded-2xl font-semibold flex items-center justify-between px-5 shadow-lg min-h-[44px] transition-opacity ${dimmed ? 'opacity-60 cursor-not-allowed' : ''}`}
+        onClick={onViewSummary}
+        className="relative bg-card text-foreground rounded-full w-12 h-12 flex items-center justify-center shadow-lg border border-border"
+        aria-label="Xem tóm tắt đơn hàng"
       >
-        <span className="bg-white/20 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+        <ShoppingCart size={22} />
+        {/* Round orange count badge */}
+        <span className="absolute -top-1.5 -right-1.5 bg-primary text-white rounded-full text-xs font-bold min-w-[20px] h-5 flex items-center justify-center px-1 leading-none">
           {count}
         </span>
-        <span>Thanh toán</span>
-        <span className="font-bold">{formatVND(total())}</span>
+      </button>
+
+      {/* Thanh toán pill */}
+      <button
+        onClick={onCheckout}
+        className={`bg-primary text-white rounded-full px-5 py-2.5 font-semibold shadow-lg min-h-[44px] transition-opacity ${dimmed ? 'opacity-60 cursor-not-allowed' : ''}`}
+      >
+        Thanh toán
       </button>
     </div>
   )

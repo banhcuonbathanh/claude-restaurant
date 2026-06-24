@@ -46,6 +46,9 @@ export function TableConfirmModal({ onClose }: { onClose: () => void }) {
         toast.info('Bàn đang phục vụ khách khác — đơn của bạn đã được ghi nhận và sẽ phục vụ sau.', { duration: 6000 })
       }
       cart.clearCart()
+      // Point the (now cleared) cart at the order we just placed so it stays recoverable
+      // from any page until it is paid/cancelled.
+      if (order?.id) cart.setActiveOrderId(order.id)
       // Use router.replace (client-side nav) to preserve auth token in Zustand across navigation
       router.replace(order?.id ? `/order/${order.id}` : '/order')
     },

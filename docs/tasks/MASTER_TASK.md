@@ -43,6 +43,7 @@
 | **CANH — Canh as Normal Cart Item (FE/BE model unification)** | FE | ✅ COMPLETE | 0 | — |
 | **DEPLOY — Server Deployment (Mac test server → VPS go-live)** | DevOps | 🔄 Stage A ✅ (D-1→D-5) · Stage B blocked on owner | ~2 | D-6 (owner: buy VPS + domain) |
 | P-FEQA — FE Code Quality Audit | FE | 🔄 IN PROGRESS | TBD | P-FEQA-2 (apply findings from `docs/fe/quality_audit/SUMMARY.md`) |
+| **GAP-8 — Combo Card Multi-Nhân + Orange Hearts** | FE | ✅ COMPLETE | 0 | — |
 
 ---
 
@@ -396,6 +397,45 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 |---|---|---|---|---|---|---|
 | TBL-A | FE | Client can NEVER type a table — QR scan is the only source (resolves GAP-1 in customer_menu/COMPARISON_DISCUSSION.md). Remove "Nhãn bàn" input + `table` state + `setTableLabel` call from `menu/settings/page.tsx` (KEEP "Tên hiển thị"); `MenuHeader.tsx` + `CartDrawer.tsx` read `useCartStore().tableName` instead of `useSettingsStore().tableLabel`; drop now-unused `tableLabel`/`setTableLabel` from `store/settings.ts` (store keeps only `customerName`). | — | 0.5 | ✅ | After QR scan, header + cart subtitle show the scanned table; customer has NO field to type a table anywhere; "Tên hiển thị" still works |
 | TBL-B | FE | Staff "Đặt hộ" (book a table for a phone-less guest) from BOTH Admin Overview and POS. `TableList.tsx`: add "Đặt hộ" button on every row, DISABLED on occupied rows (occupancy via existing `orderByTable` map) → `router.push('/pos?table_id=<id>&table_name=<name>')`. `pos/page.tsx`: (a) read `table_id`/`table_name` from query → show in header, include `table_id` in POST body, `customer_name`=table name; no param = unchanged walk-in. (b) add an in-POS table picker (reuse `listTables` + `listLiveOrders` from admin.api — DISABLE occupied tables; no new endpoint). | TBL-A | 1 | ✅ | From Overview, "Đặt hộ" greyed out on occupied tables; clicking a free table opens POS scoped to it → add món → Tạo Đơn → order shows attached to that table on Overview; same works picking a free table inside POS; occupied tables unselectable on both surfaces |
+
+---
+
+## Phase GAP-7-FAV — Favourites Rail align to new design
+
+> **Owner:** FE
+> **Dependency:** FavouritesRail.tsx + favourites.ts already exist ✅
+> **Status:** ✅ COMPLETE (2026-06-24)
+> **Goal:** Close 3 new-design divergences in FavouritesRail (GAP-7 per COMPARISON_DISCUSSION.md). No new component needed — component existed.
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| GAP-7-FAV | FE | FavouritesRail.tsx — 3 fixes: (1) card tap → `/menu/product/${id}` · `/menu/combo/${id}` (was `/menu/favourites`); (2) heart `fill-primary text-primary` (was `fill-red-500`); (3) section `<h2>` adds `<Heart size={12} className="fill-primary text-primary" />` icon. Doc sync: COMPARISON_DISCUSSION.md · COMPARISON_DOC_VS_CODE_DETAILED.md · ..._VI.md · COMPARISON_VISUAL_MOCKUP_VI.md · COMPARISON_TRACKER.md all updated. | — | 0.5 | ✅ | tsc --noEmit: 0 new errors (2 pre-existing in staff-order-flow.test.ts, unrelated); card-list heart color on ProductCard/ComboCard/ProductGridCard deferred to GAP-8 |
+
+---
+
+## Phase GAP-9-CHECKOUT — Customer Menu: Checkout Bottom Bar → Floating Pill Buttons
+
+> **Owner:** FE
+> **Dependency:** CartBottomBar.tsx + menu/page.tsx ✅
+> **Status:** ✅ COMPLETE (2026-06-24)
+> **Goal:** Replace full-width orange bottom bar with 2 floating pill buttons bottom-right (new design per DESIGN_PROMPT.md §8).
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| GAP-9-CHECKOUT | FE | Customer menu: checkout bottom bar → 2 floating pill buttons (new design). `CartBottomBar.tsx` rewritten: cart pill (🛒 icon + round orange count badge, taps → scroll to order summary) + "Thanh toán" pill (orange, dimmed when canh missing, no total shown). `menu/page.tsx`: added `id="order-summary"` anchor + `handleViewSummary` handler + passed `onViewSummary` prop. Files: `fe/src/features/menu/components/CartBottomBar.tsx` · `fe/src/app/(shop)/menu/page.tsx`. | — | 0.5 | ✅ | tsc --noEmit: 0 new errors (2 pre-existing in staff-order-flow.test.ts, unrelated); cart pill shows count badge; "Thanh toán" dims when canh missing; no total displayed; tap cart pill scrolls to order summary |
+
+---
+
+## Phase GAP-8 — Combo Card Multi-Nhân + Orange Hearts
+
+> **Owner:** FE
+> **Dependency:** TOP ✅ · CANH ✅ (topping model unified; nhân already in `item.toppings[]`)
+> **Status:** ✅ COMPLETE (2026-06-24)
+> **Goal:** Convert ComboCard nhân from single-select to multi-select (both default, ≥1 required); recolor hearts on ComboCard/ProductCard/ProductGridCard from red → orange token. FE-only, no BE changes.
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| GAP-8 | FE | `ComboCard.tsx`: nhân pills → multi-select (`Set<string>`, default = ALL selected, toggleNhan guards ≥1); `cartId` encodes sorted id set (`combo_<id>_<id1>-<id2>`); `toppings[]` carries all selected Topping objects → `order-payload.ts` maps them automatically (no change to payload builder). `ProductCard.tsx` + `ProductGridCard.tsx`: heart `fill-red-500 text-red-500` → `fill-primary text-primary`. Verify `order-payload.ts` unchanged (already maps `item.toppings.map(t=>t.id)` onto every combo sub-item). Doc updates: COMPARISON_DISCUSSION.md GAP-8 section → ✅ xong + decision text; bottom summary table GAP-8 row → ✅; MASTER_TASK.md this row. | TOP ✅ · CANH ✅ | 0.5 | ✅ | tsc --noEmit: 0 new errors (2 pre-existing AuthState in staff-order-flow.test.ts unrelated); lint: 0 new errors/warnings in 3 files; 107 tests pass / 2 pre-existing fail (orderNote/clearCart + CART_CONFIG key); order-payload.ts unmodified |
 
 ---
 

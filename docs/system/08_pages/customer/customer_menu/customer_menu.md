@@ -1,5 +1,10 @@
 # Customer Menu — `/menu`
 
+> ⚠️ **DESIGN UPDATE — this doc now reflects the NEW design described in
+> [DESIGN_PROMPT.md](DESIGN_PROMPT.md). The FE code still has the OLD design; a code rebuild is
+> pending. Sections that differ from the current code are marked with "⚠️ NEW DESIGN — code
+> pending rebuild."**
+
 > **TL;DR:** ✅ implemented · guest JWT (or open browse) · The core customer page: browse
 > categories, combos and products, build a cart, and submit the order. With a table bound (QR
 > path) checkout is a single confirm modal; without a table it routes to `/checkout`.
@@ -12,31 +17,32 @@
 
 ```
 ┌────────────────────────────────────────────────┐
-│ Quán Bánh Cuốn            Bàn 03               │ ← A MenuHeader
+│ [restaurant banner + dark gradient overlay]    │ ← A Header (photo banner)
+│          Quán Bánh Cuốn  (Playfair serif)      │   ✅ NEW DESIGN — rebuilt (GAP-1)
+│                                                │   No pill bar, no table label, no login here
 ├────────────────────────────────────────────────┤
-│ 🛒 3 món · 105.000đ              [Xem giỏ →]   │ ← MiniCartStrip (sticky, if cart>0)
+│ 🔍 Tìm món nhanh...                            │ ← B SearchBar
+│ [Tất cả][Suất][Trứng][Bánh Cuốn][Giò][Canh]   │ ← C CategoryTabs (sticky scroll-spy)
+│ ♥ FavouritesRail ▸ ▸ ▸  (if ≥1 favourite)     │ ← D                ⚠️ NEW DESIGN — code pending rebuild
 ├────────────────────────────────────────────────┤
-│ [restaurant banner image]                      │ ← RestaurantBanner
-│ ▸ Đang thêm món vào đơn #123  [Xem đơn]        │ ← AddToOrderBanner (only ?add_to_order=)
-├────────────────────────────────────────────────┤
-│ 🔍 Tìm món...                                  │ ← B SearchBar
-│ [Tất cả] [Bánh cuốn] [Đồ uống] [Combo] ...     │ ← C CategoryTabs (scrollable)
-│ ♥ FavouritesRail ▸ ▸ ▸  (if favourites exist)  │ ← D
-├────────────────────────────────────────────────┤
-│ COMBO (only on "Tất cả" tab)                   │ ← E ComboSection
-│ ┌──────────────────────────────────┐           │
-│ │ Combo Đầy Đặn  42.000đ   [+]     │           │
+│ SUẤT                                           │ ← E ComboSection (always renders in scroll)
+│ ┌──────────────────────────────────┐           │   ⚠️ NEW DESIGN — code pending rebuild
+│ │ ♡ [img] Suất Đầy Đủ 30.000đ  – 0 +│         │
+│ │         [Nhân thịt][Nhân mộc nhĩ]│           │   combo nhân: MULTI-select, both default-on
 │ └──────────────────────────────────┘           │
-│ MÓN LẺ                                         │ ← F ProductList
+│ TRỨNG · BÁNH CUỐN · GIÒ · CANH                │ ← F ProductList
 │ ┌──────────────────────────────────┐           │
-│ │ [img] Bánh cuốn thịt  35.000đ [+]│           │
+│ │ ♡ [img] Bánh Trứng Vàng  9.000đ – 0 +│      │
 │ ├──────────────────────────────────┤           │
-│ │ [img] Canh mọc        10.000đ [+]│           │
+│ │ ♡ [img] Canh có rau       0 đ  – 0 +│       │
 │ └──────────────────────────────────┘           │
 ├────────────────────────────────────────────────┤
-│ Đơn của bạn (preview) + ghi chú đơn            │ ← I OrderSummary (shakes if canh missing)
+│ Đơn của bạn  ◉ Bàn 04 (spinning ring)  ⌄      │ ← I OrderSummary                ⚠️ NEW DESIGN
+│   ghi chú: Gia đình (mẹ + 2 người lớn + 2 trẻ)│   order note pre-filled — code pending rebuild
 ├────────────────────────────────────────────────┤
-│ 3 món · 105.000đ        [ Thanh toán ]         │ ← J CartBottomBar (fixed, dimmed if no canh)
+│                              [🛒 13]           │ ← J Floating cart pill (bottom-right)
+│                           [Thanh toán]         │   ✅ NEW DESIGN — rebuilt (GAP-9-CHECKOUT)
+│                                                │   No total shown; dims if canh missing
 ├────────────────────────────────────────────────┤
 │ [Menu][Đơn Hàng][Yêu Thích][Theo Dõi][Cài Đặt] │ ← ClientBottomNav (shell)
 └────────────────────────────────────────────────┘
@@ -77,13 +83,16 @@ open?" stays in **local `useState`**. Three layers, one discipline.
 
 ---
 
-**A · MenuHeader** — pure store read, no network.
+**A · Header (photo banner)** — static visual; table label moved to OrderSummary header. ✅ NEW DESIGN — rebuilt (GAP-1, 2026-06-24): `MenuHeader.tsx` is now a `h-[196px]` `next/image` photo banner + gradient overlay + Playfair (`font-display`) title; login button + table label removed.
 
 ```
 ┌────────────────────────────────────────┐
-│ Quán Bánh Cuốn               Bàn 03    │   ◀── ⚡ useCartStore.tableName
-└────────────────────────────────────────┘       (seeded by QR scan via setTableName;
-                                                   null on home/online-order path)
+│ [cover photo + dark gradient overlay]  │   static asset — no network, no store read
+│    "Quán Bánh Cuốn" (Playfair serif)   │
+└────────────────────────────────────────┘   No pill bar, no "Bàn XX" label, no login button.
+                                             The "Bàn 04" table pill lives in the OrderSummary
+                                             header (zone I), wrapped in a spinning orange ring.
+                                             ◀── ⚡ useCartStore.tableName used only by zone I now.
 ```
 
 **Mini · MiniCartStrip** — store *selectors*, sticky only when cart non-empty.
@@ -97,11 +106,22 @@ open?" stays in **local `useState`**. Three layers, one discipline.
 ```
 
 **Banner · RestaurantBanner** — static asset, no data source.
-**AddToOrderBanner** — renders only in add-to-order mode; data is a URL param, not store/BE.
+**AddToOrderBanner** — renders only in **explicit** add-to-order mode; data is a URL param, not store/BE.
 
 ```
 │ ▸ Đang thêm món vào đơn #123 [Xem đơn] │   ◀── (local) useSearchParams() ?add_to_order=<id>
                                               flips the whole page into "POST onto existing order"
+```
+
+**ActiveOrderRecoveryBanner** — renders when there is a persisted `activeOrderId` but NOT in explicit
+add-to-order mode (`suppressed={!!addToOrderId}`). Lets the customer resume a live order after navigating
+away (order → settings → menu) **without re-scanning the QR**. Self-validating + self-cleaning.
+
+```
+│ Đơn hàng #123 đang xử lý — thêm món? │   ◀── (store) useCartStore.activeOrderId
+│              [Xem đơn]  [Thêm món]    │       GET /orders/:id revalidates (BE = source of truth)
+                                              paid/cancelled/404 ⇒ setActiveOrderId(null) + hide (auto-clean)
+                                              [Thêm món] ⇒ router.push(?add_to_order=<id>) → existing append flow
 ```
 
 ---
@@ -115,36 +135,51 @@ open?" stays in **local `useState`**. Three layers, one discipline.
    ≥2 chars → query runs · 1 char → query DISABLED (no refetch, no skeleton, old list stays)
 ```
 
-**C · CategoryTabs** — server state; selected tab is local and re-keys the products query.
+**C · CategoryTabs** — sticky scroll-spy nav; tabs are navigation anchors, NOT filters. ⚠️ NEW DESIGN — code pending rebuild.
 
 ```
-┌────────────────────────────────────────┐
-│ [Tất cả][Bánh cuốn][Đồ uống][Combo]... │   ◀── 📦 [GET /categories]  (5m stale, default [])
-└────────────────────────────────────────┘       no skeleton → tabs pop in when data lands
-   tap a tab ──▶ (local) selectedCategory ──▶ re-keys ['products', selectedCategory, q]
-   "Tất cả" tab is also the only tab that shows zone E (ComboSection)
+┌────────────────────────────────────────────────────────┐
+│ [Tất cả][Suất][Trứng][Bánh Cuốn][Giò][Canh]           │   ◀── 📦 [GET /categories] (5m stale)
+└────────────────────────────────────────────────────────┘       no skeleton → tabs pop when data lands
+   Every section always renders — tapping a tab SCROLLS to that section anchor.
+   Scrolling the page auto-highlights the tab for the section currently in view (IntersectionObserver).
+   Active style: orange text + orange underline + soft orange text-glow.
+   No selectedCategory filter; all sections render simultaneously.
+   (Old behaviour: tab selection filtered which section showed — removed.)
 ```
 
-**D · FavouritesRail** — joins a *client* fav-id list against two *server* caches.
+**D · FavouritesRail** — joins a *client* fav-id list against two *server* caches. ⚠️ NEW DESIGN — code pending rebuild.
 
 ```
 │ ♥ FavouritesRail ▸ ▸ ▸                 │   ◀── ⚡ useFavouritesStore  (the saved ids)
                                               ◀── 📦 ['products-all'] + ['combos']  (resolve ids→objects)
-   renders only if the user has favourites; degrades silently if a fav id isn't in the caches
+   renders whenever ≥1 favourite exists — no "only on Tất cả tab" condition.
+   (Old behaviour: rail only visible on "Tất cả" tab — removed.)
+   Degrades silently if a fav id isn't in the caches.
+   Tapping a fav card opens that item's detail modal (not the cart).
 ```
 
 ---
 
-**E · ComboSection** — reads BE (+enrichment), writes the cart. Hidden until combos arrive.
+**E · ComboSection** — reads BE (+enrichment), writes the cart. Always renders (scroll-spy section). ⚠️ NEW DESIGN — code pending rebuild.
 
 ```
-┌──────────────────────────────────────┐
-│ COMBO            (only on "Tất cả")   │   ◀── 📦 [GET /combos]   (key ['combos'])
-│ ┌──────────────────────────────────┐ │        enriched in useMemo with ['products-all']
-│ │ Combo Đầy Đặn 42.000đ      [+]──┼─┼──▶ ⚡ addItem({type:'combo', id:`combo_<id>`})
-│ └──────────────────────────────────┘ │        (dedups by id → re-tap bumps quantity)
-└──────────────────────────────────────┘   card tap → /menu/combo/:id · hidden if combos.length===0
-   enrichment resolves combo_items → product names/prices/toppings; missing product → raw UUID fallback
+┌──────────────────────────────────────────────────────────┐
+│ SUẤT            (always rendered — scroll-spy section)    │   ◀── 📦 [GET /combos] (key ['combos'])
+│ ┌────────────────────────────────────────────────────┐   │        enriched in useMemo with ['products-all']
+│ │ ♡[img] Suất Đầy Đủ Trứng Chín  30.000đ  – 0 +   │   │
+│ │         1 bánh trứng chín + 3 bánh cuốn + ...     │   │
+│ │         [Nhân thịt ●][Nhân thịt mộc nhĩ ●] ──────┼───┼──▶ ⚡ addItem({type:'combo', ...nhân:both})
+│ └────────────────────────────────────────────────────┘   │        (dedups by id → re-tap bumps quantity)
+└──────────────────────────────────────────────────────────┘
+   Combo cards now get the FULL product-card treatment:
+   - Heart (favourite) toggle in corner of thumbnail.
+   - Nhân pill group: MULTI-select ("Nhân thịt" / "Nhân thịt mộc nhĩ").
+     Both selected by default (●); at least one must always stay selected.
+     Selecting both = mixed suất (bánh cuốn/trứng split across the two nhân).
+   - (Old behaviour: combo cards had no heart, no nhân pills — removed.)
+   Card tap → /menu/combo/:id · hidden if combos.length===0.
+   Enrichment resolves combo_items → product names/prices/toppings; missing product → raw UUID fallback.
 ```
 
 **F · ProductList** — the *only* zone with a loading skeleton; reads BE, writes the cart.
@@ -171,22 +206,43 @@ open?" stays in **local `useState`**. Three layers, one discipline.
 
 ---
 
-**I · OrderSummary** — store read + the canh-shake gate; owns the order note.
+**I · OrderSummary** — store read + the canh-shake gate; owns the order note. ⚠️ NEW DESIGN — code pending rebuild.
 
 ```
-┌──────────────────────────────────────┐
-│ Đơn của bạn (preview)                 │   ◀── ⚡ items[]   (live preview, same data as Mini/J)
-│ Ghi chú đơn: [______________]         │   ◀──▶ ⚡ orderNote  (setOrderNote — persisted field)
-└──────────────────────────────────────┘   gate: items.some(id startsWith 'canh_')===false → SHAKE 🔴
+┌──────────────────────────────────────────────────────┐
+│ Tóm tắt đơn hàng  ◉ Bàn 04 (spinning orange ring) ⌄ │   ◀── ⚡ items[]   (live preview)
+│                                                      │   ◀── ⚡ useCartStore.tableName → "Bàn 04" pill
+│  COMBO                               Subtotal 80.000đ│        wrapped in slowly spinning orange light ring
+│    Suất Đầy Đủ Trứng Chín  – 1 +  30.000đ  🗑       │        (animated conic gradient — ⚠️ NEW DESIGN)
+│    Suất Giò                – 2 +  50.000đ  🗑       │
+│  MÓN LẺ                              Subtotal 23.000đ│   Worked example (Bàn 04 family order):
+│    Bánh Trứng Vàng         – 2 +  18.000đ  🗑       │     COMBO: 1× Suất Đầy Đủ Trứng Chín (30k)
+│    Bánh Chay               – 2 +   5.000đ  🗑       │             2× Suất Giò (50k) → subtotal 80k
+│    Canh có rau             – 4 +   0 đ    🗑       │     MÓN LẺ: 2× Bánh Trứng Vàng (18k)
+│    Canh không rau          – 2 +   0 đ    🗑       │             2× Bánh Chay (5k)
+│  Tổng cộng:                         103.000 đ        │             4× Canh có rau (0đ)
+│                                                      │             2× Canh không rau (0đ) → subtotal 23k
+│  GHI CHÚ: [Gia đình (mẹ + 2 người lớn + 2 trẻ)]    │     Total: 103.000 đ
+└──────────────────────────────────────────────────────┘
+   ◀──▶ ⚡ orderNote  (setOrderNote — persisted field)
+   Pre-filled value: "Gia đình (mẹ + 2 người lớn + 2 trẻ)" — ⚠️ NEW DESIGN (was empty placeholder).
+   No "Gọi thêm" badge anywhere in the order summary — ⚠️ NEW DESIGN (removed).
+   gate: items.some(id startsWith 'canh_')===false → SHAKE 🔴
 ```
 
-**J · CartBottomBar** — store selectors + the *same* canh gate; decides the checkout branch.
+**J · Floating cart + checkout buttons** — two stacked pill buttons pinned bottom-right; appear only when cart is non-empty. ⚠️ NEW DESIGN — code pending rebuild.
 
 ```
-┌──────────────────────────────────────┐
-│ 3 món · 105.000đ      [ Thanh toán ] │   ◀── ⚡ total() · itemCount()
-└──────────────────────────────────────┘   gate false → button DIMMED (mirrors I's shake)
-   Thanh toán reads ⚡ tableId:  set → open TableConfirmModal · null → router.push('/checkout')
+                              ┌──────────┐
+                              │ 🛒  13   │   ← cart pill: icon + round orange count badge
+                              └──────────┘   ◀── ⚡ itemCount()  (badge = 13 for Bàn 04 example)
+                              ┌──────────┐       tap → scrolls to OrderSummary
+                              │Thanh toán│   ← orange pill; dims/disables when no canh
+                              └──────────┘   ◀── ⚡ tableId: set → TableConfirmModal · null → /checkout
+   Appears only when itemCount() > 0.
+   NO total is shown on either button — ⚠️ NEW DESIGN.
+   (Old behaviour: full-width bottom bar showing "n món · 105.000đ  [Thanh toán]" — removed.)
+   Canh gate: soup missing → "Thanh toán" pill DIMMED (same logic as before, different component shape).
 ```
 
 ---
@@ -207,28 +263,33 @@ open?" stays in **local `useState`**. Three layers, one discipline.
 ┌─ Xác nhận đơn Bàn 03 ────────────────┐
 │ 3 món · 105.000đ                      │   items ◀── ⚡ useCartStore
 │        [Hủy]   [Xác nhận gọi món]    │   confirm ──▶ buildOrderItemsPayload() ──▶ POST /orders (source qr)
-└──────────────────────────────────────┘   201 ⇒ setActiveOrderId(id) → clearCart() → router.replace('/order/<id>')
+└──────────────────────────────────────┘   201 ⇒ clearCart() → setActiveOrderId(id) → router.replace('/order/<id>')
 ```
 
-> After `clearCart()` the store's `items[]` is empty; only `orderNote` + `activeOrderId` persist
-> (`partialize`). The order id travels to `/order/:id` via URL + `order_cache_<id>` — see
+> `clearCart()` empties only the **draft** (`items` + `paymentMethod` + `orderNote`) and **keeps the
+> identity** (`tableId` / `tableName` / `activeOrderId`) so the order stays recoverable after navigating
+> away — this **overrides the old Invariant 5** (owner-approved). Right after, `setActiveOrderId(id)` points
+> the cleared cart at the new order. Persistence (`partialize`) = `orderNote` + `activeOrderId` only; the
+> pointer is cleared later on terminal status (`paid`/`cancelled`) by the `/order/:id` page. The order id
+> also travels via URL + `order_cache_<id>` — see
 > [customer_menu_crosspage_dataflow.md](customer_menu_crosspage_dataflow.md).
 
 ## Zones
 
 | Zone | Component | Data source |
 |---|---|---|
-| A Header | `features/menu/MenuHeader` | `useCartStore` (tableName) |
+| A Header (photo banner) ✅ NEW (rebuilt GAP-1) | `features/menu/MenuHeader` | static asset (`/header-example.jpg` via `next/image`); no store/network read; table pill lives in zone I |
 | Mini cart | `features/menu/MiniCartStrip` | `useCartStore` |
 | Banner | `features/menu/RestaurantBanner` | static |
 | Add-to-order banner | `features/menu/AddToOrderBanner` | `?add_to_order=` query param |
+| Active-order recovery banner | `features/menu/ActiveOrderRecoveryBanner` | `useCartStore.activeOrderId` + `GET /orders/:id` (revalidate + self-clean); shown when no `?add_to_order=` |
 | B Search | `features/menu/SearchBar` | local state → products query (`search` param, min 2 chars) |
-| C Tabs | `features/menu/CategoryTabs` | `GET /categories` (TanStack Query, 5 min stale) |
-| D Favourites rail | `features/menu/FavouritesRail` | `useFavouritesStore` + `GET /products` + `GET /combos` |
-| E Combos | `features/menu/ComboSection` | `GET /combos` enriched with `GET /products` (names/prices) |
+| C Tabs ⚠️ NEW | `features/menu/CategoryTabs` | `GET /categories` (TanStack Query, 5 min stale); scroll-spy anchors, not filters |
+| D Favourites rail ⚠️ NEW | `features/menu/FavouritesRail` | `useFavouritesStore` + `GET /products` + `GET /combos`; renders on ≥1 fav (no tab condition) |
+| E Combos ⚠️ NEW | `features/menu/ComboSection` | `GET /combos` enriched with `GET /products`; cards now have heart + multi-select nhân pills |
 | F Products | `features/menu/ProductList` | `GET /products?category_id&search&is_available=true` |
-| I Order summary | `features/menu/OrderSummary` | `useCartStore` (items, note) |
-| J Bottom bar | `features/menu/CartBottomBar` | `useCartStore` totals |
+| I Order summary ⚠️ NEW | `features/menu/OrderSummary` | `useCartStore` (items, note); "Bàn 04" pill with spinning ring; note pre-filled; no "Gọi thêm" |
+| J Floating pills ⚠️ NEW | `features/menu/CartBottomBar` | `useCartStore` itemCount(); two stacked pill buttons bottom-right, no total displayed |
 | Cart drawer | `features/menu/CartDrawer` | `useCartStore`; submits via `lib/order-payload.ts` |
 | Confirm modal | `features/menu/TableConfirmModal` | `POST /orders` (source `qr`, no name/phone) |
 
@@ -236,11 +297,16 @@ open?" stays in **local `useState`**. Three layers, one discipline.
 
 - Tap product card → `/menu/product/:id`; tap combo card → `/menu/combo/:id`; `[+]` → add to cart.
 - Tap MiniCartStrip → opens CartDrawer (edit quantities, remove items).
-- **Thanh toán**: canh (soup) missing → blocked, OrderSummary shakes + toast "chọn số bát canh".
+- **Category tabs (scroll-spy)**: tapping a tab scrolls to the named section; scrolling auto-highlights the active tab. ⚠️ NEW DESIGN — code pending rebuild (old: tab filtered content).
+- **Floating cart pill** (🛒 + badge): appears when cart is non-empty; tapping scrolls to OrderSummary (`id="order-summary"` anchor). ✅ Rebuilt (GAP-9-CHECKOUT) — `CartBottomBar.tsx` rewritten as 2 stacked pill buttons bottom-right; old full-width bottom bar with total removed.
+- **"Thanh toán" pill**: canh (soup) missing → dimmed/disabled, OrderSummary shakes + toast "chọn số bát canh".
   Else: `tableId` set → TableConfirmModal (popup confirm only — no `/checkout`, no name/phone);
-  no table → `router.push('/checkout')`.
+  no table → `router.push('/checkout')`. No total shown on the pill itself.
 - In `?add_to_order=` mode the cart POSTs items onto the existing order instead of creating one.
+- **Order recovery (no QR re-scan)**: after placing an order, `activeOrderId` survives `clearCart()` + navigation. On `/menu` the `ActiveOrderRecoveryBanner` revalidates it via `GET /orders/:id`; "Thêm món" bridges into `?add_to_order=` (append to the SAME order); a `paid`/`cancelled`/missing order auto-clears the pointer.
 - Search ≥ 2 chars filters products; empty category → `EmptyState`.
+- **Combo nhân (multi-select)**: both "Nhân thịt" and "Nhân thịt mộc nhĩ" selected by default; at least one must stay selected. ⚠️ NEW DESIGN — code pending rebuild.
+- **"Gọi thêm" badge**: removed from the order summary. ⚠️ NEW DESIGN — code pending rebuild.
 
 ## Business Logic Used
 
@@ -253,7 +319,7 @@ open?" stays in **local `useState`**. Three layers, one discipline.
 
 ## Object Model — Menu Page (FE ⇄ BE ⇄ DB)
 
-> Traced from source on branch `experience_claude.md_system_1` (NOT from docs).
+> Traced from source on branch `experience_claude.md_system_1_test_iphon2_change_code` (NOT from docs).
 > Sources: `fe/src/types/product.ts` · `fe/src/types/cart.ts` · `fe/src/app/(shop)/menu/page.tsx` ·
 > `be/internal/handler/product_handler.go` · `be/internal/service/product_service.go` ·
 > migrations 002/004 (via `docs/be/be_code_summary/DB_SCHEMA_SUMMARY.md`).

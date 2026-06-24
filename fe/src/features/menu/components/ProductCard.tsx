@@ -71,7 +71,7 @@ export function ProductCard({ product }: Props) {
           className="absolute top-1 right-1 bg-white/80 rounded-full p-1.5"
           aria-label={fav ? 'Bỏ yêu thích' : 'Yêu thích'}
         >
-          <Heart size={16} className={fav ? 'fill-red-500 text-red-500' : 'text-muted-fg'} />
+          <Heart size={16} className={fav ? 'fill-primary text-primary' : 'text-muted-fg'} />
         </button>
       </div>
 

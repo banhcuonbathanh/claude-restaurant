@@ -10,7 +10,7 @@
 > - [customer_menu_be.md](customer_menu_be.md) — what crosses the wire to the BE.
 > - The scenario's §A–§D cover the same flow more briefly; this file is the long version of **§A**.
 >
-> Traced from source on branch `experience_claude.md_system_1`:
+> Traced from source on branch `experience_claude.md_system_1_test_iphon2_change_code`:
 > [`fe/src/store/cart.ts`](../../../../../fe/src/store/cart.ts) ·
 > [`fe/src/lib/order-payload.ts`](../../../../../fe/src/lib/order-payload.ts) ·
 > [`fe/src/lib/storage-keys.ts`](../../../../../fe/src/lib/storage-keys.ts).
@@ -30,8 +30,8 @@ the browser.
 ```
                          /menu  page  (Bàn 01)
 ┌──────────────────────────────────────────────────────────────────┐
-│  A  MenuHeader            "Quán Bánh Cuốn ……… Bàn 01"  ◀───────┐  │
-├──────────────────────────────────────────────────────────────┼──┤
+│  A  MenuHeader      [photo banner] "Quán Bánh Cuốn"  (no table)   │
+├──────────────────────────────────────────────────────────────┬──┤
 │  🛒 MiniCartStrip         "1 món · 21.000đ"  [Xem giỏ →]  ◀────┤  │
 ├──────────────────────────────────────────────────────────────┼──┤
 │  E  ComboSection   ┌────────────────────────────┐             │  │
@@ -42,10 +42,11 @@ the browser.
 │                    └────────────────────────────┘         ││  │  │
 │  ▢  ToppingModal   nhân thịt ✓ ──────────writes──────────┐││  │  │
 ├──────────────────────────────────────────────────────────┼┼┼─┼──┤
-│  I  OrderSummary   "1× Suất Giò + nhân thịt · 1× Canh" ◀──┼┼┼─┤  │
+│  I  OrderSummary   ◉ Bàn 01 (pill)  "1× Suất Giò + …" ◀───┼┼┼─┤  │
 │                     (shakes if no canh)                   │││ │  │
 ├──────────────────────────────────────────────────────────┼┼┼─┼──┤
-│  J  CartBottomBar  "1 món · 21.000đ"   [ Thanh toán ]  ◀──┼┼┼─┤  │
+│  J  Floating pills      🛒 1  (count badge, no total)  ◀──┼┼┼─┤  │
+│     (bottom-right)       [ Thanh toán ]  (dims if no canh)│┼┼─┤  │
 └──────────────────────────────────────────────────────────┼┼┼─┼──┘
                                                             ▼▼▼ ▲
                     ┌───────────────────────────────────────────────┐
@@ -70,13 +71,13 @@ each one binds to. Note the right column: almost every one reads the **same stor
 
 | Zone | Component | Reads / writes for the 11:40 order | Data source |
 |---|---|---|---|
-| A Header | `MenuHeader` | reads **"Bàn 01"** | `useCartStore.tableName` |
+| A Header | `MenuHeader` | static photo banner — **no table label** (the "Bàn 01" pill moved to zone I) | static asset (no store read) |
 | Mini cart | `MiniCartStrip` | reads **"1 món · 21.000đ"** | `useCartStore` (selectors) |
 | E Combos | `ComboSection` | writes Suất Giò → `addItem()` | `GET /combos` (read) + `useCartStore` (write) |
 | F Products | `ProductList` | writes the canh row | catalog (read) + `useCartStore` (write) |
 | Topping modal | `ToppingModal` | picks **nhân thịt** | local `useState` → `useCartStore` on confirm |
-| I Order summary | `OrderSummary` | renders preview + canh-shake gate | `useCartStore` (items, note) |
-| J Bottom bar | `CartBottomBar` | total + Thanh toán (dimmed if no canh) | `useCartStore` (totals) |
+| I Order summary | `OrderSummary` | renders **"Bàn 01" pill** + preview + canh-shake gate | `useCartStore` (tableName, items, note) |
+| J Floating pills | `CartBottomBar` | floating cart pill (🛒 + count badge, **no total**) + Thanh toán (dims if no canh) | `useCartStore` (`itemCount()`) |
 | Cart drawer | `CartDrawer` | edit qty / remove | `useCartStore`; submits via `order-payload.ts` |
 | Confirm modal | `TableConfirmModal` | the actual `POST /orders` | builds payload from `useCartStore` |
 
@@ -113,7 +114,7 @@ interface CartState {
   // ── data ───────────────────────────────────────────────
   items:         CartItem[]        // the cart lines  (session-only — see §6)
   tableId:       string | null     // set from the QR scan
-  tableName:     string | null     // "Bàn 01"  → MenuHeader
+  tableName:     string | null     // "Bàn 01"  → OrderSummary pill (zone I)
   activeOrderId: string | null     // set AFTER the order is created (cross-page handoff)
   paymentMethod: string | null
   orderNote:     string            // "Ghi chú cho bếp"
@@ -140,10 +141,11 @@ total:     () => get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
 itemCount: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
 ```
 
-So when the guest adds Suất Giò, the MiniCartStrip total, the OrderSummary preview, and the CartBottomBar
-total are **three views of the same derived value**. They cannot drift apart, because none of them holds
-its own copy — they all recompute from the one `items` array. That is why the [customer_menu.md
-interaction note](customer_menu.md#key-interactions) can promise the preview always matches the bottom bar.
+So when the guest adds Suất Giò, the MiniCartStrip total, the OrderSummary preview total, and the floating
+cart's count badge are **views of the same derived values** (`total()` / `itemCount()`). They cannot drift
+apart, because none of them holds its own copy — they all recompute from the one `items` array. That is why
+the [customer_menu.md interaction note](customer_menu.md#key-interactions) can promise the preview always
+matches the floating cart.
 
 ---
 
@@ -158,7 +160,7 @@ Scanning the Bàn 01 QR routes through `/table/:id`, which calls `setTableId()` 
 Two effects, both via the store, no props:
 
 ```
-setTableName("Bàn 01") ──▶ useCartStore ──▶ MenuHeader re-renders → shows "Bàn 01"
+setTableName("Bàn 01") ──▶ useCartStore ──▶ OrderSummary re-renders → "Bàn 01" pill (header is static)
 setTableId(<uuid>)     ──▶ useCartStore ──▶ (decides the checkout branch later — see Step 6)
 ```
 
@@ -194,7 +196,7 @@ This is **instant** — no network wait. It is the *only* optimistic update in t
   └──────────────────────────────────────────────────────────────┘
             │
             └─▶ canh gate: items.some(id startsWith "canh_") = FALSE
-                ⇒ CartBottomBar DIMMED, OrderSummary will SHAKE 🔴
+                ⇒ "Thanh toán" pill DIMMED, OrderSummary will SHAKE 🔴
 ```
 
 ### Step 3 — Nhân thịt is a **topping**, not a field
@@ -230,7 +232,7 @@ existing row instead of creating a duplicate. Price is always `0`.
   └──────────────────────────────────────────────────────────────┘
             │
             └─▶ canh gate: items.some(id startsWith "canh_") = TRUE
-                ⇒ CartBottomBar ENABLED ✅   [ Thanh toán ]
+                ⇒ "Thanh toán" pill ENABLED ✅
 ```
 
 ### Step 5 — One write, every widget re-renders (the fan-out)
@@ -242,9 +244,11 @@ store update, and **every subscribed widget recomputed in lockstep**:
 ComboSection.addItem() ───────┐
 ToppingModal (nhân thịt) ──────┼──▶  useCartStore.items  ──┬──▶ MiniCartStrip   "1 món · 21.000đ"
 ProductList / setCanhQty ──────┘     (Zustand singleton)   ├──▶ OrderSummary    preview + ghi chú
-                                                           ├──▶ CartBottomBar   total · [Thanh toán]
-                                                           └──▶ MenuHeader       (tableName)
+                                                           └──▶ Floating pills  🛒 1 (count) · [Thanh toán]
 ```
+
+(`MenuHeader` does not re-render here — it is a static photo banner; `tableName` was already wired to the
+OrderSummary pill back in Step 1.)
 
 No widget told another widget anything. They all observed the store.
 
@@ -310,13 +314,16 @@ The three transforms the builder performs, all visible in [`order-payload.ts`](.
 ### Step 9 — Handoff and forget
 
 On `201`, the page:
-1. `setActiveOrderId(<id>)` — stamps the store so other pages know an order is in flight.
-2. `clearCart()` ([`cart.ts:89`](../../../../../fe/src/store/cart.ts)) — wipes `items`, `tableId`,
-   `tableName`, `activeOrderId`, `paymentMethod`, `orderNote`.
+1. `clearCart()` ([`cart.ts:89`](../../../../../fe/src/store/cart.ts)) — empties only the **draft**
+   (`items`, `paymentMethod`, `orderNote`) and **keeps the identity** (`tableId`, `tableName`,
+   `activeOrderId`) so the order stays recoverable. **(Overrides the old Invariant 5 — owner-approved.)**
+2. `setActiveOrderId(<id>)` — points the cleared cart at the new order so other pages (and the `/menu`
+   recovery banner) know which order is in flight.
 3. `router.replace('/order/<id>')`.
 
-By the time `/order/[id]` paints, the cart is **already empty** — the tracking page owns no cart. The only
-thing that crossed pages is the **order id** (in the URL) + the `order_cache_<id>` snapshot.
+By the time `/order/[id]` paints, the cart's **items** are empty — but `tableId`/`activeOrderId` survive so
+the customer can return to `/menu` and add more to the SAME order without re-scanning the QR. The **order id**
+also crosses via the URL + the `order_cache_<id>` snapshot.
 
 ---
 
@@ -379,14 +386,14 @@ flushes any legacy canh counter so old persisted carts can't reintroduce stale c
 
 ```
  Guest        ComboSection /        useCartStore         OrderSummary /      TableConfirmModal      BE
-  │           ProductList /          (singleton)          CartBottomBar        + order-payload
+  │           ProductList /          (singleton)          Floating pills       + order-payload
   │           ToppingModal               │                     │                    │              │
   ├─ scan QR ─────────────────────▶ setTableId/Name           │                    │              │
-  │                                      │── tableName ───────▶│ Header: "Bàn 01"   │              │
-  │                                      │                     │                    │              │
+  │                                      │── tableName ───────▶│ OrderSummary pill: │              │
+  │                                      │                     │      "Bàn 01"      │              │
   ├─ tap [+] Suất Giò ─▶ addItem ──▶ items:[combo]            │                    │              │
-  │                                      │── total()=21000 ───▶│ Mini/Bottom: 1 món │              │
-  │                                      │                     │ gate=FALSE → dim 🔴│              │
+  │                                      │── total()/count ───▶│ Mini: 21.000đ ·    │              │
+  │                                      │                     │ 🛒 1 · gate=FALSE→dim 🔴│         │
   ├─ pick nhân thịt ──▶ (local state)─▶ toppings:[Nhân thịt]   │                    │              │
   │                                      │                     │                    │              │
   ├─ canh "có rau" ───▶ setCanhQty ─▶ items:[combo, canh]     │                    │              │
@@ -396,11 +403,11 @@ flushes any legacy canh counter so old persisted carts can't reintroduce stale c
   │                                      │                     │   buildOrderItems  │              │
   │                                      │── items ────────────┼──▶ Payload(items) ─┼─ POST /orders▶│
   │                                      │                     │                    │   201 {id}   │
+  │                                      │◀── clearCart()  (items=[]; KEEPS table+id)┤              │
   │                                      │◀── setActiveOrderId(id) ─────────────────┤              │
-  │                                      │◀── clearCart()  (items=[], table=null) ──┤              │
   │                                                                                 └─ router.replace
   │                                                                                    /order/<id>
-  ▼  (cart now empty — tracking page owns no cart)
+  ▼  (items empty — but tableId+activeOrderId survive for order-recovery on /menu)
 ```
 
 ---

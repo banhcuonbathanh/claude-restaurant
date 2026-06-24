@@ -14,7 +14,7 @@
 > - a **server hub** (the one BE `order` row, same `order.id`) that is the **only** thing connecting
 >   the customer's browser to the **staff/admin** devices.
 >
-> Traced from source on branch `experience_claude.md_system_1`:
+> Traced from source on branch `experience_claude.md_system_1_test_iphon2_change_code`:
 > [`fe/src/store/cart.ts`](../../../../../fe/src/store/cart.ts) ·
 > [`fe/src/types/order.ts`](../../../../../fe/src/types/order.ts) ·
 > [`fe/src/lib/storage-keys.ts`](../../../../../fe/src/lib/storage-keys.ts) ·
@@ -117,8 +117,8 @@ there. On `201`, `TableConfirmModal` (or `/checkout`) does exactly **three write
    POST /orders ───────────▶ 201 { id, order_number, status:"pending", items[], total_amount }
         │
         │   ① localStorage["order_cache_<id>"] = JSON(order)      ▓ survives F5, per-browser
-        │   ② setActiveOrderId("<id>")                            ▓ persisted (partialize)
-        │   ③ clearCart()                                         ░ wipes items/table → memory gone
+        │   ② clearCart()  — empties DRAFT (items/payment/note)   ░ KEEPS tableId/tableName/activeOrderId
+        │   ③ setActiveOrderId("<id>")                            ▓ persisted (partialize) — recovery pointer
         ▼
    router.replace('/order/<id>')        (replace, not push → back-button can't re-submit)
 ```
@@ -130,21 +130,23 @@ there. On `201`, `TableConfirmModal` (or `/checkout`) does exactly **three write
    │       id, order_number:"#A12", status:"pending",                    │
    │       table_name:"03", total_amount:105000, items:[ … ] }           │
    │                                                                      │
-   │ ░ cart store (memory):   items=[]  tableId=null  tableName=null     │
+   │ ░ cart store (memory):   items=[]   tableId+tableName KEPT (identity)│
    │ ▓ cart store (persisted, CART_CONFIG v5):                           │
-   │       { orderNote, activeOrderId:"<id>" }   ← the ONLY survivor      │
+   │       { orderNote, activeOrderId:"<id>" }   ← persisted survivors    │
    └────────────────────────────────────────────────────────────────────┘
 ```
 
 | # | Write | Where it lands | Who reads it later | Source |
 |---|---|---|---|---|
 | ① | `order_cache_<id> = JSON(order)` | ▓ localStorage | `/order/<id>` (instant paint) **+** `/order` list (history) | [`TableConfirmModal.tsx:37`](../../../../../fe/src/features/menu/components/TableConfirmModal.tsx) |
-| ② | `setActiveOrderId(<id>)` | ▓ cart store, persisted | `/tracking` (it has no URL id — see §5) | [`cart.ts:93,153`](../../../../../fe/src/store/cart.ts) |
-| ③ | `clearCart()` | ░ cart store memory | wipes `items`/`tableId`/`tableName` → next pages own **no cart** | [`cart.ts:89`](../../../../../fe/src/store/cart.ts) |
+| ② | `clearCart()` | ░ cart store memory | empties only the **draft** (`items`/`paymentMethod`/`orderNote`); **keeps** `tableId`/`tableName`/`activeOrderId` (overrides Invariant 5) | [`cart.ts:89`](../../../../../fe/src/store/cart.ts) |
+| ③ | `setActiveOrderId(<id>)` | ▓ cart store, persisted | `/tracking` (no URL id — see §5) **+** `/menu` `ActiveOrderRecoveryBanner` (order-recovery) | [`cart.ts:93,153`](../../../../../fe/src/store/cart.ts) |
 
 > **Why two keys, not one?** `order_cache_<id>` answers *"what is this specific order?"* (keyed by
-> id — many can coexist). `activeOrderId` answers *"which order is the guest currently following?"*
-> (exactly one). `/tracking` needs the second because it is reached with **no id in its path**.
+> id — many can coexist). `activeOrderId` answers *"which order is the guest currently on?"* (exactly
+> one). It now serves **two** readers: `/tracking` (reached with no id in its path) and the `/menu`
+> recovery banner (resume "gọi thêm" after navigating away). The pointer is cleared on terminal status
+> (`paid`/`cancelled`) by the `/order/:id` page.
 
 ---
 
@@ -236,11 +238,13 @@ This page is also the **fork point** back into the other pages:
 | **Theo dõi** | `setActiveOrderId(id); push('/tracking')` | promotes this order to "the followed one" | [line 564](../../../../../fe/src/app/(shop)/order/[id]/page.tsx) |
 | follow toggle | `setActiveOrderId(isActive ? id : null)` | set/clear the tracked order | [line 574](../../../../../fe/src/app/(shop)/order/[id]/page.tsx) |
 | **Đặt thêm món** | `push('/menu?add_to_order=<id>')` | re-enter `/menu` in append mode | [line 575](../../../../../fe/src/app/(shop)/order/[id]/page.tsx) |
-| **Huỷ đơn** | cancel mutation → `push('/menu')` | order → `cancelled`, fans out over SSE | [line 65](../../../../../fe/src/app/(shop)/order/[id]/page.tsx) |
+| **Huỷ đơn** | cancel mutation → `setActiveOrderId(null)` → `push('/menu')` | order → `cancelled`, fans out over SSE; pointer cleared | [line 65](../../../../../fe/src/app/(shop)/order/[id]/page.tsx) |
 
-> **`?add_to_order=<id>` closes the loop.** It is the one path that sends data *back* into `/menu`:
-> the order id flows menu → order → **back to menu via the URL**, and the cart's POST targets the
-> existing order. See [customer_menu.md → Key Interactions](customer_menu.md#key-interactions).
+> **`?add_to_order=<id>` closes the loop.** It sends data *back* into `/menu`: the order id flows
+> menu → order → **back to menu**, and the cart's POST targets the existing order. There are now **two**
+> ways to re-enter append mode: (1) the explicit **"Đặt thêm món"** button (id via the URL), and (2) the
+> `ActiveOrderRecoveryBanner` on `/menu` reading the persisted `activeOrderId` (no QR re-scan, no URL id
+> needed). See [customer_menu.md → Key Interactions](customer_menu.md#key-interactions).
 
 ---
 
@@ -467,8 +471,8 @@ This is the cross-device case in full: the guest is passively watching when staf
   ├ Thanh toán ─▶ POST /orders ─────┼─────────────────────┼──────────────┼──────────────▶ create row    │
   │              │                  │                     │              │           201 │── new_order ─▶│
   │              │◀─ ① order_cache_<id>=JSON ◀────────────┼──────────────┼────────────────┤              │
-  │              │◀─ ② setActiveOrderId(id) ─┐            │              │                │◀ GET /orders/:id
-  │              │◀─ ③ clearCart()           │            │              │                │   → live cache
+  │              │◀─ ② clearCart() (keeps id)─┐           │              │                │◀ GET /orders/:id
+  │              │◀─ ③ setActiveOrderId(id)  │            │              │                │   → live cache
   │              │   router.replace ─────────┼──────────▶ mount          │                │              │
   │              │                  │  read ▓ cache ─────▶ instant paint  │                │              │
   │              │                  │        GET /orders/:id ───────────────────────────▶ snapshot       │
@@ -505,17 +509,19 @@ exactly what each page recovers after a hard refresh:
 ```
    PAGE            HAS URL id?   SOURCE OF TRUTH ON RELOAD            RESULT
    ─────────────   ───────────   ──────────────────────────────────  ──────────────────────────
-   /menu           no            ▓ persisted: orderNote+activeOrderId  cart EMPTY (items ░ gone)
+   /menu           no            ▓ persisted: orderNote+activeOrderId  items ░ gone, BUT recovery banner
+                                                                       resumes the live order (activeOrderId)
    /order/<id>     YES           ▓ order_cache → REST → SSE            full recovery (id in URL)
    /order (list)   no            ▓ all order_cache_* keys             full history recovers
-   /tracking       no            ▓ activeOrderId (persisted)          recovers IF a followed order
+   /tracking       no            ▓ activeOrderId (persisted)          recovers the active order
    admin floor     no            REST GET (no localStorage)           re-fetches from BE
 ```
 
 > **The one gotcha:** `/tracking` has neither a URL id nor its own cache — it relies entirely on
-> `activeOrderId` surviving in `partialize`. If the guest never tapped "Theo dõi" (so `activeOrderId`
-> is null) or cleared storage, `/tracking` shows the empty-state fallback even though `/order/<id>`
-> would still work from the URL.
+> `activeOrderId` surviving in `partialize`. Since `activeOrderId` is now set on **order creation**
+> (not only by "Theo dõi"), it is normally present after placing an order; it goes null only once the
+> order is terminal (`paid`/`cancelled`) or the guest cleared storage — then `/tracking` shows the
+> empty-state fallback even though `/order/<id>` would still work from the URL.
 
 ---
 
@@ -523,9 +529,10 @@ exactly what each page recovers after a hard refresh:
 
 | Datum | Lives in | Survives F5? | Survives new device? | Scope |
 |---|---|---|---|---|
-| `items`, `tableId`, `tableName` | ░ cart store (memory) | ❌ (not in `partialize`) | ❌ | `/menu` only, pre-POST |
+| `items` | ░ cart store (memory) | ❌ (not in `partialize`) | ❌ | `/menu` only, pre-POST (cleared on POST) |
+| `tableId`, `tableName` | ░ cart store (memory) | ❌ (not in `partialize`) | ❌ | survive `clearCart()` in-session → enable `/menu` order-recovery; lost on F5 |
 | `order_cache_<id>` | ▓ localStorage | ✅ | ❌ (per-browser) | `/order/<id>` + `/order` list |
-| `activeOrderId` | ▓ cart store, persisted | ✅ ([`cart.ts:153`](../../../../../fe/src/store/cart.ts)) | ❌ | `/tracking` pointer |
+| `activeOrderId` | ▓ cart store, persisted | ✅ ([`cart.ts:153`](../../../../../fe/src/store/cart.ts)) | ❌ | `/tracking` pointer **+** `/menu` recovery banner |
 | order id | the URL | ✅ | ✅ (shareable link) | `/order/<id>`, `?add_to_order=` |
 | **the order row** | **BE (MySQL + Redis)** | ✅ | ✅ | **every page, every device** |
 

@@ -3,7 +3,8 @@
 > Mỗi zone: ① tài liệu đang vẽ · ② code render THẬT (ASCII từ source) · ③ đề xuất sửa.
 > Chỉ liệt kê các zone **có drift hình vẽ thật** (zone khác đã khớp — xem
 > [COMPARISON_DOC_VS_CODE_DETAILED.md](COMPARISON_DOC_VS_CODE_DETAILED.md) Mảng 1).
-> Branch: `experience_claude.md_system_1_test_iphon2_change_code` · Ngày: 2026-06-22.
+> Branch: `experience_claude.md_system_1_test_iphon2_change_code` · Ngày: 2026-06-23 (chạy lại —
+> 2 zone drift kiểm chứng lại trên source, không đổi từ 2026-06-22).
 >
 > **📷 Trạng thái ảnh chụp: ⏳ CHƯA CHỤP** — stack chưa chạy. Cần
 > `docker compose up -d --build fe` + Playwright (iPhone 390×844) để chụp. ASCII ②/③ dựng thẳng từ
