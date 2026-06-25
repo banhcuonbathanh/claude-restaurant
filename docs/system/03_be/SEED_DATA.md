@@ -29,7 +29,7 @@ docker compose exec mysql mysql -uroot -p$MYSQL_ROOT_PASSWORD banhcuon < /script
 
 > ⚠️ `soup1` (soup maker) uses role **`staff`** — the `role` ENUM has no `soup_maker` value, so adding one would need a migration. It shares chef1's bcrypt hash, so its password is `chef1234`.
 
-## 2 — Tables (7) — *(seed.sql only)*
+## 2 — Tables (10) — *(seed.sql only)*
 | Name | Capacity | qr_token | Start status |
 |---|---|---|---|
 | Bàn 01 | 4 | 64-char hex | available → occupied* |
@@ -37,10 +37,13 @@ docker compose exec mysql mysql -uroot -p$MYSQL_ROOT_PASSWORD banhcuon < /script
 | Bàn 03 | 4 | 64-char hex | available → occupied* |
 | Bàn 04 | 4 | 64-char hex | available |
 | Bàn 05 | 4 | 64-char hex | available |
-| Bàn VIP | 4 | 64-char hex | available |
+| Bàn 06 | 4 | 64-char hex | available |
+| Bàn 07 | 4 | `0707…0707` | available |
+| Bàn 08 | 4 | `0808…0808` | available |
+| Bàn 09 | 4 | `0909…0909` | available |
 | **Bàn 10** | **4** | `1010…1010` | **available** |
 
-\* Bàn 01–03 flipped to `occupied` by the demo orders.
+\* Bàn 01–03 flipped to `occupied` by the demo orders. All 10 tables have capacity 4; there is no "Bàn VIP".
 
 ---
 

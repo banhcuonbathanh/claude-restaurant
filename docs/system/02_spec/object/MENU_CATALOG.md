@@ -19,12 +19,12 @@
 
 | Type | Count | Notes |
 |---|---|---|
-| Categories | 3 | Bánh Cuốn · Canh · Suất / Combo |
-| Toppings (nhân) | 3 | all free (₫0) — price baked into the dish |
-| Products | 6 | 5 bánh + 1 canh |
+| Categories | 5 | Suất · Trứng · Bánh Cuốn · Giò · Canh |
+| Toppings (nhân) | 2 | all free (₫0) — price baked into the dish |
+| Products | 9 | 2 bánh cuốn + 1 bánh chay + 3 trứng + 1 giò + 2 canh |
 | Combos (suất) | 5 | each = fixed set of products |
 | Staff accounts | 4 | admin · manager · chef · cashier |
-| Tables | 6 | Bàn 01–05 + Bàn VIP |
+| Tables | 10 | Bàn 01–10 — all capacity 4 |
 
 > ID prefix guide: menu seed → `aaaa…` categories · `bbbb…` toppings · `cccc…` products ·
 > `dddd…` combos · `eeee…` combo_items. Base seed → `1111…` staff · `2222…` tables.
@@ -34,11 +34,15 @@
 
 ## 1. Categories
 
+> `#` = the category's ID suffix (`aaaa…0000000N`); rows are listed in **`Sort` (menu display) order**.
+
 | # | Name | Description | Sort | Active |
 |---|---|---|---|---|
-| 01 | **Bánh Cuốn** | Giò · bánh trứng · bánh cuốn — khách chọn nhân | 1 | ✅ |
-| 02 | **Canh** | Canh kèm theo mỗi suất | 2 | ✅ |
-| 03 | **Suất / Combo** | Suất ăn trọn bộ tiện lợi | 3 | ✅ |
+| 03 | **Suất** | Suất ăn trọn bộ tiện lợi | 1 | ✅ |
+| 04 | **Trứng** | Bánh trứng — tái · chín · vàng | 2 | ✅ |
+| 01 | **Bánh Cuốn** | Bánh cuốn — khách chọn nhân | 3 | ✅ |
+| 05 | **Giò** | giò nhỏ 5 phút | 4 | ✅ |
+| 02 | **Canh** | Canh kèm theo mỗi suất | 5 | ✅ |
 
 ---
 
@@ -48,36 +52,47 @@ All toppings are free — `price = 0`. Cost is already included in the dish pric
 
 | # | Name | Price | Available | Used by |
 |---|---|---|---|---|
-| 01 | **Nhân thịt** | ₫0 | ✅ | all 5 bánh |
-| 02 | **Nhân thịt mộc nhĩ** | ₫0 | ✅ | all 5 bánh |
-| 03 | **Rau mùi tàu** | ₫0 | ✅ | Canh only |
+| 01 | **Nhân thịt** | ₫0 | ✅ | 5 dishes: Bánh Cuốn Thịt · Bánh Cuốn Mộc Nhĩ · Bánh Trứng Tái/Chín/Vàng |
+| 02 | **Nhân thịt mộc nhĩ** | ₫0 | ✅ | 5 dishes: Bánh Cuốn Thịt · Bánh Cuốn Mộc Nhĩ · Bánh Trứng Tái/Chín/Vàng |
+
+> Only 2 toppings exist (both nhân). There is **no "Rau mùi tàu" topping** — canh choice is modelled
+> as two separate products (**Canh có rau** / **Canh không rau**), not a topping. Bánh Chay, Giò and
+> Canh take no nhân.
 
 ---
 
 ## 3. Products
 
+> `#` = the product's ID suffix (`cccc…0000000N`); listed in seed order.
+
 | # | Name | Category | Price | Selectable toppings |
 |---|---|---|---|---|
-| 01 | **Giò** | Bánh Cuốn | ₫9,000 | Nhân thịt · Nhân thịt mộc nhĩ |
-| 02 | **Bánh Trứng Tái** | Bánh Cuốn | ₫9,000 | Nhân thịt · Nhân thịt mộc nhĩ |
-| 03 | **Bánh Trứng Chín** | Bánh Cuốn | ₫9,000 | Nhân thịt · Nhân thịt mộc nhĩ |
-| 04 | **Bánh Trứng Vàng** | Bánh Cuốn | ₫9,000 | Nhân thịt · Nhân thịt mộc nhĩ |
-| 05 | **Bánh Cuốn** | Bánh Cuốn | ₫4,000 | Nhân thịt · Nhân thịt mộc nhĩ |
-| 06 | **Canh** | Canh | ₫0 | Rau mùi tàu |
+| 01 | **Bánh Cuốn Thịt** | Bánh Cuốn | ₫4,000 | Nhân thịt · Nhân thịt mộc nhĩ |
+| 02 | **Bánh Cuốn Mộc Nhĩ** | Bánh Cuốn | ₫4,000 | Nhân thịt · Nhân thịt mộc nhĩ |
+| 03 | **Bánh Chay** | Bánh Cuốn | ₫2,500 | — (bánh không, no nhân) |
+| 04 | **Bánh Trứng Tái** | Trứng | ₫9,000 | Nhân thịt · Nhân thịt mộc nhĩ |
+| 05 | **Bánh Trứng Chín** | Trứng | ₫9,000 | Nhân thịt · Nhân thịt mộc nhĩ |
+| 06 | **Bánh Trứng Vàng** | Trứng | ₫9,000 | Nhân thịt · Nhân thịt mộc nhĩ |
+| 07 | **Giò** | Giò | ₫9,000 | — (no nhân) |
+| 08 | **Canh có rau** | Canh | ₫0 | — (no nhân) |
+| 09 | **Canh không rau** | Canh | ₫0 | — (no nhân) |
 
 **Descriptions**
-- **Giò** — Giò lụa cắt khoanh, chọn nhân thịt hoặc nhân mộc nhĩ
+- **Bánh Cuốn Thịt** — Bánh cuốn nhân thịt
+- **Bánh Cuốn Mộc Nhĩ** — Bánh cuốn nhân mộc nhĩ
+- **Bánh Chay** — Bánh cuốn chay — không thịt (bánh không, no nhân)
 - **Bánh Trứng Tái** — Trứng lòng đào (half-cooked), chọn nhân
 - **Bánh Trứng Chín** — Trứng chín hoàn toàn, chọn nhân
 - **Bánh Trứng Vàng** — Trứng chiên vàng, chọn nhân
-- **Bánh Cuốn** — Bánh cuốn thuần, chọn nhân thịt hoặc nhân mộc nhĩ
-- **Canh** — Canh kèm theo, có thể thêm rau mùi tàu
+- **Giò** — Giò lụa cắt khoanh (no nhân)
+- **Canh có rau** — Canh kèm rau mùi tàu
+- **Canh không rau** — Canh không rau
 
 ---
 
 ## 4. Combos (Suất)
 
-Each combo is a fixed set of products at a set price (category: **Suất / Combo**).
+Each combo is a fixed set of products at a set price (category: **Suất**).
 
 | # | Name | Price | Contents |
 |---|---|---|---|
@@ -115,14 +130,20 @@ Seeded in [`scripts/seed.sql`](../../../../scripts/seed.sql) (bcrypt cost 12). S
 Seeded in [`scripts/seed.sql`](../../../../scripts/seed.sql). Each has a 64-char hex `qr_token` (the QR
 payload that starts a guest order). Schema → [Table](OBJECT_MODEL_TABLE.md).
 
+> `#` = the table's ID suffix (`2222…0000000N`). **All 10 tables have capacity 4.**
+
 | # | Name | Capacity | Status (seed) | Active |
 |---|---|---|---|---|
 | 01 | **Bàn 01** | 4 | available | ✅ |
 | 02 | **Bàn 02** | 4 | available | ✅ |
-| 03 | **Bàn 03** | 6 | available | ✅ |
-| 04 | **Bàn 04** | 2 | available | ✅ |
+| 03 | **Bàn 03** | 4 | available | ✅ |
+| 04 | **Bàn 04** | 4 | available | ✅ |
 | 05 | **Bàn 05** | 4 | available | ✅ |
-| 06 | **Bàn VIP** | 8 | available | ✅ |
+| 06 | **Bàn 06** | 4 | available | ✅ |
+| 07 | **Bàn 07** | 4 | available | ✅ |
+| 08 | **Bàn 08** | 4 | available | ✅ |
+| 09 | **Bàn 09** | 4 | available | ✅ |
+| 10 | **Bàn 10** | 4 | available | ✅ |
 
 > The demo orders in `seed_real_menu.sql` flip **Bàn 01–03** to `occupied`. `status` is otherwise
 > driven by the order lifecycle, not set by hand — see [Table §3](OBJECT_MODEL_TABLE.md).

@@ -44,7 +44,7 @@ Legend: `—` = absent at that layer · ⚠️ = mismatch, see [§3](#3--flags--
 | Column | Type | Notes |
 |---|---|---|
 | `id` | CHAR(36) PK | UUID |
-| `name` | VARCHAR(50) NOT NULL | e.g. "Bàn 01", "Bàn VIP" |
+| `name` | VARCHAR(50) NOT NULL | e.g. "Bàn 01", "Bàn 10" |
 | `qr_token` | CHAR(64) NOT NULL | random hex; the QR payload that resolves to this table |
 | `capacity` | INT DEFAULT 4 | seats |
 | `status` | ENUM(available, occupied, reserved, inactive) | live seating state |
@@ -63,18 +63,18 @@ Legend: `—` = absent at that layer · ⚠️ = mismatch, see [§3](#3--flags--
 
 ```jsonc
 // DB — tables row
-// id=22222222-…-000000000006 name="Bàn VIP" capacity=8 status="available" is_active=1
+// id=22222222-…-000000000006 name="Bàn 06" capacity=4 status="available" is_active=1
 // qr_token="f67890123456789af67890123456789af67890123456789af67890123456789a" (64 hex)
 
 // BE→FE — GET /tables item (no timestamps)
 {
-  "id": "2222…0006", "name": "Bàn VIP", "capacity": 8,
+  "id": "2222…0006", "name": "Bàn 06", "capacity": 4,
   "status": "available", "is_active": true,
   "qr_token": "f678…789a"
 }
 ```
 
-Seeded tables: Bàn 01–05 (cap 4/4/6/2/4) + Bàn VIP (cap 8). The demo orders in `seed_real_menu.sql`
+Seeded tables: Bàn 01–10, **all capacity 4** (there is no "Bàn VIP"). The demo orders in `seed.sql`
 flip Bàn 01–03 to `occupied`.
 
 ---
