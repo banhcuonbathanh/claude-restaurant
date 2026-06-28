@@ -303,3 +303,6 @@ Handy commands to check yourself anytime:
 docker compose ps fe # is the container up?
 curl -s -o /dev/null -w "%{http_code}\n" localhost:3000 # 200 = serving
 docker compose logs -f fe # live logs (Ctrl+C to exit)
+
+
+For day-to-day FE work, use npm run dev (port 3000 now) and leave the Docker fe container stopped. Only rebuild the Docker image when you want to test the production build. When you're done, you can bring it back with docker compose start fe.

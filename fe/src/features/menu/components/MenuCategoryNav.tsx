@@ -12,7 +12,7 @@ interface Props {
 // the active tab (orange text + underline + soft orange glow).
 export function MenuCategoryNav({ sections, activeId, onSelect }: Props) {
   return (
-    <div className="sticky top-[108px] z-10 bg-background border-b border-border overflow-x-auto">
+    <div className="sticky top-0 z-20 bg-background border-b border-border overflow-x-auto">
       <div className="flex gap-1 px-4 py-2 min-w-max">
         {sections.map(sec => {
           const active = sec.id === activeId

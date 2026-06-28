@@ -15,7 +15,7 @@ export function SearchBar({ onSearch }: Props) {
   }, [value, onSearch])
 
   return (
-    <div className="sticky top-[52px] z-10 bg-background border-b border-border px-4 py-2">
+    <div className="bg-background border-b border-border px-4 py-2">
       <div className="relative">
         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-fg pointer-events-none" />
         <input

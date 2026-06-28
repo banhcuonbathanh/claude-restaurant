@@ -35,10 +35,14 @@ export function ComboCard({ combo }: Props) {
     ).values()
   )
 
-  // Multi-select nhân: default = ALL options selected. At least one must always remain selected.
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(
-    () => new Set(nhanOptions.map(t => t.id))
-  )
+  // Multi-select nhân: default = "Nhân thịt" only (thịt, not mộc nhĩ). Falls back to all
+  // options if no plain-thịt nhân exists, so a combo always starts with ≥1 nhân selected.
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => {
+    const thit = nhanOptions.find(
+      t => t.name.toLowerCase().includes('thịt') && !t.name.toLowerCase().includes('mộc')
+    )
+    return new Set(thit ? [thit.id] : nhanOptions.map(t => t.id))
+  })
 
   const toggleNhan = useCallback((id: string) => {
     setSelectedIds(prev => {
