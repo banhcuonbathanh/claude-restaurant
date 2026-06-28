@@ -76,11 +76,15 @@ function isKitchenItem(item: OrderItem): boolean {
   return !(item.combo_id !== null && item.combo_ref_id === null)
 }
 
-// Prep variant the chef needs: for canh, "có rau" / "không rau" (from the Rau topping
-// in toppings_snapshot; note kept as legacy fallback). For other items, nhân names.
+// Prep variant the chef needs: for canh, "có rau" / "không rau". Canh is its own
+// product per variant ("Canh có rau" / "Canh không rau"), so the name is the source
+// of truth; legacy generic "Canh" falls back to the Rau topping / note.
 function kdsVariant(item: OrderItem): string {
   const names = (item.toppings_snapshot ?? []).map(t => t.name)
-  if (item.name.toLowerCase().includes('canh')) {
+  const lowerName = item.name.toLowerCase()
+  if (lowerName.includes('canh')) {
+    if (lowerName.includes('không')) return 'không rau'
+    if (lowerName.includes('rau'))   return 'có rau'
     const hasRau = names.some(n => n.toLowerCase().includes('rau'))
     if (hasRau) return 'có rau'
     if (item.note) return item.note   // legacy fallback

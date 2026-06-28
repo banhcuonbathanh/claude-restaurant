@@ -3,41 +3,26 @@ import { useState, useEffect, useRef } from 'react'
 import { Check, ChevronDown, ChevronRight, ChevronUp, Minus, Plus, Trash2 } from 'lucide-react'
 import { useCartStore } from '@/store/cart'
 import type { CartItem } from '@/types/cart'
-import type { Topping } from '@/types/product'
+import type { Product } from '@/types/product'
 import { formatVND } from '@/lib/utils'
 
 const isSoupName = (name: string) =>
   name.toLowerCase().includes('canh') || name.toLowerCase().includes('nước dùng')
 
-// Discover the canh productId and rau Topping from whatever is already in the cart
-// (existing canh items or combo sub-items that include canh).
-function discoverCanhInfo(items: CartItem[]): { productId: string | null; rauTopping: Topping | null } {
-  let productId: string | null = null
-  let rauTopping: Topping | null = null
-
-  for (const item of items) {
-    // From existing canh standalone items (canh_<id>_rau or canh_<id>_plain)
-    if (item.type === 'product' && item.product_id && isSoupName(item.name)) {
-      productId = item.product_id
-      const rau = item.toppings.find(t => t.is_available)
-      if (rau) rauTopping = rau
-    }
-    // From combo sub-items
-    if (item.type === 'combo' && item.combo_items) {
-      for (const ci of item.combo_items) {
-        if (isSoupName(ci.product_name) && ci.product_id) {
-          productId = ci.product_id
-          const rau = (ci.toppings ?? []).find(t => t.is_available)
-          if (rau) rauTopping = rau
-        }
-      }
-    }
-  }
-
-  return { productId, rauTopping }
-}
-
-export function OrderSummary({ embedded, shakeKey }: { embedded?: boolean; shakeKey?: number }) {
+export function OrderSummary({
+  embedded,
+  shakeKey,
+  canhCoRau,
+  canhKhongRau,
+}: {
+  embedded?: boolean
+  shakeKey?: number
+  // The two real canh products (có rau / không rau). Canh is stepper-only: the stall
+  // always serves it with any order, so the stepper is bound to these products and is
+  // always usable — for individual dishes and combos alike.
+  canhCoRau?: Product | null
+  canhKhongRau?: Product | null
+}) {
   const [open, setOpen] = useState(true)
   const [dishSummaryOpen, setDishSummaryOpen] = useState(true)
   const [expandedCombos, setExpandedCombos] = useState<Set<string>>(new Set())
@@ -76,12 +61,11 @@ export function OrderSummary({ embedded, shakeKey }: { embedded?: boolean; shake
 
   if (items.length === 0) return null
 
-  // Discover canh product info from current items
-  const { productId: canhProductId, rauTopping: canhRauTopping } = discoverCanhInfo(items)
-
-  // Canh quantities from cart items
-  const rauItem    = items.find(i => i.id === `canh_${canhProductId}_rau`)
-  const plainItem  = items.find(i => i.id === `canh_${canhProductId}_plain`)
+  // Canh quantities — each row is bound to its own real product (Model A):
+  //   có rau    → canh_<canhCoRau.id>_rau
+  //   không rau → canh_<canhKhongRau.id>_plain
+  const rauItem    = canhCoRau    ? items.find(i => i.id === `canh_${canhCoRau.id}_rau`)      : undefined
+  const plainItem  = canhKhongRau ? items.find(i => i.id === `canh_${canhKhongRau.id}_plain`) : undefined
   const rauCount   = rauItem?.quantity   ?? 0
   const plainCount = plainItem?.quantity ?? 0
   const totalCanh  = rauCount + plainCount
@@ -202,15 +186,12 @@ export function OrderSummary({ embedded, shakeKey }: { embedded?: boolean; shake
               <p className="text-xs text-amber-500">⚠ Bạn chưa chọn canh — thêm số bát bên dưới nếu cần.</p>
             )}
             {(['veg', 'noveg'] as const).map((kind) => {
-              const val  = kind === 'veg' ? rauCount : plainCount
+              const val     = kind === 'veg' ? rauCount : plainCount
+              const product = kind === 'veg' ? canhCoRau : canhKhongRau
               const setVal = (n: number) => {
-                if (!canhProductId) return
+                if (!product) return
                 const next = Math.max(0, n)
-                if (kind === 'veg') {
-                  setCanhQty(canhProductId, canhRauTopping, 'rau', next)
-                } else {
-                  setCanhQty(canhProductId, canhRauTopping, 'plain', next)
-                }
+                setCanhQty(product.id, null, kind === 'veg' ? 'rau' : 'plain', next)
               }
               return (
                 <div key={kind} className="flex items-center justify-between">
@@ -225,7 +206,7 @@ export function OrderSummary({ embedded, shakeKey }: { embedded?: boolean; shake
                     <span className="text-xs font-bold text-primary w-5 text-center">{val}</span>
                     <button
                       onClick={() => setVal(val + 1)}
-                      disabled={!canhProductId}
+                      disabled={!product}
                       className="w-6 h-6 rounded-full border border-border flex items-center justify-center text-muted-fg hover:text-foreground disabled:opacity-40"
                     >
                       <Plus size={10} />

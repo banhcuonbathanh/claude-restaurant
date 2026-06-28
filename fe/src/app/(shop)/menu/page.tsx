@@ -29,6 +29,11 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { Button } from "@/components/ui/button";
 import type { Product, Combo, ComboRaw, Category } from "@/types/product";
 
+// Canh (soup) is never a normal menu card — it is chosen only via the OrderSummary
+// stepper, which the stall always serves with any order (individual dishes or combo).
+const isSoupName = (name: string) =>
+  name.toLowerCase().includes("canh") || name.toLowerCase().includes("nước dùng");
+
 function MenuContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -121,14 +126,29 @@ function MenuContent() {
     }));
   }, [rawCombos, allProducts]);
 
+  // Canh is stepper-only: keep its products out of the browsable menu (cards + search),
+  // and resolve the two real canh products (có rau / không rau) for the OrderSummary stepper.
+  const menuProducts = useMemo(
+    () => products.filter((p) => !isSoupName(p.name)),
+    [products]
+  );
+  const canhProducts = useMemo(
+    () => allProducts.filter((p) => isSoupName(p.name)),
+    [allProducts]
+  );
+  const canhKhongRau =
+    canhProducts.find((p) => p.name.toLowerCase().includes("không")) ?? null;
+  const canhCoRau =
+    canhProducts.find((p) => p !== canhKhongRau) ?? null;
+
   // Search overrides the scroll-spy sections: a query shows a flat filtered list
   // (no tabs / favourites rail); clearing it restores the full sectioned menu.
   const searching = searchQuery.length >= 2;
   const showFavs = !searching && favItems.length > 0;
 
   const sections = useMemo(
-    () => buildMenuSections(products, combos, categories),
-    [products, combos, categories]
+    () => buildMenuSections(menuProducts, combos, categories),
+    [menuProducts, combos, categories]
   );
   const tabSections = useMemo(
     () => [{ id: ALL_SECTION_ID, label: "Tất cả" }, ...sections],
@@ -217,17 +237,17 @@ function MenuContent() {
             </div>
           </>
         ) : searching ? (
-          products.length === 0 ? (
+          menuProducts.length === 0 ? (
             <EmptyState message="Không tìm thấy món nào · Thử từ khóa khác nhé!" />
           ) : (
-            <ProductList products={products} withComboHeading={false} />
+            <ProductList products={menuProducts} withComboHeading={false} />
           )
-        ) : products.length === 0 && combos.length === 0 ? (
+        ) : menuProducts.length === 0 && combos.length === 0 ? (
           <EmptyState message="Không có món nào trong danh mục này" />
         ) : (
           /* Zone E + F — all sections render; MenuCategoryNav scroll-spies them */
           <MenuSections
-            products={products}
+            products={menuProducts}
             combos={combos}
             sections={sections}
             onActiveChange={setActiveSection}
@@ -236,7 +256,11 @@ function MenuContent() {
 
         {/* Zone I — OrderSummary (includes note) */}
         <div id="order-summary">
-          <OrderSummary shakeKey={canhShakeKey} />
+          <OrderSummary
+            shakeKey={canhShakeKey}
+            canhCoRau={canhCoRau}
+            canhKhongRau={canhKhongRau}
+          />
         </div>
       </main>
 

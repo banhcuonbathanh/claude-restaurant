@@ -47,14 +47,18 @@ export function statusColors(status: Order['status']): string {
 }
 
 // Friendly topping/variant label for the prep list.
-// Canh → "có rau" / "không rau". New orders: detected from the Rau topping in
-//   toppings_snapshot (canh rau is now a real topping, not a note). Legacy orders
-//   fall back to item.note for backward compatibility.
+// Canh → "có rau" / "không rau". Canh is now its own product per variant
+//   ("Canh có rau" / "Canh không rau"), so the product name is the source of truth.
+//   Legacy orders (generic "Canh") fall back to the Rau topping / note.
 // Bánh / Giò / Trứng → nhân names from item.toppings_snapshot.
 export function toppingLabel(item: OrderItem): string {
-  const isCanh = item.name.toLowerCase().includes('canh')
+  const name = item.name.toLowerCase()
+  const isCanh = name.includes('canh')
 
   if (isCanh) {
+    if (name.includes('không')) return 'không rau'
+    if (name.includes('rau'))   return 'có rau'
+    // Legacy generic "Canh": derive from topping snapshot / note.
     const hasRau = (item.toppings_snapshot ?? []).some(t => t.name.toLowerCase().includes('rau'))
     if (hasRau) return 'có rau'
     const note = item.note?.toLowerCase() ?? ''
