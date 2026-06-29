@@ -108,13 +108,15 @@ export interface DishSummaryDetail {
   qty:        number       // total ordered
   served:     number       // already served (qty_served)
   remaining:  number       // still to make (qty - qty_served)
+  isDelta?:   boolean      // true → this row comes from a 🔍 Kiểm tra (checked) table, shown as a +N preview
 }
 
 export interface DishSummaryRow {
-  label:     string                              // 'Bánh' | 'Trứng' | 'Giò' | 'Canh' | <raw name>
-  total:     number
-  breakdown: { label: string; qty: number }[]    // nhân (thịt/mộc nhĩ/không nhân) or rau (có/không)
-  details:   DishSummaryDetail[]                  // per-table breakdown (table + topping + note)
+  label:      string                                            // 'Bánh' | 'Trứng' | 'Giò' | 'Canh' | <raw name>
+  total:      number                                            // base total (excludes checked tables)
+  deltaTotal: number                                            // extra from 🔍 Kiểm tra tables (0 when none checked)
+  breakdown:  { label: string; qty: number; delta: number }[]   // nhân/rau split — qty = base, delta = checked
+  details:    DishSummaryDetail[]                               // per-table breakdown; base rows first, delta rows after
 }
 
 // Category order is fixed so the strip always reads Bánh → Trứng → Giò → Canh.
@@ -131,29 +133,45 @@ function dishCategory(name: string): string {
   return hit ? hit.label : name   // unknown dishes keep their own name as a category
 }
 
-export function summarizeTableDishes(orders: Order[], tables: { id: string; name: string }[] = []): DishSummaryRow[] {
+// `checkedTableIds` = tables marked 🔍 Kiểm tra. Their dishes are pulled OUT of the
+// base totals and re-surfaced as a delta (`deltaTotal` / breakdown `delta` / detail `isDelta`),
+// so staff can preview the extra prep load without touching the committed numbers.
+// Empty set (default) → byte-for-byte the original base-only summary.
+export function summarizeTableDishes(
+  orders: Order[],
+  tables: { id: string; name: string }[] = [],
+  checkedTableIds: Set<string> = new Set(),
+): DishSummaryRow[] {
   const tableName = new Map(tables.map(t => [t.id, t.name]))
-  // label → { total, breakdown: topping → qty, details: table|topping|note → detail }
+  // label → { total, deltaTotal, breakdown: topping → { qty, delta }, details: prefix|table|topping|note → detail }
   const cats = new Map<string, {
     total: number
-    breakdown: Map<string, number>
+    deltaTotal: number
+    breakdown: Map<string, { qty: number; delta: number }>
     details: Map<string, DishSummaryDetail>
   }>()
   for (const o of orders) {
+    const isChecked = o.table_id ? checkedTableIds.has(o.table_id) : false
     const label_ = o.table_name ?? (o.table_id ? tableName.get(o.table_id) : null) ?? '—'
     for (const it of o.items.filter(isKitchenItem)) {
       const label = dishCategory(it.name)
-      const row   = cats.get(label) ?? { total: 0, breakdown: new Map<string, number>(), details: new Map<string, DishSummaryDetail>() }
+      const row   = cats.get(label) ?? { total: 0, deltaTotal: 0, breakdown: new Map<string, { qty: number; delta: number }>(), details: new Map<string, DishSummaryDetail>() }
       const topping = toppingLabel(it)
       const note    = it.note?.trim() || null
-      row.total += it.quantity
-      row.breakdown.set(topping, (row.breakdown.get(topping) ?? 0) + it.quantity)
       const served    = Math.min(it.qty_served, it.quantity)
       const remaining = Math.max(0, it.quantity - it.qty_served)
-      const dKey = `${label_}|${topping}|${note ?? ''}`
+
+      const b = row.breakdown.get(topping) ?? { qty: 0, delta: 0 }
+      if (isChecked) { row.deltaTotal += it.quantity; b.delta += it.quantity }
+      else           { row.total      += it.quantity; b.qty   += it.quantity }
+      row.breakdown.set(topping, b)
+
+      // Key base vs delta separately so a checked table keeps its own (delta) row even
+      // when its table/topping/note matches an existing base row.
+      const dKey = `${isChecked ? 'D' : 'B'}|${label_}|${topping}|${note ?? ''}`
       const d = row.details.get(dKey)
       if (d) { d.qty += it.quantity; d.served += served; d.remaining += remaining }
-      else   row.details.set(dKey, { tableLabel: label_, topping, note, qty: it.quantity, served, remaining })
+      else   row.details.set(dKey, { tableLabel: label_, topping, note, qty: it.quantity, served, remaining, isDelta: isChecked })
       cats.set(label, row)
     }
   }
@@ -162,20 +180,25 @@ export function summarizeTableDishes(orders: Order[], tables: { id: string; name
   return Array.from(cats.entries())
     .map(([label, r]) => ({
       label,
-      total:     r.total,
-      breakdown: Array.from(r.breakdown.entries())
-        .map(([bl, qty]) => ({ label: bl, qty }))
-        .sort((a, b) => b.qty - a.qty),
-      details:   Array.from(r.details.values())
-        .sort((a, b) => a.tableLabel.localeCompare(b.tableLabel, 'vi')),
+      total:      r.total,
+      deltaTotal: r.deltaTotal,
+      breakdown:  Array.from(r.breakdown.entries())
+        .map(([bl, v]) => ({ label: bl, qty: v.qty, delta: v.delta }))
+        .sort((a, b) => (b.qty + b.delta) - (a.qty + a.delta)),
+      details:    Array.from(r.details.values())
+        .sort((a, b) => {
+          // Base rows first, delta (Kiểm tra) rows after; each alphabetical by table.
+          if (!!a.isDelta !== !!b.isDelta) return a.isDelta ? 1 : -1
+          return a.tableLabel.localeCompare(b.tableLabel, 'vi')
+        }),
     }))
     .sort((a, b) => {
       const ia = order.indexOf(a.label), ib = order.indexOf(b.label)
-      // Known categories first in fixed order; unknown dishes after, by qty desc.
+      // Known categories first in fixed order; unknown dishes after, by total qty desc.
       if (ia !== -1 && ib !== -1) return ia - ib
       if (ia !== -1) return -1
       if (ib !== -1) return 1
-      return b.total - a.total
+      return (b.total + b.deltaTotal) - (a.total + a.deltaTotal)
     })
 }
 

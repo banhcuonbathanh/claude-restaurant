@@ -129,6 +129,10 @@ export default function OverviewPage() {
     })
   }
 
+  // Kiểm tra is selected per-order in WaitingSection; the Tổng món delta needs the table ids.
+  const kiemTraTableIds = new Set<string>()
+  for (const o of orders) if (kiemTraIds.has(o.id) && o.table_id) kiemTraTableIds.add(o.table_id)
+
   // ── Derived data ───────────────────────────────────────────────────────────
 
   const tableMap = new Map(tables.map(t => [t.id, t]))
@@ -222,6 +226,8 @@ export default function OverviewPage() {
         onCancel={async (orderId) => {
           await handleAction(orderId, 'cancelled')
         }}
+        kiemTraTableIds={kiemTraTableIds}
+        onClearKiemTra={() => setKiemTraIds(new Set())}
         belowSummary={
           /* Zone B — "Danh sách bàn cần chuẩn bị": right below the dish summary, above the Bàn list */
           <WaitingSection

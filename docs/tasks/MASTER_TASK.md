@@ -441,6 +441,19 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 ---
 
+## Phase OV-KIEMTRA — Admin Overview "Kiểm tra" What-If Preview
+
+> **Owner:** FE
+> **Dependency:** Admin Overview Zone B/C/D ✅
+> **Status:** ✅ COMPLETE (2026-06-29)
+> **Goal:** Clicking 🔍 Kiểm tra on a WaitingSection row lights that row's border (indigo), pulls that table's dishes OUT of the **Tổng món** base, and re-shows them as a separate `+N` delta on both the category chips and the per-table detail table — a what-if preview so staff can decide whether to fold more tables into the current prep batch, and back out freely.
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| OV-KIEMTRA-DELTA | FE | `overview.helpers.ts`: `summarizeTableDishes` takes optional `checkedTableIds` → returns base `total`/`breakdown`/`details` PLUS `deltaTotal`, per-breakdown `delta`, and delta-flagged detail rows; checked tables excluded from base. `TableSection.tsx`: chips show `×base (+delta)`, detail table appends highlighted `(+N)` rows for checked tables, "Bỏ kiểm tra (n)" clear button. `overview/page.tsx`: derive `kiemTraTableIds` from `kiemTraIds`, pass + `clearKiemTra`. `WaitingSection.tsx`: indigo border+ring on checked rows. | — | 1 | ✅ | tsc 0 new errors (2 pre-existing AuthState in staff-order-flow.test.ts unrelated); lint 0; default (nothing checked) identical to today; checking a table removes it from base & shows `(+N)` on chips + highlighted detail rows; uncheck folds back; "Bỏ kiểm tra" clears all |
+
+---
+
 ## Critical Rules (Never Forget)
 
 | Rule | Detail |

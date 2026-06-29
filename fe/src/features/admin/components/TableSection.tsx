@@ -18,6 +18,8 @@ interface Props {
   onPaymentDone:   (orderId: string) => void
   onCancel:        (orderId: string) => Promise<void>
   belowSummary?:   ReactNode   // rendered between the dish summary and the Bàn list
+  kiemTraTableIds?: Set<string>   // tables marked 🔍 Kiểm tra — shown as a +N delta in Tổng món
+  onClearKiemTra?: () => void     // clears all Kiểm tra selections
 }
 
 export function TableSection({
@@ -32,14 +34,19 @@ export function TableSection({
   onPaymentDone,
   onCancel,
   belowSummary,
+  kiemTraTableIds,
+  onClearKiemTra,
 }: Props) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
   const [openDish, setOpenDish] = useState<string | null>(null)
   const [showAll,  setShowAll]  = useState(false)
 
   // Total dishes across every active table — Bánh · Trứng · Giò · Canh, each with nhân/rau split.
-  const dishSummary = summarizeTableDishes(listOrders, tables)
-  const dishTotal   = dishSummary.reduce((s, r) => s + r.total, 0)
+  // 🔍 Kiểm tra tables are split off into the delta (deltaTotal / breakdown.delta / detail.isDelta).
+  const dishSummary  = summarizeTableDishes(listOrders, tables, kiemTraTableIds)
+  const dishTotal    = dishSummary.reduce((s, r) => s + r.total, 0)
+  const dishDelta    = dishSummary.reduce((s, r) => s + r.deltaTotal, 0)
+  const kiemTraCount = kiemTraTableIds?.size ?? 0
 
   // Per-table detail block for one dish — reused by single-dish expand and "Xem tất cả".
   function renderDishDetail(row: typeof dishSummary[number]) {
@@ -60,13 +67,17 @@ export function TableSection({
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
             {row.details.map((d, i) => (
-              <tr key={i}>
-                <td className="px-3 py-1.5 font-semibold text-gray-800 dark:text-gray-100 whitespace-nowrap">{d.tableLabel}</td>
+              // Delta rows (🔍 Kiểm tra tables) light up in indigo with a +N marker — kept separate from the base.
+              <tr key={i} className={d.isDelta ? 'bg-indigo-50/70 dark:bg-indigo-900/20 border-l-2 border-l-indigo-500' : ''}>
+                <td className="px-3 py-1.5 font-semibold text-gray-800 dark:text-gray-100 whitespace-nowrap">
+                  {d.tableLabel}
+                  {d.isDelta && <span className="ml-1 text-[10px] font-bold text-indigo-600 dark:text-indigo-300">🔍</span>}
+                </td>
                 <td className="px-2 py-1.5 text-gray-500 dark:text-gray-400">
                   {d.topping}
                   {d.note && <span className="text-amber-600 dark:text-amber-400 italic ml-1">({d.note})</span>}
                 </td>
-                <td className="px-2 py-1.5 text-right font-bold text-indigo-600 dark:text-indigo-400 tabular-nums">{d.qty}</td>
+                <td className={`px-2 py-1.5 text-right font-bold tabular-nums ${d.isDelta ? 'text-indigo-600 dark:text-indigo-300' : 'text-indigo-600 dark:text-indigo-400'}`}>{d.isDelta ? `+${d.qty}` : d.qty}</td>
                 <td className="px-2 py-1.5 text-right font-semibold text-green-600 dark:text-green-400 tabular-nums">{d.served}</td>
                 <td className={`px-3 py-1.5 text-right font-bold tabular-nums ${d.remaining > 0 ? 'text-orange-600 dark:text-orange-400' : 'text-gray-400 dark:text-gray-600'}`}>{d.remaining}</td>
               </tr>
@@ -104,11 +115,27 @@ export function TableSection({
       </div>
 
       {/* Dish summary — total Bánh / Trứng / Giò / Canh across all tables, with nhân/rau split */}
-      {dishTotal > 0 && (
+      {(dishTotal > 0 || dishDelta > 0) && (
         <div className="mb-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 px-3 py-2.5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Tổng món</span>
+            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-1.5">
+              Tổng món
+              {kiemTraCount > 0 && (
+                <span className="normal-case text-[11px] font-medium text-indigo-600 dark:text-indigo-300">
+                  🔍 đang kiểm tra {kiemTraCount} bàn
+                </span>
+              )}
+            </span>
             <div className="flex items-center gap-2">
+              {kiemTraCount > 0 && onClearKiemTra && (
+                <button
+                  type="button"
+                  onClick={onClearKiemTra}
+                  className="text-xs font-semibold px-2 py-0.5 rounded-md border border-indigo-300 dark:border-indigo-700 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors"
+                >
+                  Bỏ kiểm tra ({kiemTraCount})
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => { setShowAll(v => !v); setOpenDish(null) }}
@@ -120,7 +147,10 @@ export function TableSection({
               >
                 {showAll ? 'Thu gọn' : 'Xem tất cả'}
               </button>
-              <span className="text-xs font-bold bg-indigo-600 text-white px-2 py-0.5 rounded-md">{dishTotal} phần</span>
+              <span className="text-xs font-bold bg-indigo-600 text-white px-2 py-0.5 rounded-md">
+                {dishTotal} phần
+                {dishDelta > 0 && <span className="ml-1 text-indigo-100">(+{dishDelta})</span>}
+              </span>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -139,12 +169,14 @@ export function TableSection({
                 >
                   <span className="text-sm font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-1">
                     {row.label} <span className="text-indigo-600 dark:text-indigo-400 font-bold">×{row.total}</span>
+                    {row.deltaTotal > 0 && <span className="text-indigo-500 dark:text-indigo-300 font-bold text-xs">(+{row.deltaTotal})</span>}
                     <span className="text-indigo-400 text-[10px]">{isOpen ? '▲' : '▼'}</span>
                   </span>
                   <span className="flex flex-wrap gap-x-2 gap-y-0.5 text-xs text-gray-500 dark:text-gray-400">
                     {row.breakdown.map(b => (
                       <span key={b.label} className="whitespace-nowrap">
                         {b.label} <span className="font-semibold text-gray-700 dark:text-gray-300">×{b.qty}</span>
+                        {b.delta > 0 && <span className="font-bold text-indigo-500 dark:text-indigo-300"> (+{b.delta})</span>}
                       </span>
                     ))}
                   </span>

@@ -144,8 +144,14 @@ export function WaitingSection({
           const pendingItems = kitItems.filter(i => i.quantity - i.qty_served > 0)
           const summaryRows  = summarizePending(pendingItems)
 
+          // When 🔍 Kiểm tra is active, the whole row lights up in the button's indigo — staff
+          // can see at a glance which tables are folded into the Tổng món preview.
+          const rowHighlight = isKiemTra
+            ? 'border-l-4 border-l-indigo-500 ring-1 ring-inset ring-indigo-400/60 bg-indigo-50/50 dark:bg-indigo-900/20'
+            : borderL
+
           return (
-            <div key={order.id} className={`border-b border-gray-100 dark:border-gray-700 last:border-b-0 ${borderL}`}>
+            <div key={order.id} className={`border-b border-gray-100 dark:border-gray-700 last:border-b-0 ${rowHighlight}`}>
 
               {/* ── Desktop row ── */}
               <div
