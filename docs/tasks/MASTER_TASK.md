@@ -44,6 +44,7 @@
 | **DEPLOY — Server Deployment (Mac test server → VPS go-live)** | DevOps | 🔄 Stage A ✅ (D-1→D-5) · Stage B blocked on owner | ~2 | D-6 (owner: buy VPS + domain) |
 | P-FEQA — FE Code Quality Audit | FE | 🔄 IN PROGRESS | TBD | P-FEQA-2 (apply findings from `docs/fe/quality_audit/SUMMARY.md`) |
 | **GAP-8 — Combo Card Multi-Nhân + Orange Hearts** | FE | ✅ COMPLETE | 0 | — |
+| **P-MERGE — Merge /order + /tracking → unified /orders page** | FE | ✅ CORE DONE (A·B·D) · C deferred | ~1 | P-MERGE-C (TỔNG SỐ MÓN aggregated rollup — design polish) |
 
 ---
 

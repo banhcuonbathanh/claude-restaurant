@@ -7,7 +7,7 @@ const TABS = [
   { href: '/menu',            icon: Home,           label: 'Trang Chủ' },
   { href: '/menu',            icon: UtensilsCrossed, label: 'Thực Đơn' },
   { href: '/menu/favourites', icon: Heart,           label: 'Yêu Thích' },
-  { href: '/order',           icon: ClipboardList,   label: 'Lịch Sử' },
+  { href: '/orders',          icon: ClipboardList,   label: 'Lịch Sử' },
   { href: '/profile',         icon: User,            label: 'Hồ Sơ' },
 ] as const
 

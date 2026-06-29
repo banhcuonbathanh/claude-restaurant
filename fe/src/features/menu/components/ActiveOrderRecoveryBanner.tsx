@@ -55,7 +55,7 @@ export function ActiveOrderRecoveryBanner({ suppressed = false }: { suppressed?:
         Đơn hàng <span className="font-semibold">#{order.order_number}</span> đang xử lý — thêm món?
       </p>
       <button
-        onClick={() => router.push(`/order/${activeOrderId}`)}
+        onClick={() => router.push(`/orders?id=${activeOrderId}`)}
         className="text-xs text-primary underline underline-offset-2 shrink-0"
       >
         Xem đơn

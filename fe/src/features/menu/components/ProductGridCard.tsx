@@ -7,6 +7,7 @@ import { useCartStore } from '@/store/cart'
 import { useFavouritesStore } from '@/store/favourites'
 import type { Product } from '@/types/product'
 import { formatVND } from '@/lib/utils'
+import { flyToCart } from '@/lib/fly-to-cart'
 
 interface Props {
   product: Product
@@ -34,7 +35,7 @@ export function ProductGridCard({ product }: Props) {
     ? `${process.env.NEXT_PUBLIC_STORAGE_URL ?? ''}/${product.image_path}`
     : null
 
-  const handleAdd = () => {
+  const handleAdd = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (qty === 0) {
       addItem({
         id:         cartId,
@@ -48,6 +49,7 @@ export function ProductGridCard({ product }: Props) {
     } else {
       updateQty(cartId, qty + 1)
     }
+    flyToCart(e.currentTarget)
   }
 
   return (

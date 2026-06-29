@@ -38,7 +38,8 @@
 │ └──────────────────────────────────┘           │
 ├────────────────────────────────────────────────┤
 │ Đơn của bạn  ◉ Bàn 04 (spinning ring)  ⌄      │ ← I OrderSummary                ⚠️ NEW DESIGN
-│   ghi chú: Gia đình (mẹ + 2 người lớn + 2 trẻ)│   order note pre-filled — code pending rebuild
+│   Món đã chọn ⌄ · Canh stepper · Tổng số món ⌄│   collapsible groups (rebuilt)
+│   ghi chú: Gia đình (mẹ + 2 người lớn + 2 trẻ)│   order note pre-filled
 ├────────────────────────────────────────────────┤
 │                              [🛒 13]           │ ← J Floating cart pill (bottom-right)
 │                           [Thanh toán]         │   ✅ NEW DESIGN — rebuilt (GAP-9-CHECKOUT)
@@ -206,28 +207,34 @@ away (order → settings → menu) **without re-scanning the QR**. Self-validati
 
 ---
 
-**I · OrderSummary** — store read + the canh-shake gate; owns the order note. ⚠️ NEW DESIGN — code pending rebuild.
+**I · OrderSummary** — store read + the canh-shake gate; owns the order note. ⚠️ NEW DESIGN — rebuilt.
 
 ```
 ┌──────────────────────────────────────────────────────┐
 │ Tóm tắt đơn hàng  ◉ Bàn 04 (spinning orange ring) ⌄ │   ◀── ⚡ items[]   (live preview)
-│                                                      │   ◀── ⚡ useCartStore.tableName → "Bàn 04" pill
-│  COMBO                               Subtotal 80.000đ│        wrapped in slowly spinning orange light ring
-│    Suất Đầy Đủ Trứng Chín  – 1 +  30.000đ  🗑       │        (animated conic gradient — ⚠️ NEW DESIGN)
-│    Suất Giò                – 2 +  50.000đ  🗑       │
-│  MÓN LẺ                              Subtotal 23.000đ│   Worked example (Bàn 04 family order):
-│    Bánh Trứng Vàng         – 2 +  18.000đ  🗑       │     COMBO: 1× Suất Đầy Đủ Trứng Chín (30k)
-│    Bánh Chay               – 2 +   5.000đ  🗑       │             2× Suất Giò (50k) → subtotal 80k
-│    Canh có rau             – 4 +   0 đ    🗑       │     MÓN LẺ: 2× Bánh Trứng Vàng (18k)
-│    Canh không rau          – 2 +   0 đ    🗑       │             2× Bánh Chay (5k)
-│  Tổng cộng:                         103.000 đ        │             4× Canh có rau (0đ)
-│                                                      │             2× Canh không rau (0đ) → subtotal 23k
-│  GHI CHÚ: [Gia đình (mẹ + 2 người lớn + 2 trẻ)]    │     Total: 103.000 đ
+│                                            [⌄ Ẩn]   │   ◀── ⚡ useCartStore.tableName → "Bàn 04" pill
+│  Món đã chọn                               [⌄ Ẩn]   │        wrapped in slowly spinning orange light ring
+│  ─ COMBO                             Subtotal 80.000đ│        (animated conic gradient — ⚠️ NEW DESIGN)
+│    Suất Đầy Đủ Trứng Chín  – 1 +  30.000đ  🗑       │
+│    Suất Giò                – 2 +  50.000đ  🗑       │   Worked example (Bàn 04 family order):
+│  ─ MÓN LẺ                            Subtotal 23.000đ│     COMBO: 1× Suất Đầy Đủ Trứng Chín (30k)
+│    Bánh Trứng Vàng         – 2 +  18.000đ  🗑       │             2× Suất Giò (50k) → subtotal 80k
+│    Bánh Chay               – 2 +   5.000đ  🗑       │     MÓN LẺ: 2× Bánh Trứng Vàng (18k)
+│  ─ Canh                                              │             2× Bánh Chay (5k) → subtotal 23k
+│    Bát có rau              – 4 +                     │     Canh : 4× Bát có rau (0đ)
+│    Bát không rau           – 2 +                     │             2× Bát không rau (0đ)
+│  Tổng cộng:                         103.000 đ        │     Total: 103.000 đ
+│  Tổng số món (4 loại)                      [⌄ Ẩn]   │
+│  GHI CHÚ: [Gia đình (mẹ + 2 người lớn + 2 trẻ)]    │
 └──────────────────────────────────────────────────────┘
    ◀──▶ ⚡ orderNote  (setOrderNote — persisted field)
+   "Món đã chọn" toggle (itemsOpen) hides/shows COMBO + MÓN LẺ + Canh + Tổng cộng as ONE block.
+   "Tổng số món" (dishSummaryOpen) + the top "Tóm tắt đơn hàng" (open) are independent toggles.
+   Canh is its OWN stepper section (Bát có rau / Bát không rau) between MÓN LẺ and Tổng cộng —
+     NOT a row inside MÓN LẺ, and excluded from each combo's "Chi tiết" sub-item list.
    Pre-filled value: "Gia đình (mẹ + 2 người lớn + 2 trẻ)" — ⚠️ NEW DESIGN (was empty placeholder).
    No "Gọi thêm" badge anywhere in the order summary — ⚠️ NEW DESIGN (removed).
-   gate: items.some(id startsWith 'canh_')===false → SHAKE 🔴
+   gate: items.some(id startsWith 'canh_')===false → SHAKE 🔴 (auto-expands "Món đã chọn" first)
 ```
 
 **J · Floating cart + checkout buttons** — two stacked pill buttons pinned bottom-right; appear only when cart is non-empty. ⚠️ NEW DESIGN — code pending rebuild.

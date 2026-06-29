@@ -97,6 +97,88 @@ export function summarizePending(items: OrderItem[]): PrepSummaryRow[] {
   return Array.from(map.values())
 }
 
+// ── Dish summary for "Danh sách bàn" ────────────────────────────────────────
+// Aggregate every kitchen item across the given orders into the 4 dish
+// categories (Bánh · Trứng · Giò · Canh), each with its nhân / rau breakdown.
+// Quantity = total ordered (full count on the floor), not remaining-to-cook.
+export interface DishSummaryDetail {
+  tableLabel: string
+  topping:    string       // nhân or rau
+  note:       string | null
+  qty:        number       // total ordered
+  served:     number       // already served (qty_served)
+  remaining:  number       // still to make (qty - qty_served)
+}
+
+export interface DishSummaryRow {
+  label:     string                              // 'Bánh' | 'Trứng' | 'Giò' | 'Canh' | <raw name>
+  total:     number
+  breakdown: { label: string; qty: number }[]    // nhân (thịt/mộc nhĩ/không nhân) or rau (có/không)
+  details:   DishSummaryDetail[]                  // per-table breakdown (table + topping + note)
+}
+
+// Category order is fixed so the strip always reads Bánh → Trứng → Giò → Canh.
+const DISH_CATEGORIES: { key: string; label: string }[] = [
+  { key: 'bánh',  label: 'Bánh'  },
+  { key: 'trứng', label: 'Trứng' },
+  { key: 'giò',   label: 'Giò'   },
+  { key: 'canh',  label: 'Canh'  },
+]
+
+function dishCategory(name: string): string {
+  const n = name.toLowerCase()
+  const hit = DISH_CATEGORIES.find(c => n.includes(c.key))
+  return hit ? hit.label : name   // unknown dishes keep their own name as a category
+}
+
+export function summarizeTableDishes(orders: Order[], tables: { id: string; name: string }[] = []): DishSummaryRow[] {
+  const tableName = new Map(tables.map(t => [t.id, t.name]))
+  // label → { total, breakdown: topping → qty, details: table|topping|note → detail }
+  const cats = new Map<string, {
+    total: number
+    breakdown: Map<string, number>
+    details: Map<string, DishSummaryDetail>
+  }>()
+  for (const o of orders) {
+    const label_ = o.table_name ?? (o.table_id ? tableName.get(o.table_id) : null) ?? '—'
+    for (const it of o.items.filter(isKitchenItem)) {
+      const label = dishCategory(it.name)
+      const row   = cats.get(label) ?? { total: 0, breakdown: new Map<string, number>(), details: new Map<string, DishSummaryDetail>() }
+      const topping = toppingLabel(it)
+      const note    = it.note?.trim() || null
+      row.total += it.quantity
+      row.breakdown.set(topping, (row.breakdown.get(topping) ?? 0) + it.quantity)
+      const served    = Math.min(it.qty_served, it.quantity)
+      const remaining = Math.max(0, it.quantity - it.qty_served)
+      const dKey = `${label_}|${topping}|${note ?? ''}`
+      const d = row.details.get(dKey)
+      if (d) { d.qty += it.quantity; d.served += served; d.remaining += remaining }
+      else   row.details.set(dKey, { tableLabel: label_, topping, note, qty: it.quantity, served, remaining })
+      cats.set(label, row)
+    }
+  }
+
+  const order = DISH_CATEGORIES.map(c => c.label)
+  return Array.from(cats.entries())
+    .map(([label, r]) => ({
+      label,
+      total:     r.total,
+      breakdown: Array.from(r.breakdown.entries())
+        .map(([bl, qty]) => ({ label: bl, qty }))
+        .sort((a, b) => b.qty - a.qty),
+      details:   Array.from(r.details.values())
+        .sort((a, b) => a.tableLabel.localeCompare(b.tableLabel, 'vi')),
+    }))
+    .sort((a, b) => {
+      const ia = order.indexOf(a.label), ib = order.indexOf(b.label)
+      // Known categories first in fixed order; unknown dishes after, by qty desc.
+      if (ia !== -1 && ib !== -1) return ia - ib
+      if (ia !== -1) return -1
+      if (ib !== -1) return 1
+      return b.total - a.total
+    })
+}
+
 export function urgencyBorder(createdAt: string, now: number): string {
   const mins = elapsedMins(createdAt, now)
   if (mins > 20) return 'border-red-400'

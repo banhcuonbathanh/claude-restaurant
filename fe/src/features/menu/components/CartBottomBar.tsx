@@ -20,6 +20,7 @@ export function CartBottomBar({ onCheckout, onViewSummary, dimmed = false }: Pro
       {/* Cart pill — scrolls to order summary */}
       <button
         onClick={onViewSummary}
+        data-cart-fly-target
         className="relative bg-card text-foreground rounded-full w-12 h-12 flex items-center justify-center shadow-lg border border-border"
         aria-label="Xem tóm tắt đơn hàng"
       >

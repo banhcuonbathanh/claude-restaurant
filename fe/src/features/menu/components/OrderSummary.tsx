@@ -24,6 +24,7 @@ export function OrderSummary({
   canhKhongRau?: Product | null
 }) {
   const [open, setOpen] = useState(true)
+  const [itemsOpen, setItemsOpen] = useState(true)
   const [dishSummaryOpen, setDishSummaryOpen] = useState(true)
   const [expandedCombos, setExpandedCombos] = useState<Set<string>>(new Set())
   const [noteSaved, setNoteSaved] = useState(false)
@@ -33,6 +34,11 @@ export function OrderSummary({
 
   useEffect(() => {
     if (!shakeKey) return
+    setItemsOpen(true) // ensure the Canh stepper is visible before shaking it
+  }, [shakeKey])
+
+  useEffect(() => {
+    if (!shakeKey || !itemsOpen) return
     const el = canhRef.current
     if (!el) return
     el.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -74,7 +80,9 @@ export function OrderSummary({
   const canhMissing = totalCanh === 0
 
   const combos   = items.filter(i => i.type === 'combo')
-  const products = items.filter(i => i.type === 'product')
+  // Canh items (id starts 'canh_') are managed by the dedicated Canh stepper below,
+  // so keep them out of the MÓN LẺ list.
+  const products = items.filter(i => i.type === 'product' && !i.id.startsWith('canh_'))
   const comboTotal   = combos.reduce((s, i) => s + i.price * i.quantity, 0)
   const productTotal = products.reduce((s, i) => s + i.price * i.quantity, 0)
 
@@ -143,7 +151,18 @@ export function OrderSummary({
 
       {open && (
         <div className="mt-3 space-y-3">
-          {combos.length > 0 && (
+          {(combos.length > 0 || products.length > 0) && (
+            <button
+              onClick={() => setItemsOpen(o => !o)}
+              className="w-full flex items-center justify-between min-h-[36px]"
+            >
+              <span className="text-xs font-semibold text-muted-fg uppercase tracking-wide">Món đã chọn</span>
+              <span className="text-muted-fg text-xs flex items-center gap-1">
+                {itemsOpen ? <><ChevronDown size={14} /> Ẩn</> : <><ChevronRight size={14} /> Hiện</>}
+              </span>
+            </button>
+          )}
+          {itemsOpen && combos.length > 0 && (
             <ItemGroup
               title="COMBO"
               items={combos}
@@ -155,7 +174,7 @@ export function OrderSummary({
               updateComboItem={updateComboItem}
             />
           )}
-          {products.length > 0 && (
+          {itemsOpen && products.length > 0 && (
             <ItemGroup
               title="MÓN LẺ"
               items={products}
@@ -167,11 +186,8 @@ export function OrderSummary({
               updateComboItem={updateComboItem}
             />
           )}
-          <div className="pt-2 border-t border-border flex items-center justify-between">
-            <span className="text-sm font-bold text-foreground">Tổng cộng:</span>
-            <span className="text-primary font-bold">{formatVND(total())}</span>
-          </div>
-
+          {itemsOpen && (
+          <>
           {/* Canh summary — steppers write canh CartItems */}
           <div
             ref={canhRef}
@@ -216,6 +232,13 @@ export function OrderSummary({
               )
             })}
           </div>
+
+          <div className="pt-2 border-t border-border flex items-center justify-between">
+            <span className="text-sm font-bold text-foreground">Tổng cộng:</span>
+            <span className="text-primary font-bold">{formatVND(total())}</span>
+          </div>
+          </>
+          )}
 
           {/* Tổng số món — aggregated dish counts */}
           {dishSummary.length > 0 && (
@@ -372,7 +395,7 @@ function ItemGroup({
               {/* Combo sub-items */}
               {hasSubItems && isExpanded && (
                 <ul className="mt-2 ml-2 space-y-1.5 border-l-2 border-border pl-3">
-                  {item.combo_items!.map((ci) => (
+                  {item.combo_items!.filter((ci) => !isSoupName(ci.product_name)).map((ci) => (
                     <li key={ci.product_name} className="flex items-center gap-2">
                       <span className="text-xs text-muted-fg flex-1 line-clamp-1">{ci.product_name}</span>
                       <QtyControls

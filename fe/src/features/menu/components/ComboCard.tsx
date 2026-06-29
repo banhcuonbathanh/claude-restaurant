@@ -7,6 +7,7 @@ import { useCartStore } from '@/store/cart'
 import { useFavouritesStore } from '@/store/favourites'
 import type { Combo, Topping } from '@/types/product'
 import { formatVND } from '@/lib/utils'
+import { flyToCart } from '@/lib/fly-to-cart'
 import { ComboModal } from './ComboModal'
 
 interface Props {
@@ -73,7 +74,7 @@ export function ComboCard({ combo }: Props) {
     ? `${process.env.NEXT_PUBLIC_STORAGE_URL ?? ''}/${combo.image_path}`
     : null
 
-  const handleAdd = () => {
+  const handleAdd = (e?: React.MouseEvent<HTMLButtonElement>) => {
     if (qty === 0) {
       addItem({
         id:          cartId,
@@ -94,6 +95,7 @@ export function ComboCard({ combo }: Props) {
     } else {
       updateQty(cartId, qty + 1)
     }
+    flyToCart(e?.currentTarget ?? null)
   }
 
   const handleModalConfirm = () => {

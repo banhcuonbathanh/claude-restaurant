@@ -50,7 +50,7 @@ export function TableConfirmModal({ onClose }: { onClose: () => void }) {
       // from any page until it is paid/cancelled.
       if (order?.id) cart.setActiveOrderId(order.id)
       // Use router.replace (client-side nav) to preserve auth token in Zustand across navigation
-      router.replace(order?.id ? `/order/${order.id}` : '/order')
+      router.replace(order?.id ? `/orders?id=${order.id}` : '/orders')
     },
     onError: (err: unknown) => {
       const resp = (err as { response?: { data?: { message?: string } } }).response

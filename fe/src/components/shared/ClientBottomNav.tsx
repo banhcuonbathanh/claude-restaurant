@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { UtensilsCrossed, ReceiptText, Heart, MapPin, Settings } from 'lucide-react'
+import { UtensilsCrossed, ReceiptText, Heart, Settings } from 'lucide-react'
 
 /** Springy easing shared by the indicator + pills — overshoots, then settles. */
 const SPRING = '[transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]'
@@ -23,10 +23,10 @@ function label(active: boolean) {
   }`
 }
 
-/** active index among the 5 nav tabs (-1 = none active, indicator hidden) */
+/** active index among the 4 nav tabs (-1 = none active, indicator hidden) */
 function indicatorClass(active: number) {
   const visible = active >= 0
-  return `pointer-events-none absolute top-0 left-0 h-[3px] w-1/5 px-3 duration-500 ${SPRING} transition-all ${
+  return `pointer-events-none absolute top-0 left-0 h-[3px] w-1/4 px-3 duration-500 ${SPRING} transition-all ${
     visible ? 'opacity-100' : 'opacity-0'
   }`
 }
@@ -37,12 +37,12 @@ export function ClientBottomNav() {
   const isMenu     = pathname?.startsWith('/menu')
     && !pathname.startsWith('/menu/favourites')
     && !pathname.startsWith('/menu/settings')
-  const isOrder    = pathname?.startsWith('/order')
+  // /orders absorbed the old /order + /tracking routes (both now redirect here).
+  const isOrders   = pathname?.startsWith('/order') || pathname?.startsWith('/tracking')
   const isFav      = pathname?.startsWith('/menu/favourites')
-  const isTracking = pathname?.startsWith('/tracking')
   const isSettings = pathname?.startsWith('/menu/settings')
 
-  const activeIndex = isMenu ? 0 : isOrder ? 1 : isFav ? 2 : isTracking ? 3 : isSettings ? 4 : -1
+  const activeIndex = isMenu ? 0 : isOrders ? 1 : isFav ? 2 : isSettings ? 3 : -1
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-border bg-card shadow-[0_-4px_24px_-10px_rgba(0,0,0,0.7)] pb-safe">
@@ -62,11 +62,11 @@ export function ClientBottomNav() {
           <span className={label(!!isMenu)}>Menu</span>
         </Link>
 
-        <Link href="/order" className={itemBase} aria-current={isOrder ? 'page' : undefined}>
-          <span className={pill(!!isOrder)}>
+        <Link href="/orders" className={itemBase} aria-current={isOrders ? 'page' : undefined}>
+          <span className={pill(!!isOrders)}>
             <ReceiptText size={19} />
           </span>
-          <span className={label(!!isOrder)}>Đơn Hàng</span>
+          <span className={label(!!isOrders)}>Đơn Hàng</span>
         </Link>
 
         <Link
@@ -78,13 +78,6 @@ export function ClientBottomNav() {
             <Heart size={19} className={isFav ? 'fill-primary' : ''} />
           </span>
           <span className={label(!!isFav)}>Yêu Thích</span>
-        </Link>
-
-        <Link href="/tracking" className={itemBase} aria-current={isTracking ? 'page' : undefined}>
-          <span className={pill(!!isTracking)}>
-            <MapPin size={19} />
-          </span>
-          <span className={label(!!isTracking)}>Theo Dõi</span>
         </Link>
 
         <Link

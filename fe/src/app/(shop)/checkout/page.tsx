@@ -75,7 +75,7 @@ export default function CheckoutPage() {
       // from any page until it is paid/cancelled.
       if (order?.id) cart.setActiveOrderId(order.id)
       // Use router.replace (client-side nav) to preserve auth token in Zustand across navigation
-      router.replace(order?.id ? `/order/${order.id}` : '/order')
+      router.replace(order?.id ? `/orders?id=${order.id}` : '/orders')
     },
     onError: (err: unknown) => {
       const resp = (err as { response?: { data?: { error?: string; message?: string; details?: { active_order_id?: string } } } }).response
@@ -84,7 +84,7 @@ export default function CheckoutPage() {
         const activeId = resp?.data?.details?.active_order_id
         if (activeId) cart.setActiveOrderId(activeId)
         // Use router.replace (client-side nav) to preserve auth token in Zustand across navigation
-        router.replace(activeId ? `/order/${activeId}` : '/order')
+        router.replace(activeId ? `/orders?id=${activeId}` : '/orders')
         return
       }
       toast.error(resp?.data?.message ?? 'Đặt hàng thất bại')

@@ -84,7 +84,7 @@ export function CartDrawer({ open, onClose, addToOrderId, onTableCheckout }: Pro
           <div className="flex items-center gap-2">
             {activeOrderId && (
               <button
-                onClick={() => { onClose(); router.push('/order') }}
+                onClick={() => { onClose(); router.push('/orders') }}
                 className="flex items-center gap-1.5 text-xs text-primary border border-primary/40 px-2.5 py-1.5 rounded-lg hover:bg-primary/10 transition-colors font-medium"
               >
                 <ClipboardList size={13} />

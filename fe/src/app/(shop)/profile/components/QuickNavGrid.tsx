@@ -12,7 +12,7 @@ interface QuickNavCardData {
 const CARDS: QuickNavCardData[] = [
   { icon: '🍽️', title: 'Thực Đơn',    subtitle: 'Xem & đặt món',     href: '/menu',             highlighted: true },
   { icon: '❤️',  title: 'Yêu Thích',   subtitle: 'Món đã lưu',        href: '/menu/favourites',  highlighted: true },
-  { icon: '📋', title: 'Lịch Sử Ăn',  subtitle: 'Các lần ghé thăm',  href: '/order',            highlighted: false },
+  { icon: '📋', title: 'Lịch Sử Ăn',  subtitle: 'Các lần ghé thăm',  href: '/orders',           highlighted: false },
   { icon: '🏠', title: 'Đặt Bàn',     subtitle: 'Đặt bàn về nhà',    href: '/menu',             highlighted: false },
 ]
 
