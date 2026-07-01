@@ -1,5 +1,5 @@
 'use client'
-import { Fragment, useState } from 'react'
+import { useState } from 'react'
 import type { Order } from '@/types/order'
 import type { Table } from '@/features/admin/admin.api'
 import { isKitchenItem, toppingLabel } from '@/features/admin/overview.helpers'
@@ -30,11 +30,6 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
   function toggleSort(key: SortKey) {
     if (sortKey === key) setSortDir(d => d === 'asc' ? 'desc' : 'asc')
     else { setSortKey(key); setSortDir('asc') }
-  }
-
-  // Soup/broth items are treated differently — sorted last and highlighted
-  function isSoupItem(name: string) {
-    return name.toLowerCase().includes('canh')
   }
 
   // Aggregate: dish name → { remaining, tables, minCreatedAt, orders, noteCounts, toppingCounts }
@@ -71,7 +66,7 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
       row.toppingCounts.set(topping, (row.toppingCounts.get(topping) ?? 0) + rem)
       // Canh's note already encodes có/không rau — shown as the topping, so skip it here to avoid a duplicate line
       const note = it.note?.trim()
-      if (note && !isSoupItem(it.name)) row.noteCounts.set(note, (row.noteCounts.get(note) ?? 0) + rem)
+      if (note && !it.name.toLowerCase().includes('canh')) row.noteCounts.set(note, (row.noteCounts.get(note) ?? 0) + rem)
       remainMap.set(it.name, row)
     }
   }
@@ -83,10 +78,13 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
     return sortDir === 'asc' ? diff : -diff
   })
 
-  // Soup items always go to the bottom
-  const mainRows = allRows.filter(([name]) => !isSoupItem(name))
-  const soupRows = allRows.filter(([name]) => isSoupItem(name))
-  const rows = [...mainRows, ...soupRows]
+  // Canh + Giò are pulled out into the per-table matrix at the bottom.
+  const isCanh = (name: string) => name.toLowerCase().includes('canh')
+  const isGio  = (name: string) => { const n = name.toLowerCase(); return n.includes('giò') || n.includes('gio') }
+  const mainRows = allRows.filter(([name]) => !isCanh(name) && !isGio(name))
+  const canhRows = allRows.filter(([name]) => isCanh(name))
+  const gioRows  = allRows.filter(([name]) => isGio(name))
+  const rows = [...mainRows, ...canhRows, ...gioRows]
   const totalRemaining = rows.reduce((s, [, r]) => s + r.remaining, 0)
 
   const actionableOrders = orders
@@ -162,71 +160,106 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
           </div>
 
           <div className="divide-y divide-gray-100 dark:divide-gray-800">
-            {rows.map(([name, row]) => {
-              const soup = isSoupItem(name)
-              return (
-                <div key={name}>
-                  <div className={`grid grid-cols-[2fr_1.5fr_1.5fr_1fr] gap-2 px-4 py-3 items-center transition-colors ${soup ? 'bg-orange-50 dark:bg-orange-950/30 hover:bg-orange-100 dark:hover:bg-orange-900/40' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
-                    <span className={`text-sm font-medium flex items-center gap-1.5 ${soup ? 'text-primary' : 'text-gray-800 dark:text-gray-100'}`}>
-                      {soup && <span className="text-primary text-xs">♨</span>}
-                      {name}
-                    </span>
-                    <span className={`text-xs truncate ${soup ? 'text-primary/80' : 'text-gray-500 dark:text-gray-400'}`}>{row.tables.join(', ')}</span>
-                    <span className={`text-xs flex flex-wrap gap-x-2 gap-y-0.5 ${soup ? 'text-primary' : 'text-gray-700 dark:text-gray-300'}`}>
-                      {Array.from(row.toppingCounts.entries()).map(([topping, count]) => (
-                        <span key={topping} className="font-semibold whitespace-nowrap">
-                          {topping} <span className="text-primary font-bold">×{count}</span>
-                        </span>
-                      ))}
-                    </span>
-                    <span className="text-right">
-                      <span className={`text-sm font-bold px-2 py-0.5 rounded-md ${soup ? 'bg-orange-200 dark:bg-orange-900 text-primary dark:text-orange-200' : 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300'}`}>
-                        ×{row.remaining}
+            {mainRows.map(([name, row]) => (
+              <div key={name}>
+                <div className="grid grid-cols-[2fr_1.5fr_1.5fr_1fr] gap-2 px-4 py-3 items-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <span className="text-sm font-medium flex items-center gap-1.5 text-gray-800 dark:text-gray-100">
+                    {name}
+                  </span>
+                  <span className="text-xs truncate text-gray-500 dark:text-gray-400">{row.tables.join(', ')}</span>
+                  <span className="text-xs flex flex-wrap gap-x-2 gap-y-0.5 text-gray-700 dark:text-gray-300">
+                    {Array.from(row.toppingCounts.entries()).map(([topping, count]) => (
+                      <span key={topping} className="font-semibold whitespace-nowrap">
+                        {topping} <span className="text-primary font-bold">×{count}</span>
                       </span>
+                    ))}
+                  </span>
+                  <span className="text-right">
+                    <span className="text-sm font-bold px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300">
+                      ×{row.remaining}
                     </span>
-                  </div>
-
-                  {/* Note summary (free-text notes) */}
-                  {row.noteCounts.size > 0 && (
-                    <div className={`px-4 pb-2 flex flex-wrap gap-2 ${soup ? 'bg-amber-50 dark:bg-amber-950/30' : 'bg-gray-50 dark:bg-gray-800/50'}`}>
-                      {Array.from(row.noteCounts.entries()).map(([note, count]) => (
-                        <span key={note} className="text-xs font-semibold text-foreground">
-                          {note} <span className="text-primary font-bold">×{count}</span>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Per-order detail for soup items */}
-                  {soup && row.orders.length > 0 && (
-                    <div className="px-4 pb-3 bg-orange-50 dark:bg-orange-950/30 border-t border-orange-100 dark:border-orange-900/40">
-                      <p className="text-[10px] font-semibold text-primary uppercase tracking-wide mb-1.5">Chi tiết theo đơn</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {Array.from(
-                          row.orders.reduce((m, od) => {
-                            const g = m.get(od.orderId) ?? { tableLabel: od.tableLabel, parts: [] as { topping: string; qty: number }[] }
-                            g.parts.push({ topping: od.topping, qty: od.qty })
-                            return m.set(od.orderId, g)
-                          }, new Map<string, { tableLabel: string; parts: { topping: string; qty: number }[] }>()).values()
-                        ).map((g, i) => (
-                          <span key={i} className="inline-flex items-center gap-1 text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300 px-2 py-0.5 rounded-md border border-green-300 dark:border-green-700">
-                            <span className="font-semibold">Bàn {g.tableLabel}</span>
-                            {g.parts.map((p, j) => (
-                              <Fragment key={j}>
-                                <span className="text-green-500">·</span>
-                                <span className={`font-semibold ${p.topping === 'có rau' ? 'text-green-700 dark:text-green-400' : 'text-amber-700 dark:text-amber-400'}`}>{p.topping}</span>
-                                <span className="font-bold">×{p.qty}</span>
-                              </Fragment>
-                            ))}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  </span>
                 </div>
-              )
-            })}
+
+                {/* Note summary (free-text notes) */}
+                {row.noteCounts.size > 0 && (
+                  <div className="px-4 pb-2 flex flex-wrap gap-2 bg-gray-50 dark:bg-gray-800/50">
+                    {Array.from(row.noteCounts.entries()).map(([note, count]) => (
+                      <span key={note} className="text-xs font-semibold text-foreground">
+                        {note} <span className="text-primary font-bold">×{count}</span>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
+
+          {/* Canh + Giò matrix — tables as rows, each canh variant + one Giò column, with row + column totals */}
+          {(canhRows.length > 0 || gioRows.length > 0) && (() => {
+            const GIO = '__gio__'
+            // Columns: each canh variant (own column) + a single combined Giò column.
+            const columns: { key: string; label: string }[] = [
+              ...canhRows.map(([name]) => ({ key: name, label: name })),
+              ...(gioRows.length > 0 ? [{ key: GIO, label: 'Giò' }] : []),
+            ]
+            // table label → column key → remaining qty
+            const matrix = new Map<string, Map<string, number>>()
+            const add = (tableLabel: string, colKey: string, qty: number) => {
+              const t = matrix.get(tableLabel) ?? new Map<string, number>()
+              t.set(colKey, (t.get(colKey) ?? 0) + qty)
+              matrix.set(tableLabel, t)
+            }
+            for (const [dishName, row] of canhRows)
+              for (const od of row.orders) add(od.tableLabel, dishName, od.qty)
+            for (const [, row] of gioRows)
+              for (const od of row.orders) add(od.tableLabel, GIO, od.qty)
+
+            const tables = Array.from(matrix.keys()).sort((a, b) => a.localeCompare(b, 'vi', { numeric: true }))
+            // Tổng counts canh only — the Giò column is excluded from the row/grand totals.
+            const rowTotal = (t: string) => canhRows.reduce((s, [name]) => s + (matrix.get(t)?.get(name) ?? 0), 0)
+            const colTotal = (key: string) => tables.reduce((s, t) => s + (matrix.get(t)?.get(key) ?? 0), 0)
+            const grandTotal = tables.reduce((s, t) => s + rowTotal(t), 0)
+            return (
+              <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-800">
+                <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                  <span className="text-xs">♨</span> Canh &amp; Giò
+                </p>
+                <table className="w-full text-xs border-collapse">
+                  <thead>
+                    <tr className="text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                      <th className="text-left font-medium py-1.5 px-2">Bàn</th>
+                      {columns.map(c => (
+                        <th key={c.key} className="text-center font-medium py-1.5 px-2">{c.label}</th>
+                      ))}
+                      <th className="text-center font-semibold py-1.5 px-2">Tổng</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                    {tables.map(t => (
+                      <tr key={t} className="text-gray-700 dark:text-gray-300">
+                        <td className="py-1.5 px-2 font-semibold">{t}</td>
+                        {columns.map(c => {
+                          const q = matrix.get(t)?.get(c.key) ?? 0
+                          return <td key={c.key} className="text-center py-1.5 px-2">{q > 0 ? q : '–'}</td>
+                        })}
+                        <td className="text-center py-1.5 px-2 font-bold text-primary">{rowTotal(t)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="border-t-2 border-gray-200 dark:border-gray-700 font-bold text-gray-800 dark:text-gray-100">
+                      <td className="py-1.5 px-2 uppercase tracking-wide">Tổng</td>
+                      {columns.map(c => (
+                        <td key={c.key} className="text-center py-1.5 px-2">{colTotal(c.key)}</td>
+                      ))}
+                      <td className="text-center py-1.5 px-2 text-primary">{grandTotal}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            )
+          })()}
         </>
       )}
     </div>

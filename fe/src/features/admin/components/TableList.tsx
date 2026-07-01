@@ -249,10 +249,12 @@ interface TableListProps {
   onToggleCheck:   (tableId: string) => void
   onPaymentDone?:  (orderId: string) => void
   onCancel?:       (orderId: string) => Promise<void>
+  kiemTraIds?:     Set<string>
+  onKiemTra?:      (orderId: string) => void
 }
 
 export function TableList({
-  tables, orders, now, loadingIds, onAction, onPaymentDone, onCancel,
+  tables, orders, now, loadingIds, onAction, onPaymentDone, onCancel, kiemTraIds, onKiemTra,
 }: TableListProps) {
   const router = useRouter()
   const [timeSort,    setTimeSort]    = useState<'asc' | 'desc'>('asc')
@@ -268,22 +270,45 @@ export function TableList({
     })
   }
 
-  const orderByTable = new Map(orders.filter(o => o.table_id).map(o => [o.table_id!, o]))
+  // Group orders by table (a table can have multiple active orders — e.g. staff
+  // "Đặt hộ" on a table that's already occupied). Within a table, oldest first.
+  const ordersByTable = new Map<string, Order[]>()
+  for (const o of orders) {
+    if (!o.table_id) continue
+    const list = ordersByTable.get(o.table_id)
+    if (list) list.push(o)
+    else ordersByTable.set(o.table_id, [o])
+  }
+  Array.from(ordersByTable.values()).forEach(list => {
+    list.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+  })
 
   const sorted = [...tables].sort((a, b) => {
-    const aOrder = orderByTable.get(a.id)
-    const bOrder = orderByTable.get(b.id)
-    const aOcc = aOrder ? 0 : 1
-    const bOcc = bOrder ? 0 : 1
+    const aOrders = ordersByTable.get(a.id)
+    const bOrders = ordersByTable.get(b.id)
+    const aOcc = aOrders ? 0 : 1
+    const bOcc = bOrders ? 0 : 1
     if (aOcc !== bOcc) return aOcc - bOcc
-    if (aOrder && bOrder) {
-      const diff = new Date(aOrder.created_at).getTime() - new Date(bOrder.created_at).getTime()
+    if (aOrders && bOrders) {
+      const diff = new Date(aOrders[0].created_at).getTime() - new Date(bOrders[0].created_at).getTime()
       return timeSort === 'asc' ? diff : -diff
     }
     return a.name.localeCompare(b.name, 'vi')
   })
 
   if (sorted.length === 0) return null
+
+  // Flatten: occupied tables emit one row per order, empty tables emit one empty row.
+  type Row = { table: Table; order: Order | null }
+  const rows: Row[] = []
+  for (const table of sorted) {
+    const tableOrders = ordersByTable.get(table.id)
+    if (tableOrders && tableOrders.length > 0) {
+      for (const order of tableOrders) rows.push({ table, order })
+    } else {
+      rows.push({ table, order: null })
+    }
+  }
 
   async function handlePaymentConfirm() {
     if (!payingEntry) return
@@ -323,7 +348,7 @@ export function TableList({
 
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         {/* header row */}
-        <div className="grid grid-cols-[2fr_1fr_auto] gap-3 px-4 py-2 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+        <div className="flex items-center justify-between px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
           <span>Bàn</span>
           <button
             onClick={() => setTimeSort(s => s === 'asc' ? 'desc' : 'asc')}
@@ -332,30 +357,27 @@ export function TableList({
             Thời gian
             <span className="text-gray-400 dark:text-gray-500">{timeSort === 'asc' ? '↑' : '↓'}</span>
           </button>
-          <span />
         </div>
 
         <div className="divide-y divide-gray-100 dark:divide-gray-700">
-          {sorted.map(table => {
-            const order   = orderByTable.get(table.id)
+          {rows.map(({ table, order }) => {
             const loading = order ? loadingIds.has(order.id) : false
 
             if (!order) {
               return (
-                <div key={table.id}
-                  className="grid grid-cols-[2fr_1fr_auto] gap-3 px-4 py-3 items-center text-sm"
-                >
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-semibold text-gray-800 dark:text-gray-200">{table.name}</span>
-                    <span className="inline-flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-gray-600" />
-                      <span className="text-gray-400 dark:text-gray-500 text-xs">Trống</span>
+                <div key={table.id} className="flex flex-col gap-2.5 px-4 py-3.5">
+                  {/* info line */}
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-semibold text-base text-gray-800 dark:text-gray-200">{table.name}</span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600" />
+                      <span className="text-gray-400 dark:text-gray-500 text-sm">Trống</span>
                     </span>
                   </div>
-                  <span className="text-gray-300 dark:text-gray-600">—</span>
+                  {/* button line */}
                   <button
                     onClick={() => router.push(`/pos?table_id=${table.id}&table_name=${encodeURIComponent(table.name)}`)}
-                    className="justify-self-end text-xs font-medium px-2.5 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors whitespace-nowrap"
+                    className="w-full py-2.5 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 active:bg-indigo-800 transition-colors"
                     title={`Đặt hộ — ${table.name}`}
                   >
                     Đặt hộ
@@ -415,38 +437,58 @@ export function TableList({
 
             const isExpanded = expandedIds.has(order.id)
             const orderSuffix = order.order_number.split('-').pop() ?? order.order_number
+            const isKiemTra = kiemTraIds?.has(order.id) ?? false
+
+            // When 🔍 Kiểm tra is active, the whole row lights up in the button's indigo — matches Zone B.
+            const rowHighlight = isKiemTra
+              ? 'border-l-4 border-l-indigo-500 ring-1 ring-inset ring-indigo-400/60 bg-indigo-50/50 dark:bg-indigo-900/20'
+              : borderL
 
             return (
-              <div key={table.id} className={`${borderL}`}>
+              <div key={order.id} className={`${rowHighlight}`}>
                 <div
                   onClick={() => setDetailEntry({ order, table })}
-                  className={`grid grid-cols-[2fr_1fr_auto] gap-3 px-4 py-3 items-center text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer`}
+                  className="flex flex-col gap-2.5 px-4 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
                 >
-                  <div className="flex flex-col gap-1 min-w-0">
-                    <span className="font-semibold text-gray-900 dark:text-gray-100 leading-tight">
-                      {table.name}
-                      <span className="ml-2 text-xs font-mono font-normal text-gray-400 dark:text-gray-500">{orderSuffix}</span>
-                    </span>
-                    <span onClick={e => e.stopPropagation()}>
-                      <StatusBadge />
+                  {/* info line */}
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex flex-col gap-1 min-w-0">
+                      <span className="font-semibold text-base text-gray-900 dark:text-gray-100 leading-tight">
+                        {table.name}
+                        <span className="ml-2 text-xs font-mono font-normal text-gray-400 dark:text-gray-500">{orderSuffix}</span>
+                      </span>
+                      <span onClick={e => e.stopPropagation()}>
+                        <StatusBadge />
+                      </span>
+                    </div>
+                    <span className={`text-sm whitespace-nowrap ${timeColor}`}>
+                      {mins} phút
                     </span>
                   </div>
 
-                  <span className={`text-sm whitespace-nowrap ${timeColor}`}>
-                    {mins} phút
-                  </span>
-
-                  <div className="flex items-center gap-1.5 justify-self-end" onClick={e => e.stopPropagation()}>
+                  {/* button line */}
+                  <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                     <button
-                      disabled
-                      className="text-xs font-medium px-2.5 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-300 dark:text-gray-600 cursor-not-allowed whitespace-nowrap"
-                      title="Bàn đang có khách — không thể đặt hộ"
+                      onClick={() => onKiemTra?.(order.id)}
+                      className={`flex-1 text-sm font-semibold px-3 py-2.5 rounded-lg border transition-colors whitespace-nowrap ${
+                        isKiemTra
+                          ? 'bg-indigo-600 text-white border-indigo-600'
+                          : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+                      }`}
+                      title="Kiểm tra"
+                    >
+                      🔍 Kiểm tra
+                    </button>
+                    <button
+                      onClick={() => router.push(`/pos?table_id=${table.id}&table_name=${encodeURIComponent(table.name)}`)}
+                      className="flex-1 text-sm font-semibold px-3 py-2.5 rounded-lg border border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 transition-colors whitespace-nowrap"
+                      title={`Đặt hộ — ${table.name} (khách đặt trước, ăn sau)`}
                     >
                       Đặt hộ
                     </button>
                     <button
                       onClick={() => toggleExpand(order.id)}
-                      className="flex items-center justify-center w-9 h-9 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/30 transition-colors"
+                      className="flex items-center justify-center w-11 h-11 shrink-0 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/30 transition-colors"
                       title={isExpanded ? 'Thu gọn' : 'Xem chi tiết'}
                     >
                       <svg className={`w-5 h-5 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>

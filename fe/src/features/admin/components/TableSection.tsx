@@ -20,6 +20,8 @@ interface Props {
   belowSummary?:   ReactNode   // rendered between the dish summary and the Bàn list
   kiemTraTableIds?: Set<string>   // tables marked 🔍 Kiểm tra — shown as a +N delta in Tổng món
   onClearKiemTra?: () => void     // clears all Kiểm tra selections
+  kiemTraIds?:     Set<string>    // order ids marked 🔍 Kiểm tra — forwarded to TableList rows
+  onKiemTra?:      (orderId: string) => void
 }
 
 export function TableSection({
@@ -36,6 +38,8 @@ export function TableSection({
   belowSummary,
   kiemTraTableIds,
   onClearKiemTra,
+  kiemTraIds,
+  onKiemTra,
 }: Props) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
   const [openDish, setOpenDish] = useState<string | null>(null)
@@ -43,7 +47,11 @@ export function TableSection({
 
   // Total dishes across every active table — Bánh · Trứng · Giò · Canh, each with nhân/rau split.
   // 🔍 Kiểm tra tables are split off into the delta (deltaTotal / breakdown.delta / detail.isDelta).
-  const dishSummary  = summarizeTableDishes(listOrders, tables, kiemTraTableIds)
+  // Count only orders that map to a rendered Bàn row (same source as TableList) — otherwise an order
+  // with no table_id / a stale table_id keeps the "Tổng món" strip alive after the Bàn list is empty.
+  const tableIds     = new Set(tables.map(t => t.id))
+  const tableScoped  = listOrders.filter(o => o.table_id != null && tableIds.has(o.table_id))
+  const dishSummary  = summarizeTableDishes(tableScoped, tables, kiemTraTableIds)
   const dishTotal    = dishSummary.reduce((s, r) => s + r.total, 0)
   const dishDelta    = dishSummary.reduce((s, r) => s + r.deltaTotal, 0)
   const kiemTraCount = kiemTraTableIds?.size ?? 0
@@ -213,6 +221,8 @@ export function TableSection({
           onToggleCheck={onToggleCheck}
           onPaymentDone={onPaymentDone}
           onCancel={onCancel}
+          kiemTraIds={kiemTraIds}
+          onKiemTra={onKiemTra}
         />
       ) : (
         <TableGrid

@@ -20,17 +20,23 @@ interface StatCardsProps {
 }
 
 export function StatCards({ orders, tables, now }: StatCardsProps) {
-  const orderByTable = new Map(orders.filter(o => o.table_id).map(o => [o.table_id!, o]))
+  // Count only orders that map to a real Bàn row (same source as TableList / dish summary) —
+  // otherwise an order with no table_id / a stale table_id inflates the stats with phantom counts
+  // (e.g. "Món chờ làm 5" while no table is shown).
+  const tableIds = new Set(tables.map(t => t.id))
+  const scoped   = orders.filter(o => o.table_id != null && tableIds.has(o.table_id))
+
+  const orderByTable = new Map(scoped.map(o => [o.table_id!, o]))
 
   const occupied  = tables.filter(t => orderByTable.has(t.id)).length
-  const urgent    = orders.filter(o => elapsedMins(o.created_at, now) > 20).length
-  const warning   = orders.filter(o => {
+  const urgent    = scoped.filter(o => elapsedMins(o.created_at, now) > 20).length
+  const warning   = scoped.filter(o => {
     const m = elapsedMins(o.created_at, now)
     return m >= 10 && m <= 20
   }).length
 
   let totalPending = 0, totalPreparing = 0
-  for (const o of orders) {
+  for (const o of scoped) {
     const c = itemCounts(o.items)
     totalPending   += c.pending
     totalPreparing += c.preparing

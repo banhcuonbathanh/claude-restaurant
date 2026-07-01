@@ -27,6 +27,20 @@ import { ConnectionErrorBanner } from '@/components/shared/ConnectionErrorBanner
 const ACTIVE        = new Set(['pending', 'confirmed', 'preparing', 'ready', 'delivered'])
 const TABLE_ACTIVE  = new Set(['pending', 'confirmed', 'preparing', 'ready', 'delivered'])
 
+// Collapsible zone header — "Ẩn X" when open, "Hiện X" when collapsed.
+function ZoneToggle({ label, open, onToggle }: { label: string; open: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+    >
+      <span className={`text-[10px] text-gray-400 transition-transform ${open ? 'rotate-90' : ''}`}>▶</span>
+      {open ? `Ẩn ${label}` : `Hiện ${label}`}
+    </button>
+  )
+}
+
 export default function OverviewPage() {
   const token       = useAuthStore(state => state.accessToken)
   const queryClient = useQueryClient()
@@ -38,6 +52,11 @@ export default function OverviewPage() {
   const [popupLoading,    setPopupLoading]    = useState(false)
   const [searchQuery,     setSearchQuery]     = useState('')
   const [kiemTraIds,      setKiemTraIds]      = useState<Set<string>>(new Set())
+
+  // Zone visibility toggles — Zone A (StatCards) starts hidden by default.
+  const [showStats,   setShowStats]   = useState(false)
+  const [showTables,  setShowTables]  = useState(true)
+  const [showWaiting, setShowWaiting] = useState(true)
 
   // 30s timer — keeps elapsed-time urgency display fresh
   useEffect(() => {
@@ -204,10 +223,20 @@ export default function OverviewPage() {
         tableCount={filteredTables.length}
       />
 
-      {/* Zone A — 4 stat cards */}
-      <StatCards orders={orders} tables={tables} now={now} />
+      {/* Zone A — 4 stat cards (hidden by default) */}
+      <div>
+        <div className="mb-2">
+          <ZoneToggle label="thẻ chỉ số nhanh" open={showStats} onToggle={() => setShowStats(v => !v)} />
+        </div>
+        {showStats && <StatCards orders={orders} tables={tables} now={now} />}
+      </div>
 
       {/* Zone D — table view with grid/list toggle */}
+      <div>
+        <div className="mb-2">
+          <ZoneToggle label="khu vực bàn" open={showTables} onToggle={() => setShowTables(v => !v)} />
+        </div>
+        {showTables && (
       <TableSection
         tables={filteredTables}
         listOrders={filteredTableOrders}
@@ -228,6 +257,8 @@ export default function OverviewPage() {
         }}
         kiemTraTableIds={kiemTraTableIds}
         onClearKiemTra={() => setKiemTraIds(new Set())}
+        kiemTraIds={kiemTraIds}
+        onKiemTra={toggleKiemTra}
         belowSummary={
           /* Zone B — "Danh sách bàn cần chuẩn bị": right below the dish summary, above the Bàn list */
           <WaitingSection
