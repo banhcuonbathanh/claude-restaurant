@@ -3,7 +3,8 @@
 > **TL;DR:** ✅ implemented · manager+ · The live floor command centre and default admin landing
 > (`/admin` redirects here). Renders (in DOM order): connection banner → new-order popup →
 > header → search → **Zone A** stat cards → **Zone D** table section (which itself wraps the
-> *Tổng món* dish summary, the **Zone B** "cần chuẩn bị" list, and the list/grid table view) →
+> *Tổng món* dish summary, the **Zone B** "cần chuẩn bị" list, the **Zone D4** confirmed-order
+> dish prep list, and the list/grid table view) →
 > **Zone C** prep panel (only while ≥1 order is 🔍 Kiểm tra) → **Zone E** paid log → **Zone F**
 > cancel log. Realtime via WS ([`useOverviewWS`](../../../../../fe/src/hooks/useOverviewWS.ts)
 > mutates the `['orders','live']` query cache) + SSE
@@ -40,13 +41,17 @@
 ║   │ └────────────────┘└────────────┘└─────────────┘└─────────────────┘    │  ║
 ║   └───────────────────────────────────────────────────────────────────────┘  ║
 ╟──────────────────────────────────────────────────────────────────────────────╢
-║ D ┌─ Khu vực bàn — danh sách / lưới  (TableSection)   [☰ list | ▦ grid] ──┐  ║  → TableSection.tsx · sở hữu viewMode + slot belowSummary
-║   │ ┌─ Tổng hợp món cả sàn  (Tổng món) ─────────────────────────────┐     │  ║
-║   │ │ 🔍 đang kiểm tra K bàn   [Bỏ kiểm tra(K)]  [Xem tất cả]       │     │  ║
-║   │ │ [Bánh ×N ▼][Trứng ×N][Giò ×N][Canh ×N có/không rau] …         │     │  ║
-║   │ │   nhân/rau theo từng chip · (+Δ) từ các bàn 🔍                │     │  ║
-║   │ └───────────────────────────────────────────────────────────────┘     │  ║
+║ D ┌─ Khu vực bàn  (TableSection · khung bao — sở hữu viewMode + slot) ─────┐  ║  → TableSection.tsx · chỉ compose D1/D2/D3
+║D1 │ ┌─ Đầu khu · đổi chế độ xem  (ViewToggleHeader) ─────[☰ list|▦ grid]┐ │  ║  → ViewToggleHeader.tsx · tiêu đề + nút list/grid
+║   │ │ Danh sách bàn                                                     │ │  ║
+║   │ └───────────────────────────────────────────────────────────────┘   │  ║
+║D2 │ ┌─ Tổng hợp món cả sàn  (DishSummaryStrip · Tổng món) ──────────┐    │  ║  → DishSummaryStrip.tsx · tự tính summary + state openDish/showAll
+║   │ │ 🔍 đang kiểm tra K bàn   [Bỏ kiểm tra(K)]  [Xem tất cả]       │    │  ║  (return null nếu tổng = 0)
+║   │ │ [Bánh ×N ▼][Trứng ×N][Giò ×N][Canh ×N có/không rau] …         │    │  ║
+║   │ │   nhân/rau theo từng chip · (+Δ) từ các bàn 🔍                │    │  ║
+║   │ └───────────────────────────────────────────────────────────────┘    │  ║
 ║   │                                                                       │  ║
+║   │ ⇩ slot belowSummary                                                   │  ║
 ║   │ ┌─ Bàn chờ bếp xác nhận — Zone B  (WaitingSection) ─────────────┐     │  ║
 ║   │ │ chỉ status='pending' · n bàn · k loại món · T phần còn lại    │     │  ║
 ║   │ │ cột sắp xếp: Bàn|Trạng thái|Mã đơn|Thời gian|Còn lại          │     │  ║
@@ -54,7 +59,13 @@
 ║   │ │ click dòng → OrderDetail · 🔍 = kiểm tra → nuôi Zone C        │     │  ║
 ║   │ └───────────────────────────────────────────────────────────────┘     │  ║
 ║   │                                                                       │  ║
-║   │ viewMode='list' → Danh sách bàn dạng dòng  (TableList)                │  ║
+║D4 │ ┌─ Đơn hàng cần làm — đơn đã xác nhận (ConfirmedPrepList) ───────────┐│  ║  → ConfirmedPrepList.tsx · base = status='confirmed'
+║   │ │ Đơn đã xác nhận · k loại món · N phần còn lại  [N phần][+P]       ││  ║  (KHÔNG có Canh + Giò · return null nếu rỗng)
+║   │ │ Món | SL ban đầu | ⊕ SL thêm | Tổng  (sắp theo Tổng giảm dần)     ││  ║  ← SL thêm (vàng, +N) = đơn pending bật qua badge
+║   │ │ Tổng | ×N | +P | ×(N+P)  ← dòng tổng cuối bảng                    ││  ║    «Chờ xác nhận» ở Zone B (prepPreviewIds)
+║   │ └───────────────────────────────────────────────────────────────────┘│  ║
+║   │                                                                       │  ║
+║D3 │ viewMode='list' → Danh sách bàn dạng dòng  (TableList)                │  ║  → TableList.tsx / TableGrid.tsx
 ║   │   1 dòng/bàn · [Thanh toán][Huỷ] · kèm PaymentModal                   │  ║
 ║   │ viewMode='grid' → Lưới bàn dạng thẻ  (TableGrid)                      │  ║
 ║   │   1 thẻ/bàn (thẻ Trống nếu không có đơn) · mở OrderDetail             │  ║
@@ -126,17 +137,37 @@ Lọc **đồng thời** Zone B (WaitingSection) và Zone D (bàn/đơn) phía c
 ```
 4 thẻ (2×2 mobile / 1×4 desktop). Chỉ tính đơn có `table_id` thật.
 
-### Zone D — Khu vực bàn (TableSection)
+### Zone D — Khu vực bàn (TableSection · khung bao)
 [TableSection.tsx](../../../../../fe/src/features/admin/components/TableSection.tsx)
 ```
-Danh sách bàn                          [☰ list | ▦ grid]
-┌ Tổng hợp món cả sàn ──── 🔍 2 bàn ── [Xem tất cả] 24 phần ┐
-│ [Bánh ×10 ▼][Trứng ×6][Giò ×4][Canh ×4 có/không rau]      │
-└───────────────────────────────────────────────────────────┘
-  ⇩ belowSummary = WaitingSection (Zone B)
-  ⇩ rồi TableList (list) hoặc TableGrid (grid)
+[D1] ViewToggleHeader ── Danh sách bàn ────────── [☰ list | ▦ grid]
+[D2] DishSummaryStrip ── Tổng hợp món cả sàn (Tổng món)
+  ⇩ slot belowSummary = WaitingSection (Zone B)
+[D4] ConfirmedPrepList ── Đơn hàng cần làm (đơn đã xác nhận · không Canh/Giò)
+[D3] TableList (list) hoặc TableGrid (grid)
 ```
-Khung bao Zone D: sở hữu `viewMode`, dải *Tổng món*, và slot `belowSummary`.
+Chỉ là **khung compose**: sở hữu `viewMode` và slot `belowSummary`, rồi render D1 → D2 →
+`belowSummary` → D4 → D3. Không chứa markup riêng — mỗi phần con là một component.
+
+### Zone D1 — Đầu khu · đổi chế độ xem (ViewToggleHeader)
+[ViewToggleHeader.tsx](../../../../../fe/src/features/admin/components/ViewToggleHeader.tsx)
+```
+Danh sách bàn                          [☰ list | ▦ grid]
+```
+Tiêu đề tĩnh + cặp nút chuyển list/grid. Dumb toggle — `viewMode` do `TableSection` sở hữu,
+truyền xuống qua `viewMode` + `onViewMode`.
+
+### Zone D2 — Tổng hợp món cả sàn (DishSummaryStrip)
+[DishSummaryStrip.tsx](../../../../../fe/src/features/admin/components/DishSummaryStrip.tsx)
+```
+┌ Tổng món ──── 🔍 2 bàn ── [Bỏ kiểm tra(2)] [Xem tất cả] 24 phần ┐
+│ [Bánh ×10 ▼][Trứng ×6][Giò ×4][Canh ×4 có/không rau]            │
+│   click chip → chi tiết theo bàn · (+Δ) từ các bàn 🔍            │
+└─────────────────────────────────────────────────────────────────┘
+```
+Tự tính summary từ `listOrders` (chỉ đơn có `table_id` khớp bàn đang render) qua
+`summarizeTableDishes`. Sở hữu state riêng `openDish` / `showAll` + helper `renderDishDetail`.
+Tự ẩn (`return null`) khi tổng = 0.
 
 ### Zone B — Bàn chờ bếp xác nhận (WaitingSection)
 [WaitingSection.tsx](../../../../../fe/src/features/admin/components/WaitingSection.tsx)
@@ -149,6 +180,27 @@ Khung bao Zone D: sở hữu `viewMode`, dải *Tổng món*, và slot `belowSum
 └────────────────────────────────────────────────────┘
 ```
 Chỉ đơn `pending`. Viền dòng = độ khẩn (cam/vàng/đỏ). 🔍 → nuôi Zone C + Δ Tổng món.
+
+### Zone D4 — Đơn hàng cần làm · đơn đã xác nhận (ConfirmedPrepList)
+[ConfirmedPrepList.tsx](../../../../../fe/src/features/admin/components/ConfirmedPrepList.tsx)
+```
+┌ Đơn hàng cần làm ─────────────────────── [3 phần][+9] ┐
+│ Đơn đã xác nhận · 4 loại món · 3 phần còn lại        │
+│                                     · ⊕ +9 kiểm tra  │
+├ MÓN ──────────── SL BAN ĐẦU ─ ⊕ SL THÊM ─── TỔNG ────┤
+│ Bánh Cuốn Thịt      ×2          +4          [×6]     │ ← Tổng viền đứt vàng khi có SL thêm
+│ Bánh Trứng Chín     –           +3          [×3]     │
+│ Bánh Chay           –           +2          [×2]     │
+│ Bánh Trứng Tái      ×1          –           [×1]     │
+├ TỔNG ──────────── ×3 ────────── +9 ──────── ×12 ─────┤
+└──────────────────────────────────────────────────────┘
+```
+Bảng gộp một-dòng-một-món, read-only. **SL ban đầu** = phần còn lại của đơn `status='confirmed'`.
+**⊕ SL thêm** (vàng, nghiêng, `+N`) = phần từ các đơn `pending` được bật qua badge «Chờ xác nhận»
+ở Zone B (`prepPreviewIds`) — hiển thị tách cột, không lẫn vào SL ban đầu. **Tổng** = cộng hai
+cột; dòng TỔNG chốt cuối bảng. **Không có Canh + Giò** (lọc theo tên chứa «canh»/«giò») — áp
+dụng cho cả hai nguồn. Sắp theo Tổng giảm dần. Đơn rời `pending` (xác nhận thật / huỷ) → SL thêm
+của nó tự biến mất. Tự ẩn (`return null`) khi bảng rỗng.
 
 ### Zone B/D — Chi tiết một đơn (OrderDetail)
 [OrderDetail.tsx](../../../../../fe/src/features/admin/components/OrderDetail.tsx)
@@ -264,8 +316,11 @@ Bật khi SSE `new_order`. ✓ → `PATCH /orders/:id/status {confirmed}`. Bỏ 
 | — | `OverviewHeader` | [OverviewHeader.tsx](../../../../../fe/src/features/admin/components/OverviewHeader.tsx) | page | static title + Live dot |
 | — | `OverviewSearchBar` | [OverviewSearchBar.tsx](../../../../../fe/src/features/admin/components/OverviewSearchBar.tsx) | page | `searchQuery`, match counts |
 | A | `StatCards` | [StatCards.tsx](../../../../../fe/src/features/admin/components/StatCards.tsx) | page | `orders`, `tables`, `now` (scoped to orders w/ real `table_id`) |
-| D | `TableSection` | [TableSection.tsx](../../../../../fe/src/features/admin/components/TableSection.tsx) | page | tables + list/grid orders; owns `viewMode`, dish summary, `belowSummary` slot |
+| D | `TableSection` | [TableSection.tsx](../../../../../fe/src/features/admin/components/TableSection.tsx) | page | shell only: owns `viewMode`, composes D1/D2 + `belowSummary` slot + D3 |
+| D1 | `ViewToggleHeader` | [ViewToggleHeader.tsx](../../../../../fe/src/features/admin/components/ViewToggleHeader.tsx) | `TableSection` | `viewMode`, `onViewMode` (dumb toggle) |
+| D2 | `DishSummaryStrip` | [DishSummaryStrip.tsx](../../../../../fe/src/features/admin/components/DishSummaryStrip.tsx) | `TableSection` | `tables`, `listOrders`, `kiemTraTableIds`, `onClearKiemTra`; owns `openDish`/`showAll`; self-guards on empty |
 | B | `WaitingSection` | [WaitingSection.tsx](../../../../../fe/src/features/admin/components/WaitingSection.tsx) | `TableSection` via `belowSummary` | `filteredOrders` (status='pending' only), `kiemTraIds`, `onKiemTra` |
+| D4 | `ConfirmedPrepList` | [ConfirmedPrepList.tsx](../../../../../fe/src/features/admin/components/ConfirmedPrepList.tsx) | `TableSection` (after `belowSummary`) | `listOrders` + `previewIds` (=`prepPreviewIds`); merged table Món/SL ban đầu/⊕ SL thêm/Tổng — base=`confirmed`, SL thêm=toggled pending; excludes Canh/Giò; self-guards on empty |
 | D | `TableList` | [TableList.tsx](../../../../../fe/src/features/admin/components/TableList.tsx) | `TableSection` (list) | rows + inline `PaymentModal`; `onPaymentDone`, `onCancel` |
 | D | `TableGrid` | [TableGrid.tsx](../../../../../fe/src/features/admin/components/TableGrid.tsx) | `TableSection` (grid) | per-table cards + `EmptyTableCard` |
 | B/D | `OrderDetail` | [OrderDetail.tsx](../../../../../fe/src/features/admin/components/OrderDetail.tsx) | `WaitingSection` / `TableGrid` expand | one order's items + next-status/cancel + `onToggleCheck` |
@@ -299,6 +354,10 @@ BE endpoints for each → [BE view](admin_overview_be.md). API fns live in
 - **`checkedTableIds`** — a **Set of table ids**, toggled by `onToggleCheck` inside `OrderDetail`.
   Feeds `OrderDetail`'s `isChecked` flag and is passed through `TableList`/`TableGrid`. Separate
   from Kiểm tra — used as a per-table "đã kiểm" mark on the table card/detail.
+- **`prepPreviewIds`** — a **Set of order ids**, toggled by clicking the **«Chờ xác nhận» badge**
+  in `WaitingSection` (badge turns amber `⊕ … ✓`, row gets an amber left border). Drives the
+  amber **⊕ SL thêm** column in **Zone D4 `ConfirmedPrepList`**. Stale ids are ignored once the
+  order leaves `pending`.
 
 ## Key Interactions
 
@@ -309,6 +368,9 @@ BE endpoints for each → [BE view](admin_overview_be.md). API fns live in
   `updateOrderStatus` with optimistic cache patch; WS `order_status_changed` reconciles.
 - **🔍 Kiểm tra** toggle (Zone B) → adds order to `kiemTraIds` → surfaces Zone C + Tổng món delta;
   the row lights up indigo.
+- **«Chờ xác nhận» badge** toggle (Zone B) → adds order to `prepPreviewIds` → its dishes fill the
+  amber "⊕ SL thêm" column of Zone D4; the row lights up amber (Kiểm tra indigo wins if both are
+  on).
 - **Payment done** (TableList `PaymentModal`, 2 confirm checkboxes) → `createPayment` →
   `onPaymentDone` drops the order from live cache and invalidates `['orders','history']` (feeds Zone E).
 - **Cancel** → `handleAction(id,'cancelled')` (removes from live, appears in Zone F after history refetch).

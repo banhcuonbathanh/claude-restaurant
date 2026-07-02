@@ -35,10 +35,13 @@ interface WaitingSectionProps {
   onToggleCheck:   (tableId: string) => void
   kiemTraIds: Set<string>
   onKiemTra:  (orderId: string) => void
+  previewIds?:      Set<string>              // orders whose dishes preview in Zone D4 "Đơn hàng cần làm"
+  onTogglePreview?: (orderId: string) => void
 }
 
 export function WaitingSection({
   orders, tables, now, loadingIds, onAction, checkedTableIds, onToggleCheck, kiemTraIds, onKiemTra,
+  previewIds, onTogglePreview,
 }: WaitingSectionProps) {
   const [sortKey,    setSortKey]    = useState<SortKey>('time')
   const [sortDir,    setSortDir]    = useState<'asc' | 'desc'>('desc')
@@ -140,15 +143,35 @@ export function WaitingSection({
           const loading      = loadingIds.has(order.id)
           const isExpanded   = expandedId === order.id
           const isKiemTra    = kiemTraIds.has(order.id)
+          const isPreview    = previewIds?.has(order.id) ?? false
+
+          // "Chờ xác nhận" badge doubles as the Zone D4 preview toggle when a handler is wired.
+          const badgeCls = isPreview
+            ? 'bg-amber-500 text-white ring-1 ring-amber-600'
+            : statusColors(order.status)
+          const badgeBtn = onTogglePreview && (
+            <button
+              onClick={e => { e.stopPropagation(); onTogglePreview(order.id) }}
+              title={isPreview ? 'Bỏ khỏi Đơn hàng cần làm' : 'Thêm vào Đơn hàng cần làm để kiểm tra'}
+              className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full w-fit transition-colors cursor-pointer hover:ring-1 hover:ring-amber-400 ${badgeCls}`}
+            >
+              {isPreview && <span>⊕</span>}
+              {statusLabel(order.status)}
+              {isPreview && <span>✓</span>}
+            </button>
+          )
 
           const pendingItems = kitItems.filter(i => i.quantity - i.qty_served > 0)
           const summaryRows  = summarizePending(pendingItems)
 
           // When 🔍 Kiểm tra is active, the whole row lights up in the button's indigo — staff
           // can see at a glance which tables are folded into the Tổng món preview.
+          // D4 preview (amber) is a weaker highlight; Kiểm tra wins when both are on.
           const rowHighlight = isKiemTra
             ? 'border-l-4 border-l-indigo-500 ring-1 ring-inset ring-indigo-400/60 bg-indigo-50/50 dark:bg-indigo-900/20'
-            : borderL
+            : isPreview
+              ? 'border-l-4 border-l-amber-500 bg-amber-50/40 dark:bg-amber-950/20'
+              : borderL
 
           return (
             <div key={order.id} className={`border-b border-gray-100 dark:border-gray-700 last:border-b-0 ${rowHighlight}`}>
@@ -162,9 +185,11 @@ export function WaitingSection({
                   {table.name}
                   <span className="text-indigo-400">{isExpanded ? '▲' : '▼'}</span>
                 </span>
-                <span className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full w-fit ${statusColors(order.status)}`}>
-                  {statusLabel(order.status)}
-                </span>
+                {badgeBtn || (
+                  <span className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full w-fit ${statusColors(order.status)}`}>
+                    {statusLabel(order.status)}
+                  </span>
+                )}
                 <span className="text-xs font-mono text-gray-500 dark:text-gray-400 truncate">{order.order_number}</span>
                 <div className="flex flex-col gap-0.5">
                   <span className={`text-sm ${timeColor}`}>{mins} phút</span>
@@ -216,9 +241,11 @@ export function WaitingSection({
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-gray-900 dark:text-gray-100 text-base">{table.name}</span>
                   <span className="text-indigo-400 text-xs">{isExpanded ? '▲' : '▼'}</span>
-                  <span className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full ${statusColors(order.status)}`}>
-                    {statusLabel(order.status)}
-                  </span>
+                  {badgeBtn || (
+                    <span className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full ${statusColors(order.status)}`}>
+                      {statusLabel(order.status)}
+                    </span>
+                  )}
                   <button
                     onClick={e => { e.stopPropagation(); onKiemTra(order.id) }}
                     className={`ml-auto px-2.5 py-1 text-xs font-semibold rounded-lg border transition-colors ${

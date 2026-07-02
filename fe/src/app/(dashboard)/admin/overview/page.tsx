@@ -52,6 +52,9 @@ export default function OverviewPage() {
   const [popupLoading,    setPopupLoading]    = useState(false)
   const [searchQuery,     setSearchQuery]     = useState('')
   const [kiemTraIds,      setKiemTraIds]      = useState<Set<string>>(new Set())
+  // Pending orders toggled (via the "Chờ xác nhận" badge) into Zone D4 "Đơn hàng cần làm" as a
+  // check preview. Stale ids are ignored downstream once the order leaves 'pending'.
+  const [prepPreviewIds,  setPrepPreviewIds]  = useState<Set<string>>(new Set())
 
   // Zone visibility toggles — Zone A (StatCards) starts hidden by default.
   const [showStats,   setShowStats]   = useState(false)
@@ -142,6 +145,14 @@ export default function OverviewPage() {
 
   function toggleKiemTra(id: string) {
     setKiemTraIds(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  function togglePrepPreview(id: string) {
+    setPrepPreviewIds(prev => {
       const next = new Set(prev)
       next.has(id) ? next.delete(id) : next.add(id)
       return next
@@ -259,21 +270,33 @@ export default function OverviewPage() {
         onClearKiemTra={() => setKiemTraIds(new Set())}
         kiemTraIds={kiemTraIds}
         onKiemTra={toggleKiemTra}
+        prepPreviewIds={prepPreviewIds}
         belowSummary={
           /* Zone B — "Danh sách bàn cần chuẩn bị": right below the dish summary, above the Bàn list */
-          <WaitingSection
-            orders={filteredOrders}
-            tables={tables}
-            now={now}
-            loadingIds={loadingIds}
-            checkedTableIds={checkedTableIds}
-            onAction={handleAction}
-            onToggleCheck={toggleCheck}
-            kiemTraIds={kiemTraIds}
-            onKiemTra={toggleKiemTra}
-          />
+          <div>
+            <div className="mb-2">
+              <ZoneToggle label="danh sách bàn cần chuẩn bị" open={showWaiting} onToggle={() => setShowWaiting(v => !v)} />
+            </div>
+            {showWaiting && (
+              <WaitingSection
+                orders={filteredOrders}
+                tables={tables}
+                now={now}
+                loadingIds={loadingIds}
+                checkedTableIds={checkedTableIds}
+                onAction={handleAction}
+                onToggleCheck={toggleCheck}
+                kiemTraIds={kiemTraIds}
+                onKiemTra={toggleKiemTra}
+                previewIds={prepPreviewIds}
+                onTogglePreview={togglePrepPreview}
+              />
+            )}
+          </div>
         }
       />
+        )}
+      </div>
 
       {/* Zone C — only 'pending' orders: docs/fe/wireframes/admin_main/admin_overview/table_status.md §PrepPanel Rules */}
       {kiemTraIds.size > 0 && (
