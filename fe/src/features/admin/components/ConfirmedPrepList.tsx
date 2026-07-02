@@ -38,7 +38,8 @@ function sumCounts(m: Map<string, number> | undefined): number {
 }
 
 // Remaining canh/giò per table for the matrix — same order set as the dish rows.
-function collectCanhGio(orders: Order[]): CanhGioEntry[] {
+// preview=true marks entries from 🔍 Kiểm tra pending orders (amber ⊕ SL thêm in the matrix).
+function collectCanhGio(orders: Order[], preview = false): CanhGioEntry[] {
   const entries: CanhGioEntry[] = []
   for (const o of orders) {
     const fullName = o.table_name ?? '—'
@@ -47,7 +48,7 @@ function collectCanhGio(orders: Order[]): CanhGioEntry[] {
       if (!isCanhGioName(it.name)) continue
       const rem = it.quantity - it.qty_served
       if (rem <= 0) continue
-      entries.push({ tableLabel, name: it.name, qty: rem })
+      entries.push({ tableLabel, name: it.name, qty: rem, preview })
     }
   }
   return entries
@@ -84,7 +85,7 @@ export function ConfirmedPrepList({ orders, previewIds }: Props) {
     })
   }
 
-  const canhGioEntries = collectCanhGio([...confirmed, ...previewOrders])
+  const canhGioEntries = [...collectCanhGio(confirmed), ...collectCanhGio(previewOrders, true)]
   if (rows.length === 0 && canhGioEntries.length === 0) return null
 
   const baseTotal    = rows.reduce((s, r) => s + r.base, 0)
