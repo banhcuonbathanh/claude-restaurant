@@ -35,13 +35,10 @@ interface WaitingSectionProps {
   onToggleCheck:   (tableId: string) => void
   kiemTraIds: Set<string>
   onKiemTra:  (orderId: string) => void
-  previewIds?:      Set<string>              // orders whose dishes preview in Zone D4 "Đơn hàng cần làm"
-  onTogglePreview?: (orderId: string) => void
 }
 
 export function WaitingSection({
   orders, tables, now, loadingIds, onAction, checkedTableIds, onToggleCheck, kiemTraIds, onKiemTra,
-  previewIds, onTogglePreview,
 }: WaitingSectionProps) {
   const [sortKey,    setSortKey]    = useState<SortKey>('time')
   const [sortDir,    setSortDir]    = useState<'asc' | 'desc'>('desc')
@@ -143,21 +140,18 @@ export function WaitingSection({
           const loading      = loadingIds.has(order.id)
           const isExpanded   = expandedId === order.id
           const isKiemTra    = kiemTraIds.has(order.id)
-          const isPreview    = previewIds?.has(order.id) ?? false
 
-          // "Chờ xác nhận" badge doubles as the Zone D4 preview toggle when a handler is wired.
-          const badgeCls = isPreview
-            ? 'bg-amber-500 text-white ring-1 ring-amber-600'
-            : statusColors(order.status)
-          const badgeBtn = onTogglePreview && (
+          // Status badge = action button, same behavior as TableList's StatusBadge:
+          // click advances to the next status (pending → confirmed).
+          const badgeBtn = next && (
             <button
-              onClick={e => { e.stopPropagation(); onTogglePreview(order.id) }}
-              title={isPreview ? 'Bỏ khỏi Đơn hàng cần làm' : 'Thêm vào Đơn hàng cần làm để kiểm tra'}
-              className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full w-fit transition-colors cursor-pointer hover:ring-1 hover:ring-amber-400 ${badgeCls}`}
+              onClick={e => { e.stopPropagation(); onAction(order.id, next.nextStatus) }}
+              disabled={loading}
+              title={next.label}
+              className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full w-fit cursor-pointer hover:opacity-75 disabled:opacity-50 transition-opacity ${statusColors(order.status)}`}
             >
-              {isPreview && <span>⊕</span>}
-              {statusLabel(order.status)}
-              {isPreview && <span>✓</span>}
+              {loading ? '...' : statusLabel(order.status)}
+              {!loading && <span className="opacity-60">›</span>}
             </button>
           )
 
@@ -166,12 +160,9 @@ export function WaitingSection({
 
           // When 🔍 Kiểm tra is active, the whole row lights up in the button's indigo — staff
           // can see at a glance which tables are folded into the Tổng món preview.
-          // D4 preview (amber) is a weaker highlight; Kiểm tra wins when both are on.
           const rowHighlight = isKiemTra
             ? 'border-l-4 border-l-indigo-500 ring-1 ring-inset ring-indigo-400/60 bg-indigo-50/50 dark:bg-indigo-900/20'
-            : isPreview
-              ? 'border-l-4 border-l-amber-500 bg-amber-50/40 dark:bg-amber-950/20'
-              : borderL
+            : borderL
 
           return (
             <div key={order.id} className={`border-b border-gray-100 dark:border-gray-700 last:border-b-0 ${rowHighlight}`}>

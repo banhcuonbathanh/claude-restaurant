@@ -25,7 +25,6 @@ interface Props {
   kiemTraTableIds?: Set<string>   // tables marked 🔍 Kiểm tra — shown as a +N delta in Tổng món
   onClearKiemTra?: () => void     // clears all Kiểm tra selections
   kiemTraIds?:     Set<string>    // order ids marked 🔍 Kiểm tra — forwarded to TableList rows
-  onKiemTra?:      (orderId: string) => void
   prepPreviewIds?: Set<string>    // pending orders previewed in Zone D4 "Đơn hàng cần làm"
 }
 
@@ -44,7 +43,6 @@ export function TableSection({
   kiemTraTableIds,
   onClearKiemTra,
   kiemTraIds,
-  onKiemTra,
   prepPreviewIds,
 }: Props) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list')
@@ -77,7 +75,6 @@ export function TableSection({
           onPaymentDone={onPaymentDone}
           onCancel={onCancel}
           kiemTraIds={kiemTraIds}
-          onKiemTra={onKiemTra}
         />
       ) : (
         <TableGrid

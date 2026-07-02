@@ -3,6 +3,7 @@ import { useState } from 'react'
 import type { Order } from '@/types/order'
 import type { Table } from '@/features/admin/admin.api'
 import { isKitchenItem, toppingLabel } from '@/features/admin/overview.helpers'
+import { CanhGioMatrix, isCanhGioName, type CanhGioEntry } from './CanhGioMatrix'
 
 interface PrepPanelProps {
   orders:   Order[]
@@ -78,13 +79,13 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
     return sortDir === 'asc' ? diff : -diff
   })
 
-  // Canh + Giò are pulled out into the per-table matrix at the bottom.
-  const isCanh = (name: string) => name.toLowerCase().includes('canh')
-  const isGio  = (name: string) => { const n = name.toLowerCase(); return n.includes('giò') || n.includes('gio') }
-  const mainRows = allRows.filter(([name]) => !isCanh(name) && !isGio(name))
-  const canhRows = allRows.filter(([name]) => isCanh(name))
-  const gioRows  = allRows.filter(([name]) => isGio(name))
-  const rows = [...mainRows, ...canhRows, ...gioRows]
+  // Canh + Giò are pulled out into the per-table matrix at the bottom (CanhGioMatrix).
+  const mainRows    = allRows.filter(([name]) => !isCanhGioName(name))
+  const canhGioRows = allRows.filter(([name]) => isCanhGioName(name))
+  const rows = [...mainRows, ...canhGioRows]
+  const canhGioEntries: CanhGioEntry[] = canhGioRows.flatMap(([name, row]) =>
+    row.orders.map(od => ({ tableLabel: od.tableLabel, name, qty: od.qty })),
+  )
   const totalRemaining = rows.reduce((s, [, r]) => s + r.remaining, 0)
 
   const actionableOrders = orders
@@ -196,70 +197,7 @@ export function PrepPanel({ orders, tableMap, onAction }: PrepPanelProps) {
           </div>
 
           {/* Canh + Giò matrix — tables as rows, each canh variant + one Giò column, with row + column totals */}
-          {(canhRows.length > 0 || gioRows.length > 0) && (() => {
-            const GIO = '__gio__'
-            // Columns: each canh variant (own column) + a single combined Giò column.
-            const columns: { key: string; label: string }[] = [
-              ...canhRows.map(([name]) => ({ key: name, label: name })),
-              ...(gioRows.length > 0 ? [{ key: GIO, label: 'Giò' }] : []),
-            ]
-            // table label → column key → remaining qty
-            const matrix = new Map<string, Map<string, number>>()
-            const add = (tableLabel: string, colKey: string, qty: number) => {
-              const t = matrix.get(tableLabel) ?? new Map<string, number>()
-              t.set(colKey, (t.get(colKey) ?? 0) + qty)
-              matrix.set(tableLabel, t)
-            }
-            for (const [dishName, row] of canhRows)
-              for (const od of row.orders) add(od.tableLabel, dishName, od.qty)
-            for (const [, row] of gioRows)
-              for (const od of row.orders) add(od.tableLabel, GIO, od.qty)
-
-            const tables = Array.from(matrix.keys()).sort((a, b) => a.localeCompare(b, 'vi', { numeric: true }))
-            // Tổng counts canh only — the Giò column is excluded from the row/grand totals.
-            const rowTotal = (t: string) => canhRows.reduce((s, [name]) => s + (matrix.get(t)?.get(name) ?? 0), 0)
-            const colTotal = (key: string) => tables.reduce((s, t) => s + (matrix.get(t)?.get(key) ?? 0), 0)
-            const grandTotal = tables.reduce((s, t) => s + rowTotal(t), 0)
-            return (
-              <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-800">
-                <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 flex items-center gap-1.5">
-                  <span className="text-xs">♨</span> Canh &amp; Giò
-                </p>
-                <table className="w-full text-xs border-collapse">
-                  <thead>
-                    <tr className="text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-                      <th className="text-left font-medium py-1.5 px-2">Bàn</th>
-                      {columns.map(c => (
-                        <th key={c.key} className="text-center font-medium py-1.5 px-2">{c.label}</th>
-                      ))}
-                      <th className="text-center font-semibold py-1.5 px-2">Tổng</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                    {tables.map(t => (
-                      <tr key={t} className="text-gray-700 dark:text-gray-300">
-                        <td className="py-1.5 px-2 font-semibold">{t}</td>
-                        {columns.map(c => {
-                          const q = matrix.get(t)?.get(c.key) ?? 0
-                          return <td key={c.key} className="text-center py-1.5 px-2">{q > 0 ? q : '–'}</td>
-                        })}
-                        <td className="text-center py-1.5 px-2 font-bold text-primary">{rowTotal(t)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot>
-                    <tr className="border-t-2 border-gray-200 dark:border-gray-700 font-bold text-gray-800 dark:text-gray-100">
-                      <td className="py-1.5 px-2 uppercase tracking-wide">Tổng</td>
-                      {columns.map(c => (
-                        <td key={c.key} className="text-center py-1.5 px-2">{colTotal(c.key)}</td>
-                      ))}
-                      <td className="text-center py-1.5 px-2 text-primary">{grandTotal}</td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            )
-          })()}
+          <CanhGioMatrix entries={canhGioEntries} />
         </>
       )}
     </div>

@@ -250,11 +250,10 @@ interface TableListProps {
   onPaymentDone?:  (orderId: string) => void
   onCancel?:       (orderId: string) => Promise<void>
   kiemTraIds?:     Set<string>
-  onKiemTra?:      (orderId: string) => void
 }
 
 export function TableList({
-  tables, orders, now, loadingIds, onAction, onPaymentDone, onCancel, kiemTraIds, onKiemTra,
+  tables, orders, now, loadingIds, onAction, onPaymentDone, onCancel, kiemTraIds,
 }: TableListProps) {
   const router = useRouter()
   const [timeSort,    setTimeSort]    = useState<'asc' | 'desc'>('asc')
@@ -468,17 +467,6 @@ export function TableList({
 
                   {/* button line */}
                   <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                    <button
-                      onClick={() => onKiemTra?.(order.id)}
-                      className={`flex-1 text-sm font-semibold px-3 py-2.5 rounded-lg border transition-colors whitespace-nowrap ${
-                        isKiemTra
-                          ? 'bg-indigo-600 text-white border-indigo-600'
-                          : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
-                      }`}
-                      title="Kiểm tra"
-                    >
-                      🔍 Kiểm tra
-                    </button>
                     <button
                       onClick={() => router.push(`/pos?table_id=${table.id}&table_name=${encodeURIComponent(table.name)}`)}
                       className="flex-1 text-sm font-semibold px-3 py-2.5 rounded-lg border border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 transition-colors whitespace-nowrap"
