@@ -170,7 +170,7 @@ function TableDetailDrawer({
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
           <div>
             <p className="text-base font-bold text-gray-900 dark:text-gray-100">{table.name}</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{table.capacity} chỗ · #{order.order_number}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{table.capacity > 0 ? `${table.capacity} chỗ · ` : ''}#{order.order_number}</p>
           </div>
           <button
             onClick={onClose}
@@ -287,11 +287,18 @@ export function TableList({
     if (list) list.push(o)
     else ordersByTable.set(o.table_id, [o])
   }
+  // Online orders have no table_id — surface them as rows under a virtual
+  // "Đơn online" table so they live in the same list as the real tables.
+  const onlineOrders = orders.filter(o => !o.table_id && o.source === 'online')
+  const ONLINE_TABLE: Table = { id: '__online__', name: '🛵 Đơn online', capacity: 0, status: 'occupied' }
+  if (onlineOrders.length > 0) ordersByTable.set(ONLINE_TABLE.id, onlineOrders)
+
   Array.from(ordersByTable.values()).forEach(list => {
     list.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
   })
 
-  const sorted = [...tables].sort((a, b) => {
+  const allTables = onlineOrders.length > 0 ? [...tables, ONLINE_TABLE] : tables
+  const sorted = [...allTables].sort((a, b) => {
     const aOrders = ordersByTable.get(a.id)
     const bOrders = ordersByTable.get(b.id)
     const aOcc = aOrders ? 0 : 1
@@ -474,6 +481,7 @@ export function TableList({
             const isExpanded = expandedIds.has(order.id)
             const orderSuffix = order.order_number.split('-').pop() ?? order.order_number
             const isKiemTra = kiemTraIds?.has(order.id) ?? false
+            const isOnline = table.id === ONLINE_TABLE.id
 
             // When 🔍 Kiểm tra is active, the whole row lights up in the button's indigo — matches Zone B.
             const rowHighlight = isKiemTra
@@ -492,6 +500,11 @@ export function TableList({
                       <span className="font-semibold text-base text-gray-900 dark:text-gray-100 leading-tight">
                         {table.name}
                         <span className="ml-2 text-xs font-mono font-normal text-gray-400 dark:text-gray-500">{orderSuffix}</span>
+                        {isOnline && (
+                          <span className="ml-2 text-xs font-normal text-gray-500 dark:text-gray-400">
+                            {order.customer_name || 'Khách online'}
+                          </span>
+                        )}
                       </span>
                       <span onClick={e => e.stopPropagation()}>
                         <StatusBadge />
@@ -504,14 +517,17 @@ export function TableList({
 
                   {/* button line */}
                   <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                    <button
-                      onClick={() => router.push(`/pos?table_id=${table.id}&table_name=${encodeURIComponent(table.name)}`)}
-                      className="flex-1 text-sm font-semibold px-3 py-2.5 rounded-lg border border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 transition-colors whitespace-nowrap"
-                      title={`Đặt hộ — ${table.name} (khách đặt trước, ăn sau)`}
-                    >
-                      Đặt hộ
-                    </button>
-                    {STATUS_CHAIN.includes(order.status) && (
+                    {!isOnline && (
+                      <button
+                        onClick={() => router.push(`/pos?table_id=${table.id}&table_name=${encodeURIComponent(table.name)}`)}
+                        className="flex-1 text-sm font-semibold px-3 py-2.5 rounded-lg border border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 transition-colors whitespace-nowrap"
+                        title={`Đặt hộ — ${table.name} (khách đặt trước, ăn sau)`}
+                      >
+                        Đặt hộ
+                      </button>
+                    )}
+                    {/* Xong creates a cash payment — never offer it on an already-paid online order */}
+                    {STATUS_CHAIN.includes(order.status) && !(isOnline && order.payment_status === 'completed') && (
                       <button
                         onClick={() => handleDoneTap(order)}
                         disabled={doneLoadingId === order.id}

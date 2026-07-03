@@ -5,7 +5,7 @@
 | Zone | Component | Title | When visible |
 |---|---|---|---|
 | A | StatCards | — | Always |
-| ONLINE | OnlineOrdersSection | Đơn online | Only when ≥1 active order has `source='online'` — these orders have NO table so Zones B/D never show them (SĐT · địa chỉ · Chỉ đường Google Maps · badge thanh toán · giờ lấy · nút chuyển trạng thái + Hủy) |
+| ONLINE | OnlineOrdersSection | Đơn online | Only when ≥1 active order has `source='online'` — these orders have NO table so Zone B never shows them (SĐT · địa chỉ · Chỉ đường Google Maps · badge thanh toán · giờ lấy · nút chuyển trạng thái + Hủy). Zone D **list view** (TableList) ALSO shows them as rows under a virtual "🛵 Đơn online" table (ONLINE-4): same row layout — status badge, urgency time/border, Xong double-tap (hidden when `payment_status='completed'` to avoid double cash payment), expand, drawer; no "Đặt hộ" (no table_id). TableGrid (grid view) still table-keyed → never shows them |
 | B | WaitingSection | Danh sách bàn cần chuẩn bị | Always — all active orders **with a valid table** (`table_id` ∈ tables) |
 | C | PrepPanel | Danh sách món ăn cần chuẩn bị | Only when 🔍 Kiểm tra is active on a row |
 | D | Table view | — | Always |
