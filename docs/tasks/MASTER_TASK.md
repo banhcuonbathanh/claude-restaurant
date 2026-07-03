@@ -473,6 +473,21 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 ---
 
+## Phase FIX-OL — Online Checkout UX Fixes (phát hiện khi giả lập khách online)
+
+> **Owner:** FE
+> **Dependency:** ONLINE-2 ✅ · ONLINE-4 ✅
+> **Status:** ✅ COMPLETE (2026-07-04) — verified bằng luồng khách online thật trên UI (đơn #0011, click chuột thật toàn bộ)
+> **Goal:** 3 lỗi UI phát hiện khi giả lập khách đặt online: nút Đặt hàng bị bottom-nav che (pointer bị chặn), CartDrawer đóng vẫn nằm trong a11y tree, trang tracking dùng ngôn ngữ "bàn" cho đơn online (hiện "?" thay vì nhãn online).
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| FIX-OL-1 | FE | `checkout/page.tsx`: thanh submit `fixed bottom-0` không z-index bị `ClientBottomNav` (z-20) đè → nâng thanh submit lên trên nav bằng `bottom-[calc(72px+env(safe-area-inset-bottom))]` (khớp padding của (shop)/layout.tsx) | — | 0.2 | ✅ | Click nút "Đặt hàng" bằng chuột thật (không JS) thành công — đơn #0011 tạo OK (verified 2026-07-04) |
+| FIX-OL-2 | FE | `CartDrawer.tsx`: drawer đóng chỉ translate-x-full, vẫn trong a11y tree + focusable → thêm `aria-hidden={!open}` + `invisible` (transition visibility giữ animation) | — | 0.2 | ✅ | Drawer đóng không còn trong accessibility snapshot (verified); animation mở/đóng không đổi |
+| FIX-OL-3 | FE | `orders/page.tsx` + `TableInfoBanner.tsx` + `WholeFloorPrepList.tsx`: đơn online hiện "?" và ngôn ngữ "bàn" → nhãn "Online"/"Đơn online" khi `!order.table_id` / `!item.tableLabel`; badge header "N bàn" → "N đơn" | — | 0.3 | ✅ | Verified trên đơn #0011: tile "Đơn Online", toggle "Ẩn đơn của bạn", hàng chờ "Đơn online (đơn bạn)", badge "1 đơn". Đơn QR: nhánh `isOnline=false` giữ nguyên chuỗi cũ (chưa chạy lại E2E QR) |
+
+---
+
 ## Critical Rules (Never Forget)
 
 | Rule | Detail |
