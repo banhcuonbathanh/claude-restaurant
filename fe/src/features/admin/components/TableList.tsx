@@ -1,10 +1,10 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import type { Order, OrderItem } from '@/types/order'
 import type { Table } from '@/features/admin/admin.api'
-import { createPayment } from '@/features/admin/admin.api'
+import { createPayment, updateOrderStatus } from '@/features/admin/admin.api'
 import { elapsedMins, statusColors, statusLabel } from '@/features/admin/overview.helpers'
 import { formatVND } from '@/lib/utils'
 
@@ -17,6 +17,9 @@ function nextStatus(status: Order['status']): string | null {
     default:          return null
   }
 }
+
+// BE only accepts sequential transitions — "Xong" walks the rest of this chain, then pays.
+const STATUS_CHAIN: Order['status'][] = ['pending', 'confirmed', 'preparing', 'ready', 'delivered']
 
 // ── Payment confirmation modal ────────────────────────────────────────────────
 
@@ -261,6 +264,12 @@ export function TableList({
   const [detailEntry, setDetailEntry] = useState<{ order: Order; table: Table } | null>(null)
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
 
+  // "Xong" fast-complete: 1st tap arms, 2nd tap within 2.5s fires.
+  const [armedDoneId,   setArmedDoneId]   = useState<string | null>(null)
+  const [doneLoadingId, setDoneLoadingId] = useState<string | null>(null)
+  const armTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => { if (armTimer.current) clearTimeout(armTimer.current) }, [])
+
   function toggleExpand(orderId: string) {
     setExpandedIds(prev => {
       const next = new Set(prev)
@@ -309,6 +318,34 @@ export function TableList({
     }
   }
 
+  function handleDoneTap(order: Order) {
+    if (doneLoadingId) return
+    if (armedDoneId !== order.id) {
+      setArmedDoneId(order.id)
+      if (armTimer.current) clearTimeout(armTimer.current)
+      armTimer.current = setTimeout(() => setArmedDoneId(null), 2500)
+      return
+    }
+    if (armTimer.current) clearTimeout(armTimer.current)
+    setArmedDoneId(null)
+    void runQuickDone(order)
+  }
+
+  async function runQuickDone(order: Order) {
+    setDoneLoadingId(order.id)
+    try {
+      const remaining = STATUS_CHAIN.slice(STATUS_CHAIN.indexOf(order.status) + 1)
+      for (const status of remaining) await updateOrderStatus(order.id, status)
+      await createPayment({ order_id: order.id, method: 'cash', amount: order.total_amount })
+      onPaymentDone?.(order.id)
+      toast.success(`Đã hoàn tất & thu tiền — ${formatVND(order.total_amount)}`)
+    } catch {
+      toast.error('Không thể hoàn tất đơn. Vui lòng thử lại.')
+    } finally {
+      setDoneLoadingId(null)
+    }
+  }
+
   async function handlePaymentConfirm() {
     if (!payingEntry) return
     try {
@@ -348,7 +385,7 @@ export function TableList({
       <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         {/* header row */}
         <div className="flex items-center justify-between px-4 py-2.5 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-          <span>Bàn</span>
+          <span>Danh sách bàn</span>
           <button
             onClick={() => setTimeSort(s => s === 'asc' ? 'desc' : 'asc')}
             className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300 transition-colors cursor-pointer select-none"
@@ -474,6 +511,24 @@ export function TableList({
                     >
                       Đặt hộ
                     </button>
+                    {STATUS_CHAIN.includes(order.status) && (
+                      <button
+                        onClick={() => handleDoneTap(order)}
+                        disabled={doneLoadingId === order.id}
+                        className={`flex-1 text-sm font-semibold px-3 py-2.5 rounded-lg border transition-colors whitespace-nowrap disabled:opacity-60 ${
+                          armedDoneId === order.id
+                            ? 'border-green-700 bg-green-700 text-white ring-2 ring-green-400 animate-pulse'
+                            : 'border-green-600 bg-green-600 text-white hover:bg-green-700 active:bg-green-800'
+                        }`}
+                        title="Chạm 2 lần — khách đã thanh toán, hoàn tất đơn ngay"
+                      >
+                        {doneLoadingId === order.id
+                          ? 'Đang xử lý...'
+                          : armedDoneId === order.id
+                            ? 'Chạm lần nữa ✓'
+                            : 'Xong'}
+                      </button>
+                    )}
                     <button
                       onClick={() => toggleExpand(order.id)}
                       className="flex items-center justify-center w-11 h-11 shrink-0 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/30 transition-colors"
