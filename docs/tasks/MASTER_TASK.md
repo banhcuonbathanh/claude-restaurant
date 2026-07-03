@@ -457,6 +457,21 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 ---
 
+## Phase ONLINE-ORD — Admin Online Orders Zone + Online Checkout Fields
+
+> **Owner:** BE + FE
+> **Dependency:** Admin Overview ✅ · Checkout ✅
+> **Status:** ✅ COMPLETE (2026-07-03)
+> **Goal:** Đơn `source='online'` (không có bàn) hiện đang vô hình trên admin overview — WaitingSection lọc `table_id`, nên đơn online kẹt `pending` mãi và làm lệch count "Hàng chờ phục vụ" phía khách (2 vs 1). Sửa gốc: component riêng cho đơn online trên admin (SĐT · địa chỉ · chỉ đường Google Maps · thanh toán · topping/yêu cầu · giờ lấy) + checkout online thu thêm địa chỉ & giờ lấy.
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| ONLINE-1 | BE | Migration `018`: `orders.delivery_address VARCHAR(255) NULL` + `orders.pickup_at DATETIME NULL`; sqlc regen; `CreateOrder` DTO/service/repo thread 2 fields (handler parse RFC3339 → 400 nếu sai); `orderJSON` trả `delivery_address`/`pickup_at`/`payment_method`/`payment_status`; `ListActiveOrders` hydrate payment (GetPaymentByOrderID, chỉ đơn online, `SetPaymentRepo` optional wiring); 2 raw-SQL SELECT (ListActiveOrders/ListTodayHistory) thêm 2 cột mới | — | 1 | ✅ | `go build ./...` + `go vet` sạch; service tests pass; POST /orders với address+pickup lưu đúng (verify curl); GET /orders/live trả đủ field mới (verify curl) |
+| ONLINE-2 | FE | Checkout: khi `!cart.tableId` (source online) thêm field **địa chỉ nhận hàng** (bắt buộc, zod ≥5 ký tự qua `onlineSchema`) + **giờ lấy** (select Sớm nhất/15'/30'/45'/1h → `pickup_at` RFC3339 = now+X); payload POST /orders gửi 2 field; đơn QR không đổi (baseSchema) | ONLINE-1 | 0.5 | ✅ | tsc 0 new errors; submit UI thật: order lưu addr="12 Phố Huế…", pickup_at = created+30' (verified); đơn QR không đổi |
+| ONLINE-3 | FE | `OnlineOrdersSection.tsx` mới (features/admin/components) + wire vào `overview/page.tsx` (zone ONLINE trên Zone D, tự ẩn khi không có đơn online): card per đơn online active — SĐT (`tel:` link), địa chỉ + nút **Chỉ đường** (Google Maps dir link), badge thanh toán (method/status hoặc "Chưa thanh toán"), món + topping (`toppingLabel`) + note, giờ lấy + countdown (trễ → đỏ), elapsed urgency, nút chuyển trạng thái (Xác nhận→…→Đã giao) + Hủy (trước delivered); `types/order.ts` Order thêm `delivery_address`/`pickup_at`/`payment_method`/`payment_status`; routing reference thêm hàng Zone ONLINE | ONLINE-1 | 1 | ✅ | tsc 0 new errors, lint 0; vitest 107 pass / 2 fail pre-existing; đơn ma 28/06 hiện trên admin + Hủy hoạt động (test order cancelled qua UI); Chỉ đường link encode đúng; count khách = admin |
+
+---
+
 ## Critical Rules (Never Forget)
 
 | Rule | Detail |

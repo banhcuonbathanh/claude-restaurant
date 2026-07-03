@@ -15,6 +15,7 @@ import { useOverviewWS } from '@/hooks/useOverviewWS'
 import { api } from '@/lib/api-client'
 import { StatCards } from '@/features/admin/components/StatCards'
 import { WaitingSection } from '@/features/admin/components/WaitingSection'
+import { OnlineOrdersSection } from '@/features/admin/components/OnlineOrdersSection'
 import { PrepPanel } from '@/features/admin/components/PrepPanel'
 import { TableSection } from '@/features/admin/components/TableSection'
 import { PaidLog } from '@/features/admin/components/PaidLog'
@@ -55,7 +56,6 @@ export default function OverviewPage() {
 
   // Zone visibility toggles — Zone A (StatCards) starts hidden by default.
   const [showStats,   setShowStats]   = useState(false)
-  const [showTables,  setShowTables]  = useState(true)
   const [showWaiting, setShowWaiting] = useState(true)
 
   // 30s timer — keeps elapsed-time urgency display fresh
@@ -231,12 +231,16 @@ export default function OverviewPage() {
         {showStats && <StatCards orders={orders} tables={tables} now={now} />}
       </div>
 
+      {/* Zone ONLINE — orders with source='online' (no table). Table-keyed zones
+          (B/D) drop them, so without this zone an online order is invisible. */}
+      <OnlineOrdersSection
+        orders={filteredOrders}
+        now={now}
+        loadingIds={loadingIds}
+        onAction={handleAction}
+      />
+
       {/* Zone D — table view with grid/list toggle */}
-      <div>
-        <div className="mb-2">
-          <ZoneToggle label="khu vực bàn" open={showTables} onToggle={() => setShowTables(v => !v)} />
-        </div>
-        {showTables && (
       <TableSection
         tables={filteredTables}
         listOrders={filteredTableOrders}
@@ -281,8 +285,6 @@ export default function OverviewPage() {
           </div>
         }
       />
-        )}
-      </div>
 
       {/* Zone C — only 'pending' orders: docs/fe/wireframes/admin_main/admin_overview/table_status.md §PrepPanel Rules */}
       {kiemTraIds.size > 0 && (

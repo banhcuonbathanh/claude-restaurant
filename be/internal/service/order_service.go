@@ -30,12 +30,17 @@ type OrderService struct {
 	tableRepo     repository.TableRepository
 	rdb           orderRedisClient
 	productLookup ProductLookup
+	paymentRepo   repository.PaymentRepository // optional — decorates online orders in ListActiveOrders
 }
 
 // NewOrderService creates an OrderService.
 func NewOrderService(repo repository.OrderRepository, tableRepo repository.TableRepository, rdb orderRedisClient, products ProductLookup) *OrderService {
 	return &OrderService{repo: repo, tableRepo: tableRepo, rdb: rdb, productLookup: products}
 }
+
+// SetPaymentRepo wires the payment lookup used to show payment state on online
+// orders in the admin live view. Optional — nil skips payment decoration.
+func (s *OrderService) SetPaymentRepo(p repository.PaymentRepository) { s.paymentRepo = p }
 
 // ─── OrderReader / OrderWriter interfaces (for PaymentService) ───────────────
 
@@ -93,6 +98,10 @@ type OrderDetails struct {
 	db.Order
 	TableName string             `json:"table_name"`
 	Items     []OrderItemDetails
+	// PaymentMethod/PaymentStatus decorate online orders in the live list
+	// ("" = no payment record yet). Populated only when paymentRepo is wired.
+	PaymentMethod string
+	PaymentStatus string
 }
 
 // OrderItemDetails enriches an order_item with derived status.
@@ -165,7 +174,16 @@ func (s *OrderService) ListActiveOrders(ctx context.Context) ([]OrderDetails, er
 				tableName = t.Name
 			}
 		}
-		result = append(result, OrderDetails{Order: o, TableName: tableName, Items: enriched})
+		det := OrderDetails{Order: o, TableName: tableName, Items: enriched}
+		// Online orders carry payment info so the admin Online Orders zone can
+		// show paid/unpaid without extra requests.
+		if o.Source == db.OrdersSourceOnline && s.paymentRepo != nil {
+			if p, pErr := s.paymentRepo.GetPaymentByOrderID(ctx, o.ID); pErr == nil {
+				det.PaymentMethod = string(p.Method)
+				det.PaymentStatus = string(p.Status)
+			}
+		}
+		result = append(result, det)
 	}
 	return result, nil
 }
@@ -216,13 +234,15 @@ func (s *OrderService) SearchActiveOrders(ctx context.Context, q string) ([]Orde
 
 // CreateOrderInput is the validated input from the handler.
 type CreateOrderInput struct {
-	TableID       string
-	Source        string
-	CustomerName  string
-	CustomerPhone string
-	Note          string
-	CreatedBy     string // staff_id or "guest"
-	Items         []CreateOrderItemInput
+	TableID         string
+	Source          string
+	CustomerName    string
+	CustomerPhone   string
+	DeliveryAddress string     // online orders: delivery/pickup address
+	PickupAt        *time.Time // online orders: requested pickup time (nil = ASAP)
+	Note            string
+	CreatedBy       string // staff_id or "guest"
+	Items           []CreateOrderItemInput
 }
 
 // CreateOrderItemInput is one item in the order request.
@@ -317,16 +337,23 @@ func (s *OrderService) CreateOrder(ctx context.Context, in CreateOrderInput) (or
 		source = db.OrdersSourcePos
 	}
 
+	pickupAt := sql.NullTime{}
+	if in.PickupAt != nil {
+		pickupAt = sql.NullTime{Time: *in.PickupAt, Valid: true}
+	}
+
 	repoInput := repository.CreateOrderWithItemsInput{
-		ID:            orderID,
-		OrderNumber:   orderNumber,
-		TableID:       tableID,
-		Source:        source,
-		CustomerName:  nullStr(in.CustomerName),
-		CustomerPhone: nullStr(in.CustomerPhone),
-		Note:          nullStr(in.Note),
-		CreatedBy:     nullStr(in.CreatedBy),
-		Items:         rows,
+		ID:              orderID,
+		OrderNumber:     orderNumber,
+		TableID:         tableID,
+		Source:          source,
+		CustomerName:    nullStr(in.CustomerName),
+		CustomerPhone:   nullStr(in.CustomerPhone),
+		DeliveryAddress: nullStr(in.DeliveryAddress),
+		PickupAt:        pickupAt,
+		Note:            nullStr(in.Note),
+		CreatedBy:       nullStr(in.CreatedBy),
+		Items:           rows,
 	}
 
 	for attempt := 0; attempt < 3; attempt++ {

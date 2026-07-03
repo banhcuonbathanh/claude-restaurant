@@ -12,20 +12,35 @@ import { formatVND } from '@/lib/utils'
 import { STORAGE_KEYS } from '@/lib/storage-keys'
 import { buildOrderItemsPayload } from '@/lib/order-payload'
 
-const schema = z.object({
-  customer_name:   z.string().min(2, 'Vui lòng nhập tên').max(100),
-  customer_phone:  z.string().regex(/^(0|\+84)[0-9]{9}$/, 'Số điện thoại không hợp lệ'),
-  note:            z.string().max(500).optional(),
-  payment_method:  z.enum(['vnpay', 'momo', 'zalopay', 'cash']),
+const baseSchema = z.object({
+  customer_name:    z.string().min(2, 'Vui lòng nhập tên').max(100),
+  customer_phone:   z.string().regex(/^(0|\+84)[0-9]{9}$/, 'Số điện thoại không hợp lệ'),
+  delivery_address: z.string().max(255).optional(),
+  pickup_in:        z.enum(['asap', '15', '30', '45', '60']).optional(),
+  note:             z.string().max(500).optional(),
+  payment_method:   z.enum(['vnpay', 'momo', 'zalopay', 'cash']),
 })
 
-type CheckoutForm = z.infer<typeof schema>
+// Online orders (no table) must carry an address so staff can deliver / hand over.
+const onlineSchema = baseSchema.extend({
+  delivery_address: z.string().min(5, 'Vui lòng nhập địa chỉ nhận hàng').max(255),
+})
+
+type CheckoutForm = z.infer<typeof baseSchema>
 
 const PAYMENT_OPTIONS = [
   { value: 'vnpay',   label: '💳 VNPay' },
   { value: 'momo',    label: '📱 MoMo' },
   { value: 'zalopay', label: '🏦 ZaloPay' },
   { value: 'cash',    label: '💵 Tiền mặt COD' },
+] as const
+
+const PICKUP_OPTIONS = [
+  { value: 'asap', label: 'Sớm nhất có thể' },
+  { value: '15',   label: 'Sau 15 phút' },
+  { value: '30',   label: 'Sau 30 phút' },
+  { value: '45',   label: 'Sau 45 phút' },
+  { value: '60',   label: 'Sau 1 giờ' },
 ] as const
 
 export default function CheckoutPage() {
@@ -37,18 +52,25 @@ export default function CheckoutPage() {
     if (!submitted.current && cart.itemCount() === 0) router.replace('/menu')
   }, [cart, router])
 
+  const isOnline = !cart.tableId
+
   const { register, handleSubmit, formState: { errors } } = useForm<CheckoutForm>({
-    resolver:      zodResolver(schema),
-    defaultValues: { payment_method: 'cash' },
+    resolver:      zodResolver(isOnline ? onlineSchema : baseSchema),
+    defaultValues: { payment_method: 'cash', pickup_in: 'asap' },
   })
 
   const submitOrder = useMutation({
     mutationFn: async (form: CheckoutForm) => {
       cart.setPaymentMethod(form.payment_method)
 
+      const pickupMins = form.pickup_in && form.pickup_in !== 'asap' ? Number(form.pickup_in) : 0
       const payload = {
         customer_name:  form.customer_name,
         customer_phone: form.customer_phone,
+        delivery_address: isOnline ? form.delivery_address : null,
+        pickup_at:        isOnline && pickupMins > 0
+          ? new Date(Date.now() + pickupMins * 60_000).toISOString()
+          : null,
         note:           form.note ?? null,
         table_id:       cart.tableId ?? null,
         source:         cart.tableId ? 'qr' : 'online',
@@ -169,6 +191,33 @@ export default function CheckoutPage() {
                 <p className="text-xs text-urgent mt-1">{errors.customer_phone.message}</p>
               )}
             </div>
+
+            {isOnline && (
+              <>
+                <div>
+                  <input
+                    {...register('delivery_address')}
+                    placeholder="Địa chỉ nhận hàng *"
+                    className="w-full bg-muted border border-border rounded-lg px-3 py-2.5 text-sm text-foreground placeholder-muted-fg focus:outline-none focus:border-primary transition-colors"
+                  />
+                  {errors.delivery_address && (
+                    <p className="text-xs text-urgent mt-1">{errors.delivery_address.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-xs text-muted-fg block mb-1">Thời gian lấy / nhận hàng</label>
+                  <select
+                    {...register('pickup_in')}
+                    className="w-full bg-muted border border-border rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary transition-colors"
+                  >
+                    {PICKUP_OPTIONS.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
 
             <div>
               <textarea

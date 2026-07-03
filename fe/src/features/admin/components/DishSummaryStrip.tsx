@@ -16,8 +16,9 @@ interface Props {
 }
 
 export function DishSummaryStrip({ tables, listOrders, kiemTraTableIds, onClearKiemTra }: Props) {
-  const [openDish, setOpenDish] = useState<string | null>(null)
-  const [showAll,  setShowAll]  = useState(false)
+  const [openDish,  setOpenDish]  = useState<string | null>(null)
+  const [showAll,   setShowAll]   = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
 
   const tableIds     = new Set(tables.map(t => t.id))
   const tableScoped  = listOrders.filter(o => o.table_id != null && tableIds.has(o.table_id))
@@ -70,7 +71,7 @@ export function DishSummaryStrip({ tables, listOrders, kiemTraTableIds, onClearK
 
   return (
     <div className="mb-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 px-3 py-2.5">
-      <div className="flex items-center justify-between mb-2">
+      <div className={`flex items-center justify-between ${collapsed ? '' : 'mb-2'}`}>
         <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide flex items-center gap-1.5">
           Tổng món
           {kiemTraCount > 0 && (
@@ -89,16 +90,25 @@ export function DishSummaryStrip({ tables, listOrders, kiemTraTableIds, onClearK
               Bỏ kiểm tra ({kiemTraCount})
             </button>
           )}
+          {!collapsed && (
+            <button
+              type="button"
+              onClick={() => { setShowAll(v => !v); setOpenDish(null) }}
+              className={`text-xs font-semibold px-2 py-0.5 rounded-md border transition-colors ${
+                showAll
+                  ? 'bg-indigo-600 text-white border-indigo-600'
+                  : 'border-indigo-300 dark:border-indigo-700 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
+              }`}
+            >
+              {showAll ? 'Thu gọn' : 'Xem tất cả'}
+            </button>
+          )}
           <button
             type="button"
-            onClick={() => { setShowAll(v => !v); setOpenDish(null) }}
-            className={`text-xs font-semibold px-2 py-0.5 rounded-md border transition-colors ${
-              showAll
-                ? 'bg-indigo-600 text-white border-indigo-600'
-                : 'border-indigo-300 dark:border-indigo-700 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
-            }`}
+            onClick={() => setCollapsed(v => !v)}
+            className="text-xs font-semibold px-2 py-0.5 rounded-md border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
-            {showAll ? 'Thu gọn' : 'Xem tất cả'}
+            {collapsed ? 'Hiện' : 'Ẩn'}
           </button>
           <span className="text-xs font-bold bg-indigo-600 text-white px-2 py-0.5 rounded-md">
             {dishTotal} phần
@@ -106,6 +116,8 @@ export function DishSummaryStrip({ tables, listOrders, kiemTraTableIds, onClearK
           </span>
         </div>
       </div>
+      {!collapsed && (
+      <>
       <div className="flex flex-wrap gap-2">
         {dishSummary.map(row => {
           const isOpen = openDish === row.label
@@ -150,6 +162,8 @@ export function DishSummaryStrip({ tables, listOrders, kiemTraTableIds, onClearK
         if (!row) return null
         return <div className="mt-2">{renderDishDetail(row)}</div>
       })()}
+      </>
+      )}
     </div>
   )
 }

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -57,12 +58,14 @@ func toComboOverrides(in []comboItemOverrideReq) []service.ComboItemOverrideInpu
 }
 
 type createOrderReq struct {
-	TableID       string               `json:"table_id"`
-	Source        string               `json:"source" binding:"required,oneof=online qr pos"`
-	CustomerName  string               `json:"customer_name"`
-	CustomerPhone string               `json:"customer_phone"`
-	Note          string               `json:"note"`
-	Items         []createOrderItemReq `json:"items" binding:"required,min=1"`
+	TableID         string               `json:"table_id"`
+	Source          string               `json:"source" binding:"required,oneof=online qr pos"`
+	CustomerName    string               `json:"customer_name"`
+	CustomerPhone   string               `json:"customer_phone"`
+	DeliveryAddress string               `json:"delivery_address"`
+	PickupAt        string               `json:"pickup_at"` // RFC3339, optional (online orders)
+	Note            string               `json:"note"`
+	Items           []createOrderItemReq `json:"items" binding:"required,min=1"`
 }
 
 // Create handles POST /orders
@@ -103,14 +106,26 @@ func (h *OrderHandler) Create(c *gin.Context) {
 		})
 	}
 
+	var pickupAt *time.Time
+	if req.PickupAt != "" {
+		t, err := time.Parse(time.RFC3339, req.PickupAt)
+		if err != nil {
+			respondError(c, http.StatusBadRequest, "INVALID_INPUT", "pickup_at phải theo định dạng RFC3339")
+			return
+		}
+		pickupAt = &t
+	}
+
 	orderID, tableBusy, err := h.svc.CreateOrder(c.Request.Context(), service.CreateOrderInput{
-		TableID:       req.TableID,
-		Source:        req.Source,
-		CustomerName:  req.CustomerName,
-		CustomerPhone: req.CustomerPhone,
-		Note:          req.Note,
-		CreatedBy:     callerID,
-		Items:         items,
+		TableID:         req.TableID,
+		Source:          req.Source,
+		CustomerName:    req.CustomerName,
+		CustomerPhone:   req.CustomerPhone,
+		DeliveryAddress: req.DeliveryAddress,
+		PickupAt:        pickupAt,
+		Note:            req.Note,
+		CreatedBy:       callerID,
+		Items:           items,
 	})
 	if err != nil {
 		handleServiceError(c, err)
@@ -370,20 +385,33 @@ func orderJSON(o service.OrderDetails) gin.H {
 		})
 	}
 
+	deliveryAddress := ""
+	if o.Order.DeliveryAddress.Valid {
+		deliveryAddress = o.Order.DeliveryAddress.String
+	}
+	var pickupAt interface{}
+	if o.Order.PickupAt.Valid {
+		pickupAt = o.Order.PickupAt.Time
+	}
+
 	return gin.H{
-		"id":             o.Order.ID,
-		"order_number":   o.Order.OrderNumber,
-		"table_id":       tableID,
-		"table_name":     o.TableName,
-		"status":         string(o.Order.Status),
-		"source":         string(o.Order.Source),
-		"customer_name":  customerName,
-		"customer_phone": customerPhone,
-		"note":           note,
-		"total_amount":   service.ParsePrice(o.Order.TotalAmount),
-		"created_by":     createdBy,
-		"created_at":     o.Order.CreatedAt,
-		"updated_at":     o.Order.UpdatedAt,
-		"items":          items,
+		"id":               o.Order.ID,
+		"order_number":     o.Order.OrderNumber,
+		"table_id":         tableID,
+		"table_name":       o.TableName,
+		"status":           string(o.Order.Status),
+		"source":           string(o.Order.Source),
+		"customer_name":    customerName,
+		"customer_phone":   customerPhone,
+		"delivery_address": deliveryAddress,
+		"pickup_at":        pickupAt,
+		"payment_method":   o.PaymentMethod,
+		"payment_status":   o.PaymentStatus,
+		"note":             note,
+		"total_amount":     service.ParsePrice(o.Order.TotalAmount),
+		"created_by":       createdBy,
+		"created_at":       o.Order.CreatedAt,
+		"updated_at":       o.Order.UpdatedAt,
+		"items":            items,
 	}
 }

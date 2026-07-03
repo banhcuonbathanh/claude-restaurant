@@ -40,9 +40,15 @@ const config: Config = {
           '0%, 100%': { transform: 'scale(1)' },
           '50%':      { transform: 'scale(1.03)' },
         },
+        // New-order notice — banner drops in from above the viewport
+        'slide-down': {
+          from: { transform: 'translateY(-120%)', opacity: '0' },
+          to:   { transform: 'translateY(0)',     opacity: '1' },
+        },
       },
       animation: {
-        'soft-hint': 'soft-hint 3.8s ease-in-out infinite',
+        'soft-hint':  'soft-hint 3.8s ease-in-out infinite',
+        'slide-down': 'slide-down 0.3s ease-out',
       },
     },
   },

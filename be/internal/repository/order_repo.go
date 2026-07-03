@@ -23,15 +23,17 @@ type OrderItemRow struct {
 
 // CreateOrderWithItemsInput is the full order + items passed to the transaction helper.
 type CreateOrderWithItemsInput struct {
-	ID            string
-	OrderNumber   string
-	TableID       sql.NullString
-	Source        db.OrdersSource
-	CustomerName  sql.NullString
-	CustomerPhone sql.NullString
-	Note          sql.NullString
-	CreatedBy     sql.NullString
-	Items         []OrderItemRow
+	ID              string
+	OrderNumber     string
+	TableID         sql.NullString
+	Source          db.OrdersSource
+	CustomerName    sql.NullString
+	CustomerPhone   sql.NullString
+	DeliveryAddress sql.NullString
+	PickupAt        sql.NullTime
+	Note            sql.NullString
+	CreatedBy       sql.NullString
+	Items           []OrderItemRow
 }
 
 // OrderRepository wraps all sqlc order queries.
@@ -83,14 +85,16 @@ func (r *orderRepo) CreateOrderWithItems(ctx context.Context, in CreateOrderWith
 	qtx := db.New(tx)
 
 	if err := qtx.CreateOrder(ctx, db.CreateOrderParams{
-		ID:            in.ID,
-		OrderNumber:   in.OrderNumber,
-		TableID:       in.TableID,
-		Source:        in.Source,
-		CustomerName:  in.CustomerName,
-		CustomerPhone: in.CustomerPhone,
-		Note:          in.Note,
-		CreatedBy:     in.CreatedBy,
+		ID:              in.ID,
+		OrderNumber:     in.OrderNumber,
+		TableID:         in.TableID,
+		Source:          in.Source,
+		CustomerName:    in.CustomerName,
+		CustomerPhone:   in.CustomerPhone,
+		DeliveryAddress: in.DeliveryAddress,
+		PickupAt:        in.PickupAt,
+		Note:            in.Note,
+		CreatedBy:       in.CreatedBy,
 	}); err != nil {
 		return fmt.Errorf("order: insert order: %w", err)
 	}
@@ -185,6 +189,7 @@ func (r *orderRepo) ListActiveOrders(ctx context.Context) ([]db.Order, error) {
 	// Active = pending, confirmed, preparing, ready, delivered (awaiting payment)
 	rows, err := r.sqlDB.QueryContext(ctx, `
 		SELECT id, order_number, table_id, status, source, customer_name, customer_phone,
+		       delivery_address, pickup_at,
 		       note, total_amount, created_by, created_at, updated_at, deleted_at
 		FROM orders
 		WHERE status IN ('pending','confirmed','preparing','ready','delivered') AND deleted_at IS NULL
@@ -197,7 +202,8 @@ func (r *orderRepo) ListActiveOrders(ctx context.Context) ([]db.Order, error) {
 	for rows.Next() {
 		var o db.Order
 		if err := rows.Scan(&o.ID, &o.OrderNumber, &o.TableID, &o.Status, &o.Source,
-			&o.CustomerName, &o.CustomerPhone, &o.Note, &o.TotalAmount, &o.CreatedBy,
+			&o.CustomerName, &o.CustomerPhone, &o.DeliveryAddress, &o.PickupAt,
+			&o.Note, &o.TotalAmount, &o.CreatedBy,
 			&o.CreatedAt, &o.UpdatedAt, &o.DeletedAt); err != nil {
 			return nil, err
 		}
@@ -209,6 +215,7 @@ func (r *orderRepo) ListActiveOrders(ctx context.Context) ([]db.Order, error) {
 func (r *orderRepo) ListTodayHistory(ctx context.Context) ([]db.Order, error) {
 	rows, err := r.sqlDB.QueryContext(ctx, `
 		SELECT id, order_number, table_id, status, source, customer_name, customer_phone,
+		       delivery_address, pickup_at,
 		       note, total_amount, created_by, created_at, updated_at, deleted_at
 		FROM orders
 		WHERE status IN ('cancelled','paid') AND deleted_at IS NULL
@@ -222,7 +229,8 @@ func (r *orderRepo) ListTodayHistory(ctx context.Context) ([]db.Order, error) {
 	for rows.Next() {
 		var o db.Order
 		if err := rows.Scan(&o.ID, &o.OrderNumber, &o.TableID, &o.Status, &o.Source,
-			&o.CustomerName, &o.CustomerPhone, &o.Note, &o.TotalAmount, &o.CreatedBy,
+			&o.CustomerName, &o.CustomerPhone, &o.DeliveryAddress, &o.PickupAt,
+			&o.Note, &o.TotalAmount, &o.CreatedBy,
 			&o.CreatedAt, &o.UpdatedAt, &o.DeletedAt); err != nil {
 			return nil, err
 		}

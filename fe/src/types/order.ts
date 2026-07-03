@@ -44,6 +44,11 @@ export interface Order {
   table_name?:    string | null
   customer_name:  string | null
   customer_phone: string | null
+  // Online orders only — delivery/pickup info + payment state ("" = none yet)
+  delivery_address?: string | null
+  pickup_at?:        string | null
+  payment_method?:   string
+  payment_status?:   string
   total_amount:   number
   note:           string | null
   created_at:     string

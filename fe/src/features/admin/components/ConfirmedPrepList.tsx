@@ -200,8 +200,8 @@ export function ConfirmedPrepList({ orders, previewIds }: Props) {
       </div>
       </>)}
 
-      {/* ♨ Canh & Giò — per-table matrix (self-guards when empty) */}
-      <CanhGioMatrix entries={canhGioEntries} />
+      {/* ♨ Canh & Giò — per-table matrix (self-guards when empty); collapsible here only */}
+      <CanhGioMatrix entries={canhGioEntries} collapsible />
     </div>
   )
 }

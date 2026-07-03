@@ -108,6 +108,15 @@ export function WaitingSection({
         </span>
       </div>
 
+      {/* Color legend: row background = wait-time urgency (Zone B is pending-only, so time is what varies) */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 border-b border-gray-100 dark:border-gray-700 text-[11px] text-gray-500 dark:text-gray-400">
+        <span className="font-medium shrink-0">Màu nền:</span>
+        <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded border border-orange-400 bg-orange-100 dark:bg-orange-900/40" />Mới (&lt;10 phút)</span>
+        <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded border border-yellow-400 bg-yellow-100 dark:bg-yellow-900/40" />Chờ 10–20 phút</span>
+        <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded border border-red-400 bg-red-100 dark:bg-red-900/40" />Quá 20 phút</span>
+        <span className="inline-flex items-center gap-1"><span className="w-3 h-3 rounded border border-indigo-500 bg-indigo-100 dark:bg-indigo-900/40" />🔍 Đang kiểm tra</span>
+      </div>
+
       {/* Desktop: column headers (hidden on mobile) */}
       <div className="hidden md:grid grid-cols-[2fr_1.5fr_1.5fr_1fr_2fr_1.5fr] gap-2 px-4 py-2 bg-gray-50 dark:bg-gray-700 border-b border-gray-100 dark:border-gray-600 text-xs font-medium uppercase tracking-wide">
         <SortBtn col="table"        label="Bàn" />
@@ -135,7 +144,7 @@ export function WaitingSection({
           const createdDate = new Date(order.created_at)
           const dateLabel   = `${createdDate.getDate().toString().padStart(2,'0')}/${(createdDate.getMonth()+1).toString().padStart(2,'0')} ${createdDate.getHours().toString().padStart(2,'0')}:${createdDate.getMinutes().toString().padStart(2,'0')}`
           const timeColor   = mins > 20 ? 'text-red-600 font-semibold' : mins >= 10 ? 'text-yellow-600' : 'text-orange-500'
-          const borderL     = mins > 20 ? 'border-l-4 border-l-red-400' : mins >= 10 ? 'border-l-4 border-l-yellow-400' : 'border-l-4 border-l-orange-400'
+          const borderL     = mins > 20 ? 'border-l-4 border-l-red-400 bg-red-50/70 dark:bg-red-900/15' : mins >= 10 ? 'border-l-4 border-l-yellow-400 bg-yellow-50/70 dark:bg-yellow-900/15' : 'border-l-4 border-l-orange-400 bg-orange-50/60 dark:bg-orange-900/10'
           const next        = nextAction(order.status)
           const loading      = loadingIds.has(order.id)
           const isExpanded   = expandedId === order.id
@@ -161,7 +170,7 @@ export function WaitingSection({
           // When 🔍 Kiểm tra is active, the whole row lights up in the button's indigo — staff
           // can see at a glance which tables are folded into the Tổng món preview.
           const rowHighlight = isKiemTra
-            ? 'border-l-4 border-l-indigo-500 ring-1 ring-inset ring-indigo-400/60 bg-indigo-50/50 dark:bg-indigo-900/20'
+            ? 'border-l-4 border-l-indigo-500 ring-1 ring-inset ring-indigo-400/60 bg-indigo-50/70 dark:bg-indigo-900/20'
             : borderL
 
           return (
@@ -170,7 +179,7 @@ export function WaitingSection({
               {/* ── Desktop row ── */}
               <div
                 onClick={() => setExpandedId(isExpanded ? null : order.id)}
-                className={`hidden md:grid grid-cols-[2fr_1.5fr_1.5fr_1fr_2fr_1.5fr] gap-2 px-4 py-3 items-center text-sm cursor-pointer transition-colors ${isExpanded ? 'bg-indigo-50 dark:bg-indigo-900/30' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                className={`hidden md:grid grid-cols-[2fr_1.5fr_1.5fr_1fr_2fr_1.5fr] gap-2 px-4 py-3 items-center text-sm cursor-pointer transition-colors ${isExpanded ? 'bg-indigo-50 dark:bg-indigo-900/30' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
               >
                 <span className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
                   {table.name}
@@ -226,7 +235,7 @@ export function WaitingSection({
               {/* ── Mobile card ── */}
               <div
                 onClick={() => setExpandedId(isExpanded ? null : order.id)}
-                className={`md:hidden px-4 py-3 cursor-pointer transition-colors ${isExpanded ? 'bg-indigo-50 dark:bg-indigo-900/30' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}`}
+                className={`md:hidden px-4 py-3 cursor-pointer transition-colors ${isExpanded ? 'bg-indigo-50 dark:bg-indigo-900/30' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
               >
                 {/* top row: table name + status + kiểm tra */}
                 <div className="flex items-center gap-2">

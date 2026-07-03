@@ -1,6 +1,6 @@
 -- name: CreateOrder :exec
-INSERT INTO orders (id, order_number, table_id, status, source, customer_name, customer_phone, note, total_amount, created_by)
-VALUES (?, ?, ?, 'pending', ?, ?, ?, ?, 0, ?);
+INSERT INTO orders (id, order_number, table_id, status, source, customer_name, customer_phone, delivery_address, pickup_at, note, total_amount, created_by)
+VALUES (?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, 0, ?);
 
 -- name: GetOrderByID :one
 SELECT * FROM orders

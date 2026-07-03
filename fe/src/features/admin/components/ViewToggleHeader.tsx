@@ -9,7 +9,7 @@ interface Props {
 export function ViewToggleHeader({ viewMode, onViewMode }: Props) {
   return (
     <div className="flex items-center justify-between mb-3">
-      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Danh sách bàn</h3>
+      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Quản lý</h3>
       <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
         <button
           onClick={() => onViewMode('list')}

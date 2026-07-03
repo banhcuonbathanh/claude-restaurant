@@ -574,8 +574,10 @@ type Order struct {
 	UpdatedAt     time.Time      `json:"updated_at"`
 	DeletedAt     sql.NullTime   `json:"deleted_at"`
 	// Shared UUID for multi-table group (Option A). NULL = standalone order.
-	GroupID sql.NullString `json:"group_id"`
-	Status  OrdersStatus   `json:"status"`
+	GroupID         sql.NullString `json:"group_id"`
+	Status          OrdersStatus   `json:"status"`
+	DeliveryAddress sql.NullString `json:"delivery_address"`
+	PickupAt        sql.NullTime   `json:"pickup_at"`
 }
 
 type OrderItem struct {

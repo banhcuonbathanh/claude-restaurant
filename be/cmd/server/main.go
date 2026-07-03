@@ -86,6 +86,7 @@ func main() {
 	authSvc        := service.NewAuthService(authRepo, rdb)
 	productSvc     := service.NewProductService(productRepo, rdb)
 	orderSvc       := service.NewOrderService(orderRepo, tableRepo, rdb, productSvc)
+	orderSvc.SetPaymentRepo(paymentRepo)
 	paymentSvc     := service.NewPaymentService(paymentRepo, orderSvc, orderSvc, rdb)
 	groupSvc       := service.NewGroupService(orderRepo, rdb)
 	staffSvc       := service.NewStaffService(staffRepo, rdb)
