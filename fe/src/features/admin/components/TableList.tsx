@@ -314,11 +314,14 @@ export function TableList({
   if (sorted.length === 0) return null
 
   // Flatten: occupied tables emit one row per order, empty tables emit one empty row.
+  // The virtual online table emits ONE aggregate row no matter how many orders it holds.
   type Row = { table: Table; order: Order | null }
   const rows: Row[] = []
   for (const table of sorted) {
     const tableOrders = ordersByTable.get(table.id)
-    if (tableOrders && tableOrders.length > 0) {
+    if (table.id === ONLINE_TABLE.id && tableOrders) {
+      rows.push({ table, order: tableOrders[0] })
+    } else if (tableOrders && tableOrders.length > 0) {
       for (const order of tableOrders) rows.push({ table, order })
     } else {
       rows.push({ table, order: null })
@@ -369,6 +372,53 @@ export function TableList({
     }
   }
 
+  // Status badge / next-action buttons — shared by table rows and online sub-rows.
+  function renderStatusBadge(order: Order, table: Table) {
+    const loading   = loadingIds.has(order.id)
+    const next      = nextStatus(order.status)
+    const baseClass = `inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full w-fit whitespace-nowrap ${statusColors(order.status)}`
+
+    // delivered → pay + cancel buttons
+    if (order.status === 'delivered') {
+      return (
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => setPayingEntry({ order, table })}
+            className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 cursor-pointer hover:opacity-75 transition-opacity whitespace-nowrap"
+            title="Thu tiền"
+          >
+            Đã thanh toán <span className="opacity-70">💰</span>
+          </button>
+          <button
+            onClick={() => onCancel?.(order.id)}
+            disabled={loading}
+            className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 cursor-pointer hover:opacity-75 disabled:opacity-50 transition-opacity whitespace-nowrap"
+            title="Huỷ đơn"
+          >
+            Huỷ <span className="opacity-70">✕</span>
+          </button>
+        </div>
+      )
+    }
+
+    // other actionable statuses → advance status
+    if (next) {
+      return (
+        <button
+          onClick={() => onAction(order.id, next)}
+          disabled={loading}
+          className={`${baseClass} cursor-pointer hover:opacity-75 disabled:opacity-50 transition-opacity`}
+        >
+          {loading ? '...' : statusLabel(order.status)}
+          {!loading && <span className="opacity-60">›</span>}
+        </button>
+      )
+    }
+
+    // paid / cancelled — static
+    return <span className={baseClass}>{statusLabel(order.status)}</span>
+  }
+
   return (
     <>
       {payingEntry && (
@@ -404,8 +454,6 @@ export function TableList({
 
         <div className="divide-y divide-gray-100 dark:divide-gray-700">
           {rows.map(({ table, order }) => {
-            const loading = order ? loadingIds.has(order.id) : false
-
             if (!order) {
               return (
                 <div key={table.id} className="flex flex-col gap-2.5 px-4 py-3.5">
@@ -429,59 +477,108 @@ export function TableList({
               )
             }
 
+            // Aggregate online row — one row for ALL online orders, expandable per order.
+            if (table.id === ONLINE_TABLE.id) {
+              const list       = ordersByTable.get(ONLINE_TABLE.id) ?? []
+              const oldestMins = elapsedMins(order.created_at, now) // order = oldest (list is sorted asc)
+              const timeColor  = oldestMins > 20 ? 'text-red-600 font-semibold' : oldestMins >= 10 ? 'text-yellow-600' : 'text-orange-500'
+              const borderL    = oldestMins > 20 ? 'border-l-4 border-l-red-400' : oldestMins >= 10 ? 'border-l-4 border-l-yellow-400' : 'border-l-4 border-l-orange-400'
+              const isOpen     = expandedIds.has(ONLINE_TABLE.id)
+
+              const statusCounts = new Map<Order['status'], number>()
+              for (const o of list) statusCounts.set(o.status, (statusCounts.get(o.status) ?? 0) + 1)
+
+              return (
+                <div key={ONLINE_TABLE.id} className={borderL}>
+                  <div
+                    onClick={() => toggleExpand(ONLINE_TABLE.id)}
+                    className="flex flex-col gap-2.5 px-4 py-3.5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                  >
+                    {/* info line */}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex flex-col gap-1.5 min-w-0">
+                        <span className="font-semibold text-base text-gray-900 dark:text-gray-100 leading-tight">
+                          {ONLINE_TABLE.name}
+                          <span className="ml-2 text-xs font-bold bg-indigo-600 text-white px-2 py-0.5 rounded-full align-middle">
+                            {list.length} đơn
+                          </span>
+                        </span>
+                        <span className="flex items-center gap-1.5 flex-wrap">
+                          {Array.from(statusCounts).map(([status, count]) => (
+                            <span key={status} className={`text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${statusColors(status)}`}>
+                              {count} {statusLabel(status).toLowerCase()}
+                            </span>
+                          ))}
+                        </span>
+                      </div>
+                      <span className={`text-sm whitespace-nowrap ${timeColor}`}>
+                        {oldestMins} phút
+                      </span>
+                    </div>
+
+                    {/* button line */}
+                    <button
+                      onClick={e => { e.stopPropagation(); toggleExpand(ONLINE_TABLE.id) }}
+                      className="w-full flex items-center justify-center gap-1.5 text-sm font-semibold px-3 py-2.5 rounded-lg border border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 transition-colors"
+                    >
+                      {isOpen ? 'Thu gọn' : `Xem ${list.length} đơn`}
+                      <svg className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* expanded — one compact sub-row per online order, oldest first */}
+                  {isOpen && (
+                    <div className="bg-gray-50 dark:bg-gray-700/40 border-t border-gray-100 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-700">
+                      {list.map(o => {
+                        const m  = elapsedMins(o.created_at, now)
+                        const tc = m > 20 ? 'text-red-600 font-semibold' : m >= 10 ? 'text-yellow-600' : 'text-orange-500'
+                        return (
+                          <div
+                            key={o.id}
+                            onClick={() => setDetailEntry({ order: o, table: ONLINE_TABLE })}
+                            className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                          >
+                            <div className="flex flex-col gap-1 min-w-0 flex-1">
+                              <span className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                                <span className="font-mono text-xs text-gray-400 dark:text-gray-500">#{o.order_number.split('-').pop()}</span>
+                                <span className="ml-2">{o.customer_name || 'Khách online'}</span>
+                              </span>
+                              <span onClick={e => e.stopPropagation()}>{renderStatusBadge(o, ONLINE_TABLE)}</span>
+                            </div>
+                            <span className={`text-xs whitespace-nowrap ${tc}`}>{m} phút</span>
+                            {/* Xong creates a cash payment — never offer it on a prepaid online order */}
+                            {STATUS_CHAIN.includes(o.status) && o.payment_status !== 'completed' && (
+                              <button
+                                onClick={e => { e.stopPropagation(); handleDoneTap(o) }}
+                                disabled={doneLoadingId === o.id}
+                                className={`shrink-0 text-xs font-semibold px-3 py-2 rounded-lg border transition-colors whitespace-nowrap disabled:opacity-60 ${
+                                  armedDoneId === o.id
+                                    ? 'border-green-700 bg-green-700 text-white ring-2 ring-green-400 animate-pulse'
+                                    : 'border-green-600 bg-green-600 text-white hover:bg-green-700 active:bg-green-800'
+                                }`}
+                                title="Chạm 2 lần — khách đã thanh toán, hoàn tất đơn ngay"
+                              >
+                                {doneLoadingId === o.id ? '...' : armedDoneId === o.id ? 'Lần nữa ✓' : 'Xong'}
+                              </button>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              )
+            }
+
             const mins      = elapsedMins(order.created_at, now)
             const timeColor = mins > 20 ? 'text-red-600 font-semibold' : mins >= 10 ? 'text-yellow-600' : 'text-orange-500'
             const borderL   = mins > 20 ? 'border-l-4 border-l-red-400' : mins >= 10 ? 'border-l-4 border-l-yellow-400' : 'border-l-4 border-l-orange-400'
-            const next      = nextStatus(order.status)
-
-            function StatusBadge() {
-              const baseClass = `inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full w-fit whitespace-nowrap ${statusColors(order!.status)}`
-
-              // delivered → pay + cancel buttons
-              if (order!.status === 'delivered') {
-                return (
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={() => setPayingEntry({ order: order!, table })}
-                      className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 cursor-pointer hover:opacity-75 transition-opacity whitespace-nowrap"
-                      title="Thu tiền"
-                    >
-                      Đã thanh toán <span className="opacity-70">💰</span>
-                    </button>
-                    <button
-                      onClick={() => onCancel?.(order!.id)}
-                      disabled={loading}
-                      className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 cursor-pointer hover:opacity-75 disabled:opacity-50 transition-opacity whitespace-nowrap"
-                      title="Huỷ đơn"
-                    >
-                      Huỷ <span className="opacity-70">✕</span>
-                    </button>
-                  </div>
-                )
-              }
-
-              // other actionable statuses → advance status
-              if (next) {
-                return (
-                  <button
-                    onClick={() => onAction(order!.id, next)}
-                    disabled={loading}
-                    className={`${baseClass} cursor-pointer hover:opacity-75 disabled:opacity-50 transition-opacity`}
-                  >
-                    {loading ? '...' : statusLabel(order!.status)}
-                    {!loading && <span className="opacity-60">›</span>}
-                  </button>
-                )
-              }
-
-              // paid / cancelled — static
-              return <span className={baseClass}>{statusLabel(order!.status)}</span>
-            }
 
             const isExpanded = expandedIds.has(order.id)
             const orderSuffix = order.order_number.split('-').pop() ?? order.order_number
             const isKiemTra = kiemTraIds?.has(order.id) ?? false
-            const isOnline = table.id === ONLINE_TABLE.id
 
             // When 🔍 Kiểm tra is active, the whole row lights up in the button's indigo — matches Zone B.
             const rowHighlight = isKiemTra
@@ -500,14 +597,9 @@ export function TableList({
                       <span className="font-semibold text-base text-gray-900 dark:text-gray-100 leading-tight">
                         {table.name}
                         <span className="ml-2 text-xs font-mono font-normal text-gray-400 dark:text-gray-500">{orderSuffix}</span>
-                        {isOnline && (
-                          <span className="ml-2 text-xs font-normal text-gray-500 dark:text-gray-400">
-                            {order.customer_name || 'Khách online'}
-                          </span>
-                        )}
                       </span>
                       <span onClick={e => e.stopPropagation()}>
-                        <StatusBadge />
+                        {renderStatusBadge(order, table)}
                       </span>
                     </div>
                     <span className={`text-sm whitespace-nowrap ${timeColor}`}>
@@ -517,17 +609,14 @@ export function TableList({
 
                   {/* button line */}
                   <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                    {!isOnline && (
-                      <button
-                        onClick={() => router.push(`/pos?table_id=${table.id}&table_name=${encodeURIComponent(table.name)}`)}
-                        className="flex-1 text-sm font-semibold px-3 py-2.5 rounded-lg border border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 transition-colors whitespace-nowrap"
-                        title={`Đặt hộ — ${table.name} (khách đặt trước, ăn sau)`}
-                      >
-                        Đặt hộ
-                      </button>
-                    )}
-                    {/* Xong creates a cash payment — never offer it on an already-paid online order */}
-                    {STATUS_CHAIN.includes(order.status) && !(isOnline && order.payment_status === 'completed') && (
+                    <button
+                      onClick={() => router.push(`/pos?table_id=${table.id}&table_name=${encodeURIComponent(table.name)}`)}
+                      className="flex-1 text-sm font-semibold px-3 py-2.5 rounded-lg border border-indigo-600 bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 transition-colors whitespace-nowrap"
+                      title={`Đặt hộ — ${table.name} (khách đặt trước, ăn sau)`}
+                    >
+                      Đặt hộ
+                    </button>
+                    {STATUS_CHAIN.includes(order.status) && (
                       <button
                         onClick={() => handleDoneTap(order)}
                         disabled={doneLoadingId === order.id}
