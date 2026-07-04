@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -7,19 +7,26 @@ import { api } from '@/lib/api-client'
 import { useFavouritesStore } from '@/store/favourites'
 import { useCartStore } from '@/store/cart'
 import { FavouritesTopNav } from './components/FavouritesTopNav'
+import { FavouriteSegmentTabs } from './components/FavouriteSegmentTabs'
 import { FavouriteFilterTabs } from './components/FavouriteFilterTabs'
 import { FavouriteItemCard } from './components/FavouriteItemCard'
+import { CanhQuickAdd } from './components/CanhQuickAdd'
 import { FavouritesFooter } from './components/FavouritesFooter'
 import { EmptyState } from '@/components/shared/EmptyState'
 import type { Product, ComboRaw } from '@/types/product'
-import type { FavouriteTab, FavouriteItemResolved } from '@/store/favourites'
+import type { FavouriteItemResolved, FavouriteTab } from '@/store/favourites'
 import type { CartItem } from '@/types/cart'
+
+// Canh is stepper-only (có rau / không rau are two distinct real products, rau is
+// NOT a topping) — mirrors the menu OrderSummary sourcing.
+const isSoupName = (name: string) =>
+  name.toLowerCase().includes('canh') || name.toLowerCase().includes('nước dùng')
 
 export default function FavouritesPage() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<FavouriteTab>('all')
 
-  const { items, sets, removeItem, updateQty } = useFavouritesStore()
+  const { items, removeItem, updateQty } = useFavouritesStore()
   const addToCart = useCartStore(s => s.addItem)
 
   const { data: allProducts = [], isSuccess: productsLoaded } = useQuery<Product[]>({
@@ -33,6 +40,11 @@ export default function FavouritesPage() {
     queryFn: () => api.get('/combos').then(r => r.data.data),
     staleTime: 5 * 60 * 1000,
   })
+
+  // Resolve the two real canh products for the quick-add block (same as the menu).
+  const canhProducts = allProducts.filter(p => isSoupName(p.name))
+  const canhKhongRau = canhProducts.find(p => p.name.toLowerCase().includes('không')) ?? null
+  const canhCoRau    = canhProducts.find(p => p !== canhKhongRau) ?? null
 
   // Auto-remove favourited items that no longer exist on the menu and notify the user
   useEffect(() => {
@@ -94,6 +106,11 @@ export default function FavouritesPage() {
     combo:   resolvedItems.filter(i => i.type === 'combo').length,
   }
 
+  // Live total row — Σ every favourite card's qty × per-portion price (all items,
+  // not just the active filter). Recomputes on stepper change / un-favourite.
+  const favCount = resolvedItems.reduce((s, i) => s + i.qty, 0)
+  const favTotal = resolvedItems.reduce((s, i) => s + i.subtotalPerPortion * i.qty, 0)
+
   const handleAddAllToCart = () => {
     resolvedItems.forEach(item => {
       const cartItem: CartItem = item.type === 'product'
@@ -121,11 +138,14 @@ export default function FavouritesPage() {
     })
   }
 
-  return (
-    <div className="min-h-screen bg-background pb-[156px]">
-      <FavouritesTopNav title="❤ Yêu thích" showCart onBack={() => router.back()} />
+  const isEmpty = resolvedItems.length === 0
 
-      {resolvedItems.length === 0 ? (
+  return (
+    <div className="min-h-screen bg-background pb-[calc(190px+env(safe-area-inset-bottom))]">
+      <FavouritesTopNav title="❤ Yêu thích" showCart onBack={() => router.back()} />
+      <FavouriteSegmentTabs />
+
+      {isEmpty ? (
         <EmptyState icon="♡" message="Nhấn ♥ trên món ăn bất kỳ để thêm" />
       ) : (
         <>
@@ -140,15 +160,16 @@ export default function FavouritesPage() {
               />
             ))}
           </div>
+
+          <CanhQuickAdd canhCoRau={canhCoRau} canhKhongRau={canhKhongRau} />
+
+          <FavouritesFooter
+            itemCount={favCount}
+            total={favTotal}
+            onAddAllToCart={handleAddAllToCart}
+          />
         </>
       )}
-
-      <FavouritesFooter
-        setCount={sets.length}
-        onViewSets={() => router.push('/menu/favourites/sets')}
-        onSaveSet={() => router.push('/menu/favourites/save')}
-        onAddAllToCart={handleAddAllToCart}
-      />
     </div>
   )
 }

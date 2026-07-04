@@ -68,11 +68,11 @@ This is the design-step highlight: let the customer **assemble their own combo**
   - **TRỨNG:** Bánh Trứng Tái (9.000 đ) · Bánh Trứng Chín (9.000 đ) · Bánh Trứng Vàng (9.000 đ).
   - **GIÒ:** Giò (9.000 đ).
   - **CANH:** Bát canh có rau (0 đ) · Bát canh không rau (0 đ).
-- **Default nhân for bánh cuốn.** A header **"Nhân mặc định (bánh cuốn)"** then a pill group **"Nhân thịt" / "Nhân thịt mộc nhĩ"** that sets the filling for the bánh-cuốn components (default **Nhân thịt** selected; at least one must stay selected; both = a mixed suất). Selected pill = solid orange. Followed by a hint: *"Riêng **trứng** chọn nhân & vị trí ở từng món bên dưới."* Bánh Chay, Giò, Canh take no nhân.
-- **Per-egg options (trứng only).** Each trứng row (Bánh Trứng Chín / Bánh Trứng Tái), when its qty > 0, expands an attached options panel underneath the stepper with **two single-select pill groups**:
-  - **Nhân:** **"Nhân thịt" / "Nhân mộc nhĩ"** (default *Nhân thịt*).
-  - **Vị trí:** **"Nhân trong bánh" / "Nhân ngoài bánh"** (default *Nhân trong bánh*) — whether the filling is wrapped inside the bánh or placed on top.
-  Setting the stepper back to 0 collapses the panel. So each trứng in the suất carries its own filling type **and** placement.
+- **Default nhân for bánh cuốn.** A header **"Nhân mặc định (bánh cuốn)"** then a pill group **"Nhân thịt" / "Nhân thịt mộc nhĩ"** that sets the filling for the bánh-cuốn components (default **Nhân thịt** selected; at least one must stay selected; both = a mixed suất). Selected pill = solid orange. Followed by a hint: *"Riêng **trứng** chọn nhân & thêm ghi chú ở từng món bên dưới."* Bánh Chay, Giò, Canh take no nhân.
+- **Per-egg options (trứng only).** Each trứng row (Bánh Trứng Chín / Bánh Trứng Tái), when its qty > 0, expands an attached panel underneath the stepper with:
+  - **Nhân:** a single-select pill group **"Nhân thịt" / "Nhân mộc nhĩ"** (default *Nhân thịt*).
+  - **Ghi chú:** a small free-text input (placeholder *"vd: nhân để ngoài bánh, ít hành..."*) — for anything not covered by a structured option (e.g. where to put the filling). Kept as a **note the kitchen staff reads** on the order ticket; **no new DB field** required.
+  Setting the stepper back to 0 collapses the panel.
 - **Live summary bar (sticky at the bottom of this view, above the nav):** shows **"n món"** on the left and the running **total in orange** on the right (sum of chosen components), plus an orange **"Lưu suất này"** button. Disabled/dimmed until at least 1 component is chosen.
 - **Save flow:** tapping **"Lưu suất này"** opens the **Save modal** (below) pre-filled with the built list.
 - 💡 IDEA — a subtle line under the total: *"Suất tự tạo sẽ xuất hiện trong Yêu thích; bật 📌 để ghim lên Menu"*.
@@ -104,5 +104,5 @@ A centered dark modal (`rounded-2xl`, slate `#161d29`), reused by both "Lưu th�
 - Rendered mockup this prompt mirrors: [`claude_design/favourites.html`](claude_design/favourites.html) — **source of truth for visuals**.
 - **What's real today vs. NEW (not built — register a MASTER_TASK row before coding):**
   - _Exists in code:_ favourites list (heart-remove + stepper), saved sets (apply/rename/delete), save-as-set modal.
-  - _NEW — FE only:_ canh quick-add block + live-total row in the favourites list; dropping the two footer buttons; "Tự tạo suất" builder shell; 📌 "Ghim lên Menu" pinning.
-  - _NEW — needs Backend + DB migration:_ **per-egg nhân placement (trong / ngoài bánh)** — today's `order_items.filling` only stores `thit / moc_nhi / NULL`, with no placement field.
+  - _NEW — FE only:_ canh quick-add block + live-total row in the favourites list; dropping the two footer buttons; "Tự tạo suất" builder shell with per-egg nhân pills + a **free-text note** per trứng; 📌 "Ghim lên Menu" pinning.
+  - _Dropped:_ structured egg placement (trong / ngoài bánh) — handled instead by the free-text note above so kitchen staff can read it; **no BE/DB change**.

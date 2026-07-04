@@ -175,6 +175,12 @@
   .opt-line{display:flex; align-items:center; gap:7px; flex-wrap:wrap}
   .opt-lab{font-size:10px; font-weight:800; letter-spacing:.5px; text-transform:uppercase;
     color:var(--muted); width:46px; flex:0 0 auto}
+  .note-in{
+    flex:1; min-width:120px; background:var(--bg); border:1px solid var(--line);
+    border-radius:8px; color:var(--text); padding:7px 10px; font-size:12px; font-family:var(--sans);
+  }
+  .note-in::placeholder{color:#5f6b7e}
+  .note-in:focus{outline:2px solid var(--accent); outline-offset:0; border-color:transparent}
 
   /* ---- set card ---- */
   .setcard{
@@ -433,7 +439,7 @@
         <button class="pill on" data-nhan onclick="toggleNhan(this)">Nhân thịt</button>
         <button class="pill" data-nhan onclick="toggleNhan(this)">Nhân thịt mộc nhĩ</button>
       </div>
-      <p class="hint" style="margin-bottom:6px">Riêng <b style="color:var(--text)">trứng</b> chọn nhân &amp; vị trí ở từng món bên dưới.</p>
+      <p class="hint" style="margin-bottom:6px">Riêng <b style="color:var(--text)">trứng</b> chọn nhân &amp; thêm ghi chú ở từng món bên dưới.</p>
 
       <div class="grp-h">Bánh cuốn</div>
       <div class="brow"><div class="bl"><div class="bn">Bánh Cuốn Thịt</div><div class="bp">4.000 đ</div></div>
@@ -451,9 +457,8 @@
           <div class="opt-line"><span class="opt-lab">Nhân</span>
             <button class="pill sm on" onclick="selectPill(this)">Nhân thịt</button>
             <button class="pill sm" onclick="selectPill(this)">Nhân mộc nhĩ</button></div>
-          <div class="opt-line"><span class="opt-lab">Vị trí</span>
-            <button class="pill sm on" onclick="selectPill(this)">Nhân trong bánh</button>
-            <button class="pill sm" onclick="selectPill(this)">Nhân ngoài bánh</button></div>
+          <div class="opt-line"><span class="opt-lab">Ghi chú</span>
+            <input type="text" class="note-in" placeholder="vd: nhân để ngoài bánh, ít hành..."></div>
         </div>
       </div>
       <div class="brow-wrap">
@@ -463,9 +468,8 @@
           <div class="opt-line"><span class="opt-lab">Nhân</span>
             <button class="pill sm on" onclick="selectPill(this)">Nhân thịt</button>
             <button class="pill sm" onclick="selectPill(this)">Nhân mộc nhĩ</button></div>
-          <div class="opt-line"><span class="opt-lab">Vị trí</span>
-            <button class="pill sm on" onclick="selectPill(this)">Nhân trong bánh</button>
-            <button class="pill sm" onclick="selectPill(this)">Nhân ngoài bánh</button></div>
+          <div class="opt-line"><span class="opt-lab">Ghi chú</span>
+            <input type="text" class="note-in" placeholder="vd: nhân để ngoài bánh, ít hành..."></div>
         </div>
       </div>
 

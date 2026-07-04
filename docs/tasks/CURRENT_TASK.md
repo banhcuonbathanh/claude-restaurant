@@ -8,9 +8,13 @@
 
 ## Active Task
 
-**Phase DEPLOY — Stage A ✅ COMPLETE (D-1→D-5, 2026-06-11).** Mac test server live at `http://192.168.102.9` (Caddy → BE/FE), fresh DB auto-migrated via new `be/entrypoint.sh`, seeded, smoke test 8/8, guest QR order verified end-to-end. Runbook: `docs/devops/DEPLOY_RUNBOOK.md`.
+**Phase FAV — Customer Favourites Redesign (FE only).** See `MASTER_TASK.md → Phase FAV` + memory `project_fav_custom_suat_mon_le`.
 
-**Next: D-6 (OWNER ACTION)** — buy VPS (Vultr/DO Singapore, 2 vCPU/2 GB, Ubuntu 24.04) + domain, point DNS A record. Then D-7 first deploy via push to `main` (runbook §B). Owner should also: (1) scan a printed QR from a phone on shop Wi-Fi to confirm LAN access, (2) run the commit script below — work is uncommitted (git blocked for Claude).
+- **FAV-1 ✅ COMPLETE (2026-07-04)** — verified live (docker fe :3000): segmented tabs (Yêu thích·Bộ đã lưu·Tự tạo suất), canh quick-add (badge bump + flash), live-total row (matches Σ, recomputes on stepper), two footer buttons dropped, footer↔nav collision fixed, `/build` stub. Build/tsc/lint green; vitest 107 pass / 2 pre-existing fail. **Uncommitted — run `./commit-fav1.sh`** (git blocked for Claude).
+- **Next: FAV-2-FE-1** (start fresh session) — "Tự tạo suất" builder view at `menu/favourites/build/` (View C of `claude_design/favourites.html`). Then FAV-2-FE-2 (order as món-lẻ lines + trứng note; **no combos DB write** — decision in memory) and FAV-4 (📌 Ghim lên Menu).
+- **Env note:** docker `fe` container is serving :3000 (the local `npm run dev` was stopped — its `.next` was clobbered by a production build; `rm -rf fe/.next` before running `npm run dev` again).
+
+**Also still open (owner, separate phase):** DEPLOY **D-6** — buy VPS + domain, DNS A record (tracked in `MASTER_TASK.md → Phase DEPLOY`).
 
 ---
 
