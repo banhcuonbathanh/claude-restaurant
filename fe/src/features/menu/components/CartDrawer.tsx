@@ -66,8 +66,9 @@ export function CartDrawer({ open, onClose, addToOrderId, onTableCheckout }: Pro
       )}
 
       <div
+        aria-hidden={!open}
         className={`fixed top-0 right-0 h-full w-full max-w-sm bg-card z-50 flex flex-col shadow-2xl
-                    transition-transform duration-300 ${open ? 'translate-x-0' : 'translate-x-full'}`}
+                    transition-[transform,visibility] duration-300 ${open ? 'translate-x-0 visible' : 'translate-x-full invisible'}`}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">

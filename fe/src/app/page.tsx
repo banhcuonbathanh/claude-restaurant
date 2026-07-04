@@ -1,6 +1,7 @@
 import Link from "next/link"
 import StaffQuickLogin from "./StaffQuickLogin"
 import TableGrid from "./TableGrid"
+import OnlineSimulateBtn from "./OnlineSimulateBtn"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -171,6 +172,14 @@ export default function MarketingPage() {
             </p>
           </div>
           <TableGrid tables={tables} />
+
+          {/* Online (no-table) demo — places a delivery order and jumps to tracking */}
+          <div className="mt-8 flex flex-col items-center gap-2 border-t border-border pt-6">
+            <p className="text-sm text-muted-fg">
+              Hoặc mua mang về / giao hàng — <strong>không cần bàn</strong>
+            </p>
+            <OnlineSimulateBtn />
+          </div>
         </div>
       </section>
 

@@ -51,7 +51,8 @@ function OrdersContent() {
   }, [itemsChangedAt, refetch])
 
   const effectiveStatus = orderStatus ?? order?.status
-  const tableLabel      = order?.table_name ?? order?.table_id ?? '?'
+  const isOnline        = !!order && !order.table_id
+  const tableLabel      = isOnline ? 'Online' : order?.table_name ?? order?.table_id ?? '?'
 
   // No order to show — point the customer back to the menu.
   if (!orderId) {
@@ -109,11 +110,14 @@ function OrdersContent() {
               className="flex items-center gap-1.5 text-xs font-medium text-muted-fg hover:text-foreground min-h-[36px]"
             >
               {showTable ? <EyeOff size={14} /> : <Eye size={14} />}
-              {showTable ? 'Ẩn bàn của bạn' : 'Hiện bàn của bạn'}
+              {showTable
+                ? (isOnline ? 'Ẩn đơn của bạn' : 'Ẩn bàn của bạn')
+                : (isOnline ? 'Hiện đơn của bạn' : 'Hiện bàn của bạn')}
             </button>
             {showTable && (
               <div className="space-y-3">
                 <TableInfoBanner
+                  online={isOnline}
                   tableLabel={tableLabel}
                   status={effectiveStatus}
                   queuePosition={queueData?.position ?? null}

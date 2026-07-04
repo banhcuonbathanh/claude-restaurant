@@ -217,6 +217,7 @@ func buildRouter(sqlDB *sql.DB, rdb *redis.Client) *gin.Engine {
 	auth.POST("/login", authH.Login)
 	auth.POST("/refresh", authH.Refresh)
 	auth.POST("/guest", authH.Guest)
+	auth.POST("/guest/online", authH.OnlineGuest)
 	{
 		protected := auth.Group("")
 		protected.Use(authMW)

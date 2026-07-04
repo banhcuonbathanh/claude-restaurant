@@ -121,9 +121,11 @@ func (s *OrderService) GetOrder(ctx context.Context, orderID, callerID, callerRo
 		return OrderDetails{}, fmt.Errorf("order: get: %w", err)
 	}
 
-	// Customers may only see orders belonging to their table.
+	// Customers may only see orders belonging to their table. Online orders carry
+	// no table — they are tracked by their opaque UUID, so any guest holding that id
+	// may view it (this is the customer-facing tracking path for online orders).
 	if callerRole == "customer" {
-		if !o.TableID.Valid || o.TableID.String != callerID {
+		if o.TableID.Valid && o.TableID.String != callerID {
 			return OrderDetails{}, ErrForbidden
 		}
 	}

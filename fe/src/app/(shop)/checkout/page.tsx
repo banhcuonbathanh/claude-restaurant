@@ -252,8 +252,8 @@ export default function CheckoutPage() {
         </form>
       </div>
 
-      {/* Fixed submit */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4">
+      {/* Fixed submit — sits above the shop bottom nav (72px + safe inset, see (shop)/layout.tsx) */}
+      <div className="fixed bottom-[calc(72px+env(safe-area-inset-bottom))] left-0 right-0 z-20 bg-card border-t border-border p-4">
         <button
           form="checkout-form"
           type="submit"

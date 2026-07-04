@@ -238,6 +238,8 @@ export default function OverviewPage() {
         now={now}
         loadingIds={loadingIds}
         onAction={handleAction}
+        kiemTraIds={kiemTraIds}
+        onKiemTra={toggleKiemTra}
       />
 
       {/* Zone D — table view with grid/list toggle */}

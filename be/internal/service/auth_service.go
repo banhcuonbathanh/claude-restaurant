@@ -302,6 +302,27 @@ func (s *AuthService) GuestLogin(ctx context.Context, qrToken string) (GuestLogi
 	}, nil
 }
 
+// OnlineGuestLoginResult holds the online-guest JWT (no table).
+type OnlineGuestLoginResult struct {
+	AccessToken string
+	ExpiresIn   int // seconds
+}
+
+// OnlineGuestLogin issues a short-lived guest JWT (2h, stateless) NOT bound to any
+// table, so anonymous customers can place source=online orders without a QR token.
+func (s *AuthService) OnlineGuestLogin(ctx context.Context) (OnlineGuestLoginResult, error) {
+	_ = ctx // no DB lookup — token is fully stateless
+	accessToken, err := jwtpkg.GenerateOnlineGuestToken()
+	if err != nil {
+		return OnlineGuestLoginResult{}, fmt.Errorf("auth: generate online guest token: %w", err)
+	}
+
+	return OnlineGuestLoginResult{
+		AccessToken: accessToken,
+		ExpiresIn:   7200,
+	}, nil
+}
+
 // DeactivateStaff sets is_active=false and immediately clears the Redis is_active cache.
 // This ensures the staff is blocked within the same request cycle (no 5-min TTL lag).
 func (s *AuthService) DeactivateStaff(ctx context.Context, staffID string) error {

@@ -57,9 +57,11 @@ interface Props {
   now:        number
   loadingIds: Set<string>
   onAction:   (orderId: string, status: string) => Promise<void>
+  kiemTraIds: Set<string>            // orders currently folded into the Tổng món preview (PrepPanel)
+  onKiemTra:  (orderId: string) => void
 }
 
-export function OnlineOrdersSection({ orders, now, loadingIds, onAction }: Props) {
+export function OnlineOrdersSection({ orders, now, loadingIds, onAction, kiemTraIds, onKiemTra }: Props) {
   const onlineOrders = orders
     .filter(o => o.source === 'online')
     .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
@@ -84,12 +86,19 @@ export function OnlineOrdersSection({ orders, now, loadingIds, onAction }: Props
           const loading  = loadingIds.has(order.id)
           const pay      = paymentBadge(order)
           const pickup   = order.pickup_at ? formatPickup(order.pickup_at, now) : null
+          const isKiemTra = kiemTraIds.has(order.id)
           const mapsUrl  = order.delivery_address
             ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(order.delivery_address)}`
             : null
 
+          // When 🔍 Kiểm tra is active, the row lights up in indigo — matches WaitingSection,
+          // so staff can see which online orders are folded into the Tổng món preview (PrepPanel).
+          const rowHighlight = isKiemTra
+            ? 'border-l-4 border-l-indigo-500 ring-1 ring-inset ring-indigo-400/60 bg-indigo-50/70 dark:bg-indigo-900/20'
+            : ''
+
           return (
-            <div key={order.id} className="px-4 py-3 space-y-2">
+            <div key={order.id} className={`px-4 py-3 space-y-2 ${rowHighlight}`}>
               {/* Row 1 — order number · status · payment · elapsed */}
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-mono text-xs text-gray-500 dark:text-gray-400">
@@ -165,6 +174,17 @@ export function OnlineOrdersSection({ orders, now, loadingIds, onAction }: Props
                   {formatVND(order.total_amount)}
                 </span>
                 <div className="ml-auto flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => onKiemTra(order.id)}
+                    className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${
+                      isKiemTra
+                        ? 'bg-indigo-600 text-white border-indigo-600'
+                        : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600'
+                    }`}
+                  >
+                    🔍 Kiểm tra
+                  </button>
                   {order.status !== 'delivered' && (
                     <button
                       type="button"

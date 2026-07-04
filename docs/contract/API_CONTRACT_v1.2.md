@@ -104,6 +104,7 @@ GET /api/v1/inventory/:id/logs?page=1&limit=20
 | POST | /api/v1/auth/logout | Xóa refresh token khỏi Redis, clear cookie | Any auth |
 | GET | /api/v1/auth/me | Thông tin user đang đăng nhập | Any auth |
 | POST | /api/v1/auth/guest | 🆕 Tạo guest JWT cho QR customer (stateless, 2h TTL) | Public |
+| POST | /api/v1/auth/guest/online | 🆕 Tạo online-guest JWT (không gắn bàn, stateless, 2h TTL) cho khách đặt source=online | Public |
 
 ## POST /auth/login — Request
 | Field | Type | Required | Mô Tả |

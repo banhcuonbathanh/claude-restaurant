@@ -170,6 +170,7 @@ func main() {
 	authR.POST("/register", authH.Register)
 	authR.POST("/refresh", authH.Refresh)
 	authR.POST("/guest", authH.Guest)
+	authR.POST("/guest/online", authH.OnlineGuest)
 	{
 		protected := authR.Group("")
 		protected.Use(authMW)

@@ -27,7 +27,7 @@ export function WholeFloorPrepList({ queue, currentOrderId }: Props) {
       <div className="px-4 py-3 border-b border-border bg-gradient-to-r from-primary/10 to-transparent flex items-center justify-between">
         <p className="text-sm font-semibold text-foreground">Hàng chờ phục vụ</p>
         <span className="shrink-0 text-xs font-bold bg-primary text-primary-foreground px-2.5 py-1 rounded-full">
-          {activeItems.length} bàn
+          {activeItems.length} đơn
         </span>
       </div>
 
@@ -35,7 +35,7 @@ export function WholeFloorPrepList({ queue, currentOrderId }: Props) {
       <div className="divide-y divide-border/60">
         {activeItems.length === 0 && (
           <p className="px-4 py-4 text-sm text-muted-fg text-center">
-            Chưa có bàn nào đang chờ.
+            Chưa có đơn nào đang chờ.
           </p>
         )}
 
@@ -62,9 +62,11 @@ export function WholeFloorPrepList({ queue, currentOrderId }: Props) {
               </span>
 
               <span className={`font-bold text-base ${isOwn ? 'text-primary' : 'text-foreground'}`}>
-                {item.tableLabel || '?'}
+                {item.tableLabel || 'Đơn online'}
                 {isOwn && (
-                  <span className="ml-1.5 text-xs font-normal text-primary">(bàn bạn)</span>
+                  <span className="ml-1.5 text-xs font-normal text-primary">
+                    {item.tableLabel ? '(bàn bạn)' : '(đơn bạn)'}
+                  </span>
                 )}
               </span>
 

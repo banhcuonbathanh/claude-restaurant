@@ -1,10 +1,12 @@
 "use client";
-import { useMemo, useState, Suspense } from "react";
+import { useMemo, useState, useEffect, useRef, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { useFavouritesStore } from "@/store/favourites";
 import { api } from "@/lib/api-client";
+import { useAuthStore } from "@/features/auth/auth.store";
+import type { User } from "@/types/auth";
 import { useCartStore } from "@/store/cart";
 import { MenuCategoryNav } from "@/features/menu/components/MenuCategoryNav";
 import {
@@ -45,6 +47,32 @@ function MenuContent() {
   const [canhShakeKey, setCanhShakeKey] = useState(0);
 
   const { tableId, items } = useCartStore();
+
+  // Anonymous online flow: no table + not authenticated → auto-mint an online-guest
+  // token so the visitor can add items and reach /checkout to place a source=online
+  // order without being bounced to /login. Runs once (guarded by mintedRef).
+  const mintedRef = useRef(false);
+  useEffect(() => {
+    if (tableId) return; // QR/table guests already authenticate via /auth/guest
+    if (useAuthStore.getState().accessToken) return; // already authenticated
+    if (mintedRef.current) return;
+    mintedRef.current = true;
+    api
+      .post("/auth/guest/online")
+      .then((res) => {
+        const guestUser: User = {
+          id: "",
+          username: "guest",
+          full_name: "Khách online",
+          role: "customer",
+          is_active: true
+        };
+        useAuthStore.getState().setAuth(guestUser, res.data.data.access_token);
+      })
+      .catch(() => {
+        mintedRef.current = false; // allow retry on a later render
+      });
+  }, [tableId]);
 
   // Canh is always required: any order must have at least 1 bowl before checkout.
   // Canh lives as CartItems with ids starting 'canh_*'; missing = no such item in the cart.

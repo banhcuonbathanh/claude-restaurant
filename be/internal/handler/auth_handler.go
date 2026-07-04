@@ -205,3 +205,21 @@ func (h *AuthHandler) Guest(c *gin.Context) {
 		},
 	})
 }
+
+// OnlineGuest handles POST /auth/guest/online.
+// Issues a stateless 2h guest JWT NOT bound to any table, so anonymous customers
+// can place source=online orders without a QR token. Takes no request body.
+func (h *AuthHandler) OnlineGuest(c *gin.Context) {
+	result, err := h.svc.OnlineGuestLogin(c.Request.Context())
+	if err != nil {
+		handleServiceError(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": gin.H{
+			"access_token": result.AccessToken,
+			"expires_in":   result.ExpiresIn,
+		},
+	})
+}

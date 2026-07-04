@@ -91,6 +91,30 @@ func GenerateGuestToken(tableID string) (string, error) {
 	return token.SignedString([]byte(secret))
 }
 
+// GenerateOnlineGuestToken issues a short-lived (2h) stateless JWT for anonymous
+// online customers (not bound to any table). sub="guest", role="customer",
+// table_id="" (omitted from the JSON). Not stored in DB.
+func GenerateOnlineGuestToken() (string, error) {
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		return "", fmt.Errorf("jwt: JWT_SECRET env not set")
+	}
+
+	now := time.Now()
+	claims := Claims{
+		RegisteredClaims: gojwt.RegisteredClaims{
+			Subject:   "guest",
+			IssuedAt:  gojwt.NewNumericDate(now),
+			ExpiresAt: gojwt.NewNumericDate(now.Add(2 * time.Hour)),
+		},
+		Role:    "customer",
+		TableID: "", // no table — online-only guest
+	}
+
+	token := gojwt.NewWithClaims(gojwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(secret))
+}
+
 // ParseToken validates the token string and returns claims.
 // Returns ErrTokenExpired or ErrTokenInvalid on failure.
 func ParseToken(tokenStr string) (*Claims, error) {
