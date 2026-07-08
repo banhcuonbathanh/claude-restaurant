@@ -77,7 +77,7 @@ function MenuContent() {
   // Canh is always required: any order must have at least 1 bowl before checkout.
   // Canh lives as CartItems with ids starting 'canh_*'; missing = no such item in the cart.
   const canhMissing = !items.some((i) => i.id.startsWith("canh_"));
-  const { items: favItems } = useFavouritesStore();
+  const { items: favItems, sets: favSets, suats: favSuats } = useFavouritesStore();
 
   const handleCheckout = () => {
     if (canhMissing) {
@@ -172,11 +172,14 @@ function MenuContent() {
   // Search overrides the scroll-spy sections: a query shows a flat filtered list
   // (no tabs / favourites rail); clearing it restores the full sectioned menu.
   const searching = searchQuery.length >= 2;
-  const showFavs = !searching && favItems.length > 0;
+  const hasPinnedSet = favSets.some((s) => s.pinned);
+  const showFavs =
+    !searching &&
+    (favItems.length > 0 || hasPinnedSet || favSuats.length > 0);
 
   const sections = useMemo(
-    () => buildMenuSections(menuProducts, combos, categories),
-    [menuProducts, combos, categories]
+    () => buildMenuSections(menuProducts, combos, categories, favSuats.length > 0),
+    [menuProducts, combos, categories, favSuats.length]
   );
   const tabSections = useMemo(
     () => [{ id: ALL_SECTION_ID, label: "Tất cả" }, ...sections],
@@ -270,12 +273,13 @@ function MenuContent() {
           ) : (
             <ProductList products={menuProducts} withComboHeading={false} />
           )
-        ) : menuProducts.length === 0 && combos.length === 0 ? (
+        ) : menuProducts.length === 0 && combos.length === 0 && favSuats.length === 0 ? (
           <EmptyState message="Không có món nào trong danh mục này" />
         ) : (
           /* Zone E + F — all sections render; MenuCategoryNav scroll-spies them */
           <MenuSections
             products={menuProducts}
+            allProducts={allProducts}
             combos={combos}
             sections={sections}
             onActiveChange={setActiveSection}

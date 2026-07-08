@@ -1,27 +1,22 @@
 'use client'
-import { Button } from '@/components/ui/button'
-import { formatVND } from '@/lib/utils'
 
 interface Props {
   itemCount:      number
-  total:          number
   onAddAllToCart: () => void
 }
 
-// Offset ABOVE the shared ClientBottomNav (fixed bottom-0, ~72px + safe area) so the
-// CTA is never hidden behind it — previously both sat at `bottom-0 z-20` and collided.
-export function FavouritesFooter({ itemCount, total, onAddAllToCart }: Props) {
+// In-flow CTA — rendered under the selected-dishes summary table (no longer a floating
+// pill). The table already shows the qty + total, so the button is just a centered
+// action label; the right edge is kept clear of the floating speed-dial FAB.
+export function FavouritesFooter({ itemCount, onAddAllToCart }: Props) {
   return (
-    <div className="fixed bottom-[calc(72px+env(safe-area-inset-bottom))] left-0 right-0 z-20 bg-[#fff7ed] border-t border-border px-4 py-3 space-y-2">
-      <div className="flex items-center justify-between text-sm">
-        <span className="text-muted-fg">{itemCount} món</span>
-        <span className="text-foreground">
-          Tổng: <span className="font-bold text-primary">{formatVND(total)}</span>
-        </span>
-      </div>
-      <Button onClick={onAddAllToCart} size="lg" className="w-full">
-        🛒 Thêm tất cả vào giỏ hàng
-      </Button>
+    <div className="px-4 pb-4">
+      <button
+        onClick={onAddAllToCart}
+        className="w-full rounded-full bg-primary px-5 py-3.5 text-center text-white font-semibold shadow-lg shadow-primary/30 active:scale-[0.98] transition-transform"
+      >
+        🛒 Thêm tất cả vào giỏ · {itemCount} món
+      </button>
     </div>
   )
 }

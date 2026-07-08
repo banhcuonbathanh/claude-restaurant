@@ -72,7 +72,7 @@ export default function SaveSetPage() {
 
   const onSubmit = (data: FormData) => {
     addSet(data.name.trim())
-    router.push('/menu/favourites/sets')
+    router.push('/menu/favourites')
   }
 
   return (

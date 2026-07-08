@@ -71,6 +71,9 @@ Thay đổi từ v1.0: Là SINGLE SOURCE duy nhất — MASTER.docx §7 và API_
 | 422 | FILE_TOO_LARGE | File vượt 10MB | Upload ảnh 15MB |
 | 429 | RATE_LIMIT_EXCEEDED | Vượt rate limit (60 req/min/IP) | Brute force login |
 | 500 | INTERNAL_ERROR | Lỗi server không xác định — log server-side, KHÔNG expose chi tiết | DB connection drop, panic |
+| 200 + SSE `error` event | CHAT_001 | Trợ lý AI chưa cấu hình / không khả dụng (thiếu ANTHROPIC_API_KEY) — /chat đã mở stream nên lỗi đi qua event, không qua HTTP status | POST /chat khi BE không có API key |
+| 400 / 403 / 404 | CHAT_002 | Pending action không hợp lệ khi confirm: 404 không còn pending · 403 sai session/caller · 400 dữ liệu pending hỏng hoặc loại action không hỗ trợ | POST /chat/confirm với action_id sai |
+| 200 + SSE `error` event | CHAT_003 | Model từ chối yêu cầu hoặc gọi Anthropic API thất bại giữa stream | Anthropic API lỗi khi đang chat |
 
 # Section 3 — Go Handler Pattern
 **Tất cả handlers phải dùng helper function chuẩn. Không viết gin.H{} trực tiếp mỗi nơi.**

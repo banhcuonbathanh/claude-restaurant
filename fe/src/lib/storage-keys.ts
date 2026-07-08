@@ -4,4 +4,5 @@ export const STORAGE_KEYS = {
   FAVOURITES:       'favourites',
   CUSTOMER_SETTINGS: 'customer-settings',
   CART_CONFIG:      'cart-config-v3',
+  CHAT_SESSION:     'chat-session-id',
 } as const

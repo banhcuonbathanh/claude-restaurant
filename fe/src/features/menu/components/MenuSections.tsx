@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useMemo, useRef } from 'react'
 import { ComboSection } from './ComboSection'
+import { CustomSuatSection } from './CustomSuatSection'
 import { ProductList } from './ProductList'
 import type { Product, Combo, Category } from '@/types/product'
 
@@ -8,6 +9,7 @@ export interface MenuSection { id: string; label: string }
 
 export const ALL_SECTION_ID = 'all'
 const COMBO_SECTION_ID = 'sec-combo'
+const SUAT_SECTION_ID = 'sec-suat'
 
 // DOM id for a section anchor — shared by the page so the sticky tabs can
 // scrollIntoView() the matching section and the scroll-spy can measure it.
@@ -20,6 +22,7 @@ export function buildMenuSections(
   products: Product[],
   combos: Combo[],
   categories: Category[],
+  hasCustomSuats: boolean,
 ): MenuSection[] {
   const withProducts = new Set(products.map(p => p.category_id))
   const cats = [...categories]
@@ -27,18 +30,20 @@ export function buildMenuSections(
     .sort((a, b) => a.sort_order - b.sort_order)
   return [
     ...(combos.length > 0 ? [{ id: COMBO_SECTION_ID, label: 'Suất' }] : []),
+    ...(hasCustomSuats ? [{ id: SUAT_SECTION_ID, label: 'Suất tự tạo' }] : []),
     ...cats.map(c => ({ id: `sec-${c.id}`, label: c.name })),
   ]
 }
 
 interface Props {
   products:       Product[]
+  allProducts:    Product[]   // unfiltered (incl. canh) — needed to resolve saved suất lines
   combos:         Combo[]
   sections:       MenuSection[]
   onActiveChange: (id: string) => void
 }
 
-export function MenuSections({ products, combos, sections, onActiveChange }: Props) {
+export function MenuSections({ products, allProducts, combos, sections, onActiveChange }: Props) {
   const grouped = useMemo(() => {
     const map = new Map<string, Product[]>()
     for (const p of products) {
@@ -98,6 +103,13 @@ export function MenuSections({ products, combos, sections, onActiveChange }: Pro
           return (
             <div key={sec.id} id={sectionDomId(sec.id)} className="scroll-mt-[160px]">
               <ComboSection combos={combos} visible />
+            </div>
+          )
+        }
+        if (sec.id === SUAT_SECTION_ID) {
+          return (
+            <div key={sec.id} id={sectionDomId(sec.id)} className="scroll-mt-[160px]">
+              <CustomSuatSection products={allProducts} visible />
             </div>
           )
         }

@@ -17,6 +17,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redis/go-redis/v9"
 
+	"banhcuon/be/internal/ai"
 	"banhcuon/be/internal/handler"
 	"banhcuon/be/internal/jobs"
 	"banhcuon/be/internal/middleware"
@@ -95,6 +96,16 @@ func main() {
 	taskSvc        := service.NewTaskService(taskRepo)
 	trainingSvc    := service.NewTrainingService(trainingRepo)
 
+	// AI chat — aiClient is nil when ANTHROPIC_API_KEY is unset (chat responds CHAT_001).
+	var chatAI service.ChatAI
+	if aiClient := ai.NewClientFromEnv(); aiClient != nil {
+		chatAI = aiClient
+		log.Printf("AI chat enabled (model: %s)", aiClient.Model())
+	} else {
+		log.Println("AI chat disabled: ANTHROPIC_API_KEY not set")
+	}
+	chatSvc := service.NewChatService(chatAI, productSvc, orderSvc, rdb)
+
 	// ── 6. WebSocket Hub ──────────────────────────────────────────────────────
 	hub := ws.NewHub()
 	go hub.Run()
@@ -113,6 +124,7 @@ func main() {
 	marketingH   := handler.NewMarketingHandler()
 	taskH        := handler.NewTaskHandler(taskSvc)
 	trainingH    := handler.NewTrainingHandler(trainingSvc)
+	chatH        := handler.NewChatHandler(chatSvc)
 
 	// ── 8. Router ─────────────────────────────────────────────────────────────
 	r := gin.New()
@@ -264,6 +276,12 @@ func main() {
 	v1.PATCH("/orders/items/:id/quantity", authMW, orderH.UpdateItemQuantity)
 	v1.PATCH("/orders/items/:id", authMW, middleware.AtLeast("chef"), orderH.UpdateItemServed)
 	v1.DELETE("/orders/items/:id", authMW, orderH.CancelItem)
+
+	// ── AI Chat (guest or staff — scoped by JWT inside the service) ──────────
+	chatR := v1.Group("/chat")
+	chatR.Use(authMW)
+	chatR.POST("", chatH.Chat)
+	chatR.POST("/confirm", chatH.Confirm)
 
 	// ── Payments ──────────────────────────────────────────────────────────────
 	payR := v1.Group("/payments")

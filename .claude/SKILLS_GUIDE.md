@@ -74,6 +74,21 @@ These activate silently when you work in the relevant domain. Claude reads them 
 
 ---
 
+### `/devops`
+**Triggers when:** You touch infra files — `docker-compose.yml`, `Dockerfile`, `Caddyfile`, `.env.example`, `.github/workflows/`, `scripts/`.
+
+**What it enforces:**
+- Current 10-service compose stack (incl. monitoring: Prometheus/Grafana/Loki/Promtail)
+- BE build context is the repo ROOT (`context: .`), not `be/`
+- 3-place env-var sync: `main.go` + `docker-compose.yml` + `.env.example` in the same change
+- Never `docker compose down -v` casually — `-v` deletes mysql_data
+- Caddy route table: new BE route prefixes must be added or they silently hit the FE
+- Ownership boundary: devops task never edits `be/`/`fe/` app source
+
+**Enforcement:** all four code-domain skills above are ALSO enforced by a PreToolUse hook (`.claude/hooks/rule-reminder.sh` + `hooks` in `.claude/settings.json`) — every Edit/Write to a matching path injects the rule pointer into Claude's context automatically. Rule map mirror: `CLAUDE.md §Rule Routing`.
+
+---
+
 ## Explicit command skills (you invoke these)
 
 ---
@@ -285,6 +300,8 @@ WRITING CODE
   Next.js frontend    → auto (frontend-nextjs skill)
   Order/payment logic → auto (order-flow skill)
   DB migration        → auto (db-migration skill)
+  Infra/Docker/Caddy  → auto (devops skill)
+  (all enforced by PreToolUse hook — .claude/hooks/rule-reminder.sh)
 
 WIREFRAMES
   New page drawing    → /excalidraw <page-name>

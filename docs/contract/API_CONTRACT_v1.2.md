@@ -532,6 +532,41 @@ const WS_RECONNECT = {
 | → SINGLE SOURCE: ERROR_CONTRACT_v1.1.md — Không định nghĩa error codes trong file này. Mọi error code, HTTP mapping, Go handler pattern, FE interceptor pattern → xem ERROR_CONTRACT_v1.1.md. |
 | --- |
 
+# Section 14 — AI Chat (NEW)
+| ℹ️ Trợ lý AI cho khách (widget trên các trang (shop)). Write tools (create_order, cancel_order) KHÔNG thực thi ngay — BE giữ pending action, chỉ thực thi sau POST /chat/confirm. Full spec: chat-feature/PLAN.md. |
+| --- |
+
+| Method | Endpoint | Mô Tả | Role |
+| --- | --- | --- | --- |
+| POST | /api/v1/chat | Chat 1 lượt với trợ lý AI — SSE stream: events text · proposal · done · error | Customer+ |
+| POST | /api/v1/chat/confirm | Xác nhận / từ chối pending action do AI đề xuất | Customer+ |
+
+## POST /chat — Request Body
+| Field | Type | Required | Mô Tả |
+| --- | --- | --- | --- |
+| session_id | string | Optional | Bỏ trống → BE tạo session mới |
+| message | string | Required | Tin nhắn của khách |
+| table_id | string (UUID) | Optional | Bàn hiện tại (từ QR) |
+| order_id | string (UUID) | Optional | Đơn đang theo dõi |
+
+| // SSE event payloads (mỗi event: data = JSON):
+event: text      data: {"text":"..."}
+event: proposal  data: {"action_id":"...","tool":"create_order","summary":"...","input":{...}}
+event: done      data: {"session_id":"..."}
+event: error     data: {"code":"CHAT_001","message":"..."} |
+| --- |
+
+## POST /chat/confirm — Request Body
+| Field | Type | Required | Mô Tả |
+| --- | --- | --- | --- |
+| session_id | string | Required | Session đang có pending action |
+| action_id | string | Required | ID của proposal (từ event proposal) |
+| approve | boolean | Required | true = thực thi · false = huỷ |
+
+| // Response 200:
+{ "status": "executed"│"rejected", "message": "...", "order_id"?, "order_number"?, "data_updated": bool } |
+| --- |
+
 # Changelog
 | Version | Date | Changes |
 | --- | --- | --- |

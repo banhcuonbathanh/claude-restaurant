@@ -46,5 +46,20 @@
     "additionalDirectories": [
       "/Users/monghoaivu/Desktop/code/claude restaurant/.claude/skills"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/rule-reminder.sh\"",
+            "timeout": 10,
+            "statusMessage": "Checking domain rules…"
+          }
+        ]
+      }
+    ]
   }
 }

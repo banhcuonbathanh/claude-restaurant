@@ -1,7 +1,6 @@
 'use client'
 import Image from 'next/image'
-import { Heart } from 'lucide-react'
-import { QuantityStepper } from '@/components/shared/QuantityStepper'
+import { Heart, Minus, Plus } from 'lucide-react'
 import { formatVND } from '@/lib/utils'
 import type { FavouriteItemResolved } from '@/store/favourites'
 
@@ -11,81 +10,81 @@ interface Props {
   onQtyChange: (id: string, qty: number) => void
 }
 
+// Mirrors the menu ProductCard layout (image · content · price+qty column) so the
+// favourites list reads with the same visual language: heart badge on the image,
+// orange bold price, and a grey-minus / orange-plus round qty control.
 export function FavouriteItemCard({ item, onRemove, onQtyChange }: Props) {
-  const isCombo = item.type === 'combo'
+  const hasDetail = item.selectedToppings.length > 0 || item.comboItems.length > 0
 
   return (
-    <div className="bg-card rounded-xl shadow-sm overflow-hidden">
-      <div className="flex gap-3 p-3">
-        {/* Image */}
-        <div className="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-muted">
+    <div className="bg-card rounded-xl flex gap-3 p-3 shadow-sm">
+      {/* Image + heart badge */}
+      <div className="relative w-20 flex-shrink-0" style={{ minHeight: '80px' }}>
+        <div className="relative block w-20 h-20 rounded-lg overflow-hidden bg-muted">
           {item.imageUrl ? (
             <Image
               src={item.imageUrl}
               alt={item.name}
               fill
               className="object-cover"
-              sizes="64px"
+              sizes="80px"
               onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-xl">🍜</div>
+            <div className="absolute inset-0 flex items-center justify-center text-2xl">🍜</div>
           )}
         </div>
-
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-1.5 flex-1 min-w-0">
-              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase flex-shrink-0
-                ${isCombo ? 'bg-primary text-white' : 'bg-muted text-muted-fg'}`}>
-                {isCombo ? 'Combo' : 'Món lẻ'}
-              </span>
-              <p className="text-foreground text-sm font-semibold line-clamp-1">{item.name}</p>
-            </div>
-            <button
-              onClick={() => onRemove(item.id)}
-              className="min-h-[44px] min-w-[44px] flex items-center justify-center flex-shrink-0"
-              aria-label="Xoá khỏi yêu thích"
-            >
-              <Heart size={18} className="fill-red-500 text-red-500" />
-            </button>
-          </div>
-          <p className="text-muted-fg text-xs mt-0.5">{formatVND(item.basePrice)}/phần</p>
-        </div>
+        <button
+          onClick={() => onRemove(item.id)}
+          className="absolute top-1 right-1 bg-white/80 rounded-full p-1.5"
+          aria-label="Xoá khỏi yêu thích"
+        >
+          <Heart size={16} className="fill-primary text-primary" />
+        </button>
       </div>
 
-      {/* Toppings / combo items detail */}
-      {(item.selectedToppings.length > 0 || item.comboItems.length > 0) && (
-        <div className="mx-3 mb-2 pt-2 border-t border-border space-y-0.5">
-          {item.comboItems.map(ci => (
-            <div key={ci.name} className="flex justify-between text-xs text-muted-fg">
-              <span>• {ci.name} × {ci.qty}</span>
-            </div>
-          ))}
-          {item.selectedToppings.map(t => (
-            <div key={t.id} className="flex justify-between text-xs text-muted-fg">
-              <span>+ {t.name}</span>
-              <span>{formatVND(t.price)}</span>
-            </div>
-          ))}
-          {item.selectedToppings.length > 0 && (
-            <div className="flex justify-between text-xs font-semibold text-foreground pt-1">
-              <span>Tổng/phần</span>
-              <span>{formatVND(item.subtotalPerPortion)}</span>
-            </div>
-          )}
-        </div>
-      )}
+      {/* Content — name + topping/combo detail */}
+      <div className="flex-1 min-w-0 flex flex-col gap-1">
+        <p className="text-foreground text-sm font-semibold leading-snug line-clamp-2">
+          {item.name}
+        </p>
+        {hasDetail && (
+          <div className="text-muted-fg text-xs space-y-0.5">
+            {item.comboItems.map(ci => (
+              <p key={ci.name} className="line-clamp-1">• {ci.name} × {ci.qty}</p>
+            ))}
+            {item.selectedToppings.map(t => (
+              <p key={t.id} className="line-clamp-1">+ {t.name}</p>
+            ))}
+          </div>
+        )}
+      </div>
 
-      {/* Qty stepper */}
-      <div className="flex justify-end px-3 pb-3">
-        <QuantityStepper
-          value={item.qty}
-          min={1}
-          onChange={(n) => onQtyChange(item.id, n)}
-          size="sm"
-        />
+      {/* Right column — orange price + qty control */}
+      <div className="flex-shrink-0 w-28 flex flex-col items-stretch gap-2.5">
+        <p className="text-primary font-bold text-sm text-center">
+          {formatVND(item.subtotalPerPortion)}
+        </p>
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => onQtyChange(item.id, item.qty - 1)}
+            disabled={item.qty <= 1}
+            className="bg-muted text-foreground w-8 h-8 rounded-full flex items-center justify-center
+                       hover:bg-muted/80 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            aria-label="Giảm số lượng"
+          >
+            <Minus size={14} />
+          </button>
+          <span className="text-foreground text-sm font-bold text-center">{item.qty}</span>
+          <button
+            onClick={() => onQtyChange(item.id, item.qty + 1)}
+            className="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center
+                       hover:bg-primary/90 transition-colors"
+            aria-label="Tăng số lượng"
+          >
+            <Plus size={14} />
+          </button>
+        </div>
       </div>
     </div>
   )

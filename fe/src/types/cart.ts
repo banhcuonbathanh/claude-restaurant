@@ -17,5 +17,6 @@ export interface CartItem {
   quantity:          number
   price:             number    // unit price (product.price + selected toppings)
   toppings:          Topping[]
+  note?:             string    // free-text ghi chú (e.g. trứng note from "Tự tạo suất") → order item note
   combo_items?:      ComboItemSummary[]
 }

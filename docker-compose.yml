@@ -64,8 +64,14 @@ services:
       ZALOPAY_ENDPOINT: ${ZALOPAY_ENDPOINT:-}
       WEBHOOK_BASE_URL: ${WEBHOOK_BASE_URL:-http://localhost:8080}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      AI_CHAT_MODEL: ${AI_CHAT_MODEL:-claude-opus-4-8}
+      AI_CHAT_CONTEXT_PATH: ${AI_CHAT_CONTEXT_PATH:-chat-feature/chat_context.md}
     volumes:
       - uploads_data:/var/www/uploads
+      # AI chat system prompt — dir-mounted (not single file) so editor save-swaps
+      # still propagate; BE re-reads it per message, no rebuild needed
+      - ./chat-feature:/app/chat-feature:ro
     ports:
       - "8080:8080"
 

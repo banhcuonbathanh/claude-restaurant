@@ -45,12 +45,15 @@ export function buildOrderItemsPayload(items: CartItem[]): OrderItemPayload[] {
       rows.push(row)
     } else {
       // Standalone products (including canh items) pass through directly.
-      rows.push({
+      const row: OrderItemPayload = {
         product_id:  item.product_id ?? null,
         combo_id:    null,
         quantity:    item.quantity,
         topping_ids: item.toppings.map(t => t.id),
-      })
+      }
+      // Ghi chú (e.g. trứng note from "Tự tạo suất") rides along as the item note.
+      if (item.note?.trim()) row.note = item.note.trim()
+      rows.push(row)
     }
   }
 

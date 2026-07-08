@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -7,14 +7,14 @@ import { api } from '@/lib/api-client'
 import { useFavouritesStore } from '@/store/favourites'
 import { useCartStore } from '@/store/cart'
 import { FavouritesTopNav } from './components/FavouritesTopNav'
-import { FavouriteSegmentTabs } from './components/FavouriteSegmentTabs'
-import { FavouriteFilterTabs } from './components/FavouriteFilterTabs'
 import { FavouriteItemCard } from './components/FavouriteItemCard'
+import { SavedSuatCard } from './components/SavedSuatCard'
 import { CanhQuickAdd } from './components/CanhQuickAdd'
+import { SelectedDishesSummary } from './components/SelectedDishesSummary'
 import { FavouritesFooter } from './components/FavouritesFooter'
 import { EmptyState } from '@/components/shared/EmptyState'
 import type { Product, ComboRaw } from '@/types/product'
-import type { FavouriteItemResolved, FavouriteTab } from '@/store/favourites'
+import type { FavouriteItemResolved } from '@/store/favourites'
 import type { CartItem } from '@/types/cart'
 
 // Canh is stepper-only (có rau / không rau are two distinct real products, rau is
@@ -24,10 +24,10 @@ const isSoupName = (name: string) =>
 
 export default function FavouritesPage() {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<FavouriteTab>('all')
 
-  const { items, removeItem, updateQty } = useFavouritesStore()
+  const { items, suats, removeItem, updateQty, deleteSuat } = useFavouritesStore()
   const addToCart = useCartStore(s => s.addItem)
+  const cartItems = useCartStore(s => s.items)
 
   const { data: allProducts = [], isSuccess: productsLoaded } = useQuery<Product[]>({
     queryKey: ['products-all'],
@@ -96,20 +96,11 @@ export default function FavouritesPage() {
     }
   })
 
-  const filteredItems = activeTab === 'all'
-    ? resolvedItems
-    : resolvedItems.filter(i => i.type === activeTab)
-
-  const counts = {
-    all:     resolvedItems.length,
-    product: resolvedItems.filter(i => i.type === 'product').length,
-    combo:   resolvedItems.filter(i => i.type === 'combo').length,
-  }
-
-  // Live total row — Σ every favourite card's qty × per-portion price (all items,
-  // not just the active filter). Recomputes on stepper change / un-favourite.
-  const favCount = resolvedItems.reduce((s, i) => s + i.qty, 0)
-  const favTotal = resolvedItems.reduce((s, i) => s + i.subtotalPerPortion * i.qty, 0)
+  // Count for the CTA label — full selection = every favourite card's qty PLUS the canh
+  // bowls (cart items `canh_*`), so it matches the summary table's "Tổng cộng" count.
+  const favCount =
+    resolvedItems.reduce((s, i) => s + i.qty, 0) +
+    cartItems.filter(i => i.id.startsWith('canh_')).reduce((s, i) => s + i.quantity, 0)
 
   const handleAddAllToCart = () => {
     resolvedItems.forEach(item => {
@@ -138,36 +129,57 @@ export default function FavouritesPage() {
     })
   }
 
-  const isEmpty = resolvedItems.length === 0
+  const hasFavItems = resolvedItems.length > 0
+  const hasSuats = suats.length > 0
+  const isEmpty = !hasFavItems && !hasSuats
 
   return (
-    <div className="min-h-screen bg-background pb-[calc(190px+env(safe-area-inset-bottom))]">
+    <div className="min-h-screen bg-background pb-[calc(96px+env(safe-area-inset-bottom))]">
       <FavouritesTopNav title="❤ Yêu thích" showCart onBack={() => router.back()} />
-      <FavouriteSegmentTabs />
 
       {isEmpty ? (
         <EmptyState icon="♡" message="Nhấn ♥ trên món ăn bất kỳ để thêm" />
       ) : (
         <>
-          <FavouriteFilterTabs active={activeTab} counts={counts} onChange={setActiveTab} />
-          <div className="space-y-3 p-4">
-            {filteredItems.map(item => (
-              <FavouriteItemCard
-                key={item.id}
-                item={item}
-                onRemove={removeItem}
-                onQtyChange={updateQty}
+          {hasSuats && (
+            <section className="p-4 pb-0 space-y-3">
+              <h2 className="text-sm font-semibold text-muted-fg uppercase tracking-wide">
+                🍽️ Suất đã lưu
+              </h2>
+              {suats.map(suat => (
+                <SavedSuatCard
+                  key={suat.id}
+                  suat={suat}
+                  products={allProducts}
+                  onDelete={deleteSuat}
+                />
+              ))}
+            </section>
+          )}
+
+          {hasFavItems && (
+            <>
+              <div className="space-y-3 p-4">
+                {resolvedItems.map(item => (
+                  <FavouriteItemCard
+                    key={item.id}
+                    item={item}
+                    onRemove={removeItem}
+                    onQtyChange={updateQty}
+                  />
+                ))}
+              </div>
+
+              <CanhQuickAdd canhCoRau={canhCoRau} canhKhongRau={canhKhongRau} />
+
+              <SelectedDishesSummary items={resolvedItems} />
+
+              <FavouritesFooter
+                itemCount={favCount}
+                onAddAllToCart={handleAddAllToCart}
               />
-            ))}
-          </div>
-
-          <CanhQuickAdd canhCoRau={canhCoRau} canhKhongRau={canhKhongRau} />
-
-          <FavouritesFooter
-            itemCount={favCount}
-            total={favTotal}
-            onAddAllToCart={handleAddAllToCart}
-          />
+            </>
+          )}
         </>
       )}
     </div>

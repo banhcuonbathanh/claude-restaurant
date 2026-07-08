@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { ShoppingCart, Pencil, Trash2, Check, X } from 'lucide-react'
+import { ShoppingCart, Pencil, Trash2, Check, X, Pin } from 'lucide-react'
 import { formatVND } from '@/lib/utils'
 import type { FavouriteSet } from '@/store/favourites'
 import type { FavouriteItemResolved } from '@/store/favourites'
@@ -11,9 +11,10 @@ interface Props {
   onApply:       (id: string) => void
   onRename:      (id: string, name: string) => void
   onDelete:      (id: string) => void
+  onTogglePin:   (id: string) => void
 }
 
-export function SetCard({ set, resolvedItems, onApply, onRename, onDelete }: Props) {
+export function SetCard({ set, resolvedItems, onApply, onRename, onDelete, onTogglePin }: Props) {
   const [renaming, setRenaming] = useState(false)
   const [nameInput, setNameInput] = useState(set.name)
 
@@ -46,7 +47,9 @@ export function SetCard({ set, resolvedItems, onApply, onRename, onDelete }: Pro
             </button>
           </div>
         ) : (
-          <p className="text-sm font-semibold text-foreground flex-1 truncate">📋 {set.name}</p>
+          <p className="text-sm font-semibold text-foreground flex-1 truncate">
+            {set.pinned && '📌 '}📋 {set.name}
+          </p>
         )}
       </div>
 
@@ -84,6 +87,16 @@ export function SetCard({ set, resolvedItems, onApply, onRename, onDelete }: Pro
           >
             <ShoppingCart size={14} />
             Áp dụng
+          </button>
+          <button
+            onClick={() => onTogglePin(set.id)}
+            className={`min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors ${
+              set.pinned ? 'text-primary' : 'text-muted-fg hover:text-foreground'
+            }`}
+            aria-label={set.pinned ? 'Bỏ ghim khỏi Menu' : 'Ghim lên Menu'}
+            aria-pressed={set.pinned}
+          >
+            <Pin size={14} className={set.pinned ? 'fill-primary' : ''} />
           </button>
           <button
             onClick={() => { setNameInput(set.name); setRenaming(true) }}

@@ -2,9 +2,10 @@
 
 > **TL;DR:** every BE endpoint the menu page calls, traced handler → service → repository →
 > SQL, with auth, caching and error behaviour. Traced from source on branch
-> `experience_claude.md_system_1_test_iphon2_change_code` (NOT from docs).
+> `docs/customer-menu-alignment` (NOT from docs; re-verified 2026-07-05).
 > Sources: `be/cmd/server/main.go` (routes) · `be/internal/handler/product_handler.go` ·
-> `be/internal/service/product_service.go` · `be/internal/handler/order_handler.go`.
+> `be/internal/service/product_service.go` · `be/internal/handler/order_handler.go` ·
+> `be/internal/handler/auth_handler.go` (online-guest).
 >
 > FE view + zones → [customer_menu.md](customer_menu.md) ·
 > Object shapes (all layers) → [customer_menu.md §Object Model](customer_menu.md#object-model--menu-page-fe--be--db) ·
@@ -19,19 +20,27 @@
 | 1 | `GET /categories` | public | `productH.ListCategories` | `ListCategories` | `ListCategories` (active only) | `categories:list` |
 | 2 | `GET /products` | public | `productH.ListProducts` | `ListProducts` | `ListProductsAvailable` | `products:list` |
 | 3 | `GET /combos` | public | `productH.ListCombos` | `ListCombos` | `ListCombosAvailable` | `combos:list` |
-| 4 | `POST /orders` | authMW (guest JWT OK) | `orderH.Create` | order service | tx: insert order + items | — |
-| 5 | `POST /orders/:id/items` | authMW (guest JWT OK) | `orderH.AddItemsToOrder` | order service | tx: insert items + recalc total | — |
-| 6 | `GET /orders/:id` | authMW | `orderH.Get` | order service | order + items + table join | — |
+| 4 | `POST /auth/guest/online` | public | `authH.OnlineGuest` | `OnlineGuestLogin` | — (stateless JWT) | — |
+| 5 | `POST /orders` | authMW (guest JWT OK) | `orderH.Create` | order service | tx: insert order + items | — |
+| 6 | `POST /orders/:id/items` | authMW (guest JWT OK) | `orderH.AddItemsToOrder` | order service | tx: insert items + recalc total | — |
+| 7 | `GET /orders/:id` | authMW | `orderH.Get` | order service | order + items + table join | — |
 
-Route registration: `be/cmd/server/main.go:167-228` (products/categories/combos groups) and
-`:230-251` (orders group). All under `/api/v1`.
+Route registration: `be/cmd/server/main.go:167-228` (products/categories/combos groups),
+`:230-251` (orders group), and `main.go:173` (`authR.POST("/guest/online", authH.OnlineGuest)`).
+All under `/api/v1`.
 
 ## Auth Model on This Page
 
 - **Catalog GETs (1–3) are fully public** — no `authMW` on the GET routes. The page can browse
-  without any token; the guest JWT from `/table/:tableId` is only needed once the cart submits.
-- **Write routes (4–6) require `authMW`** — the guest JWT (`sub='guest'`, carries `table_id`)
-  passes; `created_by` stays NULL for customer self-orders (set only from staff JWTs).
+  without any token; a write token is only needed once the cart submits.
+- **Two guest-JWT sources feed the write routes:**
+  - **QR / table path** — the guest JWT from `/table/:tableId` (`sub='guest'`, carries `table_id`).
+  - **Online path** — `POST /auth/guest/online` (endpoint 4) mints a table-less 2h guest JWT.
+    `page.tsx` auto-calls it on every no-table, unauthenticated visit (guarded by `mintedRef`) so an
+    anonymous visitor can add items and reach `/checkout` to place a `source='online'` order without
+    being bounced to `/login`.
+- **Write routes (5–7) require `authMW`** — either guest JWT passes; `created_by` stays NULL for
+  customer self-orders (set only from staff JWTs).
 - Catalog **mutations** are staff-only and not used by this page: writes `AtLeast("manager")`,
   deletes `AtLeast("admin")` (`main.go` route groups).
 
@@ -64,10 +73,24 @@ Route registration: `be/cmd/server/main.go:167-228` (products/categories/combos 
   [{id, product_id, quantity}]` — **ids only**; product names/prices are resolved FE-side by
   joining against `GET /products` (see [customer_menu.md §4](customer_menu.md#4--combo-two-fe-shapes-raw-wire--enriched)).
 
-### 4 · `POST /orders` (TableConfirmModal — QR path)
+### 4 · `POST /auth/guest/online` (online no-table path)
+
+- Handler `OnlineGuest` (`auth_handler.go:209-225`): takes **no request body**; calls
+  `svc.OnlineGuestLogin(ctx)` and returns `{ access_token, expires_in }`.
+- Service issues a **stateless 2h guest JWT NOT bound to any table** — this is what distinguishes it
+  from the QR guest token (which carries `table_id`).
+- Called by `page.tsx` (`useEffect`, lines ~55-75) only when there is no `tableId` and no existing
+  `accessToken`; the minted token then authorises endpoints 5-7 for a `source='online'` order.
+
+### 5 · `POST /orders` (TableConfirmModal — QR path · and online checkout)
 
 FE sends (`TableConfirmModal.tsx:20-27`): `source:'qr'`, `table_id` from cart store,
-`customer_name`/`customer_phone` empty, `items` from `buildOrderItemsPayload()`.
+`customer_name`/`customer_phone` empty, `items` from `buildOrderItemsPayload()`. The online path posts
+the same shape from `/checkout` with `source:'online'` and no `table_id`.
+
+> Each item may carry a `filling` field (`thit` / `moc_nhi` / null) and combo sub-item overrides —
+> both produced by the single `buildOrderItemsPayload()` builder and honoured server-side (OC epic,
+> `order_items.filling` column, migration 016).
 
 BE behaviour (full DTO + DB mapping → OBJECT_MODEL_ORDER §2.3–§2.6):
 
@@ -79,14 +102,14 @@ BE behaviour (full DTO + DB mapping → OBJECT_MODEL_ORDER §2.3–§2.6):
 - `created_by` NULL (guest), `status` starts `pending`, `order_number` from Redis counter with
   DB `order_sequences` fallback.
 
-### 5 · `POST /orders/:id/items` (`?add_to_order=` mode)
+### 6 · `POST /orders/:id/items` (`?add_to_order=` mode)
 
 - FE helper in `lib/api-client.ts:68` posts `{ items }` (same `buildOrderItemsPayload()` output)
   onto the existing order instead of creating one.
 - BE `AddItemsToOrder` appends rows with the same snapshot/expansion rules, then
   `recalculateTotalAmount` updates the denormalized `orders.total_amount`.
 
-### 6 · `GET /orders/:id` (post-submit fetch)
+### 7 · `GET /orders/:id` (post-submit fetch)
 
 After a successful create, FE immediately re-fetches the full order and caches it in
 localStorage under `STORAGE_KEYS.ORDER_CACHE` (`TableConfirmModal.tsx:33-40`). Response shape →

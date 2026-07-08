@@ -24,6 +24,7 @@ tags:
   - name: Orders
   - name: Payments
   - name: Tables
+  - name: Chat
 
 components:
   securitySchemes:
@@ -721,3 +722,109 @@ paths:
                 status:   { type: string, enum: [available, occupied, reserved] }
       responses:
         "200": { description: Updated }
+
+  # ── Chat (AI assistant) ───────────────────────────────────────────────────
+  /api/v1/chat:
+    post:
+      tags: [Chat]
+      summary: Chat with the AI assistant — SSE stream
+      description: |
+        One conversation turn. Responds with a Server-Sent Events stream
+        (`text/event-stream`), events: `text` · `proposal` · `done` · `error`,
+        each with a JSON `data:` payload.
+
+        Write actions (create_order, cancel_order) are NEVER executed directly —
+        they arrive as a `proposal` event and must be approved via
+        `POST /api/v1/chat/confirm`. Errors after the stream opens travel as an
+        `error` event (`CHAT_001` AI not configured · `CHAT_003` model failed/refused),
+        not as an HTTP status.
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                session_id: { type: string, description: Omit to start a new session }
+                message:    { type: string, example: "Cho tôi 2 bánh cuốn thịt" }
+                table_id:   { type: string, format: uuid }
+                order_id:   { type: string, format: uuid }
+      responses:
+        "200":
+          description: SSE stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                example: |
+                  event: text
+                  data: {"text":"..."}
+
+                  event: proposal
+                  data: {"action_id":"...","tool":"create_order","summary":"...","input":{}}
+
+                  event: done
+                  data: {"session_id":"..."}
+
+                  event: error
+                  data: {"code":"CHAT_001","message":"..."}
+        "400":
+          description: Invalid body
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401":
+          description: Missing/invalid token
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /api/v1/chat/confirm:
+    post:
+      tags: [Chat]
+      summary: Approve or reject the pending AI-proposed action
+      description: |
+        Human approval gate. Executes the pending write action deterministically
+        (no second model round-trip) when `approve=true`; clears it when `approve=false`.
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [session_id, action_id, approve]
+              properties:
+                session_id: { type: string }
+                action_id:  { type: string }
+                approve:    { type: boolean }
+      responses:
+        "200":
+          description: Executed or rejected
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:       { type: string, enum: [executed, rejected] }
+                  message:      { type: string }
+                  order_id:     { type: string }
+                  order_number: { type: string }
+                  data_updated: { type: boolean }
+        "400":
+          description: Invalid body (INVALID_INPUT) or unsupported/corrupt pending action (CHAT_002)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "403":
+          description: Pending action does not belong to this session/caller (CHAT_002)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "404":
+          description: No pending action awaiting confirmation (CHAT_002)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }

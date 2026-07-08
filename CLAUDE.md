@@ -113,6 +113,20 @@ Only after Step 5 is confirmed → follow the 7-step workflow below.
 
 ---
 
+## Rule Routing — touch a file → read its rule (hook-enforced)
+
+> A PreToolUse hook (`.claude/hooks/rule-reminder.sh`) injects the matching rule pointer on **every** Edit/Write. Read the rule during PLAN, not when the reminder fires.
+
+| Path touched | Rule to read first |
+|---|---|
+| `be/**/*.go` | `.claude/skills/backend-go/SKILL.md` |
+| `be/migrations/**` · `be/queries/**` · `sqlc.yaml` | `.claude/skills/db-migration/SKILL.md` |
+| `fe/src/**` | `.claude/skills/frontend-nextjs/SKILL.md` (router → per-concern rule files) |
+| `docker-compose*` · `Dockerfile*` · `Caddyfile` · `.env.example` · `.github/workflows/**` · `scripts/**` | `.claude/skills/devops/SKILL.md` |
+| Any file named `*order*` / `*payment*` / `*cancel*` / `*checkout*` / `*cart*` | ALSO `.claude/skills/order-flow/SKILL.md` |
+
+---
+
 ## Proactive Flags
 
 | Prefix | When to use |
