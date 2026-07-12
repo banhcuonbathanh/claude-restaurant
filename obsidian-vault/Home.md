@@ -7,6 +7,8 @@ tags: [moc]
 Hệ Thống Quản Lý Quán Bánh Cuốn — QR ordering + POS + kitchen display.
 This vault maps the whole project. Open the **graph view** to see how everything connects.
 
+> 🆕 First time here? Read [[Guideline]] — how to navigate, color the graph, and keep the vault in sync.
+
 ## Architecture
 
 - [[Architecture - Backend]] — Go 1.25 · Gin · sqlc · MySQL 8.0 · Redis

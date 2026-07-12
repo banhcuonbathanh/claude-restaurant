@@ -537,6 +537,25 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 ---
 
+## Phase QA-BE — Backend Quality Fixes (2026-07-12 BE audit)
+
+> **Owner:** BE
+> **Dependency:** Phase 4 ✅
+> **Status:** ⬜ NOT STARTED
+> **Goal:** Fix 6 findings from the BE quality audit (2026-07-12): price=0 rejected by binding tag, order-total recalc outside transaction, missing rate-limit middleware, untested payment HMAC code, no respondSuccess helper, 3 handlers skipping the service layer.
+> **Run plan:** designed for **1 session with sub-agents** — audit report: `docs/quality/QA_BE_REPORT_2026-07-12.md` · orchestration prompt: `docs/quality/QA_BE_PROMPT.md`. Wave 1: QA-BE-1 ∥ QA-BE-3 ∥ QA-BE-4 (Sonnet sub-agents) while driver does QA-BE-2 itself (order business rule → Opus per MODEL_SELECTION.md). Wave 2 after Wave 1 verified: QA-BE-5 ∥ QA-BE-6.
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| QA-BE-1 | BE | Fix: `Price int64 binding:"required,min=0"` rejects price=0 with 400 (Gin treats 0 as missing on numerics) — drop `required`, keep `min=0` at `product_handler.go:84,125,360` | — | 0.2 | ⬜ | go build+vet clean; POST/PUT product with `price:0` returns 2xx not 400; existing tests pass |
+| QA-BE-2 | BE | Fix: item cancel + qty-update recalc total OUTSIDE tx (`order_service.go:663-669, 717-723`) — failure between mutation and `RecalculateTotalAmount` leaves `total_amount` stale. Add tx-wrapped repo methods mirroring `order_repo.go:119/152` pattern | — | 0.5 | ⬜ | go build+vet clean; `go test ./be/internal/service/...` pass; delete/update + recalc run in ONE tx |
+| QA-BE-3 | BE | Add `middleware/ratelimit.go`: 60 req/min/IP → 429 with the rate-limit code from `ERROR_CONTRACT_v1.1.md` (read contract first — do NOT guess the code string); wire in `cmd/server/main.go` | — | 0.5 | ⬜ | go build+vet clean; 61st request within 1 min from same IP gets 429 + contract-format body (curl loop verify); normal traffic unaffected |
+| QA-BE-4 | BE | Unit tests for payment signature verification in `internal/payment/` (vnpay · momo · zalopay): valid signature accepted, tampered payload rejected, wrong secret rejected | — | 0.5 | ⬜ | `go test ./be/internal/payment/...` ≥ 6 tests pass (2 per gateway min); no production code changed |
+| QA-BE-5 | BE | Add `respondSuccess(c, status, data)` helper in `handler/respond.go` (`{"data": data}`) + mechanically refactor handlers already returning `gin.H{"data": ...}`. **Do NOT change `chat_handler.go:107` shape** (FE chat widget depends on unwrapped result) — leave it, add comment | QA-BE-1 ✅ | 0.5 | ⬜ | go build+vet clean; response JSON identical for all refactored endpoints; no remaining `gin.H{"data"` in refactored handlers |
+| QA-BE-6 | BE | Layer fix: `FileHandler`/`TableHandler` hold repository directly + `ingredientStatus()` business logic in `ingredient_handler.go:14` — introduce/extend service layer for all 3, handlers call service only; wire in `cmd/server/main.go` | QA-BE-3 ✅ | 1 | ⬜ | go build+vet clean; all tests pass; no `repository.*Repository` field on any handler struct; response shapes unchanged |
+
+---
+
 ## Critical Rules (Never Forget)
 
 | Rule | Detail |
