@@ -526,6 +526,17 @@ Task-level detail for phases completed 2026-05 onward → `docs/tasks/ARCHIVE_TA
 
 ---
 
+## Phase OBS — Obsidian Vault of the Project
+
+> **Owner:** Docs
+> **Status:** ✅ COMPLETE (2026-07-12)
+
+| ID | Owner | Task | Deps | Sessions | Status | AC |
+|---|---|---|---|---|---|---|
+| OBS-1 | Docs | Generate Obsidian vault at `obsidian-vault/` (repo root): one note per BE domain / FE page-feature / docs area with `[[wiki-links]]` between them + `Home.md` MOC + frontmatter tags for graph coloring. Net-new files only — no app code touched. | — | 1 | ✅ | 42 notes; link check script: 41 wiki-link targets, 0 broken. Content fact-checked vs source by 3 parallel Explore agents (BE/FE/docs) — 13 inaccuracies found + fixed. Drift discovered en route: CLAUDE.md cites `docs/system/AGENT_OS.md` but file is `AGENT_OS_check.md`; MASTER_v1.2 physically contains only §4+§6; `order_items.filling` dropped by migration 017 (nhân → `toppings_snapshot`); `SaveSuatModal.tsx` orphaned; `fe/src/components/menu/` + `features/orders/` empty; marketing handler = static stub |
+
+---
+
 ## Critical Rules (Never Forget)
 
 | Rule | Detail |
